@@ -1,0 +1,131 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\Common\Common.props" />
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <AssemblyName>OnXap.Standard.AspNetMvc.Package</AssemblyName>
+    <RootNamespace>OnXap</RootNamespace>
+    <!--<IncludeSymbols>False</IncludeSymbols>
+    <IncludeSource>True</IncludeSource>-->
+    <MinClientVersion>3.3.0</MinClientVersion>
+    <Version>0.1.7.59</Version>
+    <Description>Базовые модули для ядра на ASP.NET MVC.</Description>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>OnXap.Standard.AspNetMvc</PackageId>
+    <Product>OnXap</Product>
+	<LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.dll" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.dll" Pack="True" PackagePath="%(Link)" />
+    <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.pdb" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.pdb" Pack="True" PackagePath="%(Link)" />
+  </ItemGroup>
+  <ItemGroup>
+    <FileSource Include="..\Library\**\*.cs" Exclude="..\Library\obj*\**\*.*;">
+      <Link>src\Library\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </FileSource>
+    <FileContent Include="..\Library\Design\**\*" Exclude="..\Library\**\*.cs">
+      <Link>Design\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </FileContent>
+    <FileContent Include="..\Library\Data\**\*" Exclude="..\Library\**\*.cs">
+      <Link>Data\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </FileContent>
+    <FileContent Include="..\Library\Modules\**\*" Exclude="..\Library\**\*.cs">
+      <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </FileContent>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Linked\**" />
+    <EmbeddedResource Remove="Linked\**" />
+    <None Remove="Linked\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Binding\AspNetMvc\Package\Binding.Package.csproj" />
+    <ProjectReference Include="..\..\..\Core\Core\Core.csproj" />
+    <PackageReference Include="Microsoft.AspNet.Mvc.ru">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Razor.ru">
+      <Version>3.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebPages.ru">
+      <Version>3.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
+      <Version>2.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Mvc">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Razor">
+      <Version>3.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebPages">
+      <Version>3.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Web.Infrastructure">
+      <Version>1.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Target Name="CopyLinkedContentFiles" BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <FilesToClean Include="$(LinkedFolder)\**\*.*" />
+      <FoldersToClean Include="$([System.IO.Directory]::GetDirectories(&quot;$(LinkedFolder)&quot;, &quot;*&quot;, System.IO.SearchOption.AllDirectories))" Condition="Exists($(LinkedFolder))" />
+    </ItemGroup>
+    <!--<Message Text="%(FoldersToClean.Identity)" Importance="High" />
+    <Message Text="%(FilesToClean.Identity)" Importance="High" />-->
+
+    <Delete Files="@(FilesToClean)" />
+    <RemoveDir Directories="@(FoldersToClean);" />
+    <Copy SourceFiles="%(FileSource.Identity)" DestinationFiles="$(LinkedFolder)Source\%(FileSource.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(FileSource.Link)' != ''" />
+    <Copy SourceFiles="%(FileContent.Identity)" DestinationFiles="$(LinkedFolder)Content\%(FileContent.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(FileContent.Link)' != ''" />
+    <ItemGroup>
+      <None Include="$(LinkedFolder)Source\%(FileSource.Link)">
+        <Pack>true</Pack>
+        <Link>%(FileSource.Link)</Link>
+        <PackagePath>%(FileSource.Link)</PackagePath>
+      </None>
+      <Content Include="$(LinkedFolder)Content\%(FileContent.Link)">
+        <Pack>true</Pack>
+        <Link>%(FileContent.Link)</Link>
+        <PackagePath>content\%(FileContent.Link);contentFiles\any\$(TargetFramework)\%(FileContent.Link)</PackagePath>
+        <PackageCopyToOutput>true</PackageCopyToOutput>
+        <PackageFlatten>false</PackageFlatten>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <UsingTask TaskName="ReplaceFileText" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <Filename ParameterType="System.String" Required="true" />
+      <TargetFramework ParameterType="System.String" Required="true" />
+      <LinkedFolder ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var contents = File.ReadAllText(Filename);
+			contents = Regex.Replace(contents, "<contentFiles>.*</contentFiles>", "<contentFiles>\r\n    <files include=\"**/*\" buildAction=\"Content\" copyToOutput=\"true\" flatten=\"false\" />\r\n</contentFiles>", RegexOptions.Singleline);
+			contents = Regex.Replace(contents, "    <file src=\"[^\"]*\" target=\"content[^\"]*\" />\r\n", "");
+			contents = Regex.Replace(contents, "    <file src=\"[^\"]*\" target=\"src[^\"]*\" />\r\n", "");
+			contents = contents.Replace("<files>", "<files>\r\n    <file src=\"" + LinkedFolder + "Content\\\" target=\"content\" />\r\n    <file src=\"" + LinkedFolder + "Content\\\" target=\"contentFiles\\any\\" + TargetFramework + "\\\" />\r\n    <file src=\"" + LinkedFolder + "Source\\src\\\" target=\"src\" />");
+			File.WriteAllText(Filename, contents);
+          ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+  <Target Name="ChangeNuspec2" AfterTargets="GenerateNuspec" DependsOnTargets="$(GenerateNuspecDependsOn);_CalculateInputsOutputsForPack;_GetProjectReferenceVersions;_InitializeNuspecRepositoryInformationProperties">
+    <PropertyGroup>
+      <NuspecFileAbsolutePath>$(NuspecOutputAbsolutePath)$(PackageId).$(Version).nuspec</NuspecFileAbsolutePath>
+      <NuspecSymbolsFileAbsolutePath>$(NuspecOutputAbsolutePath)$(PackageId).$(Version).symbols.nuspec</NuspecSymbolsFileAbsolutePath>
+    </PropertyGroup>
+    <ReplaceFileText Filename="$(NuspecFileAbsolutePath)" TargetFramework="$(TargetFramework)" LinkedFolder="$(ProjectDir)$(LinkedFolder)" />
+    <Delete Files="$(ProjectDir)$(PackageOutputPath)$(PackageId).$(Version).symbols.nupkg" TreatErrorsAsWarnings="True" />
+    <Message Text="Path2 - $(NuspecOutputAbsolutePath) - $(PackageOutputPath) - $(NuspecFileAbsolutePath)" Importance="High" />
+    <PackTask PackItem="$(PackProjectInputFile)" PackageFiles="@(_PackageFiles)" PackageFilesToExclude="@(_PackageFilesToExclude)" PackageVersion="$(PackageVersion)" PackageId="$(PackageId)" Title="$(Title)" Authors="$(Authors)" Description="$(PackageDescription)" Copyright="$(Copyright)" RequireLicenseAcceptance="$(PackageRequireLicenseAcceptance)" LicenseUrl="$(PackageLicenseUrl)" ProjectUrl="$(PackageProjectUrl)" IconUrl="$(PackageIconUrl)" ReleaseNotes="$(PackageReleaseNotes)" Tags="$(PackageTags)" DevelopmentDependency="$(DevelopmentDependency)" BuildOutputInPackage="@(_BuildOutputInPackage)" ProjectReferencesWithVersions="@(_ProjectReferencesWithVersions)" TargetPathsToSymbols="@(_TargetPathsToSymbols)" TargetFrameworks="@(_TargetFrameworks)" FrameworksWithSuppressedDependencies="@(_FrameworksWithSuppressedDependencies)" AssemblyName="$(AssemblyName)" PackageOutputPath="$(PackageOutputAbsolutePath)" IncludeSymbols="$(IncludeSymbols)" IncludeSource="$(IncludeSource)" PackageTypes="$(PackageType)" IsTool="$(IsTool)" RepositoryUrl="$(RepositoryUrl)" RepositoryType="$(RepositoryType)" RepositoryBranch="$(RepositoryBranch)" RepositoryCommit="$(RepositoryCommit)" SourceFiles="@(_SourceFiles-&gt;Distinct())" NoPackageAnalysis="$(NoPackageAnalysis)" NoDefaultExcludes="$(NoDefaultExcludes)" MinClientVersion="$(MinClientVersion)" Serviceable="$(Serviceable)" FrameworkAssemblyReferences="@(_FrameworkAssemblyReferences)" ContinuePackingAfterGeneratingNuspec="$(ContinuePackingAfterGeneratingNuspec)" NuspecOutputPath="$(NuspecOutputAbsolutePath)" IncludeBuildOutput="$(IncludeBuildOutput)" BuildOutputFolder="$(BuildOutputTargetFolder)" ContentTargetFolders="$(ContentTargetFolders)" RestoreOutputPath="$(RestoreOutputAbsolutePath)" NuspecFile="$(NuspecFileAbsolutePath)" NuspecBasePath="$(NuspecBasePath)" NuspecProperties="$(NuspecProperties)" AllowedOutputExtensionsInPackageBuildOutputFolder="$(AllowedOutputExtensionsInPackageBuildOutputFolder)" AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder="$(AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder)" NoWarn="$(NoWarn)" WarningsAsErrors="$(WarningsAsErrors)" TreatWarningsAsErrors="$(TreatWarningsAsErrors)" OutputFileNamesWithoutVersion="$(OutputFileNamesWithoutVersion)" InstallPackageToOutputPath="$(InstallPackageToOutputPath)" SymbolPackageFormat="$(SymbolPackageFormat)" PackageLicenseFile="$(PackageLicenseFile)" PackageLicenseExpression="$(PackageLicenseExpression)" PackageLicenseExpressionVersion="$(PackageLicenseExpressionVersion)" />
+    <Copy SourceFiles="$(ProjectDir)$(PackageOutputPath)$(PackageId).$(Version).nupkg" DestinationFiles="$(ProjectDir)$(PackageOutputPath)$(PackageId).$(Version).symbols.nupkg" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
+  </Target>
+
+</Project>

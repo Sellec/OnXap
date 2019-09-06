@@ -1,0 +1,68 @@
+@using OnXap.Modules.Materials
+@using OnXap.Modules.Materials.DB
+@model News
+@{
+    Layout = "~/baseMaterial.cshtml";
+    this.SetTitle(Model.name);
+}
+
+@section breadcrumbs {
+    <!-- (breadcrumbs) -->
+    <div class="breadcrumbs inner-breadcrumbs">
+        <div class="breadcrumbs__cover cover">
+            <div class="breadcrumbs__links">
+                <a typeof="v:Breadcrumb" href="/" class="breadcrumbs__link">Главная</a>
+                <span class="breadcrumbs__arrow"></span>
+                <a typeof="v:Breadcrumb" href="@(Url.CreateRoute<ModuleMaterials, ModuleController>(x => x.ViewNewsAll()))" class="breadcrumbs__link">Новости</a> @*/@this.GetModule().Name/newsAll*@
+                <span class="breadcrumbs__arrow"></span>
+                <p class="breadcrumbs__last">@Model.name</p>
+            </div>
+        </div>
+    </div>
+    <!-- End (breadcrumbs) -->
+}
+
+<!-- (new-page) -->
+<div class="new-page">
+    <div class="new-page__cover cover">
+        <div class="new-page__content clearfix">
+            <div class="new-detail-content">
+                <div class="new-detail-text">
+                    <h1 class="new-detail-text__title">@Model.name</h1>
+                    <div class="new-detail-text__date">Дата публикации: @Model.date.ToString("dd.MM.yyyy")</div>
+
+                    @Html.Raw(Model.text)
+                </div>
+                <div class="text-social">
+                    <div class="text-social__content">
+                        <div class="text-social__label">Поделиться</div>
+                        <div class="text-social__list">
+                            <div class="text-social__list-content">
+                                <div class="text-social__item">
+                                    <div class="ya-share2" data-services="vkontakte" data-counter=""></div>
+                                </div>
+                                <div class="text-social__item">
+                                    <div class="ya-share2" data-services="facebook" data-counter=""></div>
+                                </div>
+                                <div class="text-social__item">
+                                    <div class="ya-share2" data-services="twitter" data-counter=""></div>
+                                </div>
+                                <div class="text-social__item">
+                                    <div class="ya-share2" data-services="gplus" data-counter=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End (new-page) -->
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+        });
+    </script>
+}

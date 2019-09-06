@@ -1,0 +1,207 @@
+﻿using OnUtils;
+using OnUtils.Architecture.AppCore;
+using OnUtils.Architecture.AppCore.DI;
+using OnUtils.Data;
+using System;
+
+namespace OnXap
+{
+    using Core.Configuration;
+    using Core.Modules;
+    using Core.Modules.CoreModule;
+    using Users;
+    using Modules.WebCoreModule;
+
+    /// <summary>
+    /// Ядро приложения.
+    /// </summary>
+    public abstract class OnXApplication : AppCore<OnXApplication> 
+    {
+        class ConnectionStringResolver : IConnectionStringResolver
+        {
+            internal OnXApplication _core = null;
+
+            string IConnectionStringResolver.ResolveConnectionStringForDataContext(Type[] entityTypes)
+            {
+                return _core.ConnectionString;
+            }
+        }
+
+        private CoreConfiguration _appConfigurationAccessor = null;
+        private WebCoreConfiguration _webConfigurationAccessor = null;
+
+
+        /// <summary>
+        /// </summary>
+        public OnXApplication(string physicalApplicationPath, string connectionString)
+        {
+            if (!GetType().Assembly.FullName.EndsWith("")) throw new InvalidProgramException("");
+
+            try
+            {
+                LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
+                ApplicationWorkingFolder = physicalApplicationPath;
+
+                ConnectionString = connectionString;
+                DataAccessManager.SetConnectionStringResolver(new ConnectionStringResolver() { _core = this });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error init ApplicationCore: {0}", ex.ToString());
+                if (ex.InnerException != null) Debug.WriteLine("Error init ApplicationCore inner: {0}", ex.InnerException.Message);
+                if (ex.InnerException?.InnerException != null) Debug.WriteLine("Error init ApplicationCore inner inner: {0}", ex.InnerException.InnerException.Message);
+                if (ex.InnerException?.InnerException?.InnerException != null) Debug.WriteLine("Error init ApplicationCore inner inner inner: {0}", ex.InnerException.InnerException.InnerException.Message);
+
+                throw;
+            }
+        }
+
+        #region Методы
+        /// <summary>
+        /// </summary>
+        protected sealed override void OnStart()
+        {
+            OnApplicationStartBase();
+            OnApplicationStart();
+
+            DeprecatedApplicationHolder.Set(this);
+        }
+
+        private void OnApplicationStartBase()
+        {
+
+        }
+
+        /// <summary>
+        /// </summary>
+        protected sealed override void OnStop()
+        {
+            DeprecatedApplicationHolder.Remove(this);
+        }
+
+        /// <summary>
+        /// Вызывается единственный раз при запуске ядра.
+        /// </summary>
+        protected virtual void OnApplicationStart()
+        {
+        }
+
+        /// <summary>
+        /// См. <see cref="AppCore{TAppCore}.OnBindingsApplied"/>.
+        /// </summary>
+        protected sealed override void OnBindingsApplied()
+        {
+        }
+
+        /// <summary>
+        /// См. <see cref="AppCore{TAppCore}.OnBindingsRequired(IBindingsCollection{TAppCore})"/>.
+        /// </summary>
+        protected override void OnBindingsRequired(IBindingsCollection<OnXApplication> bindingsCollection)
+        {
+            bindingsCollection.SetSingleton<ApplicationLauncher>();
+            bindingsCollection.SetSingleton<Core.Items.ItemsManager>();
+            bindingsCollection.SetSingleton<Journaling.JournalingManager>();
+            bindingsCollection.SetSingleton<Journaling.DB.JournalingManagerDatabaseAccessor>();
+            bindingsCollection.SetSingleton<Messaging.MessagingManager>();
+            bindingsCollection.SetSingleton<ModulesManager>();
+            bindingsCollection.SetSingleton<ModulesLoadStarter>();
+            bindingsCollection.SetSingleton<ServiceMonitor.Monitor>();
+            bindingsCollection.SetSingleton<UserContextManager>();
+            bindingsCollection.SetSingleton<Languages.Manager>();
+        }
+
+        /// <summary>
+        /// См. <see cref="AppCore{TAppCore}.OnInstanceActivated{TRequestedType}(IComponent{TAppCore})"/>.
+        /// </summary>
+        protected override void OnInstanceActivated<TRequestedType>(IComponent<OnXApplication> instance)
+        {
+         
+        }
+        #endregion
+
+        #region Упрощение доступа
+        /// <summary>
+        /// Возвращает менеджер модулей для приложения.
+        /// </summary>
+        public ModulesManager GetModulesManager()
+        {
+            return Get<ModulesManager>();
+        }
+
+        /// <summary>
+        /// Возвращает менеджер контекстов пользователя для приложения.
+        /// </summary>
+        public UserContextManager GetUserContextManager()
+        {
+            return Get<UserContextManager>();
+        }
+
+        private CoreModule GetCoreModule()
+        {
+            return GetModulesManager().GetModule<CoreModule>();
+        }
+
+        #endregion
+
+        #region Свойства
+        /// <summary>
+        /// Основные настройки приложения.
+        /// </summary>
+        public CoreConfiguration AppConfig
+        {
+            get
+            {
+                if (_appConfigurationAccessor == null) _appConfigurationAccessor = GetCoreModule().GetConfiguration<CoreConfiguration>();
+                return _appConfigurationAccessor;
+            }
+        }
+
+        /// <summary>
+        /// Возвращает рабочую директорию приложения. 
+        /// </summary>
+        public string ApplicationWorkingFolder { get; private set; }
+
+        /// <summary>
+        /// Возвращает модуль ядра приложения.
+        /// </summary>
+        public CoreModule AppCoreModule
+        {
+            get => Get<CoreModule>();
+        }
+
+        /// <summary>
+        /// Возвращает основной веб-модуль приложения.
+        /// </summary>
+        public WebCoreModule WebCoreModule
+        {
+            get => Get<WebCoreModule>();
+        }
+
+        /// <summary>
+        /// Основные настройки веб-приложения.
+        /// </summary>
+        public WebCoreConfiguration WebConfig
+        {
+            get
+            {
+                if (_webConfigurationAccessor == null) _webConfigurationAccessor = Get<WebCoreModule>().GetConfiguration<WebCoreConfiguration>();
+                return _webConfigurationAccessor;
+            }
+        }
+
+        /// <summary>
+        /// Возвращает строку подключения. todo - разобраться со строками подключений.
+        /// </summary>
+        public string ConnectionString { get; private set; }
+
+        /// <summary>
+        /// Внешний URL-адрес сервера.
+        /// </summary>
+        public virtual Uri ServerUrl
+        {
+            get;
+            set;
+        } = new Uri("http://localhost");
+        #endregion
+    }
+}

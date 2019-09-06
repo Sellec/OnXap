@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>OnXap.Plugins.Support</AssemblyName>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>0.1.1</Version>
+    <Authors>Sellec</Authors>
+    <Company>TraceStudio</Company>
+    <Product>OnXap</Product>
+    <Description>Плагин, добавляющий модуль для работы с заявками.</Description>
+    <Copyright>Copyright © Петров Дмитрий 2016</Copyright>
+    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSource>True</IncludeSource>
+    <PackageLicenseUrl>https://github.com/Sellec/OnXap/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Sellec/OnXap</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Sellec/OnXap</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RootNamespace>OnXap</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\OnXap.Plugins.Support.xml</DocumentationFile>
+    <OutputPath>bin\Debug</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release</OutputPath>
+    <DocumentationFile>bin\Release\OnXap.Plugins.Support.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Core\**" />
+    <EmbeddedResource Remove="Core\**" />
+    <None Remove="Core\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.3.100.2" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.3.100.2" />
+    <PackageReference Include="OnXap" Version="0.1.1.23" />
+    <PackageReference Include="Telegram.Bot" Version="14.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Plugins\" />
+  </ItemGroup>
+
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Exec Command="xcopy /y &quot;$(ProjectDir)bin\$(ConfigurationName)\*.nupkg&quot; &quot;$(SolutionDir)..\Build\$(ConfigurationName)\&quot;&#xD;&#xA;" />
+  </Target>
+</Project>
