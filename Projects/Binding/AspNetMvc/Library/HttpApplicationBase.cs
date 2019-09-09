@@ -154,6 +154,9 @@ namespace OnXap
         {
             try
             {
+                // Необходимо очищать фильтр, иначе вывод информации нечитабелен.
+                Response.Filter?.Dispose();
+
                 var exception = Server.GetLastError();
                 // todo _applicationCore.OnError(exception);
 
