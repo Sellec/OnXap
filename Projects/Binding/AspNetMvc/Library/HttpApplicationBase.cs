@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
 using System.Web;
@@ -154,9 +155,6 @@ namespace OnXap
         {
             try
             {
-                // Необходимо очищать фильтр, иначе вывод информации нечитабелен.
-                Response.Filter?.Dispose();
-
                 var exception = Server.GetLastError();
                 // todo _applicationCore.OnError(exception);
 
@@ -339,6 +337,17 @@ namespace OnXap
 
             WebUtils.QueryLogHelper.QueryLogEnabled = false;
             WebUtils.QueryLogHelper.ClearQueries();
+        }
+
+        internal void Application_PreSendRequestHeaders()
+        {
+            // ensure that if GZip/Deflate Encoding is applied that headers are set
+            // also works when error occurs if filters are still active
+            HttpResponse response = HttpContext.Current.Response;
+            if (response.Filter is GZipStream && response.Headers["Content-encoding"] != "gzip")
+                response.AppendHeader("Content-encoding", "gzip");
+            else if (response.Filter is DeflateStream && response.Headers["Content-encoding"] != "deflate")
+                response.AppendHeader("Content-encoding", "deflate");
         }
 
         internal void Application_PostRequestHandlerExecute(object sender, EventArgs e)
