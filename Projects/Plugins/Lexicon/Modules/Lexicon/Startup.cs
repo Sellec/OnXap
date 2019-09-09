@@ -5,7 +5,7 @@ namespace OnXap.Modules.Lexicon
 {
     class Startup : IConfigureBindings
     {
-        void IConfigureBindings<WebApplication>.ConfigureBindings(IBindingsCollection<WebApplication> bindingsCollection)
+        void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
             bindingsCollection.SetSingleton<LexiconManager>();
         }

@@ -1,6 +1,4 @@
-﻿using OnUtils.Application;
-using OnUtils.Application.Journaling;
-using OnUtils.Data;
+﻿using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
