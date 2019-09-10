@@ -196,7 +196,7 @@ namespace OnXap.Messaging
                         GetQueryTypes().
                         Select(x => new { Type = x, Extracted = TypeHelpers.ExtractGenericType(x, typeof(MessageServiceComponent<>)) }).
                         Where(x => x.Extracted != null).
-                        Select(x => new { x.Type, MessageType = x.Extracted.GetGenericArguments()[1] }).
+                        Select(x => new { x.Type, MessageType = x.Extracted.GetGenericArguments()[0] }).
                         ToList();
 
                     foreach (var setting in settings)
