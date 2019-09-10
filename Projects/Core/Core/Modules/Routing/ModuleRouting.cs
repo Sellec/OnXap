@@ -82,7 +82,7 @@ namespace OnXap.Modules.Routing
                 var countClosedThreads = _defferedObjects.Values.Count - openedThreads.Count;
                 var sumAll = openedThreads.Sum(x => x.Collection.Sum(y => y.Value.Count));
 
-                if (sumAll > 0)
+                if (sumAll > 5000)
                 {
                     Debug.WriteLineNoLog($"TimerCallback: {openedThreads.Count} threads have containers with {sumAll} items. {countClosedThreads} threads are closed.");
 

@@ -589,7 +589,7 @@ namespace OnXap.Modules.FileManager
             {
                 if (isStart)
                 {
-                    _servicesFlags.ReleaseLock("CheckRemovedFilesMax");
+                    _checkRemovedFilesMax = 0;
                     TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5", Cron.MinuteInterval(5), () => CheckRemovedFiles(false));
                     _thisModule?.RegisterEvent(EventType.Info, "Запуск регулярной задачи проверки файлов.", null);
                 }
@@ -647,8 +647,7 @@ namespace OnXap.Modules.FileManager
                 if (isFinalized)
                 {
                     TasksManager.RemoveTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5");
-                    //TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddHours(2), () => CheckRemovedFiles(true));
-                    TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddMinutes(1), () => CheckRemovedFiles(true));
+                    TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddHours(2), () => CheckRemovedFiles(true));
                     _thisModule?.RegisterEvent(EventType.Info, "Удаление регулярной задачи проверки файлов.", null);
                 }
             }
