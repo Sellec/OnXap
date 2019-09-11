@@ -37,7 +37,6 @@ namespace OnXap.Core.Items
         public abstract int ID
         {
             get;
-            set;
         }
 
         /// <summary>
@@ -48,7 +47,6 @@ namespace OnXap.Core.Items
         public abstract string Caption
         {
             get;
-            set;
         }
 
         /// <summary>

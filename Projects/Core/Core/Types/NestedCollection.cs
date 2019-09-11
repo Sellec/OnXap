@@ -113,13 +113,11 @@ namespace OnXap.Types
         public override int ID
         {
             get => _groupItem.ID;
-            set => _groupItem.ID = value;
         }
 
         public override string Caption
         {
             get => _groupItem.Caption;
-            set => _groupItem.Caption = value;
         }
 
         public override DateTime DateChangeBase
@@ -145,9 +143,9 @@ namespace OnXap.Types
             Caption = caption;
         }
 
-        public override int ID { get; set; }
+        public override int ID { get; }
 
-        public override string Caption { get; set; }
+        public override string Caption { get; }
     }
 }
 

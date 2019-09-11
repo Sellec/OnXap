@@ -18,7 +18,7 @@
 
 
 <form action='@Url.Action("profileSave")' method='post' id='datachangeform' class="reg_form data_form">
-    @Html.HiddenFor(model => model.Edit.ID)<br />
+    @Html.HiddenFor(model => model.Edit.IdUser)<br />
     <div class="editBlock">
         @Html.LabelFor(model => model.Edit.IdPhoto)<br />
         @Html.FileUploadFor(x => x.Edit.IdPhoto, new ImagePresentOptions() { MaxWidth = 200, MaxHeight = 100 })<br />

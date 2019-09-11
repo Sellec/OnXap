@@ -48,7 +48,7 @@ namespace OnXap.Modules.MessagingEmail
                 Body = body,
             };
 
-            RegisterOutcomingMessage(message);
+            RegisterOutcomingMessage(message, out var messageInfo);
         }
 
         /// <summary>

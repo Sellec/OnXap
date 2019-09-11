@@ -18,7 +18,6 @@ namespace OnXap.Modules.Register.Model
         public override int ID
         {
             get => 0;
-            set { }
         }
 
         /// <summary>
@@ -27,7 +26,6 @@ namespace OnXap.Modules.Register.Model
         public override string Caption
         {
             get => !string.IsNullOrEmpty(name) ? name : !string.IsNullOrEmpty(email) ? email : string.Empty;
-            set => name = value;
         }
 
         [DefaultValue("")]

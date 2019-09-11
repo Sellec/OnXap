@@ -10,13 +10,11 @@ namespace OnXap.Modules.Materials.DB
         public override int ID
         {
             get => id;
-            set => id = value; 
         }
 
         public override string Caption
         {
             get => name;
-            set => name = value; 
         }
 
         public int id { get; set; }

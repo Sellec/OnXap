@@ -80,13 +80,11 @@ namespace OnXap.Core.DB
         public override int ID
         {
             get => IdSearchSet;
-            set => IdSearchSet = value;
         }
 
         public override string Caption
         {
             get => NameSearchSet;
-            set => NameSearchSet = value;
         }
 
         public override ModuleCore OwnerModule => base.OwnerModule;

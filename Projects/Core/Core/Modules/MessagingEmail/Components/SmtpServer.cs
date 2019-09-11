@@ -86,6 +86,13 @@ namespace OnXap.Modules.MessagingEmail.Components
                 }
                 catch (SmtpException ex)
                 {
+                    if (ex.Message.Contains("5.7.1 Client does not have permissions to send as this sender"))
+                    {
+                        message.State = $"У пользователя, от имени которого выполняется подключение к почтовому серверу, недостаточно прав для отправки писем от имени '{message.Message.From.ContactData}'.";
+                        message.StateType = MessageStateType.Error;
+                        return true;
+                    }
+
                     var canBeResend = true;
                     service.RegisterServiceEvent(EventType.Error, "SMTP - ошибка отправки письма", null, ex);
                     //if (ex.Message.Contains("Message rejected: Email address is not verified"))

@@ -18,13 +18,17 @@ namespace OnXap.Modules.Customer.Model
 
         public ProfileEdit(User source)
         {
-            this.ID = source.IdUser;
+            this.IdUser = source.IdUser;
             this.email = source.email;
             this.phone = source.phone;
             this.name = source.name;
             this.IdPhoto = source.IdPhoto;
             this.Comment = source.Comment;
         }
+
+        [DefaultValue(0)]
+        [Display(Name = "Идентификатор пользователя")]
+        public int IdUser { get; set; }
 
         [DefaultValue("")]
         [StringLength(128)]
@@ -51,14 +55,12 @@ namespace OnXap.Modules.Customer.Model
 
         public override int ID
         {
-            get;
-            set;
+            get => IdUser;
         }
 
         public override string Caption
         {
             get;
-            set;
         }
 
         public DefaultSchemeWData Fields => FieldsBase;

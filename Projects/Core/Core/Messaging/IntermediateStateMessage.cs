@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnXap.Messaging
+﻿namespace OnXap.Messaging
 {
     using Messages;
 
@@ -17,37 +15,9 @@ namespace OnXap.Messaging
             get;
         }
 
-        public int IdQueue
-        {
-            get => MessageSource.IdQueue;
-        }
-
         public TMessageType Message
         {
             get;
-        }
-
-        public DB.MessageStateType StateType
-        {
-            get => MessageSource.StateType;
-            set => MessageSource.StateType = value;
-        }
-
-        public string State
-        {
-            get => MessageSource.State;
-            set => MessageSource.State = value;
-        }
-
-        public int? IdTypeComponent
-        {
-            get => MessageSource.IdTypeComponent;
-            set => MessageSource.IdTypeComponent = value;
-        }
-
-        public DateTime DateChange
-        {
-            set => MessageSource.DateChange = value;
         }
     }
 }

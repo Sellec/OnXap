@@ -46,7 +46,6 @@ namespace OnXap.Core.DB
         public override int ID
         {
             get => IdUser;
-            set { }
         }
 
         /// <summary>
@@ -55,7 +54,6 @@ namespace OnXap.Core.DB
         public override string Caption
         {
             get => !string.IsNullOrEmpty(name) ? name : !string.IsNullOrEmpty(email) ? email : IdUser.ToString();
-            set => name = value;
         }
 
         [DefaultValue("")]

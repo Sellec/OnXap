@@ -17,7 +17,6 @@ namespace OnXap.Modules.Register.Model
         public override int ID
         {
             get => 0;
-            set { }
         }
 
         /// <summary>
@@ -26,7 +25,6 @@ namespace OnXap.Modules.Register.Model
         public override string Caption
         {
             get;
-            set;
         }
 
         [StringLength(128)]

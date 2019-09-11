@@ -1,19 +1,24 @@
 ﻿using System;
+using OnUtils.Items;
 
 namespace OnXap.Messaging.Messages
 {
+    using Core.Items;
+
     /// <summary>
     /// Предоставляет информацию о сообщении.
     /// </summary>
-    public class MessageInfo<TMessage> where TMessage : MessageBase
+    public class MessageInfo<TMessage> : ItemBase where TMessage : MessageBase
     {
         private string _state = null;
+        private int _idMessage = 0;
 
         internal MessageInfo(IntermediateStateMessage<TMessage> intermediateMessage)
         {
+            _idMessage = intermediateMessage.MessageSource.IdQueue;
             Message = intermediateMessage.Message;
             StateType = MessageStateType.NotHandled;
-            State = intermediateMessage.State;
+            State = intermediateMessage.MessageSource.State;
         }
 
         /// <summary>
@@ -53,6 +58,22 @@ namespace OnXap.Messaging.Messages
             }
         }
 
+        #region ItemBase
+        /// <summary>
+        /// Возвращает идентификатор сообщения.
+        /// </summary>
+        public override int ID
+        {
+            get => _idMessage;
+        }
+
+        /// <summary>
+        /// </summary>
+        public override string Caption
+        {
+            get => $"{ID}";
+        }
+        #endregion
     }
 
 }

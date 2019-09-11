@@ -113,13 +113,11 @@ namespace OnXap.Types
         public override int ID
         {
             get => _groupItem.ID;
-            set { }
         }
 
         public override string Caption
         {
             get => _groupItem.Caption;
-            set { }
         }
 
         public Uri Url
@@ -146,9 +144,9 @@ namespace OnXap.Types
             Url = url;
         }
 
-        public override int ID { get; set; }
+        public override int ID { get; }
 
-        public override string Caption { get; set; }
+        public override string Caption { get; }
 
         public Uri Url { get; }
 

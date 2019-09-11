@@ -19,14 +19,14 @@ namespace OnXap.Messaging
     /// <summary>
     /// Предпочтительная базовая реализация сервиса обработки сообщений для приложения.
     /// </summary>
-    /// <typeparam name="TMessageType">Тип сообщения, с которым работает сервис.</typeparam>
-    public abstract class MessageServiceBase<TMessageType> : 
+    /// <typeparam name="TMessage">Тип сообщения, с которым работает сервис.</typeparam>
+    public abstract class MessageServiceBase<TMessage> : 
         CoreComponentBase,
         IMessageService,
         IMessageServiceInternal,
         IUnitOfWorkAccessor<DB.DataContext>,
         IAutoStart
-        where TMessageType : MessageBase, new()
+        where TMessage : MessageBase, new()
     {
         private readonly string TasksOutcomingSend;
         private readonly string TasksIncomingReceive;
@@ -52,7 +52,7 @@ namespace OnXap.Messaging
             ServiceID = serviceID;
             ServiceName = serviceName;
 
-            IdMessageType = ItemTypeFactory.GetItemType(typeof(TMessageType)).IdItemType;
+            IdMessageType = ItemTypeFactory.GetItemType(typeof(TMessage)).IdItemType;
         }
 
         #region CoreComponentBase
@@ -119,7 +119,7 @@ namespace OnXap.Messaging
         /// </summary>
         /// <returns>Возвращает true в случае успеха и false в случае ошибки во время регистрации сообщения.</returns>
         [ApiReversible]
-        protected bool RegisterOutcomingMessage(TMessageType message)
+        protected bool RegisterOutcomingMessage(TMessage message, out MessageInfo<TMessage> messageInfo)
         {
             try
             {
@@ -142,12 +142,14 @@ namespace OnXap.Messaging
                         TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type));
                     }
 
+                    messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(message, mess));
                     return true;
                 }
             }
             catch (Exception ex)
             {
                 this.RegisterEvent(Journaling.EventType.Error, "Ошибка регистрации исходящего сообщения", null, ex);
+                messageInfo = null;
                 return false;
             }
         }
@@ -157,7 +159,7 @@ namespace OnXap.Messaging
         /// </summary>
         /// <returns>Возвращает true в случае успеха и false в случае ошибки во время регистрации сообщения.</returns>
         [ApiReversible]
-        protected bool RegisterIncomingMessage(TMessageType message)
+        protected bool RegisterIncomingMessage(TMessage message)
         {
             try
             {
@@ -190,7 +192,7 @@ namespace OnXap.Messaging
             }
         }
 
-        private List<IntermediateStateMessage<TMessageType>> GetMessages(DB.DataContext db, bool direction)
+        private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction)
         {
             var messages = db.MessageQueue.
                 Where(x => x.Direction == direction && x.IdMessageType == IdMessageType && (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat)).
@@ -201,11 +203,15 @@ namespace OnXap.Messaging
                 try
                 {
                     var str = x.MessageInfo;
-                    return new IntermediateStateMessage<TMessageType>(Newtonsoft.Json.JsonConvert.DeserializeObject<TMessageType>(str), x);
+                    return new IntermediateStateMessage<TMessage>(Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(str), x);
                 }
                 catch (Exception ex)
                 {
-                    return new IntermediateStateMessage<TMessageType>(null, x) { StateType = DB.MessageStateType.Error, State = ex.Message, DateChange = DateTime.Now };
+                    var intermediateMessage = new IntermediateStateMessage<TMessage>(null, x);
+                    intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                    intermediateMessage.MessageSource.State = ex.Message;
+                    intermediateMessage.MessageSource.DateChange = DateTime.Now;
+                    return intermediateMessage;
                 }
             }).ToList();
 
@@ -218,9 +224,9 @@ namespace OnXap.Messaging
         /// Возвращает список активных компонентов, работающих с типом сообщений сервиса.
         /// </summary>
         /// <seealso cref="Core.Configuration.CoreConfiguration.MessageServicesComponentsSettings"/>
-        protected List<MessageServiceComponent<TMessageType>> GetComponents()
+        protected List<MessageServiceComponent<TMessage>> GetComponents()
         {
-            return AppCore.Get<MessagingManager>().GetComponentsByMessageType<TMessageType>().ToList();
+            return AppCore.Get<MessagingManager>().GetComponentsByMessageType<TMessage>().ToList();
         }
 
         /// <summary>
@@ -261,19 +267,19 @@ namespace OnXap.Messaging
 
                     OnBeforeExecuteOutcoming(messagesAll);
 
-                    var processedMessages = new List<IntermediateStateMessage<TMessageType>>();
+                    var processedMessages = new List<IntermediateStateMessage<TMessage>>();
 
                     var time = new MeasureTime();
                     foreach (var intermediateMessage in messages)
                     {
-                        if (intermediateMessage.StateType == DB.MessageStateType.Error)
+                        if (intermediateMessage.MessageSource.StateType == DB.MessageStateType.Error)
                         {
                             processedMessages.Add(intermediateMessage);
                             continue;
                         }
 
                         var components = GetComponents().
-                            OfType<OutcomingMessageSender<TMessageType>>().
+                            OfType<OutcomingMessageSender<TMessage>>().
                             Select(x => new {
                                 Component = x,
                                 IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
@@ -281,9 +287,9 @@ namespace OnXap.Messaging
                             OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
                             ToList();
 
-                        if (intermediateMessage.IdTypeComponent.HasValue)
+                        if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
                         {
-                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.IdTypeComponent).ToList();
+                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
                         }
 
                         foreach (var componentInfo in components)
@@ -291,29 +297,29 @@ namespace OnXap.Messaging
                             try
                             {
                                 var component = componentInfo.Component;
-                                var messageInfo = new MessageInfo<TMessageType>(intermediateMessage);
+                                var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
                                 if (component.OnSend(messageInfo, this))
                                 {
                                     if (messageInfo.StateType == MessageStateType.NotHandled) messageInfo.StateType = MessageStateType.Completed;
-                                    intermediateMessage.DateChange = DateTime.Now;
+                                    intermediateMessage.MessageSource.DateChange = DateTime.Now;
                                     switch (messageInfo.StateType)
                                     {
                                         case MessageStateType.Error:
-                                            intermediateMessage.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.State = messageInfo.State;
-                                            intermediateMessage.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                            intermediateMessage.MessageSource.State = messageInfo.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
                                             break;
 
                                         case MessageStateType.Repeat:
-                                            intermediateMessage.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.State = messageInfo.State;
-                                            intermediateMessage.IdTypeComponent = componentInfo.IdTypeComponent;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.State = messageInfo.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
                                             break;
 
                                         case MessageStateType.Completed:
-                                            intermediateMessage.StateType = DB.MessageStateType.Complete;
-                                            intermediateMessage.State = null;
-                                            intermediateMessage.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
+                                            intermediateMessage.MessageSource.State = null;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
                                             break;
                                     }
                                     processedMessages.Add(intermediateMessage);
@@ -378,7 +384,7 @@ namespace OnXap.Messaging
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                 {
                     var components = GetComponents().
-                    OfType<IncomingMessageReceiver<TMessageType>>().
+                    OfType<IncomingMessageReceiver<TMessage>>().
                     Select(x => new {
                         Component = x,
                         IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
@@ -583,7 +589,7 @@ namespace OnXap.Messaging
                     messagesAll = messages.Count;
 
                     var components = GetComponents().
-                        OfType<IncomingMessageHandler<TMessageType>>().
+                        OfType<IncomingMessageHandler<TMessage>>().
                         Select(x => new {
                             Component = x,
                             IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
@@ -594,9 +600,9 @@ namespace OnXap.Messaging
                     foreach (var intermediateMessage in messages)
                     {
                         var componentsForMessage = components;
-                        if (intermediateMessage.IdTypeComponent.HasValue)
+                        if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
                         {
-                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.IdTypeComponent).ToList();
+                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
                         }
 
                         foreach (var componentInfo in components)
@@ -604,29 +610,29 @@ namespace OnXap.Messaging
                             try
                             {
                                 var component = componentInfo.Component;
-                                var messageInfo = new MessageInfo<TMessageType>(intermediateMessage);
+                                var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
                                 if (component.OnPrepare(messageInfo, this))
                                 {
                                     if (messageInfo.StateType == MessageStateType.NotHandled) messageInfo.StateType = MessageStateType.Completed;
-                                    intermediateMessage.DateChange = DateTime.Now;
+                                    intermediateMessage.MessageSource.DateChange = DateTime.Now;
                                     switch (messageInfo.StateType)
                                     {
                                         case MessageStateType.Error:
-                                            intermediateMessage.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.State = messageInfo.State;
-                                            intermediateMessage.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                            intermediateMessage.MessageSource.State = messageInfo.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
                                             break;
 
                                         case MessageStateType.Repeat:
-                                            intermediateMessage.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.State = messageInfo.State;
-                                            intermediateMessage.IdTypeComponent = componentInfo.IdTypeComponent;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.State = messageInfo.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
                                             break;
 
                                         case MessageStateType.Completed:
-                                            intermediateMessage.StateType = DB.MessageStateType.Complete;
-                                            intermediateMessage.State = null;
-                                            intermediateMessage.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
+                                            intermediateMessage.MessageSource.State = null;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
                                             break;
                                     }
                                     db.SaveChanges();

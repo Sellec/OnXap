@@ -90,7 +90,7 @@ namespace OnXap.Modules.Customer
                 using (var db = new UnitOfWork<User>())
                 using (var trans = db.CreateScope())
                 {
-                    var data = db.Repo1.Where(x => x.IdUser == model.ID).FirstOrDefault();
+                    var data = db.Repo1.Where(x => x.IdUser == model.IdUser).FirstOrDefault();
                     if (data == null) throw new Exception("Указанный пользователь не найден.");
                     else Module.CheckPermissionToEditOtherUser(model.ID);
 
