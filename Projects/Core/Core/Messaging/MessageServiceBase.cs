@@ -192,6 +192,35 @@ namespace OnXap.Messaging
             }
         }
 
+        /// <summary>
+        /// Возвращает информацию о сообщении с указанным идентификатором.
+        /// </summary>
+        /// <returns>
+        /// Если тип сообщения, на которое ссылается идентификатор <paramref name="idMessage"/>, не соответствует типу <typeparamref name="TMessage"/>, возвращает null.
+        /// Если сообщение с указанным идентификатором не найдено, возвращает null.
+        /// </returns>
+        [ApiReversible]
+        public MessageInfo<TMessage> GetMessageById(int idMessage)
+        {
+            using (var db = new DB.DataContext())
+            {
+                var message = db.MessageQueue.Where(x => x.IdQueue == idMessage).FirstOrDefault();
+                if (message == null || message.IdMessageType != IdMessageType) return null;
+
+                try
+                {
+                    var str = message.MessageInfo;
+                    return new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(str), message));
+                }
+                catch (Exception ex)
+                {
+                    var messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(new TMessage(), message));
+                    this.RegisterEventForItem(messageInfo, Journaling.EventType.Error, "Ошибка преобразования тела сообщения", null, ex);
+                    return messageInfo;
+                }
+            }
+        }
+
         private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction)
         {
             var messages = db.MessageQueue.
@@ -571,7 +600,7 @@ namespace OnXap.Messaging
         {
             var type = GetType();
 
-            if (_executingFlags.TryLock(TasksIncomingHandle)) return;
+            if (!_executingFlags.TryLock(TasksIncomingHandle)) return;
             _executingFlags.ReleaseLock(nameof(RegisterIncomingMessage));
 
             int messagesAll = 0;
