@@ -15,6 +15,7 @@ namespace OnXap.Modules.MessagingEmail.Components
     /// </summary>
     public sealed class SmtpServer : OutcomingMessageSender<EmailMessage>
     {
+        private object _clientLock = new object();
         private SmtpClient _client = null;
 
         /// <summary>
@@ -29,30 +30,38 @@ namespace OnXap.Modules.MessagingEmail.Components
         protected override bool OnStartComponent()
         {
             if (_client != null) throw new InvalidOperationException("Компонент уже инициализирован.");
+            return InitClient();
+        }
 
-            try
+        private bool InitClient()
+        {
+            lock(_clientLock)
             {
-                var settingsParsed = !string.IsNullOrEmpty(SerializedSettings) ? JsonConvert.DeserializeObject<SmtpServerSettings>(SerializedSettings) : new SmtpServerSettings();
+                _client = null;
 
-                if (string.IsNullOrEmpty(settingsParsed.Server)) return false;
-
-                var client = new SmtpClient()
+                try
                 {
-                    Host = settingsParsed.Server,
-                    Port = settingsParsed.Port.HasValue ? settingsParsed.Port.Value : (settingsParsed.IsSecure ? 587 : 80),
-                    EnableSsl = settingsParsed.IsSecure,
-                    DeliveryMethod = SmtpDeliveryMethod.Network,
-                    Credentials = new System.Net.NetworkCredential(settingsParsed.Login, settingsParsed.Password),
-                };
+                    var settingsParsed = !string.IsNullOrEmpty(SerializedSettings) ? JsonConvert.DeserializeObject<SmtpServerSettings>(SerializedSettings) : new SmtpServerSettings();
 
-                _client = client;
+                    if (string.IsNullOrEmpty(settingsParsed.Server)) return false;
 
-                return true;
-            }
-            catch (Exception)
-            {
-                // todo здесь должна быть возможность писать в журнал. Пока не реализовано - делаем throw дальше, попадет в общий журнал.
-                throw;
+                    var client = new SmtpClient()
+                    {
+                        Host = settingsParsed.Server,
+                        Port = settingsParsed.Port.HasValue ? settingsParsed.Port.Value : (settingsParsed.IsSecure ? 587 : 80),
+                        EnableSsl = settingsParsed.IsSecure,
+                        DeliveryMethod = SmtpDeliveryMethod.Network,
+                        Credentials = new System.Net.NetworkCredential(settingsParsed.Login, settingsParsed.Password),
+                    };
+
+                    _client = client;
+                    return true;
+                }
+                catch (Exception)
+                {
+                    // todo здесь должна быть возможность писать в журнал. Пока не реализовано - делаем throw дальше, попадет в общий журнал.
+                    throw;
+                }
             }
         }
 
@@ -116,7 +125,7 @@ namespace OnXap.Modules.MessagingEmail.Components
                                 try
                                 {
                                     _client.Dispose();
-                                    _client = null;
+                                    InitClient();
                                 }
                                 catch { }
 
@@ -159,8 +168,11 @@ namespace OnXap.Modules.MessagingEmail.Components
 
         private SmtpClient getClient()
         {
-            if (_client == null) throw new InvalidOperationException("Компонент не был корректно инициализирован.");
-            return _client;
+            lock (_clientLock)
+            {
+                if (_client == null) throw new InvalidOperationException("Компонент не был корректно инициализирован.");
+                return _client;
+            }
         }
         #endregion
     }
