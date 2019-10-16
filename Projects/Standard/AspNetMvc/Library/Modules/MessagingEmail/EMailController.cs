@@ -41,7 +41,8 @@ namespace OnXap.Modules.MessagingEmail
                         IsSecure = formData?.Smtp?.IsSecure ?? false,
                         Port = formData?.Smtp?.Port,
                         Login = formData?.Smtp?.Login,
-                        Password = formData?.Smtp?.Password
+                        Password = formData?.Smtp?.Password,
+                        IsIgnoreCertificateErrors = formData?.Smtp?.IsIgnoreCertificateErrors ?? false
                     })
                 };
             }

@@ -16,6 +16,11 @@
         public bool IsSecure { get; set; }
 
         /// <summary>
+        /// Указывает, следует ли игнорировать ошибки сертификата.
+        /// </summary>
+        public bool IsIgnoreCertificateErrors { get; set; }
+
+        /// <summary>
         /// Порт подключения. Если не задан, то при <see cref="IsSecure"/> равном false используется порт 80, при <see cref="IsSecure"/> равном true используется порт 587.
         /// </summary>
         public int? Port { get; set; }

@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using System.Net.Security;
+using System.Net;
 using OnXap.Messaging.Messages;
 using System;
 using System.Net.Mail;
@@ -17,6 +19,9 @@ namespace OnXap.Modules.MessagingEmail.Components
     {
         private object _clientLock = new object();
         private SmtpClient _client = null;
+        private bool _isIgnoreCertErrors = false;
+        private RemoteCertificateValidationCallback _certCallback = null;
+        private DateTime _certErrorTimeout = DateTime.MinValue;
 
         /// <summary>
         /// </summary>
@@ -35,7 +40,7 @@ namespace OnXap.Modules.MessagingEmail.Components
 
         private bool InitClient()
         {
-            lock(_clientLock)
+            lock (_clientLock)
             {
                 _client = null;
 
@@ -51,9 +56,15 @@ namespace OnXap.Modules.MessagingEmail.Components
                         Port = settingsParsed.Port.HasValue ? settingsParsed.Port.Value : (settingsParsed.IsSecure ? 587 : 80),
                         EnableSsl = settingsParsed.IsSecure,
                         DeliveryMethod = SmtpDeliveryMethod.Network,
-                        Credentials = new System.Net.NetworkCredential(settingsParsed.Login, settingsParsed.Password),
+                        Credentials = new NetworkCredential(settingsParsed.Login, settingsParsed.Password),
                     };
 
+                    _isIgnoreCertErrors = settingsParsed.IsIgnoreCertificateErrors;
+                    if (_isIgnoreCertErrors)
+                    {
+                        _certCallback = new RemoteCertificateValidationCallback((s, certificate, chain, sslPolicyErrors) => true);
+                        ServicePointManager.ServerCertificateValidationCallback = _certCallback;
+                    }
                     _client = client;
                     return true;
                 }
@@ -89,9 +100,22 @@ namespace OnXap.Modules.MessagingEmail.Components
 
                 try
                 {
+                    if (_isIgnoreCertErrors && ServicePointManager.ServerCertificateValidationCallback != _certCallback)
+                    {
+                        ServicePointManager.ServerCertificateValidationCallback = _certCallback;
+                    }
                     getClient().Send(mailMessage);
                     message.StateType = MessageStateType.Completed;
                     return true;
+                }
+                catch (System.Security.Authentication.AuthenticationException ex)
+                {
+                    if (DateTime.Now > _certErrorTimeout)
+                    {
+                        service.RegisterServiceEvent(EventType.Error, "SMTP - ошибка отправки письма", "Ошибка проверки сертификата", ex);
+                        _certErrorTimeout = DateTime.Now.AddMinutes(15);
+                    }
+                    return false;
                 }
                 catch (SmtpException ex)
                 {

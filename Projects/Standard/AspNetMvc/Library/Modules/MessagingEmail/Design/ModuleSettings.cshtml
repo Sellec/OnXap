@@ -85,5 +85,12 @@
             @Html.ValidationMessageFor(x => x.Smtp.Password)
         </td>
     </tr>
+    <tr>
+        <td>@Html.LabelFor(x => x.Smtp.IsIgnoreCertificateErrors)</td>
+        <td>
+            @Html.CheckBoxFor(x => x.Smtp.IsIgnoreCertificateErrors, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.Smtp.IsIgnoreCertificateErrors)
+        </td>
+    </tr>
 
 }

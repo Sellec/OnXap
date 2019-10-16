@@ -19,7 +19,8 @@ namespace OnXap.Modules.MessagingEmail.Model
                 IsSecure = smtp?.IsSecure ?? false,
                 Port = smtp?.Port,
                 Login = smtp?.Login,
-                Password = smtp?.Password
+                Password = smtp?.Password,
+                IsIgnoreCertificateErrors = smtp?.IsIgnoreCertificateErrors ?? false
             };
 
 

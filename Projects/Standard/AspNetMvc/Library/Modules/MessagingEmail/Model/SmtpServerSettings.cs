@@ -23,6 +23,13 @@ namespace OnXap.Modules.MessagingEmail.Model
         public bool IsSecure { get; set; }
 
         /// <summary>
+        /// См. <see cref="Components.SmtpServerSettings.IsIgnoreCertificateErrors"/>
+        /// </summary>
+        [Display(Name = "Игнорировать ошибки сертификата?")]
+        [Required]
+        public bool IsIgnoreCertificateErrors { get; set; }
+
+        /// <summary>
         /// См. <see cref="Components.SmtpServerSettings.Port"/>
         /// </summary>
         [Display(Name = "Порт подключения (необязателен для заполнения. По-умолчанию для небезопасного подключения используется порт 80, для безопасного 587)")]
