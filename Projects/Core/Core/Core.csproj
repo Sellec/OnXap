@@ -13,7 +13,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.7.73</Version>
+    <Version>0.1.7.74</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -45,12 +45,15 @@
   <ItemGroup>
     <PackageReference Include="Costura.Fody">
       <Version>3.3.3</Version>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Fody" Version="4.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ModuleInit.Fody" Version="1.9.0" />
+    <PackageReference Include="ModuleInit.Fody" Version="1.9.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="OnUtils.Data.EntityFramework" Version="0.1.5.4" />
     <PackageReference Include="OnUtils.Tasks.MomentalThreading" Version="0.1.1.5" />
