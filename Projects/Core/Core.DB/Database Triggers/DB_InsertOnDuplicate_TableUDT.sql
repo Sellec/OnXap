@@ -1,9 +1,4 @@
-﻿
-
-
-
-
-CREATE TRIGGER [DB_InsertOnDuplicate_TableUDT] ON DATABASE 
+﻿CREATE TRIGGER [DB_InsertOnDuplicate_TableUDT] ON DATABASE 
 	FOR ALTER_TABLE, CREATE_TABLE
 AS 
 	IF IS_MEMBER ('db_owner') = 0
