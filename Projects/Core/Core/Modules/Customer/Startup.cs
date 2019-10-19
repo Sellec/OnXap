@@ -8,7 +8,6 @@ namespace OnXap.Modules.Customer
     {
         void IExecuteStart<OnXApplication>.ExecuteStart(OnXApplication core)
         {
-            core.Get<Core.Items.ItemsManager>().RegisterModuleItemType<User, ModuleCustomer>();
         }
     }
 }
