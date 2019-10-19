@@ -172,7 +172,7 @@ namespace OnXap.Binding.Providers
 
             var field = typeof(FileInfo).GetField("FullPath", BindingFlags.Instance | BindingFlags.NonPublic);
 
-            var paths = SourceDevelopmentPathList.Merge(SourcePathList);
+            var paths = SourceDevelopmentPathList.Union(SourcePathList).ToList();
 
             foreach (var path in paths)
             {
