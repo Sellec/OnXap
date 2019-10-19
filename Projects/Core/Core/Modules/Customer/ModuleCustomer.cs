@@ -27,7 +27,10 @@ namespace OnXap.Modules.Customer
             RegisterPermission(PERM_MANAGEUSERS, "Управление пользователями");
             RegisterPermission(PERM_MANAGEROLES, "Управление ролями");
             RegisterPermission(PERM_VIEWHISTORY, "Просмотр истории");
+        }
 
+        protected internal override void OnModuleStart()
+        {
             AppCore.Get<ItemsManager>().RegisterModuleItemType<User, ModuleCustomer>();
         }
 
