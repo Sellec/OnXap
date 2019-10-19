@@ -159,6 +159,18 @@ namespace OnXap.Core.Items
             where TModule : ModuleCore
         {
             var module = AppCore.Get<TModule>();
+            RegisterModuleItemType<TItemBase, TModule>(module);
+        }
+
+        /// <summary>
+        /// Связывает тип объекта <typeparamref name="TItemBase"/> с модулем типа <typeparamref name="TModule"/>.
+        /// </summary>
+        /// <seealso cref="ModuleCore{TSelfReference}.QueryType"/>
+        /// <seealso cref="ItemTypeAliasAttribute"/>
+        internal void RegisterModuleItemType<TItemBase, TModule>(TModule module)
+            where TItemBase : ItemBase
+            where TModule : ModuleCore
+        {
             var type = typeof(TItemBase);
             var typesList = new List<Type>() { type };
 

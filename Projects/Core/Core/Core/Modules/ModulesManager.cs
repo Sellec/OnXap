@@ -154,30 +154,21 @@ namespace OnXap.Core.Modules
 
                 var cfg = configurationManipulator.GetUsable<ModuleConfiguration<TModuleType>>();
 
-                try
-                {
-                    _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
-                    _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
-                    if (!string.IsNullOrEmpty(cfg.UrlName)) module._moduleUrlName = cfg.UrlName;
-                    module.InitModule();
-                    moduleRegisterHandlers.ForEach(x => x.OnModuleInitialized<TModuleType>(module));
+                if (!string.IsNullOrEmpty(cfg.UrlName)) module._moduleUrlName = cfg.UrlName;
+                module.InitModule();
+                moduleRegisterHandlers.ForEach(x => x.OnModuleInitialized<TModuleType>(module));
 
-                    _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
-                    LoadModuleCallModuleStart(module);
-                    _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
+                _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
+                LoadModuleCallModuleStart(module);
+                _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
 
-                    AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>("Журнал событий модуля '" + module.Caption + "'");
+                AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>("Журнал событий модуля '" + module.Caption + "'");
 
-                    this.RegisterEvent(
-                         EventType.Info,
-                        $"Загрузка модуля '{fullName}'",
-                        $"Модуль загружен на основе типа '{module.GetType().FullName}' с Id={config.IdModule}."
-                    );
-                }
-                catch
-                {
-                    _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
-                }
+                this.RegisterEvent(
+                     EventType.Info,
+                    $"Загрузка модуля '{fullName}'",
+                    $"Модуль загружен на основе типа '{module.GetType().FullName}' с Id={config.IdModule}."
+                );
             }
         }
 
