@@ -80,10 +80,5 @@ namespace OnXap.Core.Items
         {
             return Caption;
         }
-
-        internal IModuleCoreInternal OwnerModuleWeb
-        {
-            get => (IModuleCoreInternal)OwnerModule;
-        }
     }
 }

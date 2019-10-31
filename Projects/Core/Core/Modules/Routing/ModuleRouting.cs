@@ -220,7 +220,7 @@ namespace OnXap.Modules.Routing
 
             if (itemsEmpty.Count > 0)
             {
-                itemsEmpty.GroupBy(x => x.OwnerModuleWeb, x => x).ForEach(gr_ =>
+                itemsEmpty.GroupBy(x => x.OwnerModule, x => x).ForEach(gr_ =>
                 {
                     if (gr_.Key != null)
                     {

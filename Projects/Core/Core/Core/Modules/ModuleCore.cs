@@ -6,8 +6,8 @@ namespace OnXap.Core.Modules
 {
     using Configuration;
     using Core.Items;
-    using Users;
     using Journaling;
+    using Users;
 
     /// <summary>
     /// Базовый класс для всех модулей. Обязателен при реализации любых модулей, т.к. при задании привязок в DI проверяется наследование именно от этого класса.
@@ -237,6 +237,26 @@ namespace OnXap.Core.Modules
 
         #region Блок функций, переопределение которых может потребоваться для расширений и других модулей
         /// <summary>
+        /// Возвращает ссылку для переданного объекта.
+        /// Вызывается в случае, когда для объекта не был найден адрес в системе маршрутизации по ключу <see cref="RoutingConstants.MAINKEY"/>.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Uri GenerateLink(ItemBase item)
+        {
+            throw new NotImplementedException(string.Format("Метод 'GenerateLink' класса '{0}' не определен в производном классе '{1}'", typeof(ModuleCore).FullName, GetType().FullName));
+        }
+
+        /// <summary>
+        /// Возвращает ссылку для переданного объекта.
+        /// Вызывается для объектов, для которых не был найден адрес в системе маршрутизации по ключу <see cref="RoutingConstants.MAINKEY"/>.
+        /// </summary>
+        /// <returns></returns>
+        public virtual IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items)
+        {
+            return items.ToDictionary(x => x, x => GenerateLink(x));
+        }
+
+        /// <summary>
         /// Уничтожает и выгружает модуль.
         /// </summary>
         public virtual void Dispose()
@@ -351,26 +371,6 @@ namespace OnXap.Core.Modules
         public sealed override Type QueryType
         {
             get => typeof(TSelfReference);
-        }
-
-        /// <summary>
-        /// Возвращает ссылку для переданного объекта.
-        /// Вызывается в случае, когда для объекта не был найден адрес в системе маршрутизации по ключу <see cref="RoutingConstants.MAINKEY"/>.
-        /// </summary>
-        /// <returns></returns>
-        public virtual Uri GenerateLink(ItemBase item)
-        {
-            throw new NotImplementedException(string.Format("Метод 'GenerateLink' класса '{0}' не определен в производном классе '{1}'", typeof(ModuleCore<TSelfReference>).FullName, GetType().FullName));
-        }
-
-        /// <summary>
-        /// Возвращает ссылку для переданного объекта.
-        /// Вызывается для объектов, для которых не был найден адрес в системе маршрутизации по ключу <see cref="RoutingConstants.MAINKEY"/>.
-        /// </summary>
-        /// <returns></returns>
-        public virtual IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items)
-        {
-            return items.ToDictionary(x => x, x => GenerateLink(x));
         }
 
         /// <summary>
