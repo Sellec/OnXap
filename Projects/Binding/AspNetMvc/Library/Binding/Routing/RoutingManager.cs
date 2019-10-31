@@ -124,7 +124,7 @@ namespace OnXap.Binding.Routing
 
         string IMonitoredService.ServiceName
         {
-            get => "Менеджер адресов КЛАДР/ФИАС";
+            get => "Менеджер ЧПУ";
         }
 
         string IMonitoredService.ServiceStatusDetailed

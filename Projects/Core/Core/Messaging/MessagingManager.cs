@@ -89,19 +89,19 @@ namespace OnXap.Messaging
         #region Методы
         internal static void CallServiceIncomingHandle(Type serviceType)
         {
-            var service = _appCore.Get<MessagingManager>()._services.FirstOrDefault(x => x.GetType() == serviceType);
+            var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
             service?.PrepareIncomingHandle();
         }
 
         internal static void CallServiceIncomingReceive(Type serviceType)
         {
-            var service = _appCore.Get<MessagingManager>()._services.FirstOrDefault(x => x.GetType() == serviceType);
+            var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
             service?.PrepareIncomingReceive();
         }
 
         internal static void CallServiceOutcoming(Type serviceType)
         {
-            var service = _appCore.Get<MessagingManager>()._services.FirstOrDefault(x => x.GetType() == serviceType);
+            var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
             service?.PrepareOutcoming();
         }
 
