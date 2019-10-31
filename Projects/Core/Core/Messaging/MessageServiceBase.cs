@@ -123,6 +123,10 @@ namespace OnXap.Messaging
         {
             try
             {
+                var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+#pragma warning disable CS0618
+                resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
+
                 using (var db = this.CreateUnitOfWork())
                 {
                     var mess = new DB.MessageQueue()
@@ -131,7 +135,7 @@ namespace OnXap.Messaging
                         StateType = DB.MessageStateType.NotProcessed,
                         Direction = false,
                         DateCreate = DateTime.Now,
-                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message),
+                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }),
                     };
 
                     db.MessageQueue.Add(mess);
