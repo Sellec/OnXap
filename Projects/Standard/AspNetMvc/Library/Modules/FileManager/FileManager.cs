@@ -681,6 +681,7 @@ namespace OnXap.Modules.FileManager
                 using (var db = this.CreateUnitOfWork())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
+                    db.DataContext.QueryTimeout = (int)TimeSpan.FromMinutes(5).TotalMilliseconds;
                     var result = db.DataContext.StoredProcedure<object>("Maintenance_RebuildIndexes", new { MinimumIndexFragmentstionToSearch = 5 });
                 }
             }
