@@ -8,6 +8,8 @@ using OnUtils.Architecture.AppCore;
 using OnUtils.Data;
 using OnUtils.Items;
 
+#pragma warning disable CS0618
+
 namespace OnXap.Messaging
 {
     using Core;
@@ -123,6 +125,9 @@ namespace OnXap.Messaging
         {
             try
             {
+                var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
+
                 using (var db = this.CreateUnitOfWork())
                 {
                     var mess = new DB.MessageQueue()
@@ -131,7 +136,7 @@ namespace OnXap.Messaging
                         StateType = DB.MessageStateType.NotProcessed,
                         Direction = false,
                         DateCreate = DateTime.Now,
-                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message),
+                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }),
                     };
 
                     db.MessageQueue.Add(mess);
@@ -163,6 +168,9 @@ namespace OnXap.Messaging
         {
             try
             {
+                var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
+
                 using (var db = this.CreateUnitOfWork())
                 {
                     var mess = new DB.MessageQueue()
@@ -171,7 +179,7 @@ namespace OnXap.Messaging
                         StateType = DB.MessageStateType.NotProcessed,
                         Direction = true,
                         DateCreate = DateTime.Now,
-                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message),
+                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }),
                     };
 
                     db.MessageQueue.Add(mess);
@@ -207,10 +215,21 @@ namespace OnXap.Messaging
                 var message = db.MessageQueue.Where(x => x.IdQueue == idMessage).FirstOrDefault();
                 if (message == null || message.IdMessageType != IdMessageType) return null;
 
+                var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+                resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
+
                 try
                 {
                     var str = message.MessageInfo;
-                    return new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(str), message));
+                    return new MessageInfo<TMessage>(
+                        new IntermediateStateMessage<TMessage>(
+                            Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(
+                                str, 
+                                new Newtonsoft.Json.JsonSerializerSettings(){ ContractResolver = resolver }
+                            ), 
+                            message
+                        )
+                    );
                 }
                 catch (Exception ex)
                 {
@@ -227,12 +246,21 @@ namespace OnXap.Messaging
                 Where(x => x.Direction == direction && x.IdMessageType == IdMessageType && (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat)).
                 ToList();
 
+            var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+            resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
+
             var messagesUnserialized = messages.Select(x =>
             {
                 try
                 {
                     var str = x.MessageInfo;
-                    return new IntermediateStateMessage<TMessage>(Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(str), x);
+                    return new IntermediateStateMessage<TMessage>(
+                        Newtonsoft.Json.JsonConvert.DeserializeObject<TMessage>(
+                            str,
+                            new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }
+                        ),
+                        x
+                    );
                 }
                 catch (Exception ex)
                 {
