@@ -128,8 +128,8 @@ namespace OnXap.Modules.FileManager
                                     var paramss = string.Join("&", new List<string>() { !MaxWidth.HasValue ? null : "MaxWidth=" + MaxWidth.Value, !MaxHeight.HasValue ? null : "MaxHeight=" + MaxHeight.Value }.
                                     Where(x => !string.IsNullOrEmpty(x)));
 
-                                    var url = Routing.UrlManager.CombineUrlParts(Module.ExternalFileSourceDomain.ToString(), Module.UrlName, nameof(FileImage), IdFile.Value.ToString(), (!string.IsNullOrEmpty(paramss) ? "?" + paramss : ""));
-                                    return Redirect(url);
+                                    var url = Routing.UrlManager.CombineUrlParts(Module.UrlName, nameof(FileImage), IdFile.Value.ToString(), (!string.IsNullOrEmpty(paramss) ? "?" + paramss : ""));
+                                    return Redirect(new Uri(Module.ExternalFileSourceDomain, url)?.ToString());
                                 }
                             }
                             else
@@ -215,13 +215,13 @@ namespace OnXap.Modules.FileManager
                             if (!System.IO.File.Exists(Path.Combine(rootDirectory, file.PathFile)) && !System.IO.File.Exists(Path.Combine(rootDirectory, "bin", file.PathFile)))
                             {
                                 filePath = "data/img/files/notfound.jpg"; //Файл не найден.
-                                if (Debug.IsDeveloper)
+                                if (Module.ExternalFileSourceDomain != null)
                                 {
                                     var paramss = string.Join("&", new List<string>() { !MaxWidth.HasValue ? null : "MaxWidth=" + MaxWidth.Value, !MaxHeight.HasValue ? null : "MaxHeight=" + MaxHeight.Value }.
                                     Where(x => !string.IsNullOrEmpty(x)));
 
-                                    var url = Routing.UrlManager.CombineUrlParts(Module.ExternalFileSourceDomain.ToString(), Module.UrlName, nameof(FileImageCrop), IdFile.Value.ToString(), (!string.IsNullOrEmpty(paramss) ? "?" + paramss : ""));
-                                    return Redirect(url);
+                                    var url = Routing.UrlManager.CombineUrlParts(Module.UrlName, nameof(FileImageCrop), IdFile.Value.ToString(), (!string.IsNullOrEmpty(paramss) ? "?" + paramss : ""));
+                                    return Redirect(new Uri(Module.ExternalFileSourceDomain, url)?.ToString());
                                 }
                             }
                             else
