@@ -64,6 +64,8 @@ namespace OnXap
             // Сначала маршруты панели управления, т.к. у них заведомо специфичный адрес.
             var moduleAdmin = Get<Modules.Admin.ModuleAdmin>();
 
+            routes.Clear();
+
             routes.Add("AdminRoute1", new RouteWithDefaults(
                 this,
                 moduleAdmin.UrlName + "/mnadmin/{controller}/{action}/{*url}",

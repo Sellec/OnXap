@@ -178,7 +178,7 @@ namespace OnXap.Binding.Providers
             method.Invoke(controller, new object[] { module });
 
             var methods = controller.GetType().GetMethods();
-            var action = routeValues["action"].ToString();
+            var action = routeValues["action"]?.ToString() ?? "";
             method = (from p in methods where p.Name.ToLower() == action.ToLower() select p).FirstOrDefault();
             if (method == null)
             {
