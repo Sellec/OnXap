@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[CustomFieldsData] (
-    [IdFieldData]  INT            IDENTITY (1, 1) NOT NULL,
+    [IdFieldData]  BIGINT            IDENTITY (1, 1) NOT NULL,
     [IdField]      INT            NOT NULL,
     [IdItem]       INT            NOT NULL,
     [IdItemType]   INT            NOT NULL,

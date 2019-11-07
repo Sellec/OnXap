@@ -8,7 +8,7 @@ namespace OnXap.Core.Modules.ItemsCustomize.DB
     public class CustomFieldsData
     {
         [Key]
-        public int IdFieldData { get; set; }
+        public long IdFieldData { get; set; }
 
         public int IdField { get; set; }
 
