@@ -370,6 +370,9 @@
   <ItemGroup>
     <None Include="Сравнение схем.scmp" />
   </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Core.DB.refactorlog" />
+  </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(SolutionDir)..\Build\" mkdir "$(SolutionDir)..\Build\"
       copy /y "$(ProjectDir)$(OutputPath)$(TargetDatabase).dacpac" "$(SolutionDir)..\Build\"</PostBuildEvent>

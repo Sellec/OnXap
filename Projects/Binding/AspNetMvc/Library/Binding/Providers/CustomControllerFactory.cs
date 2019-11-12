@@ -52,7 +52,6 @@ namespace OnXap.Binding.Providers
                 context = sessionBinder.RestoreUserContextFromRequest();
                 if (context != null && !context.IsGuest)
                 {
-                    AppCore.Get<OnXap.Modules.Auth.ModuleAuth>()?.RegisterEvent(EventType.CriticalError, "Нарушение процесса авторизации", null);
                     AppCore.GetUserContextManager().SetCurrentUserContext(context);
                 }
             }
