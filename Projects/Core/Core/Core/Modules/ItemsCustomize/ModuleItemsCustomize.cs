@@ -457,7 +457,7 @@ namespace OnXap.Core.Modules.ItemsCustomize
         public Data.DefaultSchemeWData GetItemFields<TItem>(TItem item) where TItem : Items.ItemBase
         {
             var fields = GetItemsFields(new List<TItem>() { item });
-            return fields.Select(x=>x.Value).FirstOrDefault();
+            return fields?.Select(x=>x.Value)?.FirstOrDefault();
         }
 
         public IScheme<Field.IField> getSchemeFullByItem2(int itemID, int itemType, uint? schemeID = null)
