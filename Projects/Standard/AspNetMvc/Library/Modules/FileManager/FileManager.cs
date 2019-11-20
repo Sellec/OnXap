@@ -261,6 +261,8 @@ namespace OnXap.Modules.FileManager
                     data.DateExpire = dateExpires;
                     data.IdUserChange = context.IdUser;
                     data.UniqueKey = uniqueKey;
+                    data.IsRemoved = false;
+                    data.IsRemoving = false;
 
                     var fileInfo = new FileInfo(pathFileFull);
                     var fileType = fileInfo.GetFileType();
