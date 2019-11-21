@@ -666,7 +666,7 @@ namespace OnXap.Messaging
                                             break;
 
                                         case MessageStateType.Delayed:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
                                             intermediateMessage.MessageSource.State = componentResult.State;
                                             intermediateMessage.MessageSource.IdTypeComponent = null;
                                             intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
