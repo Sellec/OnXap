@@ -1,5 +1,4 @@
 ﻿using System;
-using OnUtils.Items;
 
 namespace OnXap.Messaging.Messages
 {
@@ -8,16 +7,15 @@ namespace OnXap.Messaging.Messages
     /// <summary>
     /// Предоставляет информацию о сообщении.
     /// </summary>
-    public class MessageInfo<TMessage> : ItemBase where TMessage : MessageBase
+    public class MessageInfo<TMessage> : ItemBase 
+        where TMessage : MessageBase
     {
-        private string _state = null;
         private int _idMessage = 0;
 
         internal MessageInfo(IntermediateStateMessage<TMessage> intermediateMessage)
         {
             _idMessage = intermediateMessage.MessageSource.IdQueue;
             Message = intermediateMessage.Message;
-            StateType = MessageStateType.NotHandled;
             State = intermediateMessage.MessageSource.State;
         }
 
@@ -25,12 +23,10 @@ namespace OnXap.Messaging.Messages
         /// Создает новый экземпляр объекта.
         /// </summary>
         /// <param name="message">См. <see cref="Message"/>.</param>
-        /// <param name="messageState">См. <see cref="StateType"/>.</param>
         /// <param name="state">См. <see cref="State"/>.</param>
-        public MessageInfo(TMessage message, MessageStateType messageState = MessageStateType.NotHandled, string state = null)
+        public MessageInfo(TMessage message, string state = null)
         {
             Message = message;
-            StateType = messageState;
             State = state;
         }
 
@@ -40,23 +36,10 @@ namespace OnXap.Messaging.Messages
         public TMessage Message { get; }
 
         /// <summary>
-        /// Состояние сообщения.
-        /// </summary>
-        public MessageStateType StateType { get; set; }
-
-        /// <summary>
         /// Дополнительное состояние сообщения. 
         /// Позволяет переносить дополнительную информацию о состоянии сообщения.
         /// </summary>
-        public string State
-        {
-            get => _state;
-            set
-            {
-                if (!string.IsNullOrEmpty(value) && value.Length > 200) throw new ArgumentOutOfRangeException("Длина состояния не может превышать 200 символов.");
-                _state = value;
-            }
-        }
+        public string State { get; }
 
         #region ItemBase
         /// <summary>
@@ -76,4 +59,39 @@ namespace OnXap.Messaging.Messages
         #endregion
     }
 
+    /// <summary>
+    /// Предоставляет информацию о принятом сообщении.
+    /// </summary>
+    public class ReceivedMessageInfo<TMessage> : MessageInfo<TMessage>
+        where TMessage : MessageBase
+    {
+        /// <summary>
+        /// Создает новый экземпляр принятого сообщения.
+        /// </summary>
+        /// <param name="message">См. <see cref="MessageInfo{TMessage}.Message"/>.</param>
+        /// <param name="state">См. <see cref="MessageInfo{TMessage}.State"/>.</param>
+        /// <param name="dateDelayed">Если задано, указывает время, после которого разрешено обрабатывать сообщение.</param>
+        /// <param name="isComplete">Если равно true, то сообщение сразу помечается, как обработанное и не поступает в очередь для дальнейшей обработки в компонентах <see cref="Components.IncomingMessageHandler{TMessage}"/>.</param>
+        /// <param name="isError">Если равно true, то сообщение отмечено как обработанное с ошибкой, state используется для передачи сообщения об ошибке.</param>
+        public ReceivedMessageInfo(TMessage message, string state = null, DateTime? dateDelayed = null, bool isComplete = false, bool isError = false) : base(message, state)
+        {
+            dateDelayed = DateDelayed;
+            IsComplete = isComplete;
+        }
+
+        /// <summary>
+        /// Если задано, указывает время, после которого разрешено обрабатывать сообщение.
+        /// </summary>
+        public DateTime? DateDelayed { get; }
+
+        /// <summary>
+        /// Если равно true, то сообщение не поступает в очередь для дальнейшей обработки в компонентах <see cref="Components.IncomingMessageHandler{TMessage}"/>.
+        /// </summary>
+        public bool IsComplete { get; }
+
+        /// <summary>
+        /// Если равно true, то сообщение отмечено как обработанное с ошибкой, state используется для передачи сообщения об ошибке.
+        /// </summary>
+        public bool IsError { get; }
+    }
 }

@@ -27,6 +27,11 @@ namespace OnXap.Messaging.DB
 
         public int? IdTypeComponent { get; set; }
 
+        /// <summary>
+        /// ƒата, до которой отложена обработка сообщени€.
+        /// </summary>
+        public DateTime? DateDelayed { get; set; }
+
         public DateTime? DateChange { get; set; }
 
         public string MessageInfo { get; set; }

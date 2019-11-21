@@ -320,31 +320,30 @@
     <Build Include="dbo\User Defined Types\dbo.TVP_FileRemoveQueue.sql" />
     <Build Include="Database Triggers\DB_InsertOnDuplicate_TableUDT.sql" />
     <Build Include="Database Triggers\DB_InsertOnDuplicate_TableUDT_Remove.sql" />
-    <Build Include="dbo\Functions\FROM_UNIXTIME.sql" />
-    <Build Include="dbo\Functions\InsertOnDuplicate_MergeFilters.sql">
+    <Build Include="dbo\Functions\dbo.FROM_UNIXTIME.sql" />
+    <Build Include="dbo\Functions\dbo.InsertOnDuplicate_MergeFilters.sql">
       <AnsiNulls>Off</AnsiNulls>
       <QuotedIdentifier>Off</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Functions\InsertOnDuplicate_TypesDefaultValues.sql">
+    <Build Include="dbo\Functions\dbo.InsertOnDuplicate_TypesDefaultValues.sql">
       <AnsiNulls>Off</AnsiNulls>
       <QuotedIdentifier>Off</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Stored Procedures\InsertOnDuplicate_CreateQuery.sql" />
-    <Build Include="dbo\Stored Procedures\InsertOnDuplicate_CreateTableUDT.sql" />
-    <Build Include="dbo\Tables\InsertOnDuplicate_MergeFiltersCache.sql" />
-    <Build Include="dbo\Tables\ItemParent.sql" />
-    <Build Include="dbo\Tables\ItemType.sql" />
-    <Build Include="dbo\Tables\Journal.sql" />
-    <Build Include="dbo\Tables\JournalName.sql" />
-    <Build Include="dbo\Tables\MessageQueue.sql" />
-    <Build Include="dbo\Tables\MessageQueueHistory.sql" />
-    <Build Include="dbo\Tables\ModuleConfig.sql" />
-    <Build Include="dbo\Tables\Role.sql" />
-    <Build Include="dbo\Tables\RolePermission.sql" />
-    <Build Include="dbo\Tables\RoleUser.sql" />
-    <Build Include="dbo\Tables\RoleUserHistory.sql" />
-    <Build Include="dbo\Tables\UserBase.sql" />
-    <Build Include="dbo\Tables\UserEntity.sql" />
+    <Build Include="dbo\Stored Procedures\dbo.InsertOnDuplicate_CreateQuery.sql" />
+    <Build Include="dbo\Stored Procedures\dbo.InsertOnDuplicate_CreateTableUDT.sql" />
+    <Build Include="dbo\Tables\dbo.InsertOnDuplicate_MergeFiltersCache.sql" />
+    <Build Include="dbo\Tables\dbo.ItemParent.sql" />
+    <Build Include="dbo\Tables\dbo.ItemType.sql" />
+    <Build Include="dbo\Tables\dbo.Journal.sql" />
+    <Build Include="dbo\Tables\dbo.JournalName.sql" />
+    <Build Include="dbo\Tables\dbo.MessageQueueHistory.sql" />
+    <Build Include="dbo\Tables\dbo.ModuleConfig.sql" />
+    <Build Include="dbo\Tables\dbo.Role.sql" />
+    <Build Include="dbo\Tables\dbo.RolePermission.sql" />
+    <Build Include="dbo\Tables\dbo.RoleUser.sql" />
+    <Build Include="dbo\Tables\dbo.RoleUserHistory.sql" />
+    <Build Include="dbo\Tables\dbo.UserBase.sql" />
+    <Build Include="dbo\Tables\dbo.UserEntity.sql" />
     <Build Include="dbo\User Defined Types\TVP_ItemParent.sql" />
     <Build Include="dbo\User Defined Types\TVP_ItemType.sql" />
     <Build Include="dbo\User Defined Types\TVP_Journal.sql" />
@@ -359,6 +358,10 @@
     <Build Include="dbo\User Defined Types\TVP_UserBase.sql" />
     <Build Include="dbo\User Defined Types\TVP_UserEntity.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_InsertOnDuplicate_Filters.sql" />
+    <Build Include="dbo\Tables\dbo.MessageQueue.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac">

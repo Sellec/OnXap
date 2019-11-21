@@ -7,9 +7,8 @@
     [State]           NVARCHAR (200) NULL,
     [IdTypeComponent] INT            NULL,
     [DateChange]      DATETIME       NULL,
+    [DateDelayed]     DATETIME       NULL,
     [MessageInfo]     NVARCHAR (MAX) NULL,
     CONSTRAINT [PK_MessageQueue] PRIMARY KEY CLUSTERED ([IdQueue] ASC)
 );
-
-
 

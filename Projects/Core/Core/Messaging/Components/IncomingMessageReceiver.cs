@@ -35,14 +35,14 @@ namespace OnXap.Messaging.Components
         /// Дополнительные типы исключений, которые могут возникнуть во время получения сообщений, могут быть описаны в документации компонента.
         /// Метод не предусматривает обработку ошибок, которые могут возникнуть во время фиксации полученных сообщений. 
         /// Например, если сообщения во внешней системе были помечены как полученные во время вызова метода и после этого возникла ошибка уровня базы данных при полученных сохранении сообщений, невозможно отменить отметку "Получено" во внешней системе. 
-        /// Для этого необходимо воспользоваться методами <see cref="OnBeginReceive(MessageServiceBase{TMessage})"/> / <see cref="OnEndReceive(bool, MessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
+        /// Для этого необходимо воспользоваться методами <see cref="OnBeginReceive(MessageServiceBase{TMessage})"/> / <see cref="OnEndReceive(bool, ReceivedMessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
         /// </remarks>
         [ApiIrreversible]
-        internal protected abstract List<MessageInfo<TMessage>> OnReceive(MessageServiceBase<TMessage> service);
+        internal protected abstract List<ReceivedMessageInfo<TMessage>> OnReceive(MessageServiceBase<TMessage> service);
 
         /// <summary>
         /// Вызывается для получения одного сообщения для регистрации в сервисе для дальнейшей обработки. 
-        /// После регистрации сообщения вызывается <see cref="OnEndReceive(bool, MessageInfo{TMessage}, MessageServiceBase{TMessage})"/> с информацией об успешности регистрации сообщения.
+        /// После регистрации сообщения вызывается <see cref="OnEndReceive(bool, ReceivedMessageInfo{TMessage}, MessageServiceBase{TMessage})"/> с информацией об успешности регистрации сообщения.
         /// </summary>
         /// <param name="service">Сервис обработки сообщений, в котором будут зарегистрированы новые сообщения.</param>
         /// <returns>Возвращает информацию о полученном сообщении. Если возвращает не null, то после обработки возвращенного объекта вызывается повторно для получения следующего сообщения до тех пор, пока не вернет null.</returns>
@@ -50,11 +50,11 @@ namespace OnXap.Messaging.Components
         /// Дополнительные типы исключений, которые могут возникнуть во время получения сообщений, могут быть описаны в документации компонента.
         /// Метод предусматривает обработку ошибок, которые могут возникнуть во время фиксации полученных сообщений. 
         /// Например, если сообщения во внешней системе были помечены как полученные во время вызова метода и после этого возникла ошибка уровня базы данных при полученных сохранении сообщений, 
-        /// возможно отменить отметку "Получено" во внешней системе во время вызова <see cref="OnEndReceive(bool, MessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
+        /// возможно отменить отметку "Получено" во внешней системе во время вызова <see cref="OnEndReceive(bool, ReceivedMessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
         /// </remarks>
-        /// <seealso cref="OnEndReceive(bool, MessageInfo{TMessage}, MessageServiceBase{TMessage})"/>
+        /// <seealso cref="OnEndReceive(bool, ReceivedMessageInfo{TMessage}, MessageServiceBase{TMessage})"/>
         [ApiIrreversible]
-        internal protected abstract MessageInfo<TMessage> OnBeginReceive(MessageServiceBase<TMessage> service);
+        internal protected abstract ReceivedMessageInfo<TMessage> OnBeginReceive(MessageServiceBase<TMessage> service);
 
         /// <summary>
         /// Вызывается после получения сообщения в <see cref="OnBeginReceive(MessageServiceBase{TMessage})"/> и регистрации в сервисе для дальнейшей обработки. 
@@ -70,7 +70,7 @@ namespace OnXap.Messaging.Components
         /// то можно вернуть false и зарегистрированное сообщение будет удалено.
         /// </remarks>
         [ApiIrreversible]
-        internal protected abstract bool OnEndReceive(bool isSuccess, MessageInfo<TMessage> messageInfo, MessageServiceBase<TMessage> service);
+        internal protected abstract bool OnEndReceive(bool isSuccess, ReceivedMessageInfo<TMessage> messageInfo, MessageServiceBase<TMessage> service);
 
     }
 }

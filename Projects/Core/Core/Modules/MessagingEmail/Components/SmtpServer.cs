@@ -79,7 +79,7 @@ namespace OnXap.Modules.MessagingEmail.Components
         /// <summary>
         /// См. <see cref="OutcomingMessageSender{TMessage}.OnSend(MessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
         /// </summary>
-        internal protected override bool OnSend(MessageInfo<EmailMessage> message, MessageServiceBase<EmailMessage> service)
+        internal protected override ComponentResult OnSend(MessageInfo<EmailMessage> message, MessageServiceBase<EmailMessage> service)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace OnXap.Modules.MessagingEmail.Components
                 };
 
                 var developerEmail = AppCore.WebConfig.DeveloperEmail;
-                if (Debug.IsDeveloper && string.IsNullOrEmpty(developerEmail)) return false;
+                if (Debug.IsDeveloper && string.IsNullOrEmpty(developerEmail)) return ComponentResult.NotHandled;
 
                 message.Message.To.ForEach(x => mailMessage.To.Add(new MailAddress(Debug.IsDeveloper ? developerEmail : x.ContactData, string.IsNullOrEmpty(x.Name) ? x.ContactData : x.Name)));
 
@@ -105,8 +105,7 @@ namespace OnXap.Modules.MessagingEmail.Components
                         ServicePointManager.ServerCertificateValidationCallback = _certCallback;
                     }
                     getClient().Send(mailMessage);
-                    message.StateType = MessageStateType.Completed;
-                    return true;
+                    return ComponentResult.Complete;
                 }
                 catch (System.Security.Authentication.AuthenticationException ex)
                 {
@@ -115,15 +114,13 @@ namespace OnXap.Modules.MessagingEmail.Components
                         service.RegisterServiceEvent(EventType.Error, "SMTP - ошибка отправки письма", "Ошибка проверки сертификата", ex);
                         _certErrorTimeout = DateTime.Now.AddMinutes(15);
                     }
-                    return false;
+                    return ComponentResult.NotHandled;
                 }
                 catch (SmtpException ex)
                 {
                     if (ex.Message.Contains("5.7.1 Client does not have permissions to send as this sender"))
                     {
-                        message.State = $"У пользователя, от имени которого выполняется подключение к почтовому серверу, недостаточно прав для отправки писем от имени '{message.Message.From.ContactData}'.";
-                        message.StateType = MessageStateType.Error;
-                        return true;
+                        return ComponentResult.Error($"У пользователя, от имени которого выполняется подключение к почтовому серверу, недостаточно прав для отправки писем от имени '{message.Message.From.ContactData}'.");
                     }
 
                     var canBeResend = true;
@@ -154,8 +151,7 @@ namespace OnXap.Modules.MessagingEmail.Components
                                 catch { }
 
                                 getClient().Send(mailMessage);
-                                message.StateType = MessageStateType.Completed;
-                                return true;
+                                return ComponentResult.Complete;
 
                             default:
                                 throw;
@@ -179,14 +175,12 @@ namespace OnXap.Modules.MessagingEmail.Components
             catch (FormatException ex)
             {
                 service.RegisterServiceEvent(EventType.Error, "SMTP - ошибка отправки письма", "Некорректный Email-адрес", ex);
-                message.StateType = MessageStateType.Error;
-                message.State = "Некорректный Email-адрес";
-                return true;
+                return ComponentResult.Error("Некорректный Email-адрес");
             }
             catch (Exception ex)
             {
                 service.RegisterServiceEvent(EventType.Error, "SMTP - ошибка отправки письма", null, ex);
-                return false;
+                return ComponentResult.NotHandled;
             }
         }
 

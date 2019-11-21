@@ -242,9 +242,14 @@ namespace OnXap.Messaging
 
         private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction)
         {
-            var messages = db.MessageQueue.
-                Where(x => x.Direction == direction && x.IdMessageType == IdMessageType && (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat)).
-                ToList();
+            var query = db.MessageQueue.Where(x =>
+                x.Direction == direction &&
+                x.IdMessageType == IdMessageType &&
+                (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat) &&
+                (!x.DateDelayed.HasValue || x.DateDelayed.Value <= DateTime.Now)
+            );
+
+            var messages = query.ToList();
 
             var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
             resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
@@ -355,29 +360,40 @@ namespace OnXap.Messaging
                             {
                                 var component = componentInfo.Component;
                                 var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
-                                if (component.OnSend(messageInfo, this))
+                                var componentResult = component.OnSend(messageInfo, this);
+                                if (componentResult != null)
                                 {
-                                    if (messageInfo.StateType == MessageStateType.NotHandled) messageInfo.StateType = MessageStateType.Completed;
                                     intermediateMessage.MessageSource.DateChange = DateTime.Now;
-                                    switch (messageInfo.StateType)
+                                    switch (componentResult.StateType)
                                     {
-                                        case MessageStateType.Error:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.MessageSource.State = messageInfo.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            break;
-
-                                        case MessageStateType.Repeat:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.MessageSource.State = messageInfo.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                            break;
-
                                         case MessageStateType.Completed:
                                             intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
                                             intermediateMessage.MessageSource.State = null;
                                             intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = null;
                                             break;
+
+                                        case MessageStateType.Delayed:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                            break;
+
+                                        case MessageStateType.Repeat:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
+                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                            break;
+
+                                        case MessageStateType.Error:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                            break;
+
                                     }
                                     processedMessages.Add(intermediateMessage);
                                     break;
@@ -462,25 +478,8 @@ namespace OnXap.Messaging
                                     if (message == null) continue;
 
                                     var stateType = DB.MessageStateType.NotProcessed;
-                                    switch (message.StateType)
-                                    {
-                                        case MessageStateType.Completed:
-                                            stateType = DB.MessageStateType.Complete;
-                                            break;
-
-                                        case MessageStateType.Error:
-                                            stateType = DB.MessageStateType.Error;
-                                            break;
-
-                                        case MessageStateType.NotHandled:
-                                            stateType = DB.MessageStateType.NotProcessed;
-                                            break;
-
-                                        case MessageStateType.Repeat:
-                                            stateType = DB.MessageStateType.Repeat;
-                                            break;
-
-                                    }
+                                    if (message.IsComplete) stateType = DB.MessageStateType.Complete;
+                                    if (message.IsError) stateType = DB.MessageStateType.Error;
 
                                     var mess = new DB.MessageQueue()
                                     {
@@ -489,6 +488,7 @@ namespace OnXap.Messaging
                                         State = message.State,
                                         StateType = stateType,
                                         DateCreate = DateTime.Now,
+                                        DateDelayed = message.DateDelayed,
                                         MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
                                     };
 
@@ -522,25 +522,8 @@ namespace OnXap.Messaging
                                 DB.MessageQueue queueMessage = null;
 
                                 var queueState = DB.MessageStateType.NotProcessed;
-                                switch (message.StateType)
-                                {
-                                    case MessageStateType.Completed:
-                                        queueState = DB.MessageStateType.Complete;
-                                        break;
-
-                                    case MessageStateType.Error:
-                                        queueState = DB.MessageStateType.Error;
-                                        break;
-
-                                    case MessageStateType.NotHandled:
-                                        queueState = DB.MessageStateType.NotProcessed;
-                                        break;
-
-                                    case MessageStateType.Repeat:
-                                        queueState = DB.MessageStateType.Repeat;
-                                        break;
-
-                                }
+                                if (message.IsComplete) queueState = DB.MessageStateType.Complete;
+                                if (message.IsError) queueState = DB.MessageStateType.Error;
 
                                 try
                                 {
@@ -551,6 +534,7 @@ namespace OnXap.Messaging
                                         State = message.State,
                                         StateType = DB.MessageStateType.IntermediateAdded,
                                         DateCreate = DateTime.Now,
+                                        DateDelayed = message.DateDelayed,
                                         MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
                                     };
 
@@ -668,28 +652,38 @@ namespace OnXap.Messaging
                             {
                                 var component = componentInfo.Component;
                                 var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
-                                if (component.OnPrepare(messageInfo, this))
+                                var componentResult = component.OnPrepare(messageInfo, this);
+                                if (componentResult != null)
                                 {
-                                    if (messageInfo.StateType == MessageStateType.NotHandled) messageInfo.StateType = MessageStateType.Completed;
                                     intermediateMessage.MessageSource.DateChange = DateTime.Now;
-                                    switch (messageInfo.StateType)
+                                    switch (componentResult.StateType)
                                     {
-                                        case MessageStateType.Error:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.MessageSource.State = messageInfo.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            break;
-
-                                        case MessageStateType.Repeat:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.MessageSource.State = messageInfo.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                            break;
-
                                         case MessageStateType.Completed:
                                             intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
                                             intermediateMessage.MessageSource.State = null;
                                             intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = null;
+                                            break;
+
+                                        case MessageStateType.Delayed:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                            break;
+
+                                        case MessageStateType.Repeat:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
+                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                            break;
+
+                                        case MessageStateType.Error:
+                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                            intermediateMessage.MessageSource.State = componentResult.State;
+                                            intermediateMessage.MessageSource.IdTypeComponent = null;
+                                            intermediateMessage.MessageSource.DateDelayed = null;
                                             break;
                                     }
                                     db.SaveChanges();

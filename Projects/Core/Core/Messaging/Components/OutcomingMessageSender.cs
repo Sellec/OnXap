@@ -34,6 +34,6 @@ namespace OnXap.Messaging.Components
         /// <returns>Если возвращает true, то сообщение считается обработанным (см. <see cref="MessageStateType.Completed"/>).</returns>
         /// <remarks>Дополнительные типы исключений, которые могут возникнуть во время отправки сообщения, могут быть описаны в документации компонента.</remarks>
         [ApiIrreversible]
-        internal protected abstract bool OnSend(MessageInfo<TMessage> messageInfo, MessageServiceBase<TMessage> service);
+        internal protected abstract ComponentResult OnSend(MessageInfo<TMessage> messageInfo, MessageServiceBase<TMessage> service);
     }
 }
