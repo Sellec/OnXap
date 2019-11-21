@@ -242,11 +242,12 @@ namespace OnXap.Messaging
 
         private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction)
         {
+            var dateTime = DateTime.Now;
             var query = db.MessageQueue.Where(x =>
                 x.Direction == direction &&
                 x.IdMessageType == IdMessageType &&
                 (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat) &&
-                (!x.DateDelayed.HasValue || x.DateDelayed.Value <= DateTime.Now)
+                (!x.DateDelayed.HasValue || x.DateDelayed.Value <= dateTime)
             );
 
             var messages = query.ToList();
