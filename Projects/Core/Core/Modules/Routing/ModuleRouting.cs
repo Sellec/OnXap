@@ -62,7 +62,7 @@ namespace OnXap.Modules.Routing
             Task.Delay(60000).ContinueWith(t => TimerCallback());
         }
 
-        protected override void InitModuleCustom()
+        protected override void OnModuleStart()
         {
             _moduleLink = this;
         }

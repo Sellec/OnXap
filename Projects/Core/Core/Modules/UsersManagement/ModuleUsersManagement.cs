@@ -21,7 +21,7 @@ namespace OnXap.Modules.UsersManagement
 
         /// <summary>
         /// </summary>
-        protected override void InitModuleCustom()
+        protected override void OnModuleStart()
         {
             RegisterPermission(PermissionReceiveRegisterModeratorNotifications, "Получение рассылки о заявках на регистрацию", "Обладатель ролей с этим разрешением будет получать уведомления о появлении новых заявок на регистрацию, требующих подтверждения (в случае включения режима регистрации с проверкой).");
         }

@@ -180,7 +180,7 @@ namespace OnXap.Core.Modules
         {
             if (!_modules.Any(x => x.Item2 == module))
             {
-                module.OnModuleStart();
+                //module.OnModuleStart();
             }
         }
 

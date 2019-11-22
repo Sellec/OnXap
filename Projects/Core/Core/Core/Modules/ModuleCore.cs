@@ -34,7 +34,6 @@ namespace OnXap.Core.Modules
         /// </summary>
         protected sealed override void OnStart()
         {
-            OnModuleStart();
         }
 
         /// <summary>
@@ -46,13 +45,12 @@ namespace OnXap.Core.Modules
         #endregion
 
         /// <summary>
-        /// Вызывается при запуске модуля.
+        /// Определение дополнительных ресурсов модуля. Вызывается во время инициализации.
         /// </summary>
-        internal protected virtual void OnModuleStart()
+        protected virtual void OnModuleStart()
         {
 
         }
-
         /// <summary>
         /// Вызывается при остановке модуля.
         /// </summary>
@@ -66,13 +64,6 @@ namespace OnXap.Core.Modules
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Определение дополнительных ресурсов модуля. Вызывается во время инициализации.
-        /// </summary>
-        protected virtual void InitModuleCustom()
-        {
-
-        }
         #endregion
 
         #region Разрешения
@@ -335,7 +326,7 @@ namespace OnXap.Core.Modules
             RegisterPermission(ModulesConstants.PermissionSaveConfiguration, "Сохранение настроек модуля");
             RegisterPermission(ModulesConstants.PermissionManage, "Управление модулем");
 
-            InitModuleCustom();
+            OnModuleStart();
             //RegisterAction("extensionsGetData");
         }
 

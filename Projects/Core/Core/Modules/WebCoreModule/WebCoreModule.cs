@@ -17,7 +17,7 @@ namespace OnXap.Modules.WebCoreModule
 
         /// <summary>
         /// </summary>
-        protected override void InitModuleCustom()
+        protected override void OnModuleStart()
         {
             RegisterPermission(PermissionConfigurationSave, "Изменение настроек сайта.", "");
 

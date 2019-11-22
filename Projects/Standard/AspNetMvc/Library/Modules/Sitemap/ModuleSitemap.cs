@@ -16,15 +16,11 @@ namespace OnXap.Modules.Sitemap
 
         private SitemapGeneration _sitemapService = null;
 
-        protected override void InitModuleCustom()
-        {
-            RegisterPermission(PERM_SITEMAP, "Управление картой сайта");
-        }
-
         /// <summary>
         /// </summary>
         protected override void OnModuleStart()
         {
+            RegisterPermission(PERM_SITEMAP, "Управление картой сайта");
             _sitemapService = new SitemapGeneration();
             ((IComponentStartable)_sitemapService).Start(AppCore);
         }

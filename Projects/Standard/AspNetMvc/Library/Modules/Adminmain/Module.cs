@@ -17,7 +17,7 @@ namespace OnXap.Modules.Adminmain
         public const string PERM_ROUTING = "routing_system";
         public const string PERM_MANAGE_MESSAGING = "manage_messaging";
 
-        protected override void InitModuleCustom()
+        protected override void OnModuleStart()
         {
             RegisterPermission(PERM_CONFIGMAIN, "Управление настройками");
             RegisterPermission(PERM_MODULES, "Управление модулями");
