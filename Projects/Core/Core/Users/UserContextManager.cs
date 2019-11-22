@@ -67,6 +67,9 @@ namespace OnXap.Users
             var systemUserContext = new UserContext(systemUser, true);
             ((IComponentStartable)systemUserContext).Start(AppCore);
             _systemUserContext = systemUserContext;
+
+            // В момент запуска для запускающего потока устанавливается системный пользователь для выполнения инициализирующих действий с максимальными правами доступа.
+            _currentUserContext.Value = _systemUserContext;
         }
 
         /// <summary>
