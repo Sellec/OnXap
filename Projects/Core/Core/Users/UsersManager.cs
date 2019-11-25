@@ -1,7 +1,6 @@
 ﻿using OnUtils.Data;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
 
@@ -21,6 +20,7 @@ namespace OnXap.Users
         /// </summary>
         protected sealed override void OnStart()
         {
+            this.RegisterJournal("Журнал менеджера данных пользователей");
         }
 
         /// <summary>
@@ -87,8 +87,6 @@ namespace OnXap.Users
                     "Ошибка получения списка пользователей, обладающих ролями.",
                     $"Идентификаторы ролей: {string.Join(", ", roleIdList)}.\r\nПо активности: {(onlyActive ? "только активных" : "всех")}.\r\nСуперпользователи: {(exceptSuperuser ? "только если роль назначена напрямую" : "добавлять всегда")}.\r\nСортировка: {orderBy?.ToString()}.",
                     ex);
-
-                CheckBlockingException(ex);
                 throw;
             }
         }
@@ -120,8 +118,6 @@ namespace OnXap.Users
             {
                 Debug.Logs($"rolesByUser: {userIdList}; {ex.Message}");
                 this.RegisterEvent(EventType.Error, "Ошибка получения списка ролей, назначенных пользователям.", $"Идентификаторы пользователей: {(userIdList?.Any() == true ? "не задано" : string.Join(", ", userIdList))}", ex);
-
-                CheckBlockingException(ex);
                 throw;
             }
         }
@@ -139,15 +135,16 @@ namespace OnXap.Users
                 {
                     if (db.Role.Where(x => x.IdRole == idRole).Count() == 0) return NotFound.NotFound;
 
-                    if (userIdList?.Any() == true)
+                    var userIdList2 = userIdList?.Distinct()?.ToArray();
+                    if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole && !userIdList.Contains(x.IdUser)).Delete();
+                        db.RoleUser.Where(x => x.IdRole == idRole && !userIdList2.Contains(x.IdUser)).Delete();
 
                         var context = AppCore.GetUserContextManager().GetCurrentUserContext();
                         var IdUserChange = context.IdUser;
 
                         var usersInRole = db.RoleUser.Where(x => x.IdRole == idRole).Select(x => x.IdUser).ToList();
-                        userIdList.Where(x => !usersInRole.Contains(x)).ToList().ForEach(IdUser =>
+                        userIdList2.Where(x => !usersInRole.Contains(x)).ToList().ForEach(IdUser =>
                         {
                             db.RoleUser.Add(new RoleUser()
                             {
@@ -172,7 +169,6 @@ namespace OnXap.Users
             catch (Exception ex)
             {
                 this.RegisterEvent(EventType.Error, "Ошибка при замене пользователей роли.", $"Идентификатор роли: {idRole}\r\nИдентификаторы пользователей: {(userIdList?.Any() == true ? "не задано" : string.Join(", ", userIdList))}", ex);
-                CheckBlockingException(ex);
                 return NotFound.Error;
             }
         }
@@ -190,9 +186,11 @@ namespace OnXap.Users
                 {
                     if (db.Role.Where(x => x.IdRole == idRole).Count() == 0) return NotFound.NotFound;
 
-                    if (userIdList?.Any() == true)
+                    var userIdList2 = userIdList?.Distinct()?.ToArray();
+
+                    if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole && userIdList.Contains(x.IdUser)).Delete();
+                        db.RoleUser.Where(x => x.IdRole == idRole && userIdList2.Contains(x.IdUser)).Delete();
                     }
                     else
                     {
@@ -208,7 +206,6 @@ namespace OnXap.Users
             catch (Exception ex)
             {
                 this.RegisterEvent(EventType.Error, "Ошибка при удалении роли у пользователей.", $"Идентификатор роли: {idRole}\r\nИдентификаторы пользователей: {(userIdList?.Any() == true ? "не задано" : string.Join(", ", userIdList))}", ex);
-                CheckBlockingException(ex);
                 return NotFound.Error;
             }
         }
@@ -229,7 +226,9 @@ namespace OnXap.Users
                     var context = AppCore.GetUserContextManager().GetCurrentUserContext();
                     var IdUserChange = context.IdUser;
 
-                    db.Users.Where(x => userIdList.Contains(x.IdUser)).ToList().ForEach((User x) =>
+                    var userIdList2 = userIdList.Distinct().ToArray();
+
+                    db.Users.Where(x => userIdList2.Contains(x.IdUser)).ToList().ForEach((User x) =>
                     {
                         db.RoleUser.AddOrUpdate(new RoleUser()
                         {
@@ -249,7 +248,6 @@ namespace OnXap.Users
             catch (Exception ex)
             {
                 this.RegisterEvent(EventType.Error, "Ошибка при регистрации роли для списка пользователей.", $"Идентификатор роли: {idRole}\r\nИдентификаторы пользователей: {(userIdList?.Any() == true ? "не задано" : string.Join(", ", userIdList))}", ex);
-                CheckBlockingException(ex);
                 return NotFound.Error;
             }
         }
@@ -284,8 +282,6 @@ namespace OnXap.Users
             {
                 Debug.WriteLine("user: {0}; ", ex.Message);
                 this.RegisterEvent(EventType.Error, "Ошибка при получении данных пользователей.", $"Идентификаторы пользователей: {(users?.Any() == true ? "не задано" : string.Join(", ", users.Keys))}", ex);
-
-                CheckBlockingException(ex);
                 throw ex;
             }
         }
@@ -311,22 +307,9 @@ namespace OnXap.Users
             }
             catch (Exception ex)
             {
-                CheckBlockingException(ex);
                 // todo setError(ex.Message);
                 Debug.WriteLine(ex.Message);
                 return null;
-            }
-        }
-
-        private void CheckBlockingException(Exception ex)
-        {
-            var sqlException = ex as SqlException ?? ex.InnerException as SqlException;
-            if (sqlException != null)
-            {
-                if (sqlException.Number == -2)
-                {
-                    throw new InvalidOperationException("Возможно, целевые таблицы заблокированы вышестоящей транзакцией.");
-                }
             }
         }
     }

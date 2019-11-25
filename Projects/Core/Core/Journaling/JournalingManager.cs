@@ -124,9 +124,11 @@ namespace OnXap.Journaling
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var data = db.JournalName.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
+                    if (data == null) return new ExecutionResultJournalName(false, "Журнал с указанным уникальным ключом не найден.");
+
                     var info = new Model.JournalInfo();
                     Model.JournalInfo.Fill(info, data);
-                    return new ExecutionResultJournalName(data != null, data != null ? null : "Журнал с указанным уникальным ключом не найден.", info);
+                    return new ExecutionResultJournalName(true, null, info);
                 }
             }
             catch (ArgumentNullException) { throw; }
@@ -150,9 +152,11 @@ namespace OnXap.Journaling
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var data = db.JournalName.Where(x => x.IdJournal == IdJournal).FirstOrDefault();
+                    if (data == null) return new ExecutionResultJournalName(false, "Журнал с указанным уникальным идентификатором не найден.");
+
                     var info = new Model.JournalInfo();
                     Model.JournalInfo.Fill(info, data);
-                    return new ExecutionResultJournalName(data != null, data != null ? null : "Журнал с указанным уникальным идентификатором не найден.", info);
+                    return new ExecutionResultJournalName(true, null, info);
                 }
             }
             catch (Exception ex)
