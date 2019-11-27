@@ -19,7 +19,7 @@ namespace OnXap
     {
         /// <summary>
         /// </summary>
-        public OnXApplicationAspNetMvc(string physicalApplicationPath, string connectionString) : base(physicalApplicationPath, connectionString)
+        public OnXApplicationAspNetMvc(string physicalApplicationPath, Func<string> applicationConnectionStringFactory) : base(physicalApplicationPath, applicationConnectionStringFactory)
         {
             OnUtils.Tasks.TasksManager.SetDefaultService(new OnUtils.Tasks.MomentalThreading.TasksService());
         }

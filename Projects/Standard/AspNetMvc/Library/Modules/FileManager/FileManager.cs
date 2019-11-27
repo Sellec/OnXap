@@ -1,4 +1,5 @@
 ﻿using MimeDetective;
+using OnUtils.Architecture.AppCore;
 using OnUtils.Data;
 using OnUtils.Tasks;
 using System;
@@ -491,6 +492,8 @@ namespace OnXap.Modules.FileManager
 
         internal static void RemoveMarkedFiles()
         {
+            if (_thisModule?.AppCore?.GetState() != CoreComponentState.Started) return;
+
             if (!_servicesFlags.TryLock("RemoveMarkedFiles")) return;
             int countFiles = 0;
 
@@ -583,6 +586,8 @@ namespace OnXap.Modules.FileManager
 
         internal static void CheckRemovedFiles(bool isStart)
         {
+            if (_thisModule?.AppCore?.GetState() != CoreComponentState.Started) return;
+
             if (!_servicesFlags.TryLock("CheckRemovedFiles")) return;
             bool isFinalized = false;
             int countFiles = 0;
@@ -678,6 +683,8 @@ namespace OnXap.Modules.FileManager
 
         private void MaintenanceIndexes()
         {
+            if (AppCore.GetState() != CoreComponentState.Started) return;
+
             try
             {
                 using (var db = this.CreateUnitOfWork())

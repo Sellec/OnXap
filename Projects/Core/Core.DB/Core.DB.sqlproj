@@ -330,7 +330,10 @@
       <QuotedIdentifier>Off</QuotedIdentifier>
     </Build>
     <Build Include="dbo\Stored Procedures\dbo.InsertOnDuplicate_CreateQuery.sql" />
-    <Build Include="dbo\Stored Procedures\dbo.InsertOnDuplicate_CreateTableUDT.sql" />
+    <Build Include="dbo\Stored Procedures\dbo.InsertOnDuplicate_CreateTableUDT.sql">
+      <AnsiNulls>Off</AnsiNulls>
+      <QuotedIdentifier>Off</QuotedIdentifier>
+    </Build>
     <Build Include="dbo\Tables\dbo.InsertOnDuplicate_MergeFiltersCache.sql" />
     <Build Include="dbo\Tables\dbo.ItemParent.sql" />
     <Build Include="dbo\Tables\dbo.ItemType.sql" />

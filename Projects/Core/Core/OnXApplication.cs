@@ -23,26 +23,37 @@ namespace OnXap
 
             string IConnectionStringResolver.ResolveConnectionStringForDataContext(Type[] entityTypes)
             {
-                return _core.ConnectionString;
+                return _core.ConnectionStringFactory();
             }
         }
 
         private CoreConfiguration _appConfigurationAccessor = null;
         private WebCoreConfiguration _webConfigurationAccessor = null;
 
+        /// <summary>
+        /// Создает новый экземпляр приложения.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Возникает, если передана пустая строка подключения к базе данных приложения (<paramref name="connectionString"/>).</exception>
+        public OnXApplication(string physicalApplicationPath, string connectionString) : this(physicalApplicationPath, () => connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString)) throw new ArgumentNullException(nameof(connectionString));
+        }
 
         /// <summary>
+        /// Создает новый экземпляр приложения.
         /// </summary>
-        public OnXApplication(string physicalApplicationPath, string connectionString)
+        /// <exception cref="ArgumentNullException">Возникает, если передана пустая фабрика строк подключения к базе данных приложения (<paramref name="applicationConnectionStringFactory"/>).</exception>
+        public OnXApplication(string physicalApplicationPath, Func<string> applicationConnectionStringFactory)
         {
             if (!GetType().Assembly.FullName.EndsWith("")) throw new InvalidProgramException("");
+            if (applicationConnectionStringFactory == null) throw new ArgumentNullException(nameof(applicationConnectionStringFactory));
 
             try
             {
                 LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
                 ApplicationWorkingFolder = physicalApplicationPath;
 
-                ConnectionString = connectionString;
+                ConnectionStringFactory = applicationConnectionStringFactory;
                 DataAccessManager.SetConnectionStringResolver(new ConnectionStringResolver() { _core = this });
             }
             catch (Exception ex)
@@ -192,7 +203,7 @@ namespace OnXap
         /// <summary>
         /// Возвращает строку подключения. todo - разобраться со строками подключений.
         /// </summary>
-        public string ConnectionString { get; private set; }
+        public Func<string> ConnectionStringFactory { get; private set; }
 
         /// <summary>
         /// Внешний URL-адрес сервера.

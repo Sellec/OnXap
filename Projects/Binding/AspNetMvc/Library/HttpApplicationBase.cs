@@ -138,7 +138,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
                     _applicationCoreStarted = false;
                 }
             }
@@ -195,7 +195,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
                     _applicationCoreStarted = false;
                 }
 

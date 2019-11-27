@@ -14,23 +14,213 @@ namespace OnXap.Binding.Providers
 {
     using Core.DB;
 
+    static class TraceSessionStorage
+    {
+        const int _timeoutSave = 30000;
+
+        private static object _saveTaskSyncRoot = new object();
+        private static Task _saveTask = null;
+
+        /// <summary>
+        /// Кеш всех записей сессий.
+        /// </summary>
+        private static ConcurrentDictionary<string, Sessions> _sessionsCache = null;
+
+        /// <summary>
+        /// Основной контекст, хранящий записи и предоставляющий возможность их сохранять при изменениях. Чтение новых записей осуществляется при помощи локальных контекстов.
+        /// </summary>
+        private static Lazy<Session.SessionContext> _sessionsSaveContext = null;
+
+        /// <summary>
+        /// Нужен для обеспечения исключительного доступа к контексту <see cref="_sessionsSaveContext"/> и кешу всех записей сессий <see cref="_sessionsCache"/>.
+        /// </summary>
+        private static object _sessionsSyncRoot = new object();
+
+        private static ConcurrentDictionary<string, Sessions> _upsertQueue { get; set; }
+        private static ConcurrentDictionary<string, string> _deleteQueue { get; set; }
+
+        static TraceSessionStorage()
+        {
+            _sessionsSaveContext = new Lazy<Session.SessionContext>(() => new Session.SessionContext());
+            _upsertQueue = new ConcurrentDictionary<string, Sessions>();
+            _deleteQueue = new ConcurrentDictionary<string, string>();
+        }
+
+        /// <summary>
+        /// Возвращает кеш сессий.
+        /// </summary>
+        /// <returns></returns>
+        public static ConcurrentDictionary<string, Sessions> GetSessionsCache()
+        {
+            lock (_sessionsSyncRoot)
+            {
+                if (_sessionsCache == null)
+                {
+                    _sessionsCache = new ConcurrentDictionary<string, Sessions>();
+                    var value = _sessionsSaveContext.Value;
+                    TaskReadFromDB();
+                }
+
+                return _sessionsCache;
+            }
+        }
+
+        private static void TaskReadFromDB()
+        {
+            try
+            {
+                if (!_sessionsSaveContext.IsValueCreated)
+                    return;
+
+                lock (_sessionsSyncRoot)
+                {
+                    using (var db = new Session.SessionContext())
+                    {
+                        var dateTimeNow = DateTime.UtcNow;
+                        foreach (var res in db.Sessions.AsNoTracking().Where(x => x.Expires > dateTimeNow)) _sessionsCache.TryAdd(res.SessionId, res);
+                    }
+                }
+            }
+            catch (Exception ex) { Debug.WriteLine("TaskReadFromDB.Error: {0}", ex.Message); }
+        }
+
+        public static void AddSession(Sessions sessionItem)
+        {
+            if (GetSessionsCache().TryAdd(sessionItem.SessionId, sessionItem))
+            {
+                _upsertQueue.TryAdd(sessionItem.SessionId, sessionItem);
+                SaveChanges();
+            }
+        }
+
+        public static void MarkSessionUpdated(Sessions sessionItem)
+        {
+            var sessionItem2 = GetSessionsCache().GetOrAdd(sessionItem.SessionId, sessionItem);
+            _upsertQueue.TryAdd(sessionItem.SessionId, sessionItem);
+            SaveChanges();
+        }
+
+        public static void RemoveSession(Sessions sessionItem)
+        {
+            if (sessionItem == null) return;
+
+            if (GetSessionsCache().TryRemove(sessionItem.SessionId, out sessionItem))
+            {
+                _deleteQueue.TryAdd(sessionItem.SessionId, sessionItem.SessionId);
+                SaveChanges();
+            }
+        }
+
+        public static Sessions GetSessionItem(string id)
+        {
+            Sessions item = null;
+            if (GetSessionsCache().TryGetValue(id, out item))
+            {
+                if (item.Expires < DateTime.UtcNow)
+                {
+                    // Сессия найдена, но она истекла
+                    _deleteQueue.TryAdd(id, id);
+                    SaveChanges();
+                    return null;
+                }
+                return item;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static void SaveChanges()
+        {
+            lock (_saveTaskSyncRoot)
+            {
+                if (_saveTask == null)
+                    _saveTask = Task.Delay(_timeoutSave).ContinueWith(t =>
+                    {
+                        try
+                        {
+                            var oldUpsertQueue = _upsertQueue.Values.ToList();
+                            _upsertQueue = new ConcurrentDictionary<string, Sessions>();
+
+                            var oldDeleteQueue = _deleteQueue.Values.ToList();
+                            _deleteQueue = new ConcurrentDictionary<string, string>();
+
+                            if (oldUpsertQueue.Count > 0)
+                            {
+                                _sessionsSaveContext.Value.Sessions.InsertOrDuplicateUpdate(
+                                    oldUpsertQueue,
+                                    new UpsertField(nameof(Sessions.Created)),
+                                    new UpsertField(nameof(Sessions.Expires)),
+                                    new UpsertField(nameof(Sessions.LockDate)),
+                                    new UpsertField(nameof(Sessions.LockId)),
+                                    new UpsertField(nameof(Sessions.Locked)),
+                                    new UpsertField(nameof(Sessions.ItemContent)),
+                                    new UpsertField(nameof(Sessions.IdUser))
+                                );
+                            }
+
+                            //_cache.ToList().ForEach(p =>
+                            //    {
+                            //        lock (p.Value.SyncRoot)
+                            //        {
+                            //            if (p.Value.DateLastChanged > p.Value.DateLastSaved)
+                            //            {
+                            //                var entityState = _dbContext.GetState(p.Value);
+                            //                if (!p.Value.IsDeleted)
+                            //                {
+                            //                    if (entityState == ItemState.Detached)
+                            //                    {
+                            //                        _dbContext.Sessions.AddOrUpdate(p.Value);
+                            //                        p.Value.DateLastSaved = DateTime.Now;
+                            //                    }
+                            //                }
+                            //                else if (p.Value.IsDeleted)
+                            //                {
+                            //                    if (entityState != ItemState.Detached)
+                            //                    {
+                            //                        _dbContext.DeleteEntity(p.Value);
+
+                            //                        Sessions item = null;
+                            //                        _cache.TryRemove(p.Key, out item);
+                            //                    }
+                            //                }
+                            //            }
+                            //        }
+                            //    });
+
+                            //    _dbContext.SaveChanges();
+                        }
+                        catch (UpdateConcurrencyException ex)
+                        {
+                            Debug.WriteLine("SessionStateProvider: Update error2: {0}", ex.Message);
+                            //foreach (var entry in ex.Entries)
+                            //{
+                            //    Sessions item = entry.Entity as Sessions;
+                            //    _dbContext.Sessions.Delete(entry.Entity as Sessions);
+                            //    _cache.TryRemove(item.SessionId, out item);
+                            //}
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("SessionStateProvider: Update error: {0}", ex.Message);
+                        }
+                        finally
+                        {
+                            lock (_saveTaskSyncRoot) _saveTask = null;
+                        }
+                    });
+            }
+        }
+    }
+
     /// <summary>
     /// Наш собственный провайдер.
     /// </summary>
     class TraceSessionStateProvider : SessionStateStoreProviderBase
     {
         int _timeoutSession = 0;
-        int _timeoutSave = 30000;
         int _timeoutRead = 30000;
-
-        private static object SyncRootSave = new object();
-        private static object SyncRootRead = new object();
-
-        private static ConcurrentDictionary<string, Sessions> _cache = null;
-
-        private static object _saveTaskSyncRoot = new object();
-        private static Task _saveTask = null;
-        private static Task _readTask = null;
 
         private class InternalStoreInfo
         {
@@ -55,36 +245,6 @@ namespace OnXap.Binding.Providers
 
             var configSection = (SessionStateSection)configuration.GetSection("system.web/sessionState");
             _timeoutSession = 60 * 24 * 365;// (int)configSection.Timeout.TotalMinutes;
-
-
-            //lock (SyncRootRead)
-            {
-                if (_cache == null) TaskReadFromDB();
-                else
-                {
-                    if (_readTask == null)
-                        _readTask = Task.Delay(_timeoutRead).ContinueWith(t => TaskReadFromDB());
-                }
-            }
-        }
-
-        private void TaskReadFromDB()
-        {
-            try
-            {
-                //lock (SyncRootRead)
-                {
-                    if (_cache == null) _cache = new ConcurrentDictionary<string, Sessions>();
-
-                    foreach (var res in _dbContext.Sessions.AsNoTracking()) _cache.TryAdd(res.SessionId, res);
-
-                    //Debug.WriteLine("TaskReadFromDB.Count={0}", _cache.Count);
-                    //foreach (var res in _cache.Values) Debug.WriteLine("TaskReadFromDB.\"{0}\"={1}", res.SessionId, _dbContext.GetState(res));
-
-                    _readTask = null;
-                }
-            }
-            catch (Exception ex) { Debug.WriteLine("TaskReadFromDB.Error: {0}", ex.Message); }
         }
 
         #region Методы SessionStateStoreProviderBase 
@@ -122,7 +282,7 @@ namespace OnXap.Binding.Providers
             lockId = null;
             actions = 0;
 
-            var sessionItem = GetSessionItem(id);
+            var sessionItem = TraceSessionStorage.GetSessionItem(id);
 
             // Сессия не найдена
             if (sessionItem == null) return null;
@@ -136,18 +296,6 @@ namespace OnXap.Binding.Providers
                 return null;
             }
 
-            // Сессия найдена, но она истекла
-            if (DateTime.UtcNow > sessionItem.Expires)
-            {
-                sessionItem.IsDeleted = true;
-                sessionItem.DateLastChanged = DateTime.Now;
-                _dbContext.DeleteEntity(sessionItem);
-                _cache.TryRemove(sessionItem.SessionId, out sessionItem);
-                SaveChanges();
-
-                return null;
-            }
-
             // Сессия найдена, требуется эксклюзинвый доступ.
             if (exclusive)
             {
@@ -157,8 +305,7 @@ namespace OnXap.Binding.Providers
                     sessionItem.Locked = true;
                     sessionItem.LockDate = DateTime.UtcNow;
                     sessionItem.DateLastChanged = DateTime.Now;
-
-                    SaveChanges();
+                    TraceSessionStorage.MarkSessionUpdated(sessionItem);
                 }
             }
 
@@ -180,7 +327,7 @@ namespace OnXap.Binding.Providers
         /// </summary>
         public override void ReleaseItemExclusive(HttpContext context, string id, object lockId)
         {
-            var sessionItem = GetSessionItem(id);
+            var sessionItem = TraceSessionStorage.GetSessionItem(id);
             if (sessionItem.LockId != (int)lockId) return;
 
             lock (sessionItem.SyncRoot)
@@ -188,7 +335,7 @@ namespace OnXap.Binding.Providers
                 sessionItem.Locked = false;
                 sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
                 sessionItem.DateLastChanged = DateTime.Now;
-                SaveChanges();
+                TraceSessionStorage.MarkSessionUpdated(sessionItem);
             }
         }
 
@@ -221,7 +368,7 @@ namespace OnXap.Binding.Providers
 
             // Если это старая сессия, проверяем совпадает ли ключ блокировки, 
             // а после сохраняем состояние и снимаем блокировку.
-            var sessionItem = GetSessionItem(id);
+            var sessionItem = TraceSessionStorage.GetSessionItem(id);
             if (sessionItem != null)
             {
                 lock (sessionItem.SyncRoot)
@@ -233,7 +380,7 @@ namespace OnXap.Binding.Providers
                         sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
                         sessionItem.Locked = false;
                         sessionItem.DateLastChanged = DateTime.Now;
-                        SaveChanges();
+                        TraceSessionStorage.MarkSessionUpdated(sessionItem);
                     }
                 }
             }
@@ -265,17 +412,13 @@ namespace OnXap.Binding.Providers
         /// </summary>
         public override void RemoveItem(HttpContext context, string id, object lockId, SessionStateStoreData item)
         {
-            var sessionItem = GetSessionItem(id);
+            var sessionItem = TraceSessionStorage.GetSessionItem(id);
             lock (sessionItem.SyncRoot)
             {
                 if (sessionItem.LockId != (int)lockId) return;
 
-                sessionItem.IsDeleted = true;
                 sessionItem.DateLastChanged = DateTime.Now;
-                try { _dbContext.DeleteEntity(sessionItem); }
-                catch { }
-                _cache.TryRemove(sessionItem.SessionId, out sessionItem);
-                SaveChanges();
+                TraceSessionStorage.RemoveSession(sessionItem);
             }
         }
 
@@ -284,14 +427,14 @@ namespace OnXap.Binding.Providers
         /// </summary>
         public override void ResetItemTimeout(HttpContext context, string id)
         {
-            var sessionItem = GetSessionItem(id);
+            var sessionItem = TraceSessionStorage.GetSessionItem(id);
             if (sessionItem == null) return;
 
             lock (sessionItem.SyncRoot)
             {
                 sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
                 sessionItem.DateLastChanged = DateTime.Now;
-                SaveChanges();
+                TraceSessionStorage.MarkSessionUpdated(sessionItem);
             }
         }
 
@@ -326,96 +469,8 @@ namespace OnXap.Binding.Providers
                 LockId = 0,
             };
 
-            _cache[id] = session;
-            SaveChanges();
+            TraceSessionStorage.AddSession(session);
         }
-
-        private Sessions GetSessionItem(string id)
-        {
-            Sessions item = null;
-            if (_cache.TryGetValue(id, out item) && !item.IsDeleted)
-            {
-                return item;
-            }
-            else
-            {
-                return null;
-            }
-        }
-        #endregion
-
-        private void SaveChanges()
-        {
-            lock (_saveTaskSyncRoot)
-            {
-                if (_saveTask == null)
-                    _saveTask = Task.Delay(_timeoutSave).ContinueWith(t =>
-                    {
-                        //lock (SyncRootSave)
-                        {
-                            try
-                            {
-                                _cache.ToList().ForEach(p =>
-                                {
-                                    lock (p.Value.SyncRoot)
-                                    {
-                                        if (p.Value.DateLastChanged > p.Value.DateLastSaved)
-                                        {
-                                            var entityState = _dbContext.GetState(p.Value);
-                                            if (!p.Value.IsDeleted)
-                                            {
-                                                if (entityState == ItemState.Detached)
-                                                {
-                                                    _dbContext.Sessions.AddOrUpdate(p.Value);
-                                                    p.Value.DateLastSaved = DateTime.Now;
-                                                }
-                                            }
-                                            else if (p.Value.IsDeleted)
-                                            {
-                                                if (entityState != ItemState.Detached)
-                                                {
-                                                    _dbContext.DeleteEntity(p.Value);
-
-                                                    Sessions item = null;
-                                                    _cache.TryRemove(p.Key, out item);
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-
-                                _dbContext.SaveChanges();
-                            }
-                            catch (UpdateConcurrencyException ex)
-                            {
-                                Debug.WriteLine("SessionStateProvider: Update error2: {0}", ex.Message);
-                                foreach (var entry in ex.Entries)
-                                {
-                                    Sessions item = entry.Entity as Sessions;
-                                    _dbContext.Sessions.Delete(entry.Entity as Sessions);
-                                    _cache.TryRemove(item.SessionId, out item);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine("SessionStateProvider: Update error: {0}", ex.Message);
-                            }
-                            finally
-                            {
-                                lock(_saveTaskSyncRoot) _saveTask = null;
-                            }
-                        }
-                    });
-            }
-        }
-
-
-        #region Property
-
-        private Session.SessionContext _dbContext
-        {
-            get;
-        } = new Session.SessionContext();
 
         #endregion
 

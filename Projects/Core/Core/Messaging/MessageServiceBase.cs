@@ -309,6 +309,8 @@ namespace OnXap.Messaging
         #region IInternalForTasks
         void IMessageServiceInternal.PrepareOutcoming()
         {
+            if (AppCore.GetState() != CoreComponentState.Started) return;
+
             var type = GetType();
 
             if (!_executingFlags.TryLock(TasksOutcomingSend)) return;
@@ -446,6 +448,8 @@ namespace OnXap.Messaging
 
         void IMessageServiceInternal.PrepareIncomingReceive()
         {
+            if (AppCore.GetState() != CoreComponentState.Started) return;
+
             var type = GetType();
 
             if (!_executingFlags.TryLock(TasksIncomingReceive)) return;
@@ -611,6 +615,8 @@ namespace OnXap.Messaging
 
         void IMessageServiceInternal.PrepareIncomingHandle()
         {
+            if (AppCore.GetState() != CoreComponentState.Started) return;
+
             var type = GetType();
 
             if (!_executingFlags.TryLock(TasksIncomingHandle)) return;

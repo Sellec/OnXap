@@ -19,7 +19,15 @@ BEGIN
 	SELECT @sql = @sql + N',' + CHAR(13) + CHAR(10) + CHAR(9) 
 		+ QUOTENAME(c.name) + ' '
 		+ s.name + 
-		CASE WHEN LOWER(s.name) LIKE '%char' THEN 
+		CASE 
+			WHEN LOWER(s.name) LIKE '%char' THEN 
+			'(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE
+				CONVERT(VARCHAR(12), 
+											c.max_length/(CASE LOWER(LEFT(s.name, 1)) WHEN N'n' THEN 2 ELSE 1 END)
+										) 
+				END +
+			+ ')' 
+			WHEN LOWER(s.name) LIKE '%binary' THEN 
 			'(' + CASE WHEN c.max_length = -1 THEN 'MAX' ELSE
 				CONVERT(VARCHAR(12), 
 											c.max_length/(CASE LOWER(LEFT(s.name, 1)) WHEN N'n' THEN 2 ELSE 1 END)

@@ -1,4 +1,5 @@
-﻿using OnUtils.Tasks;
+﻿using OnUtils.Architecture.AppCore;
+using OnUtils.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +42,10 @@ namespace OnXap.Modules.Sitemap.Services
 
         private void ExecuteInternal()
         {
+            if (AppCore.GetState() != CoreComponentState.Started) return;
+
             if (_isExecuting) return;
+
             try
             {
                 _isExecuting = true;

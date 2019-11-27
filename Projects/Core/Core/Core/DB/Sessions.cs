@@ -28,9 +28,6 @@
 
         public int IdUser { get; set; }
 
-        [NotMapped]
-        public bool IsDeleted { get; set; } = false;
-
         public object SyncRoot = new object();
 
         public DateTime DateLastChanged = DateTime.Now;
