@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field;
 
     public class FileImageFieldType : FileFieldType
     {

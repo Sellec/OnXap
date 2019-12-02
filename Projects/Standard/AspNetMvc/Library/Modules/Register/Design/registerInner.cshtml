@@ -2,6 +2,9 @@
 @using OnXap.Modules.Register
 @using OnXap.Modules.Register.Model
 @model Register
+@{
+    var module = this.GetAppCore().Get<ModuleRegister>();
+}
 <link rel="stylesheet" type="text/css" href="/data/js/uploadify/uploadify.css">
 
 <script type='text/javascript'>
@@ -40,7 +43,7 @@
         <div class="login-block-inner">
 
             <div class="enter-block" id="enter_reg">
-                <form action='@(Url.CreateRoute<ModuleRegister, ModuleRegisterController>(x=>x.RegisterSave(null)))' method='post' id='reg_form' class='pass_inner'>
+                <form action='@(Url.CreateRoute<ModuleRegister, ModuleRegisterController>(x => x.RegisterSave(null)))' method='post' id='reg_form' class='pass_inner'>
 
                     <div class="site_reginfo">@Html.Raw(this.GetConfig().site_reginfo)</div>
                     <div class="login-form__row">
@@ -57,6 +60,16 @@
                         @Html.TextBoxFor(model => model.name, new { @class = "style-input", placeholder = Html.DisplayNameFor(model => model.name) })
                         @Html.ValidationMessageFor(model => model.name)
                     </div>
+                    @{ 
+                        var scheme = Model.Fields.GetScheme(module.IdSchemeUserRegister.HasValue ? (uint)module.IdSchemeUserRegister : 0);
+                        foreach (var field in scheme.Values)
+                        {
+                            <div class="login-form__row">
+                                @Html.EditorFor(field, new { size = 40, @class = "style-input", placeholder = field.GetDisplayName() })
+                                @* @Html.ValidationMessageFor(field) *@
+                            </div>
+                        }
+                    }
                     <div class="login-form__row">
                         @*Html.LabelFor(model => model.password)*@
                         @Html.PasswordFor(model => model.password, new { @class = "style-input", placeholder = Html.DisplayNameFor(model => model.password), id = "pass" })<br />

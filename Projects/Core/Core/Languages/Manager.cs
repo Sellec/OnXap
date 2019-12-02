@@ -7,9 +7,9 @@ namespace OnXap.Languages
 {
     using Core;
     using Core.Configuration;
-    using Core.Modules.CoreModule;
-    using Users;
     using Journaling;
+    using Modules.CoreModule;
+    using Users;
 
     /// <summary>
     /// Менеджер языков системы.

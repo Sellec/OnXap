@@ -9,7 +9,7 @@ using MvcHtmlString = Microsoft.AspNetCore.Html.IHtmlContent;
 namespace OnXap.Modules.ItemsCustomize
 {
     using Core;
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field;
 
     /// <summary>
     /// Представляет рендер для пользовательского поля.

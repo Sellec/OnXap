@@ -1,6 +1,6 @@
 using OnXap.Core.Modules;
-using OnXap.Core.Modules.ItemsCustomize;
-using OnXap.Core.Modules.ItemsCustomize.Data;
+using OnXap.Modules.ItemsCustomize;
+using OnXap.Modules.ItemsCustomize.Data;
 
 namespace OnXap.Core.DB
 {

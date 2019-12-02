@@ -1,4 +1,4 @@
-@using OnXap.Core.Modules.ItemsCustomize.Field
+@using OnXap.Modules.ItemsCustomize.Field
 @using OnXap.Modules.Admin
 @using OnXap.Modules.ItemsCustomize.Model
 @model FieldEdit
@@ -26,6 +26,7 @@
     {
         try
         {
+            console.log(itemData);
             $("input[name='@Html.NameOf(x => x.IdModule)']").val(itemData.@Html.NameOf(x => x.IdModule));
             $("input[name='@Html.NameOf(x => x.IdField)']").val(itemData.@Html.NameOf(x => x.IdField));
             $("#EditLabel").text(itemData.@Html.NameOf(x => x.IdField) == 0 ? "Добавление поля" : "Редактирование поля '" + itemData.@Html.NameOf(x => x.name) + "'");
@@ -36,7 +37,7 @@
             $("input[name='@Html.NameOf(x => x.nameEnding)']").val(itemData.@Html.NameOf(x => x.nameEnding));
             $("input[name='@Html.NameOf(x => x.formatCheck)']").val(itemData.@Html.NameOf(x => x.formatCheck));
             $("input[name='@Html.NameOf(x => x.size)']").val(itemData.@Html.NameOf(x => x.size));
-            $("select[name='@Html.NameOf(x => x.IsValueRequired)']").val(itemData.@Html.NameOf(x => x.IsValueRequired));
+            $("select[name='@Html.NameOf(x => x.IsValueRequired)']").val((itemData.@Html.NameOf(x => x.IsValueRequired)).toString());
             $("select[name=@Html.NameOf(x => x.IdValueType)]").val(itemData.@Html.NameOf(x => x.IdValueType));
 
             $("select#field_type").val(itemData.@Html.NameOf(x => x.IdFieldType)).change();
@@ -197,9 +198,9 @@
         <tr>
             <td>Обязательность ввода данных:</td>
             <td>
-                <select name='mustvalue'>
-                    <option value='0'>Поле может быть пустым</option>
-                    <option value='1'>Значение должно быть указано</option>
+                <select name='@Html.NameFor(x => x.IsValueRequired)'>
+                    <option value='false'>Поле может быть пустым</option>
+                    <option value='true'>Значение должно быть указано</option>
                 </select><br />
                 @Html.ValidationMessageFor(x => x.IsValueRequired)
             </td>

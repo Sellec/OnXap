@@ -7,7 +7,7 @@ using System.Reflection.Emit;
 
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field;
     using DB;
 
     public class FileFieldType : FieldType

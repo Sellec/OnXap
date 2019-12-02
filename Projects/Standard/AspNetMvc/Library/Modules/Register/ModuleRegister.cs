@@ -18,6 +18,34 @@ namespace OnXap.Modules.Register
     [ModuleCore("Регистрация", DefaultUrlName = "Register")]
     public class ModuleRegister : ModuleCore<ModuleRegister>
     {
+        protected sealed override void OnModuleStart()
+        {
+            try
+            {
+                var scheme = new ItemsCustomize.DB.CustomFieldsScheme()
+                {
+                    IdModule = AppCore.Get<Customer.ModuleCustomer>().IdModule,
+                    NameScheme = "Регистрация пользователя",
+                    UniqueKey = typeof(ModuleRegister).FullName + "_UserRegister"
+                };
+
+                using (var db = new ItemsCustomize.DB.Context())
+                using (var scope = db.CreateScope())
+                {
+                    db.CustomFieldsSchemes.AddOrUpdate(x => x.UniqueKey, scheme);
+                    db.SaveChanges();
+                    scope.Commit();
+                }
+
+                IdSchemeUserRegister = scheme.IdScheme;
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(EventType.CriticalError, "Ошибка создания схемы регистрации пользователей", null, ex);
+                IdSchemeUserRegister = null;
+            }
+        }
+
         protected ModelStateDictionary ValidateModel(object model)
         {
             ControllerContext controllerContext = null;
@@ -229,5 +257,10 @@ namespace OnXap.Modules.Register
 
             return answer;
         }
+
+        /// <summary>
+        /// Идентификатор схемы полей для раздела регистрации пользователей.
+        /// </summary>
+        public int? IdSchemeUserRegister { get; private set; }
     }
 }

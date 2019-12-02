@@ -6,8 +6,8 @@ using System.Web.Mvc;
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
     using Core;
-    using Core.Modules.ItemsCustomize.Data;
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Data;
+    using Modules.ItemsCustomize.Field;
     using Modules.ItemsCustomize;
 
     class FileImageFieldTypeRender : CoreComponentBase, ICustomFieldRender<FileImageFieldType>

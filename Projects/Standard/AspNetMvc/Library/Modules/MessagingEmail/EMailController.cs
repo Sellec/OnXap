@@ -4,10 +4,10 @@ using System.Linq;
 namespace OnXap.Modules.MessagingEmail
 {
     using Core.Configuration;
-    using Core.Modules.CoreModule;
     using Messaging;
     using Messaging.Components;
     using Model;
+    using Modules.CoreModule;
 
     class EMailController : Core.Modules.ModuleControllerAdmin<EMailModule, Configuration, Configuration>
     {

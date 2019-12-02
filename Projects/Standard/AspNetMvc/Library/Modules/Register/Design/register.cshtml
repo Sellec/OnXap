@@ -6,6 +6,7 @@
 @{
     Layout = "~/baseCommon.cshtml";
     this.SetTitle("Регистрация");
+    var module = this.GetAppCore().Get<ModuleRegister>();
 }
 
 @section head { <link rel="stylesheet" type="text/css" href="/data/js/uploadify/uploadify.css"> }
@@ -86,6 +87,16 @@
                             @Html.TextBoxFor(model => model.name, new { @class = "style-input", placeholder = Html.DisplayNameFor(model => model.name) })
                             @Html.ValidationMessageFor(model => model.name)
                         </div>
+                        @{
+                            var scheme = Model.Fields.GetScheme(module.IdSchemeUserRegister.HasValue ? (uint)module.IdSchemeUserRegister : 0);
+                            foreach (var field in scheme.Values)
+                            {
+                                <div class="login-form__row">
+                                    @Html.EditorFor(field, new { size = 40, @class = "style-input", placeholder = field.GetDisplayName() })
+                                    @* @Html.ValidationMessageFor(field) *@
+                                </div>
+                            }
+                        }
                         <div class="login-form__row">
                             @*Html.LabelFor(model => model.password)*@
                             @Html.PasswordFor(model => model.password, new { @class = "style-input", placeholder = Html.DisplayNameFor(model => model.password), id = "pass" })<br />

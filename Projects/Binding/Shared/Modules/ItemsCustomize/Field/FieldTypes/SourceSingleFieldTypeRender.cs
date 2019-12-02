@@ -12,9 +12,9 @@ using MvcHtmlString = Microsoft.AspNetCore.Html.IHtmlContent;
 namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
 {
     using Core;
-    using Core.Modules.ItemsCustomize.Data;
-    using Core.Modules.ItemsCustomize.Field;
-    using Core.Modules.ItemsCustomize.Field.FieldTypes;
+    using Modules.ItemsCustomize.Data;
+    using Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field.FieldTypes;
 
 #pragma warning disable CS1591 // todo внести комментарии.
     public class SourceSingleFieldTypeRender : CoreComponentBase, ICustomFieldRender<SourceSingleFieldType>

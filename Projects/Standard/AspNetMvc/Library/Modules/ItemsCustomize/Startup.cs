@@ -9,8 +9,8 @@ namespace OnXap.Modules.ItemsCustomize
     {
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
-            bindingsCollection.SetSingleton<ModuleItemsCustomize>();
-            bindingsCollection.SetTransient<IModuleController<ModuleItemsCustomize>, ModuleController>();
+            bindingsCollection.SetSingleton<ModuleItemsCustomize2>();
+            bindingsCollection.SetTransient<IModuleController<ModuleItemsCustomize2>, ModuleController>();
         }
     }
 }

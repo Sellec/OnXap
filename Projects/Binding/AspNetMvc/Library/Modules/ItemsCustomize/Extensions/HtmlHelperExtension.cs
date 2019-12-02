@@ -1,4 +1,4 @@
-﻿using OnXap.Core.Modules.ItemsCustomize.Field;
+﻿using OnXap.Modules.ItemsCustomize.Field;
 using OnXap.Modules.ItemsCustomize;
 using System.Collections.Generic;
 using System.Linq;

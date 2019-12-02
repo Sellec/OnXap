@@ -9,8 +9,8 @@ using MvcHtmlString = Microsoft.AspNetCore.Html.IHtmlContent;
 namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
 {
     using Core;
-    using Core.Modules.ItemsCustomize.Field;
-    using Core.Modules.ItemsCustomize.Field.FieldTypes;
+    using Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field.FieldTypes;
 
     sealed class UnknownFieldTypeRender : CoreComponentBase, ICustomFieldRender<UnknownFieldType>
     {

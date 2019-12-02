@@ -8,9 +8,9 @@ namespace OnXap
 {
     using Core.Configuration;
     using Core.Modules;
-    using Core.Modules.CoreModule;
-    using Users;
+    using Modules.CoreModule;
     using Modules.WebCoreModule;
+    using Users;
 
     /// <summary>
     /// Ядро приложения.

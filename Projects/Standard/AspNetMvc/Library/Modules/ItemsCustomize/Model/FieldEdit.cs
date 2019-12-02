@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnXap.Modules.ItemsCustomize.Model
 {
-    using Core.Modules.ItemsCustomize.DB;
-    using Core.Modules.ItemsCustomize.Field;
+    using DB;
+    using Field;
 
 #pragma warning disable CS1591 // todo внести комментарии.
     public class FieldEdit

@@ -7,16 +7,15 @@ using System.Web.Mvc;
 namespace OnXap.Modules.ItemsCustomize
 {
     using Core.Modules;
-    using Core.Modules.ItemsCustomize.DB;
-    using Core.Modules.ItemsCustomize.Field;
-    using Core.Modules.ItemsCustomize.Scheme;
+    using DB;
+    using Field;
     using Model;
-    using CoreModuleItemsCustomize = Core.Modules.ItemsCustomize.ModuleItemsCustomize;
+    using Scheme;
 
     /// <summary>
     /// Админский класс расширения пользовательских полей. 
     /// </summary>
-    class ModuleController : ModuleControllerAdmin<ModuleItemsCustomize>, IUnitOfWorkAccessor<Context>
+    class ModuleController : ModuleControllerAdmin<ModuleItemsCustomize2>, IUnitOfWorkAccessor<Context>
     {
         [ModuleAction("fields")]
         public ActionResult FieldsList(int? idModule = null)
@@ -26,7 +25,7 @@ namespace OnXap.Modules.ItemsCustomize
             var module = AppCore.GetModulesManager().GetModule(idModule.Value) as IModuleCore;
             if (module == null) throw new Exception("Модуль не найден.");
 
-            AppCore.Get<CoreModuleItemsCustomize>().UpdateCache();
+            AppCore.Get<ModuleItemsCustomize>().UpdateCache();
 
             var schemes = Module.GetSchemeList(idModule.Value);
             var schemeItems = Module.GetSchemeItemsList(idModule.Value);
@@ -46,7 +45,7 @@ namespace OnXap.Modules.ItemsCustomize
                     FieldsList = fields,
                     SchemeItems = schemeItems,
                     Schemes = schemes,
-                    AllowSchemesManage = Module.CheckPermission(CoreModuleItemsCustomize.PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionResult.Allowed
+                    AllowSchemesManage = Module.CheckPermission(ModuleItemsCustomize.PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionResult.Allowed
                 });
             }
         }
@@ -160,7 +159,7 @@ namespace OnXap.Modules.ItemsCustomize
                     result.Message = "Сохранение расположения полей прошло успешно.";
                     result.Success = true;
                 }
-                AppCore.Get<CoreModuleItemsCustomize>().UpdateCache();
+                AppCore.Get<ModuleItemsCustomize>().UpdateCache();
             }
             catch (Exception ex) { result.Message = ex.Message; }
 
@@ -199,7 +198,7 @@ namespace OnXap.Modules.ItemsCustomize
                             result.Message = "Схема добавлена.";
                             result.Success = true;
                             result.Data = (uint)data.IdScheme;
-                            AppCore.Get<CoreModuleItemsCustomize>().UpdateCache();
+                            AppCore.Get<ModuleItemsCustomize>().UpdateCache();
                         }
                         else result.Message = "По неизвестной причине схему не получилось добавить.";
                     }
@@ -234,7 +233,7 @@ namespace OnXap.Modules.ItemsCustomize
                             result.Message = "Схема удалена.";
                             result.Success = true;
                             scope.Commit();
-                            AppCore.Get<CoreModuleItemsCustomize>().UpdateCache();
+                            AppCore.Get<ModuleItemsCustomize>().UpdateCache();
                         }
                         else result.Message = "По неизвестной причине схему не получилось удалить.";
                     }

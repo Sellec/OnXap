@@ -13,7 +13,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.7.111</Version>
+    <Version>0.1.7.113</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -28,13 +28,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Core\Modules\Extensions\**" />
-    <Compile Remove="Modules\ItemsCustomize\**" />
     <Compile Remove="Modules\ModuleRegister\**" />
     <EmbeddedResource Remove="Core\Modules\Extensions\**" />
-    <EmbeddedResource Remove="Modules\ItemsCustomize\**" />
     <EmbeddedResource Remove="Modules\ModuleRegister\**" />
     <None Remove="Core\Modules\Extensions\**" />
-    <None Remove="Modules\ItemsCustomize\**" />
     <None Remove="Modules\ModuleRegister\**" />
   </ItemGroup>
   <ItemGroup>

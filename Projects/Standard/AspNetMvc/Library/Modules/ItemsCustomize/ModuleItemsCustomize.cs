@@ -8,16 +8,16 @@ namespace OnXap.Modules.ItemsCustomize
     using AdminForModules.Menu;
     using Core.DB;
     using Core.Modules;
-    using Core.Modules.ItemsCustomize.DB;
-    using Core.Modules.ItemsCustomize.Scheme;
+    using Modules.ItemsCustomize.DB;
+    using Modules.ItemsCustomize.Scheme;
     using Types;
 
     /// <summary>
-    /// Веб-версия модуля <see cref="ModuleItemsCustomize"/>. Это нужно, чтобы появилась возможность создавать контроллеры для модуля. 
+    /// Веб-версия модуля <see cref="ModuleItemsCustomize2"/>. Это нужно, чтобы появилась возможность создавать контроллеры для модуля. 
     /// С точки зрения функционала модуля из OnUtils ничего не меняется - веб-версия ничего не переопределяет.
     /// </summary>
     [ModuleCore("Настройка объектов (веб-версия)")]
-    class ModuleItemsCustomize : ModuleCore<ModuleItemsCustomize>, IMenuProvider, IUnitOfWorkAccessor<Context>
+    class ModuleItemsCustomize2 : ModuleCore<ModuleItemsCustomize2>, IMenuProvider, IUnitOfWorkAccessor<Context>
     {
         NestedLinkCollection IMenuProvider.GetModuleAdminMenuLinks()
         {

@@ -6,8 +6,8 @@ namespace OnXap.Modules.Customer.Model
 {
     using Core.DB;
     using Core.Items;
-    using Core.Modules.ItemsCustomize;
-    using Core.Modules.ItemsCustomize.Data;
+    using Modules.ItemsCustomize;
+    using Modules.ItemsCustomize.Data;
 
     [ItemTypeAlias(typeof(User))]
     public class ProfileEdit : ItemBase, IItemCustomized

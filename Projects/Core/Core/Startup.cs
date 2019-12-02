@@ -7,7 +7,7 @@ namespace OnXap
     {
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
-            bindingsCollection.SetSingleton<Core.Modules.CoreModule.CoreModule>();
+            bindingsCollection.SetSingleton<Modules.CoreModule.CoreModule>();
             bindingsCollection.SetSingleton<Modules.UsersManagement.ModuleUsersManagement>();
         }
     }

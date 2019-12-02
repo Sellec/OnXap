@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.ItemsCustomize.MetadataAndValues
 {
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize.Field;
 
     class FieldValueProviderResult : ValueProviderResult
     {

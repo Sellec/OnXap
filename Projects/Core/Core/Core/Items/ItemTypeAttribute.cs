@@ -1,12 +1,10 @@
-﻿using System;
+﻿using OnXap.Modules.ItemsCustomize.Scheme;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 
 namespace OnXap.Core.Items
 {
-    using Modules.ItemsCustomize.Scheme;
-    using Modules;
-
     /// <summary>
     /// Описывает поле или свойство, являющееся ключом для получения контейнера схемы <see cref="SchemeItem"/> для объекта. 
     /// Например, если пометить этим атрибутом свойство Category для Goods, то при поиске схемы полей для объекта Goods 

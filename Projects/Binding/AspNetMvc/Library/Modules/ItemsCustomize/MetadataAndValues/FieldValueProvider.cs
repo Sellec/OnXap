@@ -3,8 +3,8 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.ItemsCustomize.MetadataAndValues
 {
-    using Core.Modules.ItemsCustomize;
-    using Core.Modules.ItemsCustomize.Field;
+    using Modules.ItemsCustomize;
+    using Modules.ItemsCustomize.Field;
 
     class FieldValueProvider : IValueProvider
     {

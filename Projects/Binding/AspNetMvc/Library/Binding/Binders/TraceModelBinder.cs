@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Binding.Binders
 {
-    using Core.Modules.ItemsCustomize.Data;
+    using Modules.ItemsCustomize.Data;
 
     /// <summary>
     /// Представляет стандартную реализацию привязки модели с поддержкой пользовательских полей (<see cref="ModuleItemsCustomize"/>.

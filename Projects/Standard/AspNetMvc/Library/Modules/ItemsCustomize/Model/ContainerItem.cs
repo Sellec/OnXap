@@ -2,8 +2,8 @@
 
 namespace OnXap.Modules.ItemsCustomize.Model
 {
-    using Core.Modules.ItemsCustomize.Field;
-    using Core.Modules.ItemsCustomize.Scheme;
+    using Field;
+    using Scheme;
 
 #pragma warning disable CS1591 // todo внести комментарии.
     public class SchemeContainerItem

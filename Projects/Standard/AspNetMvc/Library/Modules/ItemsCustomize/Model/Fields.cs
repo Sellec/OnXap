@@ -3,8 +3,8 @@
 namespace OnXap.Modules.ItemsCustomize.Model
 {
     using Core.DB;
-    using Core.Modules.ItemsCustomize.Field;
-    using Core.Modules.ItemsCustomize.Scheme;
+    using Field;
+    using Scheme;
 
     public class Fields
     {

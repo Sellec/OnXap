@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Binding.Providers
 {
-    using Core.Modules.ItemsCustomize.Data;
+    using Modules.ItemsCustomize.Data;
 
     public class TraceModelMetadataProvider : DataAnnotationsModelMetadataProvider
     {

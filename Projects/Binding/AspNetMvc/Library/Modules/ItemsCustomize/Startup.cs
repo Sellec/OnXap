@@ -5,7 +5,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.ItemsCustomize
 {
-    using Core.Modules.ItemsCustomize.Field.FieldTypes;
+    using Modules.ItemsCustomize.Field.FieldTypes;
     using Modules.ItemsCustomize.Field.FieldTypes;
 
     class Startup : IConfigureBindings, IExecuteStart

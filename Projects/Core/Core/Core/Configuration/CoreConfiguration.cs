@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OnXap.Modules.CoreModule;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +9,7 @@ namespace OnXap.Core.Configuration
     /// Класс конфигурации. При создании экземпляра объекта через метод Create ядра <see cref="OnXApplication"/> автоматически заполняется значениями настроек ядра.
     /// </summary>
 #pragma warning disable CS1591 // todo внести комментарии.
-    public class CoreConfiguration : ModuleConfiguration<Modules.CoreModule.CoreModule>
+    public class CoreConfiguration : ModuleConfiguration<CoreModule>
     {
         /// <summary>
         /// Основной системный язык.

@@ -11,8 +11,8 @@ namespace OnXap.Modules.Adminmain
     using Core.Configuration;
     using Core.DB;
     using Core.Modules;
-    using Core.Modules.CoreModule;
     using Journaling;
+    using Modules.CoreModule;
     using Routing.DB;
     using WebCoreModule;
     using JournalingDB = Journaling.DB;
