@@ -498,11 +498,13 @@ $(function ()
                 else setts = settings;
 
                 var thisObject = $(this),
-                    target = $("#popup-dialog"),
+                    target = $("#popup-dialog").clone(true, true),
                     targetContent = target.find(".popup__content:eq(0)"),
                     targetButtonsPanel = target.find(".popup__buttons:eq(0)"),
                     config = $.extend(this.config, defaults, setts),
                     isSet = $(this).data("showDialog") === true;
+
+                $("body").append(target);
 
                 if (settings === "destroy" || settings === "close")
                 {

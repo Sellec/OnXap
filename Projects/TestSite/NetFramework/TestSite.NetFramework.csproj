@@ -672,7 +672,8 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
-   <Message Importance="normal" Text="Precompiling views" />
+    <RemoveDir Directories="$(WebProjectOutputDir)\Symlinks" />
+    <Message Importance="normal" Text="Precompiling views" />
    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
