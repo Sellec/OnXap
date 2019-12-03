@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -56,7 +57,7 @@ namespace OnXap.Modules.FileManager
             }
             catch (Exception ex)
             {
-                this.RegisterEventWithCode(System.Net.HttpStatusCode.InternalServerError, "Ошибка во время регистрации файла", $"moduleName='{moduleName}'.\r\nuniqueKey='{uniqueKey}'.", ex);
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время регистрации файла", $"moduleName='{moduleName}'.\r\nuniqueKey='{uniqueKey}'.", ex);
                 result.FromFail("Неожиданная ошибка во время регистрации файла.");
             }
 
@@ -91,6 +92,7 @@ namespace OnXap.Modules.FileManager
             }
             catch (Exception ex)
             {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время вывода файла", $"File.IdFile='{IdFile}'.", ex);
                 return null;
             }
         }
@@ -184,6 +186,7 @@ namespace OnXap.Modules.FileManager
             }
             catch (Exception ex)
             {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время вывода файла", $"FileImage.IdFile='{IdFile}', MaxWidth={MaxWidth}, MaxHeight={MaxHeight}.", ex);
                 return null;
             }
         }
@@ -266,7 +269,7 @@ namespace OnXap.Modules.FileManager
 
                         if (!System.IO.File.Exists(filePath2))
                         {
-                            var image = cropImage(path, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
+                            var image = CropImage(path, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
                             {
                                 image.Item1.Save(filePath2, image.Item2);
                                 if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePath2, dbChangeTime.Value);
@@ -288,11 +291,12 @@ namespace OnXap.Modules.FileManager
             }
             catch (Exception ex)
             {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время вывода файла", $"FileImageCrop.IdFile='{IdFile}', MaxWidth={MaxWidth}, MaxHeight={MaxHeight}.", ex);
                 return null;
             }
         }
 
-        private Tuple<Image, ImageFormat> cropImage(string aInitialImageFilePath, int aNewImageWidth, int aNewImageHeight)
+        private Tuple<Image, ImageFormat> CropImage(string aInitialImageFilePath, int aNewImageWidth, int aNewImageHeight)
         {
             if (aNewImageWidth < 0 || aNewImageHeight < 0) return null;
 

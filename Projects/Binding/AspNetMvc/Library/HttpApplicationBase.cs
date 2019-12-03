@@ -174,8 +174,10 @@ namespace OnXap
             }
         }
 
-        internal void Application_BeginRequest(Object sender, EventArgs e)
+        internal void Application_BeginRequest(object sender, EventArgs e)
         {
+            Context.Items["TimeRequestStart"] = DateTime.Now;
+
             var isFirstRequest = (bool?)Context.GetType().GetProperty("FirstRequest", BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic)?.GetValue(Context);
             if (isFirstRequest.HasValue && isFirstRequest.Value) _urlFirst = Request.Url;
 

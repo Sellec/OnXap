@@ -122,7 +122,7 @@ namespace OnXap.Modules.FileManager
                         var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).Where(searchExpression).FirstOrDefault();
                         result = query;
                     }
-                    catch (NotSupportedException ex)
+                    catch (NotSupportedException)
                     {
                         throw new ArgumentException("Некорректное выражение", nameof(searchExpression));
                     }
@@ -160,7 +160,7 @@ namespace OnXap.Modules.FileManager
                         var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).Where(searchExpression);
                         result = query.ToList();
                     }
-                    catch (NotSupportedException ex)
+                    catch (NotSupportedException)
                     {
                         throw new ArgumentException("Некорректное выражение", nameof(searchExpression));
                     }

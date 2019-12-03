@@ -80,6 +80,8 @@ namespace System.Web.Mvc.Html
         /// <summary>
         /// Возвращает json-представление объекта <paramref name="obj"/> для проецирования объекта со всеми свойствами в скрипт JavaScript
         /// </summary>
+        /// <param name="html"></param>
+        /// <param name="obj"></param>
         /// <param name="ignoreFieldsAndProperties">Указывает, какие свойства и поля объекта следует исключить при формировании JSON.</param>
         /// <returns></returns>
         public static MvcHtmlString AsJSON(this HtmlHelper html, object obj, params string[] ignoreFieldsAndProperties)
@@ -115,6 +117,7 @@ namespace System.Web.Mvc.Html
         /// <param name="html"></param>
         /// <param name="value"></param>
         /// <param name="text"></param>
+        /// <param name="htmlAttributes"></param>
         /// <returns></returns>
         public static MvcHtmlString Option(this HtmlHelper html, object value, string text, object htmlAttributes = null)
         {

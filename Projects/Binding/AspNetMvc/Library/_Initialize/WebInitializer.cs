@@ -9,23 +9,16 @@ namespace OnXap._Initialize
     {
         public static void Initialize() 
         {
-            var IsDeveloperRuntime = StartupFactory.IsDeveloperRuntime(); 
+            var IsDeveloperRuntime = StartupFactory.IsDeveloperRuntime();
 
             try
             {
-
-                if (Debug.IsDeveloper) Debug.WriteLine($"{typeof(OnXap.NamespaceAnchor).Name}.Start: process='{System.Diagnostics.Process.GetCurrentProcess().ProcessName}'");
+                WebStartup.Initialize();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{typeof(OnXap.NamespaceAnchor).Name}.Start: error {ex.ToString()}");
+                Debug.WriteLine($"{typeof(WebInitializer).FullName} Error: {ex.ToString()}");
             }
-
-            try
-            {
-                Binding.Razor.WebStartup.Initialize();
-            }
-            catch (Exception ex) { Debug.WriteLine($"{typeof(OnXap.NamespaceAnchor).Name}.ModuleInitializer Error: {ex.ToString()}"); }
 
             if (!IsDeveloperRuntime) CheckMSDTC();
         }

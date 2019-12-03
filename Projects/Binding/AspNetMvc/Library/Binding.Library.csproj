@@ -110,7 +110,7 @@
     <Compile Include="Binding\Providers\TraceModelMultipleMetadataProvider.cs" />
     <Compile Include="Binding\Providers\TraceSessionStateCacheProvider.cs" />
     <Compile Include="Binding\Providers\TraceSessionStateProvider.cs" />
-    <Compile Include="Binding\Razor\WebStartup.cs" />
+    <Compile Include="_Initialize\WebStartup.cs" />
     <Compile Include="Binding\Routing\AreaConstants.cs" />
     <Compile Include="Binding\Routing\ControllerRouteConstraint.cs" />
     <Compile Include="Binding\Routing\ControllerType.cs" />
@@ -218,6 +218,7 @@
       <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

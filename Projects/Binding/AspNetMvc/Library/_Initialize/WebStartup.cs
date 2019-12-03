@@ -4,13 +4,10 @@ using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Web.Configuration;
-using System.Web.WebPages.Razor.Configuration;
 
-namespace OnXap.Binding.Razor
+namespace OnXap._Initialize
 {
-    /// <summary>
-    /// </summary>
-    public static class WebStartup
+    static class WebStartup
     {
         private static bool Initialized = false;
         private static object SyncRoot = new object();
@@ -23,7 +20,6 @@ namespace OnXap.Binding.Razor
 
         public static void PreApplicationStartMethod()
         {
-            //Initialized = false;
             Initialize();
         }
 
@@ -94,7 +90,7 @@ namespace OnXap.Binding.Razor
                             var sessionStateSection = WebConfigurationManager.GetWebApplicationSection("system.web/sessionState") as SessionStateSection;
                             if (sessionStateSection != null)
                             {
-                                var providerType = typeof(Providers.TraceSessionStateProvider);
+                                var providerType = typeof(Binding.Providers.TraceSessionStateProvider);
 
                                 ConfigurationElementReadOnly(sessionStateSection, false);
 
@@ -104,13 +100,11 @@ namespace OnXap.Binding.Razor
 
                                 sessionStateSection.Providers.Clear();
                                 sessionStateSection.Providers.Add(new ProviderSettings(providerType.Name, providerType.FullName));
-
-                                //sessionStateSection.Mode = System.Web.SessionState.SessionStateMode.Off;
                             }
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine("SessionStateSection: {0}", ex.Message);
+                            Debug.WriteLine($"{typeof(WebStartup).FullName}.Initialize SessionStateSection: {0}", ex.Message);
                         }
 
                         try
@@ -125,42 +119,25 @@ namespace OnXap.Binding.Razor
 
 #if DEBUG
                                 compilationSection.Debug = true;
-                                //compilationSection.OptimizeCompilations = true;
 #else
                                 compilationSection.Debug = false;
-                                //compilationSection.OptimizeCompilations = false;
 #endif
 
-                                var dd = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("netstandard")).ToList();
-
-                                //var ass = compilationSection.Assemblies.Cast<AssemblyInfo>().Select(x => x.Assembly).ToList();
-                                //var assList = new List<Assembly>();
-
-                                //foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                                //    if (!ass.Contains(assembly.FullName))
-                                //    {
-                                //        ass.Add(assembly.FullName);
-                                //        assList.Add(assembly);
-                                //    }
-
-                                //var ass2 = ass.OrderBy(x => x).ToList();
-
-                                ////compilationSection.Assemblies.Clear();
-                                ////foreach (var assembly in ass2) compilationSection.Assemblies.Add(new AssemblyInfo(assembly));
+                                var netStandardLibraryList = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.Contains("netstandard")).ToList();
 
                                 var s_dynamicallyAddedReferencedAssemblyField = typeof(System.Web.Compilation.BuildManager).GetField("s_dynamicallyAddedReferencedAssembly", BindingFlags.Static | BindingFlags.NonPublic);
                                 if (s_dynamicallyAddedReferencedAssemblyField != null)
                                 {
                                     var s_dynamicallyAddedReferencedAssembly = s_dynamicallyAddedReferencedAssemblyField.GetValue(null) as HashSet<Assembly>;
                                     if (s_dynamicallyAddedReferencedAssembly != null)
-                                        foreach (var assembly in dd)
+                                        foreach (var assembly in netStandardLibraryList)
                                             s_dynamicallyAddedReferencedAssembly.Add(assembly);
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine("CompilationSection: {0}", ex.Message);
+                            Debug.WriteLine($"{typeof(WebStartup).FullName}.Initialize CompilationSection: {0}", ex.Message);
                         }
 
                         Initialized = true;
@@ -169,7 +146,7 @@ namespace OnXap.Binding.Razor
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error: {0}", ex.ToString());
+                Debug.WriteLine($"{typeof(WebStartup).FullName}.Initialize Error: {0}", ex.ToString());
                 throw;
             }
         }

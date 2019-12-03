@@ -14,6 +14,9 @@ namespace OnXap.Utils.AssemblyResolver
 
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            if (args.Name.ToLower() != "dapper.strongname")
+                return null;
+
             var requestedAssembly = new AssemblyName(args.Name);
             Assembly assembly = null;
             AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
@@ -21,7 +24,7 @@ namespace OnXap.Utils.AssemblyResolver
             {
                 assembly = Assembly.Load(requestedAssembly.Name);
             }
-            catch (Exception ex)
+            catch
             {
             }
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
