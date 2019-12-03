@@ -2107,6 +2107,10 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
+   <Message Importance="normal" Text="Precompiling views" />
+   <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>

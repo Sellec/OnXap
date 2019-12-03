@@ -100,6 +100,9 @@ namespace OnXap.Modules.ItemsCustomize.DB
             }
         }
 
+        [StringLength(500)]
+        public string UniqueKey { get; set; }
+
         [ForeignKey("IdField")]
         public Field.ValueVariantCollection data
         {

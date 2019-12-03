@@ -223,6 +223,10 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
+   <Message Importance="normal" Text="Precompiling views" />
+   <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
