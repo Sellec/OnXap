@@ -19,7 +19,7 @@
     [ParameterNumeric01] REAL           CONSTRAINT [DF__customfie__Param__34BEB830] DEFAULT ((0)) NOT NULL,
     [ParameterNumeric02] REAL           CONSTRAINT [DF__customfie__Param__35B2DC69] DEFAULT ((0)) NOT NULL,
     [DateChange]         INT            CONSTRAINT [DF__customfie__DateC__36A700A2] DEFAULT ((0)) NOT NULL,
-    [UniqueKey]          NVARCHAR (500) NULL,
+    [UniqueKey]          NVARCHAR (400) NULL,
     CONSTRAINT [PK_CustomFieldsField] PRIMARY KEY CLUSTERED ([field_id] ASC)
 );
 

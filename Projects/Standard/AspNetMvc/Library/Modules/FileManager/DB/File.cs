@@ -14,16 +14,17 @@ namespace OnXap.Modules.FileManager.DB
         public int IdModule { get; set; }
 
         [Required]
+        [StringLength(260)]
         public string NameFile { get; set; }
 
         /// <summary>
         /// Путь к файлу относительно корневой папки сайта.
         /// </summary>
         [Required]
+        [StringLength(260)]
         public string PathFile { get; set; }
 
-        [StringLength(255)]
-        public string UniqueKey { get; set; }
+        public Guid? UniqueKey { get; set; }
 
         /// <summary>
         /// Общий тип файла.

@@ -225,7 +225,7 @@ namespace OnXap.Modules.FileManager
         /// <exception cref="ArgumentException">Возникает, если <paramref name="nameFile"/> содержит специальные символы, не разрешенные в именах файлов (см. <see cref="Path.GetInvalidFileNameChars"/>).</exception>
         /// <exception cref="FileNotFoundException">Возникает, если файл <paramref name="pathFile"/> не найден на диске.</exception>
         [ApiReversible]
-        public RegisterResult Register(out DB.File result, string nameFile, string pathFile, string uniqueKey = null, DateTime? dateExpires = null)
+        public RegisterResult Register(out DB.File result, string nameFile, string pathFile, Guid? uniqueKey = null, DateTime? dateExpires = null)
         {
             if (string.IsNullOrEmpty(nameFile)) throw new ArgumentNullException(nameof(nameFile));
             if (string.IsNullOrEmpty(pathFile)) throw new ArgumentNullException(nameof(pathFile));
@@ -239,12 +239,11 @@ namespace OnXap.Modules.FileManager
             try
             {
                 var context = AppCore.GetUserContextManager().GetCurrentUserContext();
-                if (!string.IsNullOrEmpty(uniqueKey)) uniqueKey = uniqueKey.Trim();
 
                 var pathFileOld = string.Empty;
                 using (var db = this.CreateUnitOfWork())
                 {
-                    var data = !string.IsNullOrEmpty(uniqueKey) ? (db.File.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault() ?? null) : null;
+                    var data = uniqueKey.HasValue ? (db.File.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault() ?? null) : null;
 
                     if (data != null && pathFile != data.PathFile) pathFileOld = data.PathFile;
 

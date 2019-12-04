@@ -21,13 +21,13 @@ namespace OnXap.Modules.FileManager
         }
 
         [HttpPost]
-        public ActionResult UploadFile(string moduleName = null, string uniqueKey = null)
+        public ActionResult UploadFile(string moduleName = null, Guid? uniqueKey = null)
         {
             var result = JsonAnswer<int>();
 
             try
             {
-                if (!string.IsNullOrEmpty(uniqueKey) && uniqueKey.Length > 255) throw new ArgumentOutOfRangeException(nameof(uniqueKey), "Длина уникального ключа не может быть больше 255 символов.");
+                //if (!string.IsNullOrEmpty(uniqueKey) && uniqueKey.Length > 255) throw new ArgumentOutOfRangeException(nameof(uniqueKey), "Длина уникального ключа не может быть больше 255 символов.");
                 if (string.IsNullOrEmpty(moduleName)) throw new ArgumentNullException(nameof(moduleName), "Не указан модуль, для которого загружается файл.");
 
                 var module = AppCore.GetModulesManager().GetModule(moduleName) ?? (int.TryParse(moduleName, out int idModule) ? AppCore.GetModulesManager().GetModule(idModule) : null);

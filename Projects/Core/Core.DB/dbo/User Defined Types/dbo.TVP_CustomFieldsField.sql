@@ -19,7 +19,7 @@
     [ParameterNumeric01] REAL           DEFAULT ((0)) NOT NULL,
     [ParameterNumeric02] REAL           DEFAULT ((0)) NOT NULL,
     [DateChange]         INT            DEFAULT ((0)) NOT NULL,
-    [UniqueKey]          NVARCHAR (100) NULL);
+    [UniqueKey]          NVARCHAR (400) NULL);
 
 
 
