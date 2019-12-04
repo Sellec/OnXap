@@ -4,12 +4,12 @@ JsonResult = {
     FORMATERROR: 1,
     NETWORKERROR: 2,
     SCRIPTERROR: 3,
-    JSERROR: 4,
+    JSERROR: 4
 };
 
 function nl2br(text)
 {
-    if (text != undefined && text != null) return text.replace(/([^>])\n/g, '$1<br/>');
+    if (text !== undefined && text !== null) return text.replace(/([^>])\n/g, '$1<br/>');
     return text;
 }
 
@@ -18,7 +18,7 @@ function nl2br(text)
  * */
 $(function ()
 {
-    if ($.fn.uploadFile == undefined) $.getScript("/data/libs/jquery.uploadfile/jquery.uploadfile.js");
+    if ($.fn.uploadFile === undefined) $.getScript("/data/libs/jquery.uploadfile/jquery.uploadfile.js");
 
     var requestMethods = {
         prepareAnswer: function (answer, callback)
@@ -32,8 +32,8 @@ $(function ()
             {
                 if (!$.isPlainObject(answer)) 
                 {
-                    if ($.type(answer) != "string") throw "Параметр 'answer' должен быть строкой или объектом.";
-                    else if (answer.length == 0) answer = { result: "", success: true };
+                    if ($.type(answer) !== "string") throw "Параметр 'answer' должен быть строкой или объектом.";
+                    else if (answer.length === 0) answer = { result: "", success: true };
                     else
                     {
                         try { answer = JSON.parse(answer); }
@@ -41,24 +41,24 @@ $(function ()
                     }
                 }
 
-                if (answer == null || answer['success'] == undefined) throw "Неправильный формат ответа. Отсутствует параметр 'success'";
-                else if (answer['result'] == undefined) throw "Неправильный формат ответа. Отсутствует параметр 'result'";
+                if (answer === null || answer['success'] === undefined) throw "Неправильный формат ответа. Отсутствует параметр 'success'";
+                else if (answer['result'] === undefined) throw "Неправильный формат ответа. Отсутствует параметр 'result'";
                 else
                 {
-                    if (answer['success'] == true) success = JsonResult.OK; else success = JsonResult.SCRIPTERROR;
+                    if (answer['success'] === true) success = JsonResult.OK; else success = JsonResult.SCRIPTERROR;
                     message = answer['result'];
                 }
 
-                if (answer != null && answer['data'] != undefined) data = answer['data'];
+                if (answer !== null && answer['data'] !== undefined) data = answer['data'];
 
                 $("*.field-validation-valid, *.field-validation-error").hide();
-                if (answer != null && answer['modelState'] != undefined)
+                if (answer !== null && answer['modelState'] !== undefined)
                 {
                     if ($.isArray(answer['modelState']) || $.isPlainObject(answer['modelState']))
                     {
                         var scrolled = false;
                         $.each(answer['modelState'], function (index, value) {
-                            if (index == "") index = "__entire_model__";
+                            if (index === "") index = "__entire_model__";
 
                             var validationMessageContainer = $("[data-valmsg-for='" + index + "'");
                             if (validationMessageContainer.length > 0) {
@@ -74,7 +74,7 @@ $(function ()
                             }
                             else validationMessageContainer.removeClass('field-validation-valid field-validation-error').addClass('field-validation-valid');
 
-                            var validationMessageContainer = $("span#" + index + "_validationMessage");
+                            validationMessageContainer = $("span#" + index + "_validationMessage");
                             if (validationMessageContainer.length > 0) {
                                 validationMessageContainer.removeClass('field-validation-valid field-validation-error').addClass('field-validation-error');
                                 var validationMessage = value.join("\r\n").replace(/([^>])\n/g, '$1<br/>');
@@ -97,8 +97,8 @@ $(function ()
                 message = err;
             }
 
-            if (message == undefined || message == null) message = "";
-            if (success != JsonResult.OK)
+            if (message === undefined || message === null) message = "";
+            if (success !== JsonResult.OK)
                 console.log("requestJSON result", success, message);
 
             //message = message.replace(/([^>])\n/g, '$1<br/>');
@@ -115,13 +115,13 @@ $(function ()
         funcResponse: function (response, callback)
         {
             var message = "";
-            if (response.ResponseText != undefined) message = response.ResponseText;
-            if (response.responseText != undefined) message = response.responseText;
+            if (response.ResponseText !== undefined) message = response.ResponseText;
+            if (response.responseText !== undefined) message = response.responseText;
 
-            if (message == undefined || message == null) message = "";
+            if (message === undefined || message === null) message = "";
 
             var result = requestMethods.prepareAnswer(message);
-            if (response.status != undefined && response.status == 0) {
+            if (response.status !== undefined && response.status === 0) {
                 result.Success = JsonResult.NETWORKERROR;
                 if (!result.Message) result.Message = "Возникла ошибка сети во время выполнения запроса.";
             }
@@ -146,7 +146,7 @@ $(function ()
             // It can be made less wordy if you use one.
             var form = document.createElement("form");
             form.setAttribute("method", "post");
-            form.setAttribute("action", url != undefined && url != null && url.length > 0 ? url : document.URL);
+            form.setAttribute("action", url !== undefined && url !== null && url.length > 0 ? url : document.URL);
 
             for (var key in postData)
             {
@@ -172,21 +172,19 @@ $(function ()
         try
         {
             var getType = {};
-            if (!callback || getType.toString.call(callback) != '[object Function]') throw new Error("callback должен быть функцией.");
+            if (!callback || getType.toString.call(callback) !== '[object Function]') throw new Error("callback должен быть функцией.");
 
-            var func = function (answer)
-            {
+            var func = function (answer) {
                 $.proxy(requestMethods.func, this)(answer, callback);
             };
 
-            var funcError = function (response)
-            {
+            var funcError = function (response) {
                 $.proxy(requestMethods.funcResponse, this)(response, callback);
-            }
+            };
 
             url = requestMethods.prepareUrl(url);
 
-            if (postData == null || postData == undefined) $.getJSON(url, func).error(funcError);
+            if (postData === null || postData === undefined) $.getJSON(url, func).error(funcError);
             else
             {
                 var _params = {
@@ -194,7 +192,7 @@ $(function ()
                     url: url,
                     data: postData,
                     success: func,
-                    dataType: "json",
+                    dataType: "json"
                 };
                 if (postData instanceof FormData)
                 {
@@ -218,18 +216,18 @@ $(function ()
     {
         var defaults = {
             after: function () { },
-            before: function () { },
+            before: function () { }
         };
 
-        if (this.length == 0) return;
+        if (this.length === 0) return;
         else if (this.length > 1) throw "requestJSON можно вызывать только для одного элемента.";
 
         if ($(this).is("form"))
         {
             var configSaved = $(this).data("requestJSON");
-            var isSet = configSaved != null;
+            var isSet = configSaved !== null;
 
-            if (settings == "destroy")
+            if (settings === "destroy")
             {
                 $(this).data("requestJSON", null);
                 //if (isSet) $(this).unbind();
@@ -238,20 +236,20 @@ $(function ()
             {
                 if (isSet)
                 {
-                    if (settings == "after")
+                    if (settings === "after")
                     {
                         var valueOld = configSaved.after;
-                        if (settingsValue != undefined)
+                        if (settingsValue !== undefined)
                         {
                             configSaved.after = settingsValue;
                             $(this).data("requestJSON", configSaved);
                         }
                         return valueOld;
                     }
-                    else if (settings == "before")
+                    else if (settings === "before")
                     {
                         var valueOld = configSaved.before;
-                        if (settingsValue != undefined)
+                        if (settingsValue !== undefined)
                         {
                             configSaved.before = settingsValue;
                             $(this).data("requestJSON", configSaved);
@@ -276,7 +274,7 @@ $(function ()
                             config = $(this).data("requestJSON"),
                             elementsDisabled = new Array();
 
-                        if (isSubmittingRJ == true) return;
+                        if (isSubmittingRJ === true) return;
 
                         thisObject.data("requestJSON_submitting", true);
 
@@ -346,31 +344,31 @@ $(function ()
     $.fn.requestLoad = function (url, postData, callback)
     {
         var getType = {};
-        if (!callback || getType.toString.call(callback) != '[object Function]') throw new Error("callback должен быть функцией.");
+        if (!callback || getType.toString.call(callback) !== '[object Function]') throw new Error("callback должен быть функцией.");
 
         url = requestMethods.prepareUrl(url);
 
         var func = function (result, status, xhr)
         {
             var message = result;
-            if (status == 'error')
+            if (status === 'error')
             {
                 success = JsonResult.NETWORKERROR;
-                if (xhr.ResponseText != undefined) message = xhr.ResponseText;
-                if (xhr.responseText != undefined) message = xhr.responseText;
+                if (xhr.ResponseText !== undefined) message = xhr.ResponseText;
+                if (xhr.responseText !== undefined) message = xhr.responseText;
 
-                if (message == undefined || message == null) message = "";
+                if (message === undefined || message === null) message = "";
 
                 try
                 {
-                    if (message.length == 0 && xhr.getAllResponseHeaders().length == 0) message = "Удаленный сервер не отвечает.";
+                    if (message.length === 0 && xhr.getAllResponseHeaders().length === 0) message = "Удаленный сервер не отвечает.";
                 }
                 catch (err) { }
             }
-            else if (status == 'success') message = "";
+            else if (status === 'success') message = "";
 
-            var result = requestMethods.prepareAnswer(message);
-            $.proxy(callback, this)(result.Success, result.Message, result.Data);
+            var result2 = requestMethods.prepareAnswer(message);
+            $.proxy(callback, this)(result2.Success, result2.Message, result2.Data);
         };
 
         return this.each(function ()
@@ -381,7 +379,7 @@ $(function ()
 
     $.fn.requestFileUploadSingle = function (settings)
     {
-        if ($.fn.uploadFile == undefined) alert(100);
+        if ($.fn.uploadFile === undefined) alert(100);
 
         var defaults = {
             after: function () { },
@@ -399,12 +397,12 @@ $(function ()
             statusBarWidth: 'auto',
             dragdropWidth: 'auto',
             autoSubmit: true,
-            showProgress: true,
+            showProgress: true
         };
 
         var defaultsFileUploadHardCoded = {
             url: requestMethods.prepareUrl("/c300d635-c7d1-aa6f-95b9-7658b006d9d1/UploadFile"),
-            returnType: 'json',
+            returnType: 'json'
         };
 
         if (this.length > 1) throw new Error("requestFileUploadSingle: можно применять только к одному элементу за вызов.");
@@ -415,27 +413,23 @@ $(function ()
 
             var element = $(this);
 
-            var getConfig = function (settingsNew)
-            {
+            var getConfig = function (settingsNew) {
                 var cfg = $.extend(this.config, defaults, settingsNew, defaultsFileUploadHardCoded);
-                cfg.onSubmit = function (files)
-                {
+                cfg.onSubmit = function (files) {
                     $.proxy(cfg.before, element)(files);
                     $(element).trigger('requestFileUploadSingleBefore', files);
                 };
-                cfg.onSuccess = function (files, data, xhr, pd)
-                {
+                cfg.onSuccess = function (files, data, xhr, pd) {
                     var result = requestMethods.prepareAnswer(data);
                     $.proxy(cfg.after, element)(result.Success, result.Message, result.Data);
                     $(element).trigger('requestFileUploadSingleAfter', [result.Success, result.Message, result.Data]);
                 };
-                cfg.onError = function (files, status, errMsg, pd)
-                {
+                cfg.onError = function (files, status, errMsg, pd) {
                     $.proxy(cfg.after, element)(JsonResult.NETWORKERROR, "Ошибка загрузки файла. " + status + " " + errMsg, null);
                     $(element).trigger('requestFileUploadSingleAfter', [JsonResult.NETWORKERROR, "Ошибка загрузки файла. " + status + " " + errMsg, null]);
                 };
                 return cfg;
-            }
+            };
 
             var config = getConfig(settings);
 
@@ -472,7 +466,7 @@ ShowDialogButtons = {
     YESNO: 1,
     OKCANCEL: 2,
     SAVECANCEL: 3,
-    NOBUTTONS: 4,
+    NOBUTTONS: 4
 };
 
 $(function ()
@@ -485,7 +479,7 @@ $(function ()
             show: function () { },
             buttons: ShowDialogButtons.OK,
             closeOnPressEscape: false,
-            closeOnClickOutOfForm: false,
+            closeOnClickOutOfForm: false
         };
 
         return this.each(function(option)
@@ -684,12 +678,12 @@ $(function ()
 });
 
 var InvisibleRecaptchaInitCalled = false;
-/**
+/*
  * Инициализация собственной рекапчи с коллбеком.
  * */
 function InvisibleRecaptchaInit(container)
 {
-    if (container == undefined || container == null) container = $("body");
+    if (container === undefined || container === null) container = $("body");
 
     $(".captchaInvisible", container).each(function (k, elem)
     {
@@ -719,17 +713,13 @@ function InvisibleRecaptchaInit(container)
     InvisibleRecaptchaInitCalled = true;
 }
 
-/**
+/*
  * Здесь инициализация конкретных элементов сайта. 
  * */
 $(function ()
 {
     $(document).ajaxComplete(function ()
     {
-        if (InvisibleRecaptchaInitCalled)
-        {
-
-        }
         console.log("ajax complete", $(this));
     });
 
@@ -757,7 +747,7 @@ $(function ()
                 ignoreCase: true,
 
                 widgetOptions: {
-                },
+                }
             });
         }
         else
@@ -786,42 +776,41 @@ $(function ()
     $(".js-show-dialog__send-error").click(function (e)
     {
         e.preventDefault();
-        return;
 
-        var dialogElement = $("div#show-dialog__send-error:first");
-        if ($(this).data("element") != null && $(this).data("element").length > 0) dialogElement = $("div#" + $(this).data("element")).first();
+        //var dialogElement = $("div#show-dialog__send-error:first");
+        //if ($(this).data("element") != null && $(this).data("element").length > 0) dialogElement = $("div#" + $(this).data("element")).first();
 
-        if (dialogElement.length == 0)
-        {
-            dialogElement = $("<div></div>").attr("id", "show-dialog__send-error");
-            $("body").append(dialogElement);
-        }
+        //if (dialogElement.length == 0)
+        //{
+        //    dialogElement = $("<div></div>").attr("id", "show-dialog__send-error");
+        //    $("body").append(dialogElement);
+        //}
 
-        dialogElement.showDialog({
-            buttons: ShowDialogButtons.SAVECANCEL,
-            show: function ()
-            {
-                var parent = $(this);
-                $(this).show().html("<img src='/data/img/loading.gif'>").requestLoad('/support/TicketNewJson', null, function (result, message)
-                {
-                    if (result != JsonResult.OK) $(this).html(message);
-                });
-            },
-            success: function ()
-            {
-                var form = $("form", $(this));
-                if (form.length > 0)
-                {
-                    $("form", $(this)).submit();
-                    console.log("form submit");
-                    return false;
-                }
-            },
-            cancel: function ()
-            {
-                console.log("cancel");
-            }
-        });
+        //dialogElement.showDialog({
+        //    buttons: ShowDialogButtons.SAVECANCEL,
+        //    show: function ()
+        //    {
+        //        var parent = $(this);
+        //        $(this).show().html("<img src='/data/img/loading.gif'>").requestLoad('/support/TicketNewJson', null, function (result, message)
+        //        {
+        //            if (result != JsonResult.OK) $(this).html(message);
+        //        });
+        //    },
+        //    success: function ()
+        //    {
+        //        var form = $("form", $(this));
+        //        if (form.length > 0)
+        //        {
+        //            $("form", $(this)).submit();
+        //            console.log("form submit");
+        //            return false;
+        //        }
+        //    },
+        //    cancel: function ()
+        //    {
+        //        console.log("cancel");
+        //    }
+        //});
     });
 
     /**
@@ -830,7 +819,7 @@ $(function ()
     $("[type='url']").on('change keyup', function ()
     {
         var valueTrimmed = $(this).val().trim();
-        if (valueTrimmed != $(this).val()) $(this).val(valueTrimmed).change();
+        if (valueTrimmed !== $(this).val()) $(this).val(valueTrimmed).change();
     });
 });
 
