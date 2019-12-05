@@ -17,7 +17,7 @@ namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
 #pragma warning disable CS1591 // todo внести комментарии.
     public class HiddenSimpleMultiLineFieldTypeRender : CoreComponentBase, ICustomFieldRender<HiddenSimpleMultiLineFieldType>
     {
-        MvcHtmlString ICustomFieldRender<HiddenSimpleMultiLineFieldType>.RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
+        public virtual MvcHtmlString RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
         {
             if (htmlAttributes == null) htmlAttributes = new Dictionary<string, object>();
             htmlAttributes["style"] = "display:none;";

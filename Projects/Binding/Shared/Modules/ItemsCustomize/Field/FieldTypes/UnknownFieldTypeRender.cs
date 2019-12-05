@@ -14,7 +14,7 @@ namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
 
     sealed class UnknownFieldTypeRender : CoreComponentBase, ICustomFieldRender<UnknownFieldType>
     {
-        MvcHtmlString ICustomFieldRender<UnknownFieldType>.RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
+        public MvcHtmlString RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
         {
             return null;
         }

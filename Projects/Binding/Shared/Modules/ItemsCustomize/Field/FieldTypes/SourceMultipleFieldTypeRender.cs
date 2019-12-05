@@ -19,7 +19,7 @@ namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
 #pragma warning disable CS1591 // todo внести комментарии.
     public class SourceMultipleFieldTypeRender : CoreComponentBase, ICustomFieldRender<SourceMultipleFieldType>
     {
-        MvcHtmlString ICustomFieldRender<SourceMultipleFieldType>.RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
+        public virtual MvcHtmlString RenderHtmlEditor<TModel>(HtmlHelper<TModel> html, IField field, IDictionary<string, object> htmlAttributes, params object[] additionalParameters)
         {
             var value = (field as FieldData)?.Value;
             var values = (value as IEnumerable<int>)?.Select(x => x);

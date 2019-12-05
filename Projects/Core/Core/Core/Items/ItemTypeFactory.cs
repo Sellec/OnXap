@@ -18,8 +18,8 @@ namespace OnXap.Core.Items
         /// Значение, обозначающее, что идентификатор типа объектов не найден.
         /// </summary>
         public const DB.ItemType NotFound = null;
-
         private static Lazy<Tuple<DateTime, ConcurrentDictionary<string, DB.ItemType>>> _itemsTypes = null;
+        private static ConcurrentDictionary<int, Type> _itemsClsTypes = new ConcurrentDictionary<int, Type>();
 
         private static Tuple<DateTime, ConcurrentDictionary<string, DB.ItemType>> ItemsTypesProvide()
         {
@@ -84,17 +84,54 @@ namespace OnXap.Core.Items
             if (displayName != null && !string.IsNullOrEmpty(displayName.DisplayName)) caption = displayName.DisplayName;
 
             var fullName = TypeNameHelper.GetFullNameCleared(t);
-            return GetOrAdd(caption, "TYPEKEY_" + fullName, true);
+            var ret = GetOrAdd(caption, "TYPEKEY_" + fullName, true);
+            _itemsClsTypes[ret.IdItemType] = t;
+            return ret;
         }
 
         /// <summary>
-        /// Возвращает идентификатор для указанных ключа и названия типа.
+        /// Возвращает cls-тип для указанного типа объектов.
         /// </summary>
-        public static DB.ItemType GetItemType(string typeKey, string caption)
+        /// <param name="idItemType"></param>
+        /// <returns></returns>
+        public static Type GetClsType(int idItemType)
         {
-            if (string.IsNullOrEmpty(caption)) throw new ArgumentNullException(nameof(caption), "Название типа не должно быть пустым.");
-            if (string.IsNullOrEmpty(typeKey)) throw new ArgumentNullException(nameof(typeKey), "Ключ типа должен быть пустым.");
-            return GetOrAdd(caption, "CUSTOMKEY_" + typeKey, true);
+            var itemType = GetItemType(idItemType);
+            if (itemType == null) throw new InvalidOperationException("Неизвестный тип объектов.");
+
+            var funcGet = new Func<Type>(() =>
+            {
+                Type type = null;
+
+                if (itemType.UniqueKey.StartsWith("TYPEKEY_"))
+                {
+                    var typeName = itemType.UniqueKey.Substring("TYPEKEY_".Length);
+                    if (!string.IsNullOrEmpty(typeName))
+                    {
+                        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                        {
+                            foreach (var type2 in assembly.GetTypes())
+                            {
+                                var typeName2 = TypeNameHelper.GetFullNameCleared(type2);
+                                if (typeName2 == typeName)
+                                {
+                                    type = type2;
+                                    break;
+                                }
+                            }
+                            if (type != null) break;
+                        }
+                    }
+                }
+
+                return type;
+            });
+
+            var value = _itemsClsTypes.GetOrAdd(
+                itemType.IdItemType,
+                k => funcGet()
+            );
+            return value;
         }
 
         private static DB.ItemType GetOrAdd(string caption, string uniqueKey, bool registerIfNoFound)
