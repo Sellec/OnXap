@@ -28,8 +28,8 @@
     <SccAuxPath>SAK</SccAuxPath>
     <SccLocalPath>SAK</SccLocalPath>
     <DefaultCollation>Cyrillic_General_CI_AS</DefaultCollation>
-    <AnsiNulls>False</AnsiNulls>
-    <QuotedIdentifier>False</QuotedIdentifier>
+    <AnsiNulls>True</AnsiNulls>
+    <QuotedIdentifier>True</QuotedIdentifier>
     <IsChangeTrackingOn>False</IsChangeTrackingOn>
     <IsChangeTrackingAutoCleanupOn>True</IsChangeTrackingAutoCleanupOn>
     <ChangeTrackingRetentionPeriod>2</ChangeTrackingRetentionPeriod>
@@ -375,9 +375,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Сравнение схем.scmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="Core.DB.refactorlog" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>if not exist "$(SolutionDir)..\Build\" mkdir "$(SolutionDir)..\Build\"
