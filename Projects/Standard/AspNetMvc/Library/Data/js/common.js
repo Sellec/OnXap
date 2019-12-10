@@ -1,3 +1,5 @@
+/* eslint eqeqeq: 0 */
+
 //requestJSON
 JsonResult = {
     OK: 0,
@@ -9,7 +11,7 @@ JsonResult = {
 
 function nl2br(text)
 {
-    if (text !== undefined && text !== null) return text.replace(/([^>])\n/g, '$1<br/>');
+    if (text != null) return text.replace(/([^>])\n/g, '$1<br/>');
     return text;
 }
 
@@ -18,7 +20,7 @@ function nl2br(text)
  * */
 $(function ()
 {
-    if ($.fn.uploadFile === undefined) $.getScript("/data/libs/jquery.uploadfile/jquery.uploadfile.js");
+    if ($.fn.uploadFile == null) $.getScript("/data/libs/jquery.uploadfile/jquery.uploadfile.js");
 
     var requestMethods = {
         prepareAnswer: function (answer, callback)
@@ -32,8 +34,8 @@ $(function ()
             {
                 if (!$.isPlainObject(answer)) 
                 {
-                    if ($.type(answer) !== "string") throw "Параметр 'answer' должен быть строкой или объектом.";
-                    else if (answer.length === 0) answer = { result: "", success: true };
+                    if ($.type(answer) != "string") throw "Параметр 'answer' должен быть строкой или объектом.";
+                    else if (answer.length == 0) answer = { result: "", success: true };
                     else
                     {
                         try { answer = JSON.parse(answer); }
@@ -41,24 +43,24 @@ $(function ()
                     }
                 }
 
-                if (answer === null || answer['success'] === undefined) throw "Неправильный формат ответа. Отсутствует параметр 'success'";
-                else if (answer['result'] === undefined) throw "Неправильный формат ответа. Отсутствует параметр 'result'";
+                if (answer == null || answer['success'] == null) throw "Неправильный формат ответа. Отсутствует параметр 'success'";
+                else if (answer['result'] == null) throw "Неправильный формат ответа. Отсутствует параметр 'result'";
                 else
                 {
-                    if (answer['success'] === true) success = JsonResult.OK; else success = JsonResult.SCRIPTERROR;
+                    if (answer['success'] == true) success = JsonResult.OK; else success = JsonResult.SCRIPTERROR;
                     message = answer['result'];
                 }
 
-                if (answer !== null && answer['data'] !== undefined) data = answer['data'];
+                if (answer != null && answer['data'] != null) data = answer['data'];
 
                 $("*.field-validation-valid, *.field-validation-error").hide();
-                if (answer !== null && answer['modelState'] !== undefined)
+                if (answer != null && answer['modelState'] != null)
                 {
                     if ($.isArray(answer['modelState']) || $.isPlainObject(answer['modelState']))
                     {
                         var scrolled = false;
                         $.each(answer['modelState'], function (index, value) {
-                            if (index === "") index = "__entire_model__";
+                            if (index == "") index = "__entire_model__";
 
                             var validationMessageContainer = $("[data-valmsg-for='" + index + "'");
                             if (validationMessageContainer.length > 0) {
@@ -97,7 +99,7 @@ $(function ()
                 message = err;
             }
 
-            if (message === undefined || message === null) message = "";
+            if (message == null) message = "";
             if (success !== JsonResult.OK)
                 console.log("requestJSON result", success, message);
 
@@ -115,13 +117,13 @@ $(function ()
         funcResponse: function (response, callback)
         {
             var message = "";
-            if (response.ResponseText !== undefined) message = response.ResponseText;
-            if (response.responseText !== undefined) message = response.responseText;
+            if (response.ResponseText != null) message = response.ResponseText;
+            if (response.responseText != null) message = response.responseText;
 
-            if (message === undefined || message === null) message = "";
+            if (message == null) message = "";
 
             var result = requestMethods.prepareAnswer(message);
-            if (response.status !== undefined && response.status === 0) {
+            if (response.status == 0) {
                 result.Success = JsonResult.NETWORKERROR;
                 if (!result.Message) result.Message = "Возникла ошибка сети во время выполнения запроса.";
             }
@@ -146,7 +148,7 @@ $(function ()
             // It can be made less wordy if you use one.
             var form = document.createElement("form");
             form.setAttribute("method", "post");
-            form.setAttribute("action", url !== undefined && url !== null && url.length > 0 ? url : document.URL);
+            form.setAttribute("action", url != null && url.length > 0 ? url : document.URL);
 
             for (var key in postData)
             {
@@ -172,7 +174,7 @@ $(function ()
         try
         {
             var getType = {};
-            if (!callback || getType.toString.call(callback) !== '[object Function]') throw new Error("callback должен быть функцией.");
+            if (!callback || getType.toString.call(callback) != '[object Function]') throw new Error("callback должен быть функцией.");
 
             var func = function (answer) {
                 $.proxy(requestMethods.func, this)(answer, callback);
@@ -184,7 +186,7 @@ $(function ()
 
             url = requestMethods.prepareUrl(url);
 
-            if (postData === null || postData === undefined) $.getJSON(url, func).error(funcError);
+            if (postData == null) $.getJSON(url, func).error(funcError);
             else
             {
                 var _params = {
@@ -225,7 +227,7 @@ $(function ()
         if ($(this).is("form"))
         {
             var configSaved = $(this).data("requestJSON");
-            var isSet = configSaved !== null;
+            var isSet = configSaved != null;
 
             if (settings === "destroy")
             {
@@ -239,7 +241,7 @@ $(function ()
                     if (settings === "after")
                     {
                         var valueOld = configSaved.after;
-                        if (settingsValue !== undefined)
+                        if (settingsValue != null)
                         {
                             configSaved.after = settingsValue;
                             $(this).data("requestJSON", configSaved);
@@ -249,7 +251,7 @@ $(function ()
                     else if (settings === "before")
                     {
                         var valueOld = configSaved.before;
-                        if (settingsValue !== undefined)
+                        if (settingsValue != null)
                         {
                             configSaved.before = settingsValue;
                             $(this).data("requestJSON", configSaved);
@@ -274,7 +276,7 @@ $(function ()
                             config = $(this).data("requestJSON"),
                             elementsDisabled = new Array();
 
-                        if (isSubmittingRJ === true) return;
+                        if (isSubmittingRJ == true) return;
 
                         thisObject.data("requestJSON_submitting", true);
 
@@ -344,7 +346,7 @@ $(function ()
     $.fn.requestLoad = function (url, postData, callback)
     {
         var getType = {};
-        if (!callback || getType.toString.call(callback) !== '[object Function]') throw new Error("callback должен быть функцией.");
+        if (!callback || getType.toString.call(callback) != '[object Function]') throw new Error("callback должен быть функцией.");
 
         url = requestMethods.prepareUrl(url);
 
@@ -354,10 +356,10 @@ $(function ()
             if (status === 'error')
             {
                 success = JsonResult.NETWORKERROR;
-                if (xhr.ResponseText !== undefined) message = xhr.ResponseText;
-                if (xhr.responseText !== undefined) message = xhr.responseText;
+                if (xhr.ResponseText != null) message = xhr.ResponseText;
+                if (xhr.responseText != null) message = xhr.responseText;
 
-                if (message === undefined || message === null) message = "";
+                if (message == null) message = "";
 
                 try
                 {
@@ -379,7 +381,7 @@ $(function ()
 
     $.fn.requestFileUploadSingle = function (settings)
     {
-        if ($.fn.uploadFile === undefined) alert(100);
+        if ($.fn.uploadFile == null) alert(100);
 
         var defaults = {
             after: function () { },
@@ -683,7 +685,7 @@ var InvisibleRecaptchaInitCalled = false;
  * */
 function InvisibleRecaptchaInit(container)
 {
-    if (container === undefined || container === null) container = $("body");
+    if (container == null) container = $("body");
 
     $(".captchaInvisible", container).each(function (k, elem)
     {
@@ -773,8 +775,7 @@ $(function ()
     /**
      * Привязка к ссылке "Сообщить об ошибке".
      * */
-    $(".js-show-dialog__send-error").click(function (e)
-    {
+    $(".js-show-dialog__send-error").click(function (e) {
         e.preventDefault();
 
         //var dialogElement = $("div#show-dialog__send-error:first");

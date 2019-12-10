@@ -63,9 +63,19 @@ namespace OnXap.Core.Items
         }
 
         /// <summary>
+        /// Возвращает идентификатор указанного типа объектов <typeparamref name="TItemType"/>.
+        /// </summary>
+        /// <typeparam name="TItemType">Тип объектов, для которого следует получить идентификатор.</typeparam>
+        public static DB.ItemType GetItemType<TItemType>()
+        {
+            return GetItemType(typeof(TItemType));
+        }
+
+        /// <summary>
         /// Возвращает идентификатор указанного типа объектов <paramref name="type"/>.
         /// </summary>
         /// <param name="type">Тип объектов, для которого следует получить идентификатор.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="type"/> равен null.</exception>
         public static DB.ItemType GetItemType(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type), "Следует указать тип объекта");
