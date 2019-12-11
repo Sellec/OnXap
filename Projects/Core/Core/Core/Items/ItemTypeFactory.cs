@@ -1,4 +1,5 @@
 ﻿using OnUtils.Data;
+using System.ComponentModel.DataAnnotations;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
@@ -90,8 +91,10 @@ namespace OnXap.Core.Items
             if (t.FullName.StartsWith("System.Data.Entity.DynamicProxies.")) t = t.BaseType;
 
             var caption = t.Name;
-            var displayName = t.GetCustomAttribute<DisplayNameAttribute>();
-            if (displayName != null && !string.IsNullOrEmpty(displayName.DisplayName)) caption = displayName.DisplayName;
+            var displayAttribute = t.GetCustomAttribute<DisplayAttribute>();
+            if (displayAttribute != null && !string.IsNullOrEmpty(displayAttribute.Name)) caption = displayAttribute.Name;
+            var displayNameAttribute = t.GetCustomAttribute<DisplayNameAttribute>();
+            if (displayNameAttribute != null && !string.IsNullOrEmpty(displayNameAttribute.DisplayName)) caption = displayNameAttribute.DisplayName;
 
             var fullName = TypeNameHelper.GetFullNameCleared(t);
             var ret = GetOrAdd(caption, "TYPEKEY_" + fullName, true);
