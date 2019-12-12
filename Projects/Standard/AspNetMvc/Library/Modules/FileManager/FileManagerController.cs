@@ -212,7 +212,11 @@ namespace OnXap.Modules.FileManager
                             Select(x => new { x.PathFile, x.NameFile, x.TypeConcrete, x.DateChange }).
                             FirstOrDefault();
 
-                        if (file == null) filePath = "data/img/files/notfound.jpg"; //Файл не найден.
+                        if (file == null)
+                        {
+                            filePath = "data/img/files/notfound.jpg"; //Файл не найден.
+                            IdFile = null; // сбрасывается для формирования правильного пути временного изображения.
+                        }
                         else
                         {
                             if (!System.IO.File.Exists(Path.Combine(rootDirectory, file.PathFile)) && !System.IO.File.Exists(Path.Combine(rootDirectory, "bin", file.PathFile)))
@@ -308,6 +312,13 @@ namespace OnXap.Modules.FileManager
                 // Получаем размеры и тип изображения в виде числа
                 decimal lInitialImageWidth = image.Width;
                 decimal lInitialImageHeight = image.Height;
+
+                if (aNewImageWidth == 0 || aNewImageWidth == 0)
+                {
+                    var ratio = lInitialImageWidth / lInitialImageHeight;
+                    if (aNewImageWidth == 0) aNewImageWidth = (int)(aNewImageHeight * ratio);
+                    else if (aNewImageHeight == 0) aNewImageHeight = (int)(aNewImageWidth / ratio);
+                }
 
                 var lImageExtensionId = image.RawFormat;
 

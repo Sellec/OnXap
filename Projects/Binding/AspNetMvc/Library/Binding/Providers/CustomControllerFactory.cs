@@ -203,7 +203,7 @@ namespace OnXap.Binding.Providers
 
                 var url = routeValues["url"].ToString();
                 // url = url.Truncate(0, url.IndexOf('?'));
-                var parts = url.Split('/');
+                var parts = url.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
                 if (parts.Length > 0)
                 {
                     int idx = 0;
