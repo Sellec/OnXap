@@ -19,7 +19,17 @@
                 var newWidth2 = (int)(sourceImg.Width / coeff);
                 var newHeight2 = (int)(sourceImg.Height / coeff);
 
-                var newImage = new Bitmap(newWidth2, newHeight2, sourceImg.PixelFormat);
+                var pixelFormat = sourceImg.PixelFormat;
+                switch(pixelFormat)
+                {
+                    case Imaging.PixelFormat.Format1bppIndexed:
+                    case Imaging.PixelFormat.Format4bppIndexed:
+                    case Imaging.PixelFormat.Format8bppIndexed:
+                        pixelFormat = Imaging.PixelFormat.Format32bppRgb;
+                        break;
+                }
+
+                var newImage = new Bitmap(newWidth2, newHeight2, pixelFormat);
                 using (var gr = Graphics.FromImage(newImage))
                 {
                     //gr.SmoothingMode = SmoothingMode.HighQuality;
