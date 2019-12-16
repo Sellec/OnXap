@@ -15,13 +15,13 @@
             dest.IdJournalData = source.IdJournalData;
             dest.JournalInfo = journal;
             dest.EventType = source.EventType;
+            dest.EventCode = source.EventCode;
             dest.EventInfo = source.EventInfo;
             dest.EventInfoDetailed = source.EventInfoDetailed;
             dest.ExceptionDetailed = source.ExceptionDetailed;
             dest.DateEvent = source.DateEvent;
             dest.User = user;
-            dest.IdRelatedItem = source.IdRelatedItem;
-            dest.IdRelatedItemType = source.IdRelatedItemType;
+            dest.ItemLinkId = source.ItemLinkId;
         }
 
         /// <summary>
@@ -38,6 +38,11 @@
         /// Тип события.
         /// </summary>
         public EventType EventType { get; private set; }
+
+        /// <summary>
+        /// Код события.
+        /// </summary>
+        public int EventCode { get; private set; }
 
         /// <summary>
         /// Основная информация о событии.
@@ -65,16 +70,9 @@
         public UserInfo User { get; private set; }
 
         /// <summary>
-        /// Идентификатор объекта, с которым связано событие. Связанный объект возможно получить, когда задано значение <see cref="IdRelatedItem"/> и <see cref="IdRelatedItemType"/>.
+        /// Идентификатор ссылки на объект, с которым связано событие.
         /// </summary>
-        /// <seealso cref="ItemBase.ID"/>.
-        public int? IdRelatedItem { get; private set; }
-
-        /// <summary>
-        /// Идентификатор типа объекта, с которым связано событие. Связанный объект возможно получить, когда задано значение <see cref="IdRelatedItem"/> и <see cref="IdRelatedItemType"/>.
-        /// </summary>
-        /// <see cref="ItemType.IdItemType"/>
-        public int? IdRelatedItemType { get; private set; }
-
+        /// <seealso cref="ItemKey"/>.
+        public Guid? ItemLinkId { get; private set; }
     }
 }

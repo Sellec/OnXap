@@ -36,6 +36,13 @@ namespace OnXap.Messaging
 
         private Types.ConcurrentFlagLocker<string> _executingFlags = new Types.ConcurrentFlagLocker<string>();
 
+        private const int JournalEventBase = 10000;
+
+        /// <summary>
+        /// Код события ошибки преобразования тела сообщения.
+        /// </summary>
+        public const int JournalEventErrorBodyConverting = JournalEventBase + 1;
+
         /// <summary>
         /// Создает новый экземпляр сервиса.
         /// </summary>
@@ -234,7 +241,7 @@ namespace OnXap.Messaging
                 catch (Exception ex)
                 {
                     var messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(new TMessage(), message));
-                    this.RegisterEventForItem(messageInfo, Journaling.EventType.Error, "Ошибка преобразования тела сообщения", null, ex);
+                    this.RegisterEventForItem(new ItemKey(IdMessageType, idMessage), Journaling.EventType.Error, JournalEventErrorBodyConverting, "Ошибка преобразования тела сообщения", null, ex);
                     return messageInfo;
                 }
             }

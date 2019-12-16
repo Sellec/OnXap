@@ -1,10 +1,9 @@
-﻿using System;
+﻿using OnUtils.Data;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
 
 namespace OnXap.Core.Items
 {
@@ -17,7 +16,7 @@ namespace OnXap.Core.Items
     public class ItemsManager : 
         CoreComponentBase, 
         IComponentSingleton, 
-        IUnitOfWorkAccessor<UnitOfWork<DB.ItemParent>>,
+        IUnitOfWorkAccessor<DataContext>,
         ITypedJournalComponent<ItemsManager>
     {
         private class ParentsInternal
@@ -29,6 +28,10 @@ namespace OnXap.Core.Items
         }
 
         private ConcurrentDictionary<Type, Tuple<DB.ItemType, Type>> _itemTypeModuleType;
+
+        private ConcurrentDictionary<ItemKey, object> _currentProcessingItemKey = new ConcurrentDictionary<ItemKey, object>();
+        private Guid _latestUsedLinkId = Guid.Empty;
+        private object _latestUsedLinkSyncRoot = new object();
 
         /// <summary>
         /// </summary>
@@ -122,7 +125,7 @@ namespace OnXap.Core.Items
                 {
                     foreach (var item in toBase.GroupBy(x => $"{x.item}_{x.type}_{x.parent}", x => x).Select(x => x.First()))
                     {
-                        db.Repo1.Add(new DB.ItemParent()
+                        db.ItemParent.Add(new DB.ItemParent()
                         {
                             IdModule = module.IdModule,
                             IdItem = item.item,
@@ -254,6 +257,92 @@ namespace OnXap.Core.Items
             }
 
             return _itemTypeModuleType.TryGetValue(type, out var moduleType) ? AppCore.Get<ModuleCore>(moduleType.Item2) : null;
+        }
+
+        /// <summary>
+        /// Регистрирует ссылку для объекта с указанными параметрами <paramref name="itemKey"/> и возвращает идентификатор ссылки.
+        /// Если ссылка для объекта уже зарегистрирована, то сразу возвращает идентификатор ссылки.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="itemKey"/> равен null.</exception>
+        /// <exception cref="InvalidOperationException">Возникает в случае ошибки регистрации ссылки. Подробности регистрируются в журнале менеджера.</exception>
+        public Guid RegisterItemLink(ItemKey itemKey)
+        {
+            if (itemKey == null) throw new ArgumentNullException(nameof(itemKey));
+
+            try
+            {
+                var currentUserId = AppCore.GetUserContextManager().GetCurrentUserContext()?.IdUser;
+                if (currentUserId <= 0) currentUserId = null;
+
+                Guid guid;
+                lock (_latestUsedLinkSyncRoot)
+                {
+                    int i = 1;
+                    for (; i <= 5; i++)
+                    {
+                        guid = DateTime.Now.Ticks.ToString().GenerateGuid();
+                        if (guid != _latestUsedLinkId)
+                        {
+                            _latestUsedLinkId = guid;
+                            break;
+                        }
+                    }
+                    if (i == 5) throw new InvalidProgramException("Не удается сгенерировать уникальный GUID.");
+                }
+
+                using (var db = new DataContext())
+                {
+                    int i = 1;
+                    for (; i <= 5; i++)
+                    {
+                        try
+                        {
+                            var query = db.ItemLink.Where(x => x.ItemIdType == itemKey.IdType && x.ItemId == itemKey.IdItem && x.ItemKey == itemKey.Key);
+                            var data = query.FirstOrDefault();
+                            if (data != null) return data.LinkId;
+
+                            db.ItemLink.AddOrUpdate(
+                                x => new
+                                {
+                                    x.ItemIdType,
+                                    x.ItemId,
+                                    x.ItemKey
+                                },
+                                new DB.ItemLink()
+                                {
+                                    ItemIdType = itemKey.IdType,
+                                    ItemId = itemKey.IdItem,
+                                    ItemKey = itemKey.Key,
+                                    LinkId = guid,
+                                    IdUser = currentUserId,
+                                    DateCreate = DateTime.Now
+                                }
+                            );
+                            db.SaveChanges();
+                            break;
+                        }
+                        catch (Exception ex)
+                        {
+                            if (i == 5)
+                            {
+                                this.RegisterEvent(EventType.Error, "Ошибка регистрации ссылки", $"Данные объекта: {itemKey}", ex);
+                                throw new InvalidOperationException("Возникла ошибка во время регистрации ссылки.");
+                                break;
+                            }
+                        }
+                    }
+                }
+                return guid;
+            }
+            catch (InvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(EventType.Error, "Ошибка регистрации ссылки", $"Данные объекта: {itemKey}", ex);
+                throw new InvalidOperationException("Возникла ошибка во время регистрации ссылки.");
+            }
         }
     }
 }

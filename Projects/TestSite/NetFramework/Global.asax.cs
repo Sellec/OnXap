@@ -35,6 +35,8 @@ namespace OnXap.Site
 
                 AppCore.Get<Core.Storage.ResourceProvider>().SourceDevelopmentPathList.AddRange(paths);
 #endif
+
+                var guid = AppCore.Get<Core.Items.ItemsManager>().RegisterItemLink(new Core.Items.ItemKey(Core.Items.ItemTypeFactory.GetItemType<Core.DB.User>().IdItemType, 19));
             }
             catch (Exception ex)
             {

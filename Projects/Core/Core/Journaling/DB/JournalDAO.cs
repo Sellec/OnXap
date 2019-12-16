@@ -22,12 +22,12 @@ namespace OnXap.Journaling.DB
 
         public string ExceptionDetailed { get; set; }
 
+        public int EventCode { get; set; }
+
         public DateTime DateEvent { get; set; }
 
         public int? IdUser { get; set; }
 
-        public int? IdRelatedItem { get; set; }
-
-        public int? IdRelatedItemType { get; set; }
+        public Guid? ItemLinkId { get; set; }
     }
 }

@@ -25,6 +25,7 @@ namespace OnXap.Journaling
         IUnitOfWorkAccessor<DB.DataContext>,
         ITypedJournalComponent<JournalingManager>
     {
+        internal const int EventCodeDefault = 0;
         //Список журналов, основанных на определенном типе объектов.
         private ConcurrentDictionary<Type, ExecutionResultJournalName> _typedJournalsList = new ConcurrentDictionary<Type, ExecutionResultJournalName>();
 
@@ -200,12 +201,29 @@ namespace OnXap.Journaling
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionResultJournalDataList(false, "Ошибка получения данных о типе объекта.");
 
+            return GetJournalForItemKey(new ItemKey(itemType.IdItemType, relatedItem.ID));
+        }
+
+        /// <summary>
+        /// Возвращает события, связанные с объектом с ключом <paramref name="itemKey"/> во всех журналах.
+        /// </summary>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalDataList"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="itemKey"/> равен null.</exception>
+        [ApiIrreversible]
+        public ExecutionResultJournalDataList GetJournalForItemKey(ItemKey itemKey)
+        {
+            if (itemKey == null) throw new ArgumentNullException(nameof(itemKey));
+
             try
             {
                 using (var db = this.CreateUnitOfWork())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
-                    var query = DatabaseAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdRelatedItem == relatedItem.ID && x.JournalData.IdRelatedItemType == itemType.IdItemType);
+                    var query = from item in db.ItemLink
+                                join journalRow in DatabaseAccessor.CreateQueryJournalData(db) on item.LinkId equals journalRow.JournalData.ItemLinkId.Value
+                                where item.ItemIdType == itemKey.IdType && item.ItemId == itemKey.IdItem && item.ItemKey == itemKey.Key
+                                select journalRow;
+
                     var data = DatabaseAccessor.FetchQueryJournalData(query);
 
                     return new ExecutionResultJournalDataList(true, null, data);
@@ -213,7 +231,7 @@ namespace OnXap.Journaling
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"{typeof(JournalingManager).FullName}.{nameof(JournalingManager.GetJournalForItem)}: {ex.ToString()}");
+                Debug.WriteLine($"{typeof(JournalingManager).FullName}.{nameof(JournalingManager.GetJournalForItemKey)}: {ex.ToString()}");
                 return new ExecutionResultJournalDataList(false, $"Возникла ошибка во время получения событий. Смотрите информацию в системном текстовом журнале.");
             }
         }
@@ -266,7 +284,28 @@ namespace OnXap.Journaling
         [ApiIrreversible]
         public ExecutionRegisterResult RegisterEvent(int IdJournal, EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
-            return RegisterEventInternal(IdJournal, eventType, eventInfo, eventInfoDetailed, eventTime, exception);
+            return RegisterEventInternal(IdJournal, eventType, EventCodeDefault, eventInfo, eventInfoDetailed, eventTime, exception, null);
+        }
+
+        /// <summary>
+        /// Регистрирует новое событие в журнале <paramref name="IdJournal"/>.
+        /// </summary>
+        /// <param name="IdJournal">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
+        /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
+        /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
+        /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
+        /// <param name="exception">См. <see cref="DB.JournalDAO.ExceptionDetailed"/>.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="ExecutionRegisterResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. 
+        /// В случае успеха свойство <see cref="ExecutionRegisterResult.Result"/> содержит идентификатор записи журнала (см. также <see cref="GetJournalData(int)"/>).
+        /// В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.
+        /// </returns>
+        [ApiIrreversible]
+        public ExecutionRegisterResult RegisterEvent(int IdJournal, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        {
+            return RegisterEventInternal(IdJournal, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception, null);
         }
 
         /// <summary>
@@ -285,10 +324,30 @@ namespace OnXap.Journaling
         [ApiIrreversible]
         public ExecutionRegisterResult RegisterEvent<TJournalTyped>(EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
-            return RegisterEvent(typeof(TJournalTyped), eventType, eventInfo, eventInfoDetailed, eventTime, exception);
+            return RegisterEvent(typeof(TJournalTyped), eventType, EventCodeDefault, eventInfo, eventInfoDetailed, eventTime, exception);
         }
 
-        internal ExecutionRegisterResult RegisterEvent(Type typedType, EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        /// <summary>
+        /// Регистрирует новое событие в журнале на основе типа <typeparamref name="TJournalTyped"/>.
+        /// </summary>
+        /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
+        /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
+        /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
+        /// <param name="exception">См. <see cref="DB.JournalDAO.ExceptionDetailed"/>.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="ExecutionRegisterResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. 
+        /// В случае успеха свойство <see cref="ExecutionRegisterResult.Result"/> содержит идентификатор записи журнала (см. также <see cref="GetJournalData(int)"/>).
+        /// В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.
+        /// </returns>
+        [ApiIrreversible]
+        public ExecutionRegisterResult RegisterEvent<TJournalTyped>(EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        {
+            return RegisterEvent(typeof(TJournalTyped), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+        }
+
+        internal ExecutionRegisterResult RegisterEvent(Type typedType, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
             typedType = ManagerExtensions.GetJournalType(typedType);
 
@@ -297,7 +356,7 @@ namespace OnXap.Journaling
                 var journalResult = GetJournalTyped(typedType);
                 return !journalResult.IsSuccess ?
                     new ExecutionRegisterResult(false, journalResult.Message) :
-                    RegisterEventInternal(journalResult.Result.IdJournal, eventType, eventInfo, eventInfoDetailed, eventTime, exception);
+                    RegisterEventInternal(journalResult.Result.IdJournal, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception, null);
             }
             catch (Exception ex)
             {
@@ -313,6 +372,7 @@ namespace OnXap.Journaling
         /// <param name="IdJournal">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
         /// <param name="relatedItem">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
         /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
         /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
         /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
@@ -324,13 +384,38 @@ namespace OnXap.Journaling
         /// </returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="relatedItem"/> равен null.</exception>
         [ApiIrreversible]
-        public ExecutionRegisterResult RegisterEventForItem(int IdJournal, ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        public ExecutionRegisterResult RegisterEventForItem(int IdJournal, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
             if (relatedItem == null) throw new ArgumentNullException(nameof(relatedItem));
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionRegisterResult(false, "Ошибка получения данных о типе объекта.");
 
-            return RegisterEventInternal(IdJournal, eventType, eventInfo, eventInfoDetailed, eventTime, exception, relatedItem.ID, itemType.IdItemType);
+            return RegisterEventForItem(IdJournal, new ItemKey(itemType.IdItemType, relatedItem.ID), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+        }
+
+        /// <summary>
+        /// Регистрирует новое событие, связанное с объектом по ключу <paramref name="itemKey"/>, в журнале <paramref name="IdJournal"/>.
+        /// </summary>
+        /// <param name="IdJournal">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
+        /// <param name="itemKey">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
+        /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
+        /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
+        /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
+        /// <param name="exception">См. <see cref="DB.JournalDAO.ExceptionDetailed"/>.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="ExecutionRegisterResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. 
+        /// В случае успеха свойство <see cref="ExecutionRegisterResult.Result"/> содержит идентификатор записи журнала (см. также <see cref="GetJournalData(int)"/>).
+        /// В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="itemKey"/> равен null.</exception>
+        [ApiIrreversible]
+        public ExecutionRegisterResult RegisterEventForItem(int IdJournal, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        {
+            if (itemKey == null) throw new ArgumentNullException(nameof(itemKey));
+            var guid = AppCore.Get<ItemsManager>().RegisterItemLink(itemKey);
+            return RegisterEventInternal(IdJournal, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception, guid);
         }
 
         /// <summary>
@@ -338,6 +423,7 @@ namespace OnXap.Journaling
         /// </summary>
         /// <param name="relatedItem">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
         /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
         /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
         /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
@@ -349,24 +435,55 @@ namespace OnXap.Journaling
         /// </returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="relatedItem"/> равен null.</exception>
         [ApiIrreversible]
-        public ExecutionRegisterResult RegisterEventForItem<TJournalTyped>(ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        public ExecutionRegisterResult RegisterEventForItem<TJournalTyped>(ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
-            return RegisterEventForItem(typeof(TJournalTyped), relatedItem, eventType, eventInfo, eventInfoDetailed, eventTime, exception);
+            return RegisterEventForItem(typeof(TJournalTyped), relatedItem, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
 
-        internal ExecutionRegisterResult RegisterEventForItem(Type typedType, ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        /// <summary>
+        /// Регистрирует новое событие, связанное с объектом с ключом <paramref name="itemKey"/>, в журнале на основе типа <typeparamref name="TJournalTyped"/>.
+        /// </summary>
+        /// <param name="itemKey">См. <see cref="DB.JournalDAO.IdJournal"/>.</param>
+        /// <param name="eventType">См. <see cref="DB.JournalDAO.EventType"/>.</param>
+        /// <param name="eventCode">См. <see cref="DB.JournalDAO.EventCode"/>.</param>
+        /// <param name="eventInfo">См. <see cref="DB.JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="DB.JournalDAO.EventInfoDetailed"/>.</param>
+        /// <param name="eventTime">См. <see cref="DB.JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
+        /// <param name="exception">См. <see cref="DB.JournalDAO.ExceptionDetailed"/>.</param>
+        /// <returns>
+        /// Возвращает объект <see cref="ExecutionRegisterResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. 
+        /// В случае успеха свойство <see cref="ExecutionRegisterResult.Result"/> содержит идентификатор записи журнала (см. также <see cref="GetJournalData(int)"/>).
+        /// В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="itemKey"/> равен null.</exception>
+        [ApiIrreversible]
+        public ExecutionRegisterResult RegisterEventForItem<TJournalTyped>(ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
-            typedType = ManagerExtensions.GetJournalType(typedType);
+            return RegisterEventForItem(typeof(TJournalTyped), itemKey, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+        }
+
+        internal ExecutionRegisterResult RegisterEventForItem(Type typedType, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        {
             if (relatedItem == null) throw new ArgumentNullException(nameof(relatedItem));
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionRegisterResult(false, "Ошибка получения данных о типе объекта.");
+
+            return RegisterEventForItem(typedType, new ItemKey(itemType.IdItemType, relatedItem.ID), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+        }
+
+        internal ExecutionRegisterResult RegisterEventForItem(Type typedType, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        {
+            typedType = ManagerExtensions.GetJournalType(typedType);
+
+            if (itemKey == null) throw new ArgumentNullException(nameof(itemKey));
+            var guid = AppCore.Get<ItemsManager>().RegisterItemLink(itemKey);
 
             try
             {
                 var journalResult = GetJournalTyped(typedType);
                 return !journalResult.IsSuccess ?
                     new ExecutionRegisterResult(false, journalResult.Message) :
-                    RegisterEventInternal(journalResult.Result.IdJournal, eventType, eventInfo, eventInfoDetailed, eventTime, exception, relatedItem.ID, itemType.IdItemType);
+                    RegisterEventInternal(journalResult.Result.IdJournal, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception, guid);
             }
             catch (Exception ex)
             {
@@ -376,7 +493,7 @@ namespace OnXap.Journaling
             }
         }
 
-        private ExecutionRegisterResult RegisterEventInternal(int IdJournal, EventType eventType, string eventInfo, string eventInfoDetailed, DateTime? eventTime, Exception exception, int? idRelatedItem = null, int? idRelatedItemType = null)
+        private ExecutionRegisterResult RegisterEventInternal(int IdJournal, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed, DateTime? eventTime, Exception exception, Guid? itemLinkId)
         {
             try
             {
@@ -400,8 +517,10 @@ namespace OnXap.Journaling
                     EventInfo = eventInfo?.Truncate(0, 300),
                     EventInfoDetailed = eventInfoDetailed,
                     ExceptionDetailed = exceptionDetailed,
+                    EventCode = eventCode,
                     DateEvent = eventTime ?? DateTime.Now,
-                    IdUser = idUser
+                    IdUser = idUser,
+                    ItemLinkId = itemLinkId
                 };
 
                 using (var db = this.CreateUnitOfWork())

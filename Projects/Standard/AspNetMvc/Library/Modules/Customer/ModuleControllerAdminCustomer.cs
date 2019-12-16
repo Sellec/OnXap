@@ -14,6 +14,28 @@ namespace OnXap.Modules.Customer
 
     public class ModuleControllerAdminCustomer : ModuleControllerAdmin<ModuleCustomer>, IUnitOfWorkAccessor<CoreContext>
     {
+        private const int JournalEventBase = 20000;
+
+        /// <summary>
+        /// Событие сохранения данных пользователя.
+        /// </summary>
+        public const int JournalEventUserEdit = JournalEventBase + 1;
+
+        /// <summary>
+        /// Событие изменения статуса заявки пользователя - принято.
+        /// </summary>
+        public const int JournalEventUserStateAccept = JournalEventBase + 2;
+
+        /// <summary>
+        /// Событие изменения статуса заявки пользователя - отклонено.
+        /// </summary>
+        public const int JournalEventUserStateDecline = JournalEventBase + 3;
+
+        /// <summary>
+        /// Событие изменения статуса пользователя - заблокирован.
+        /// </summary>
+        public const int JournalEventUserStateBlocked = JournalEventBase + 4;
+
         [ModuleAction("users", ModuleCustomer.PERM_MANAGEUSERS)]
         public virtual ActionResult Users(UserState? state = null)
         {
@@ -192,7 +214,7 @@ namespace OnXap.Modules.Customer
                                     result.Message = "Сохранение данных прошло успешно!";
                                     result.Success = true;
 
-                                    Module.RegisterEventForItem(data, EventType.Info, "Редактирование данных", $"Пользователь №{data.IdUser} '" + data.ToString() + "'");
+                                    Module.RegisterEventForItem(data, EventType.Info, JournalEventUserEdit, "Редактирование данных", $"Пользователь №{data.IdUser} '" + data.ToString() + "'");
 
                                     if (result.Success)
                                     {
@@ -228,7 +250,7 @@ namespace OnXap.Modules.Customer
                                                 ContentType.Html
                                             );
 
-                                            Module.RegisterEventForItem(data, EventType.Info, "Заявка одобрена", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'");
+                                            Module.RegisterEventForItem(data, EventType.Info, JournalEventUserStateAccept, "Заявка одобрена", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'");
                                         }
                                         if (oldState == UserState.RegisterWaitForModerate && data.State == UserState.RegisterDecline)
                                         {
@@ -252,7 +274,7 @@ namespace OnXap.Modules.Customer
                                                 ContentType.Html
                                             );
 
-                                            Module.RegisterEventForItem(data, EventType.Info, "Заявка отклонена", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'. Заявка отклонена администратором" + message);
+                                            Module.RegisterEventForItem(data, EventType.Info, JournalEventUserStateDecline, "Заявка отклонена", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'. Заявка отклонена администратором" + message);
                                         }
                                         if (oldState != data.State && data.State == UserState.Disabled)
                                         {
@@ -280,7 +302,7 @@ namespace OnXap.Modules.Customer
                                                 ContentType.Html
                                             );
 
-                                            Module.RegisterEventForItem(data, EventType.Info, "Аккаунт заблокирован", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'. Аккаунт заблокирован" + message);
+                                            Module.RegisterEventForItem(data, EventType.Info, JournalEventUserStateBlocked, "Аккаунт заблокирован", "Пользователь №" + data.IdUser + " '" + data.ToString() + "'. Аккаунт заблокирован" + message);
                                         }
 
                                     }

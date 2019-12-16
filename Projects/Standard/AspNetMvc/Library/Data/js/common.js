@@ -1,7 +1,8 @@
 /* eslint eqeqeq: 0 */
+"use strict";
 
 //requestJSON
-JsonResult = {
+var JsonResult = {
     OK: 0,
     FORMATERROR: 1,
     NETWORKERROR: 2,
@@ -61,11 +62,12 @@ $(function ()
                         var scrolled = false;
                         $.each(answer['modelState'], function (index, value) {
                             if (index == "") index = "__entire_model__";
+                            var validationMessage = "";
 
                             var validationMessageContainer = $("[data-valmsg-for='" + index + "'");
                             if (validationMessageContainer.length > 0) {
                                 validationMessageContainer.removeClass('field-validation-valid field-validation-error').addClass('field-validation-error');
-                                var validationMessage = value.join("\r\n").replace(/([^>])\n/g, '$1<br/>');
+                                validationMessage = value.join("\r\n").replace(/([^>])\n/g, '$1<br/>');
                                 validationMessageContainer.html(validationMessage);
                                 validationMessageContainer.show();
 
@@ -79,7 +81,7 @@ $(function ()
                             validationMessageContainer = $("span#" + index + "_validationMessage");
                             if (validationMessageContainer.length > 0) {
                                 validationMessageContainer.removeClass('field-validation-valid field-validation-error').addClass('field-validation-error');
-                                var validationMessage = value.join("\r\n").replace(/([^>])\n/g, '$1<br/>');
+                                validationMessage = value.join("\r\n").replace(/([^>])\n/g, '$1<br/>');
                                 validationMessageContainer.html(validationMessage);
                                 validationMessageContainer.show();
 
@@ -238,9 +240,10 @@ $(function ()
             {
                 if (isSet)
                 {
+                    var valueOld = null;
                     if (settings === "after")
                     {
-                        var valueOld = configSaved.after;
+                        valueOld = configSaved.after;
                         if (settingsValue != null)
                         {
                             configSaved.after = settingsValue;
@@ -250,7 +253,7 @@ $(function ()
                     }
                     else if (settings === "before")
                     {
-                        var valueOld = configSaved.before;
+                        valueOld = configSaved.before;
                         if (settingsValue != null)
                         {
                             configSaved.before = settingsValue;
@@ -284,12 +287,13 @@ $(function ()
                         {
 
                             var dataToSend = $(this).serializeArray();
-                            try
-                            {
+                            try {
                                 var data2 = new FormData($(this)[0]);
                                 dataToSend = data2;
                             }
-                            catch (err) { }
+                            catch (err) {
+                                console.log("requestJSON submit", err);
+                            }
 
                             if ($.proxy(config.before, this)(dataToSend) !== false)
                             {
@@ -365,7 +369,9 @@ $(function ()
                 {
                     if (message.length === 0 && xhr.getAllResponseHeaders().length === 0) message = "Удаленный сервер не отвечает.";
                 }
-                catch (err) { }
+                catch (err) {
+                    console.log("requestLoad callback", err);
+                }
             }
             else if (status === 'success') message = "";
 
@@ -463,7 +469,7 @@ $(function ()
 /**
  * AJAX-методы.
  * */
-ShowDialogButtons = {
+var ShowDialogButtons = {
     OK: 0,
     YESNO: 1,
     OKCANCEL: 2,
@@ -709,7 +715,6 @@ function InvisibleRecaptchaInit(container)
                 console.log("error-callback", e1, e2);
             }
         });
-        console.log(id);
     });
 
     InvisibleRecaptchaInitCalled = true;
