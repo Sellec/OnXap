@@ -274,10 +274,10 @@ namespace OnXap.Core.Items
                 var currentUserId = AppCore.GetUserContextManager().GetCurrentUserContext()?.IdUser;
                 if (currentUserId <= 0) currentUserId = null;
 
+                int i = 1;
                 Guid guid;
                 lock (_latestUsedLinkSyncRoot)
                 {
-                    int i = 1;
                     for (; i <= 5; i++)
                     {
                         guid = DateTime.Now.Ticks.ToString().GenerateGuid();
@@ -290,10 +290,10 @@ namespace OnXap.Core.Items
                     if (i == 5) throw new InvalidProgramException("Не удается сгенерировать уникальный GUID.");
                 }
 
-                using (var db = new DataContext())
+                i = 1;
+                for (; i <= 5; i++)
                 {
-                    int i = 1;
-                    for (; i <= 5; i++)
+                    using (var db = new DataContext())
                     {
                         try
                         {
