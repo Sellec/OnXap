@@ -136,14 +136,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\dbo.CurrencyCoefficient.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\dbo.CurrencyToday.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Tables\dbo.CustomFieldsScheme.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -165,10 +157,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="dbo\Tables\dbo.CustomFieldsData.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\dbo.news.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -196,19 +184,7 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\dbo.Currency.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Tables\dbo.users.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\dbo.Page.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\dbo.PageCategory.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -234,12 +210,9 @@
     </Build>
     <Build Include="dbo\User Defined Types\dbo.TVP_CustomFieldsField.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_CustomFieldsValue.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_Currency.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_CurrencyCoefficient.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_ModuleSearchSet.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_Sessions.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_File.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_CurrencyToday.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_CustomFieldsData.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_CustomFieldsScheme.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_CustomFieldsSchemeData.sql" />
@@ -248,15 +221,10 @@
     <Build Include="dbo\User Defined Types\dbo.TVP_menus.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_ModuleSearchSetParameter.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_ModuleSearchSetResult.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_news.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_Page.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_PageCategory.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_passwords_remember.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_Subscription.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_SubscriptionEmail.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_SubscriptionHistory.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_SubscriptionRole.sql" />
-    <Build Include="dbo\User Defined Types\dbo.TVP_SystemHistoryRecord.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_UrlTranslation.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_UrlTranslationType.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_UserLogHistory.sql" />
@@ -276,10 +244,6 @@
       <QuotedIdentifier>On</QuotedIdentifier>
       <SuppressTSqlWarnings>71501</SuppressTSqlWarnings>
     </Build>
-    <Build Include="dbo\Tables\dbo.WordCase.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Views\dbo.состояние индексов.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -288,7 +252,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\User Defined Types\dbo.TVP_WordCase.sql" />
     <Build Include="dbo\Tables\dbo.menus.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -331,25 +294,27 @@
     <Build Include="dbo\Tables\dbo.RoleUserHistory.sql" />
     <Build Include="dbo\Tables\dbo.UserBase.sql" />
     <Build Include="dbo\Tables\dbo.UserEntity.sql" />
-    <Build Include="dbo\User Defined Types\TVP_ItemParent.sql" />
-    <Build Include="dbo\User Defined Types\TVP_ItemType.sql" />
-    <Build Include="dbo\User Defined Types\TVP_Journal.sql" />
-    <Build Include="dbo\User Defined Types\TVP_JournalName.sql" />
-    <Build Include="dbo\User Defined Types\TVP_MessageQueue.sql" />
-    <Build Include="dbo\User Defined Types\TVP_MessageQueueHistory.sql" />
-    <Build Include="dbo\User Defined Types\TVP_ModuleConfig.sql" />
-    <Build Include="dbo\User Defined Types\TVP_Role.sql" />
-    <Build Include="dbo\User Defined Types\TVP_RolePermission.sql" />
-    <Build Include="dbo\User Defined Types\TVP_RoleUser.sql" />
-    <Build Include="dbo\User Defined Types\TVP_RoleUserHistory.sql" />
-    <Build Include="dbo\User Defined Types\TVP_UserBase.sql" />
-    <Build Include="dbo\User Defined Types\TVP_UserEntity.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_ItemParent.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_ItemType.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_Journal.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_JournalName.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_MessageQueue.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_MessageQueueHistory.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_ModuleConfig.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_Role.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_RolePermission.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_RoleUser.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_RoleUserHistory.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_UserBase.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_UserEntity.sql" />
     <Build Include="dbo\User Defined Types\dbo.TVP_InsertOnDuplicate_Filters.sql" />
     <Build Include="dbo\Tables\dbo.MessageQueue.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
     <Build Include="dbo\Tables\dbo.ItemLink.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_ItemLink.sql" />
+    <Build Include="dbo\User Defined Types\dbo.TVP_passwords_remember.sql" />
   </ItemGroup>
   <ItemGroup>
     <ArtifactReference Include="C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\Extensions\Microsoft\SQLDB\Extensions\SqlServer\120\SqlSchemas\master.dacpac">
