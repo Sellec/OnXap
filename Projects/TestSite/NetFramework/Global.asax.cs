@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
-using OnUtils.Architecture.ObjectPool;
 
 namespace OnXap.Site
 {
-    using Messaging;
-    using Messaging.Components;
-    using Modules.MessagingEmail;
-
     public class MvcApplication : HttpApplicationBase
     {
         public MvcApplication() 
@@ -35,8 +30,6 @@ namespace OnXap.Site
 
                 AppCore.Get<Core.Storage.ResourceProvider>().SourceDevelopmentPathList.AddRange(paths);
 #endif
-
-                var guid = AppCore.Get<Core.Items.ItemsManager>().RegisterItemLink(new Core.Items.ItemKey(Core.Items.ItemTypeFactory.GetItemType<Core.DB.User>().IdItemType, 19));
             }
             catch (Exception ex)
             {

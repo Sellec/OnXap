@@ -28,10 +28,7 @@ namespace OnXap.Core.Items
         }
 
         private ConcurrentDictionary<Type, Tuple<DB.ItemType, Type>> _itemTypeModuleType;
-
         private ConcurrentDictionary<ItemKey, object> _currentProcessingItemKey = new ConcurrentDictionary<ItemKey, object>();
-        private Guid _latestUsedLinkId = Guid.Empty;
-        private object _latestUsedLinkSyncRoot = new object();
 
         /// <summary>
         /// </summary>
@@ -274,23 +271,9 @@ namespace OnXap.Core.Items
                 var currentUserId = AppCore.GetUserContextManager().GetCurrentUserContext()?.IdUser;
                 if (currentUserId <= 0) currentUserId = null;
 
-                int i = 1;
-                Guid guid;
-                lock (_latestUsedLinkSyncRoot)
-                {
-                    for (; i <= 5; i++)
-                    {
-                        guid = DateTime.Now.Ticks.ToString().GenerateGuid();
-                        if (guid != _latestUsedLinkId)
-                        {
-                            _latestUsedLinkId = guid;
-                            break;
-                        }
-                    }
-                    if (i == 5) throw new InvalidProgramException("Не удается сгенерировать уникальный GUID.");
-                }
+                var guid = Utils.GuidGenerator.GetUnique();
 
-                i = 1;
+                int i = 1;
                 for (; i <= 5; i++)
                 {
                     using (var db = new DataContext())
@@ -327,7 +310,6 @@ namespace OnXap.Core.Items
                             {
                                 this.RegisterEvent(EventType.Error, "Ошибка регистрации ссылки", $"Данные объекта: {itemKey}", ex);
                                 throw new InvalidOperationException("Возникла ошибка во время регистрации ссылки.");
-                                break;
                             }
                         }
                     }
