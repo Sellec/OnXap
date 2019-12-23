@@ -191,7 +191,7 @@ namespace OnXap.Core.Storage
             /*
              * Если это машина разработчика и представление найдено в папке уровнем выше, чем каталог приложения, то создаем жесткую ссылку.
              * */
-            if (relPath.StartsWith("../") && Debug.IsDeveloper)
+            if (relPath.StartsWith("../") && SourceDevelopmentPathList.Count > 0)
             {
                 try
                 {

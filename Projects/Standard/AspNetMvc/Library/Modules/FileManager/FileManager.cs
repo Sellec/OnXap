@@ -40,12 +40,6 @@ namespace OnXap.Modules.FileManager
             TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(MaintenanceIndexes), DateTime.Now.AddSeconds(30), () => MaintenanceIndexesStatic());
             TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(MaintenanceIndexes) + "_hourly6", Cron.HourInterval(6), () => MaintenanceIndexesStatic());
 
-            /*
-             * Прекомпиляция шаблонов при запуске.
-             * */
-            //if (!Debug.IsDeveloper)
-            //    Tasks.TasksManager.SetTask(typeof(Module).FullName + "_" + nameof(RazorPrecompilationStatic), DateTime.Now.AddMinutes(1), () => RazorPrecompilationStatic());
-
 #if DEBUG
             /*
              * Регулярная сборка мусора для сборки в режиме отладки.
@@ -697,30 +691,6 @@ namespace OnXap.Modules.FileManager
             {
                 this.RegisterEvent(EventType.CriticalError, $"Ошибка обслуживания индексов", null, ex);
                 Debug.WriteLine("FileManager.Module.MaintenanceIndexes: {0}", ex.Message);
-            }
-        }
-        #endregion
-
-        #region RazorPrecompilation tasks
-        public static void RazorPrecompilationStatic()
-        {
-            var module = _thisModule;
-            if (module == null) throw new Exception("Модуль не найден.");
-
-            module.RazorPrecompilation();
-        }
-
-        private void RazorPrecompilation()
-        {
-            try
-            {
-                throw new NotImplementedException();
-                // todo ApplicationCore.Instance.ResourceManager.GeneratePrecompiled();
-            }
-            catch (Exception ex)
-            {
-                this.RegisterEvent(EventType.CriticalError, $"Ошибка прекомпиляции шаблонов", null, ex);
-                Debug.WriteLine("FileManager.Module.RazorPrecompilation: {0}", ex.Message);
             }
         }
         #endregion

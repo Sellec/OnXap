@@ -20,15 +20,18 @@ namespace OnXap.Site
                 var physicalApplicationPath = AppCore.ApplicationWorkingFolder;
 
 #if DEBUG
-                var paths = new List<string>();
+                if (Debug.IsDeveloper)
+                {
+                    var paths = new List<string>();
 
-                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Binding.AspNetMvc,")).Count() > 0)
-                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Binding/AspNetMvc/Library")));
+                    if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Binding.AspNetMvc,")).Count() > 0)
+                        paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Binding/AspNetMvc/Library")));
 
-                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
-                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/Library")));
+                    if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
+                        paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/Library")));
 
-                AppCore.Get<Core.Storage.ResourceProvider>().SourceDevelopmentPathList.AddRange(paths);
+                    AppCore.Get<Core.Storage.ResourceProvider>().SourceDevelopmentPathList.AddRange(paths);
+                }
 #endif
             }
             catch (Exception ex)

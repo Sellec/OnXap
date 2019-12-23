@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System.Net.Security;
-using System.Net;
 using OnXap.Messaging.Messages;
 using System;
+using System.Net;
 using System.Net.Mail;
+using System.Net.Security;
 using System.Text;
 
 namespace OnXap.Modules.MessagingEmail.Components
@@ -93,10 +93,17 @@ namespace OnXap.Modules.MessagingEmail.Components
                     Body = message.Message.Body?.ToString(),
                 };
 
-                var developerEmail = AppCore.WebConfig.DeveloperEmail;
-                if (Debug.IsDeveloper && string.IsNullOrEmpty(developerEmail)) return ComponentResult.NotHandled;
+                if (service is EmailService && service is IDebugSupported emailService && emailService.IsDebugModeEnabled())
+                {
+                    var debugEmail = emailService.GetDebugRecipient();
+                    if (string.IsNullOrEmpty(debugEmail)) return ComponentResult.NotHandled;
 
-                message.Message.To.ForEach(x => mailMessage.To.Add(new MailAddress(Debug.IsDeveloper ? developerEmail : x.ContactData, string.IsNullOrEmpty(x.Name) ? x.ContactData : x.Name)));
+                    message.Message.To.ForEach(x => mailMessage.To.Add(new MailAddress(debugEmail, string.IsNullOrEmpty(x.Name) ? x.ContactData : x.Name)));
+                }
+                else
+                {
+                    message.Message.To.ForEach(x => mailMessage.To.Add(new MailAddress(x.ContactData, string.IsNullOrEmpty(x.Name) ? x.ContactData : x.Name)));
+                }
 
                 try
                 {

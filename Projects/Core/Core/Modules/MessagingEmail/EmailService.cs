@@ -11,8 +11,12 @@ namespace OnXap.Modules.MessagingEmail
     /// <summary>
     /// Представляет сервис отправки электронных писем (Email).
     /// </summary>
-    public class EmailService : MessageServiceBase<EmailMessage>, ICriticalMessagesReceiver
+    /// <remarks>
+    /// </remarks>
+    public class EmailService : MessageServiceBase<EmailMessage>, ICriticalMessagesReceiver, IDebugSupported
     {
+        private string _debugRecipient = null;
+
         /// <summary>
         /// </summary>
         public EmailService() : base("Email", "Email".GenerateGuid())
@@ -21,6 +25,28 @@ namespace OnXap.Modules.MessagingEmail
             IsSupportsOutcoming = true;
             IsSupportsCurrentStatusInfo = false;
         }
+
+        #region IDebugSupported
+        /// <summary>
+        /// Позволяет включить или отключить режим отладки. При включении этого компоненты, поддерживающие режим отладки, отправляют письма на адрес электронной почты, указанный в <paramref name="debugEmail"/>.
+        /// </summary>
+        /// <param name="isEnable">Признак включения или отключения режима отладки.</param>
+        /// <param name="debugEmail">Адрес получателя сообщений для режима отладки. Если задано пустое значение, то сообщения не отправляются до тех пор, пока режим отладки не будет отключен либо включен с указанным значением адреса.</param>
+        public void SetDebugMode(bool isEnable, string debugEmail)
+        {
+            _debugRecipient = isEnable ? debugEmail : null;
+        }
+
+        bool IDebugSupported.IsDebugModeEnabled()
+        {
+            return !string.IsNullOrEmpty(_debugRecipient);
+        }
+
+        string IDebugSupported.GetDebugRecipient()
+        {
+            return _debugRecipient;
+        }
+        #endregion
 
         #region Отправка
         /// <summary>

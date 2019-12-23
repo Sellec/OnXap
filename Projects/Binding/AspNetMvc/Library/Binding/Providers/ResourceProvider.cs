@@ -1,18 +1,16 @@
-﻿using System;
+﻿using OnUtils.Architecture.AppCore;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
-using OnUtils.Architecture.AppCore;
 using System.Threading;
+using System.Web.Mvc;
 
 namespace OnXap.Binding.Providers
 {
-    using System.Web.WebPages;
     using Core.Modules;
+    using System.Web.WebPages;
 
     class ResourceProvider : Core.Storage.ResourceProvider, IViewEngine, IVirtualPathFactory
     {
