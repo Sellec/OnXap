@@ -15,6 +15,7 @@ namespace OnXap.Modules.MessagingEmail
     /// </remarks>
     public class EmailService : MessageServiceBase<EmailMessage>, ICriticalMessagesReceiver, IDebugSupported
     {
+        private bool _debugIsEnabled = false;
         private string _debugRecipient = null;
 
         /// <summary>
@@ -34,12 +35,13 @@ namespace OnXap.Modules.MessagingEmail
         /// <param name="debugEmail">Адрес получателя сообщений для режима отладки. Если задано пустое значение, то сообщения не отправляются до тех пор, пока режим отладки не будет отключен либо включен с указанным значением адреса.</param>
         public void SetDebugMode(bool isEnable, string debugEmail)
         {
+            _debugIsEnabled = isEnable;
             _debugRecipient = isEnable ? debugEmail : null;
         }
 
         bool IDebugSupported.IsDebugModeEnabled()
         {
-            return !string.IsNullOrEmpty(_debugRecipient);
+            return _debugIsEnabled;
         }
 
         string IDebugSupported.GetDebugRecipient()
