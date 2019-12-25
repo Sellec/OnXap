@@ -7,9 +7,6 @@ namespace OnXap.Modules.ItemsCustomize.DB
     [Table("CustomFieldsSchemeData")]
     public partial class CustomFieldsSchemeData
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int IdData { get; set; }
-
         [Key, Column(Order = 0)]
         public int IdModule { get; set; }
 

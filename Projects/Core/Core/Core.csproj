@@ -13,7 +13,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.7.149</Version>
+    <Version>0.1.7.151</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -37,6 +37,7 @@
   <ItemGroup>
     <Content Include="$(SolutionDir)..\Build\Core.DB.dacpac" Link="DB\Core.DB.dacpac">
       <PackagePath>contentFiles\any\any\DB;content\DB</PackagePath>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>
