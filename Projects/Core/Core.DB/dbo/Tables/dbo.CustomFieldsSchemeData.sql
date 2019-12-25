@@ -6,6 +6,9 @@
     [IdSchemeItem] INT NOT NULL,
     [IdField]      INT NOT NULL,
     [Order]        INT NOT NULL,
-    CONSTRAINT [PK_CustomFieldsSchemeData] PRIMARY KEY CLUSTERED ([IdData] ASC)
+    CONSTRAINT [PK_CustomFieldsSchemeData] PRIMARY KEY CLUSTERED ([IdData] ASC),
+    CONSTRAINT [IX_CustomFieldsSchemeData] UNIQUE NONCLUSTERED ([IdField] ASC, [IdItemType] ASC, [IdModule] ASC, [IdScheme] ASC, [IdSchemeItem] ASC)
 );
+
+
 
