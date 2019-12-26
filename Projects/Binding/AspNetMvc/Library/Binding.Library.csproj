@@ -202,7 +202,7 @@
       <Version>0.1.11</Version>
     </PackageReference>
     <PackageReference Include="OnUtils.Data.EntityFramework">
-      <Version>0.1.9</Version>
+      <Version>0.1.13</Version>
     </PackageReference>
     <PackageReference Include="OnUtils.Tasks.MomentalThreading">
       <Version>0.1.1.5</Version>
@@ -224,8 +224,8 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
-   <Message Importance="normal" Text="Precompiling views" />
-   <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+    <Message Importance="normal" Text="Precompiling views" />
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

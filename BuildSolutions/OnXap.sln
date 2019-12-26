@@ -28,6 +28,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lexicon", "..\Projects\Plugins\Lexicon\Lexicon.csproj", "{E7077780-B7A1-4C88-A56E-9807233FA0AA}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Core.DB", "..\Projects\Core\Core.DB\Core.DB.sqlproj", "{9A323FE1-DAC9-405C-8C5D-3AA377C67CB5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0} = {3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Binding", "3. Binding", "{3320013D-0333-42BA-A163-255FEF66A9A4}"
 EndProject
