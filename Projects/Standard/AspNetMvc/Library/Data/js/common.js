@@ -422,26 +422,26 @@ $(function ()
             var element = $(this);
 
             var getConfig = function (settingsNew) {
-                var cfg = $.extend(this.config, defaults, settingsNew, defaultsFileUploadHardCoded);
+                var cfg = $.extend(element.config, defaults, settingsNew, defaultsFileUploadHardCoded);
                 cfg.onSubmit = function (files) {
                     $.proxy(cfg.before, element)(files);
-                    $(element).trigger('requestFileUploadSingleBefore', files);
+                    element.trigger('requestFileUploadSingleBefore', files);
                 };
                 cfg.onSuccess = function (files, data, xhr, pd) {
                     var result = requestMethods.prepareAnswer(data);
                     $.proxy(cfg.after, element)(result.Success, result.Message, result.Data);
-                    $(element).trigger('requestFileUploadSingleAfter', [result.Success, result.Message, result.Data]);
+                    element.trigger('requestFileUploadSingleAfter', [result.Success, result.Message, result.Data]);
                 };
                 cfg.onError = function (files, status, errMsg, pd) {
                     $.proxy(cfg.after, element)(JsonResult.NETWORKERROR, "Ошибка загрузки файла. " + status + " " + errMsg, null);
-                    $(element).trigger('requestFileUploadSingleAfter', [JsonResult.NETWORKERROR, "Ошибка загрузки файла. " + status + " " + errMsg, null]);
+                    element.trigger('requestFileUploadSingleAfter', [JsonResult.NETWORKERROR, "Ошибка загрузки файла. " + status + " " + errMsg, null]);
                 };
                 return cfg;
             };
 
             var config = getConfig(settings);
 
-            var uploadObject = $(this).uploadFile(config);
+            var uploadObject = element.uploadFile(config);
 
             var uploadObjectUpdate = uploadObject.update;
 
