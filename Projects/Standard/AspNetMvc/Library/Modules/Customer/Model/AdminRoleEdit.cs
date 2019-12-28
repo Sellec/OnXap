@@ -20,6 +20,7 @@ namespace OnXap.Modules.Customer.Model
             DateChange = role.DateChange;
             IdUserCreate = role.IdUserCreate;
             DateCreate = role.DateCreate;
+            IsHidden = role.IsHidden;
 
             Permissions = new List<string>();
         }

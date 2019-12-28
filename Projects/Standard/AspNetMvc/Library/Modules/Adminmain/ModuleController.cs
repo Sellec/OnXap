@@ -41,8 +41,8 @@ namespace OnXap.Modules.Adminmain
 
             using (var db = Module.CreateUnitOfWork())
             {
-                model.Roles = (from p in db.Role orderby p.NameRole ascending select p).ToList();
-                model.Roles.Insert(0, new Role() { IdRole = 0, NameRole = "Не выбрано" });
+                model.Roles = (from p in db.Role select p).ToList();
+                model.Roles.Insert(0, new Role() { IdRole = 0, NameRole = "Не выбрано", IsHidden = false });
             }
 
             return View("CoreSettings.tpl", model);

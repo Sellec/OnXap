@@ -24,10 +24,3 @@
     [DateChangeHistory]     DATETIME       CONSTRAINT [DF_UserHistory_DateChangeHistory] DEFAULT (getdate()) NOT NULL,
     CONSTRAINT [PK_UserHistory_IdUserHistory] PRIMARY KEY CLUSTERED ([IdUserHistory] ASC)
 );
-
-
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.UserHistory', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UserHistory';
-

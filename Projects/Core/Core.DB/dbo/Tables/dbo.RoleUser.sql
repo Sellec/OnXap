@@ -50,7 +50,3 @@ BEGIN
     FROM deleted
 
 END
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.roleuser', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'RoleUser';
-

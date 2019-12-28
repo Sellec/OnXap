@@ -3,7 +3,9 @@
 @model AdminMainModelInfoPage
 @{ 
     var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>();
-    var roleList = Model.Roles.Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole });
+    var groupOpen = new SelectListGroup() { Name = "Открытая роль" };
+    var groupHidden = new SelectListGroup() { Name = "Скрытая роль" };
+    var roleList = Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole).Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole, Group = x.IsHidden ? groupHidden : groupOpen });
 }
 
 <script type="text/javascript" src='/data/js/ajax.js'></script>
@@ -46,6 +48,13 @@
 
         $("select[name=register_mode]").val('@this.GetConfig().register_mode');
         $("select[name=userAuthorizeAllowed]").val('@this.GetConfig().userAuthorizeAllowed');
+
+        $("input#js-role-guest_checkbox, input#js-role-user_checkbox").change(function () {
+            if ($(this).prop("checked"))
+                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").show();
+            else
+                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").hide();
+        }).change();
     });
 </script>
 <style>
@@ -143,13 +152,13 @@
                 </div>
 
                 <div>
-                    @Html.LabelFor(x => x.AppCoreConfiguration.RoleGuest):<br />
+                    @Html.LabelFor(x => x.AppCoreConfiguration.RoleGuest) (<input type="checkbox" id="js-role-guest_checkbox" value="1" /> <label for="js-role-guest_checkbox">Показать скрытые роли</label>):<br />
                     @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleGuest, roleList)
                     @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleGuest)
                 </div>
 
                 <div>
-                    @Html.LabelFor(x => x.AppCoreConfiguration.RoleUser):<br />
+                    @Html.LabelFor(x => x.AppCoreConfiguration.RoleUser) (<input type="checkbox" id="js-role-user_checkbox" value="1" /> <label for="js-role-user_checkbox">Показать скрытые роли</label>):<br />
                     @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleUser, roleList)
                     @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleUser)
                 </div>

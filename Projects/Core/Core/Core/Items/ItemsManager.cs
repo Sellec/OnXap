@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Transactions;
 
 namespace OnXap.Core.Items
 {
@@ -262,6 +263,7 @@ namespace OnXap.Core.Items
         /// </summary>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="itemKey"/> равен null.</exception>
         /// <exception cref="InvalidOperationException">Возникает в случае ошибки регистрации ссылки. Подробности регистрируются в журнале менеджера.</exception>
+        [ApiIrreversible]
         public Guid RegisterItemLink(ItemKey itemKey)
         {
             if (itemKey == null) throw new ArgumentNullException(nameof(itemKey));
@@ -277,6 +279,7 @@ namespace OnXap.Core.Items
                 for (; i <= 5; i++)
                 {
                     using (var db = new DataContext())
+                        using(var scope = db.CreateScope(TransactionScopeOption.Suppress))
                     {
                         try
                         {

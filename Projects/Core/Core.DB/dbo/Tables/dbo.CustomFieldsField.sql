@@ -23,13 +23,6 @@
     CONSTRAINT [PK_CustomFieldsField] PRIMARY KEY CLUSTERED ([field_id] ASC)
 );
 
-
-
-
-
-
-
-
 GO
 CREATE NONCLUSTERED INDEX [field_id]
     ON [dbo].[CustomFieldsField]([field_id] ASC, [field_module1] ASC);
@@ -48,16 +41,4 @@ CREATE NONCLUSTERED INDEX [field_module1_2]
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [CustomFieldsField_UniqueKey]
     ON [dbo].[CustomFieldsField]([UniqueKey] ASC) WHERE ([UniqueKey] IS NOT NULL);
-
-
-
-
-GO
-
-
-
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.customfieldsfield', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'CustomFieldsField';
 

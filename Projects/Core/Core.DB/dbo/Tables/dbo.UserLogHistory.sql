@@ -10,19 +10,10 @@
     CONSTRAINT [PK_userloghistory_IdRecord] PRIMARY KEY CLUSTERED ([IdRecord] ASC)
 );
 
-
-
-
 GO
 CREATE NONCLUSTERED INDEX [IdUser]
     ON [dbo].[UserLogHistory]([IdUser] ASC);
 
-
 GO
 CREATE NONCLUSTERED INDEX [IdUser_2]
     ON [dbo].[UserLogHistory]([IdUser] ASC, [IdEventType] ASC);
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.userloghistory', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UserLogHistory';
-

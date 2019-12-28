@@ -101,7 +101,7 @@ namespace OnXap.Modules.Customer
         }
 
         [ModuleAction("usersSave", ModuleCustomer.PERM_MANAGEUSERS)]
-        public virtual ActionResult UserSave(int IdUser = 0, Model.AdminUserEdit model = null)
+        public virtual JsonResult UserSave(int IdUser = 0, Model.AdminUserEdit model = null)
         {
             var result = JsonAnswer<int>();
 
@@ -319,7 +319,7 @@ namespace OnXap.Modules.Customer
             }
             catch (Exception ex) { result.FromException(ex); }
 
-            return this.ReturnJson(result);
+            return ReturnJson(result);
         }
 
         [ModuleAction("users_delete", ModuleCustomer.PERM_MANAGEUSERS)]
@@ -361,7 +361,7 @@ namespace OnXap.Modules.Customer
         }
 
         [ModuleAction("userAs", ModuleCustomer.PERM_MANAGEUSERS)]
-        public virtual ActionResult UserShowAs(int IdUser = 0)
+        public virtual RedirectResult UserShowAs(int IdUser = 0)
         {
             var result = "";
             if (IdUser < 0) result = "Не указан пользователь!";
@@ -406,14 +406,6 @@ namespace OnXap.Modules.Customer
                 foreach (var module in AppCore.GetModulesManager().GetModules().OrderBy(x => x.Caption))
                 {
                     var gr = new SelectListGroup() { Name = module.Caption };
-                    if (!(module is Admin.ModuleAdmin))
-                        mperms.Add(new SelectListItem()
-                        {
-                            Group = gr,
-                            Value = string.Format("{0};{1}", module.ID, ModulesConstants.PermissionManage),
-                            Text = "Администрирование: Управление модулем"
-                        });
-
                     mperms.AddRange(module.GetPermissions().OrderBy(x => x.Caption).Select(x => new SelectListItem()
                     {
                         Group = gr,
@@ -427,7 +419,7 @@ namespace OnXap.Modules.Customer
         }
 
         [ModuleAction("roleSave", ModuleCustomer.PERM_MANAGEROLES)]
-        public virtual ActionResult RoleSave(Model.AdminRoleEdit model = null)
+        public virtual JsonResult RoleSave(Model.AdminRoleEdit model = null)
         {
             var result = JsonAnswer<Model.AdminRoleEdit>();
 
@@ -467,6 +459,7 @@ namespace OnXap.Modules.Customer
                     if (ModelState.IsValid)
                     {
                         data.NameRole = model.NameRole;
+                        data.IsHidden = model.IsHidden;
                         data.IdUserChange = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser;
                         data.DateChange = DateTime.Now.Timestamp();
 
@@ -510,7 +503,7 @@ namespace OnXap.Modules.Customer
                                         throw new Exception($"Возникли ошибки при сохранении разрешений для роли '{data.NameRole}'");
                                 }
 
-                                //Module.RegisterEventForItem(data, EventType.Info, "Роль обновлена", $"Роль №{data.IdRole} '{data.NameRole}'");
+                                Module.RegisterEventForItem(data, EventType.Info, 0, "Роль обновлена", $"Роль №{data.IdRole} '{data.NameRole}'");
 
                                 trans.Complete();
 
@@ -530,7 +523,7 @@ namespace OnXap.Modules.Customer
         }
 
         [ModuleAction("roleDelete", ModuleCustomer.PERM_MANAGEROLES)]
-        public virtual ActionResult RoleDelete(int IdRole = 0)
+        public virtual JsonResult RoleDelete(int IdRole = 0)
         {
             var result = JsonAnswer();
 
@@ -553,7 +546,7 @@ namespace OnXap.Modules.Customer
                                 result.Message = "Удаление роли прошло успешно!";
                                 result.Success = true;
 
-                                //Module.RegisterEventForItem(data, EventType.Info, "Роль удалена", $"Роль №{data.IdRole} '{data.NameRole}'");
+                                Module.RegisterEventForItem(data, EventType.Info, 0, "Роль удалена", $"Роль №{data.IdRole} '{data.NameRole}'");
 
                                 trans.Complete();
                             }
@@ -568,7 +561,7 @@ namespace OnXap.Modules.Customer
         }
 
         [ModuleAction("rolesDelegate", ModuleCustomer.PERM_MANAGEROLES)]
-        public virtual ActionResult RolesDelegate()
+        public virtual ActionResult RolesDelegate(bool? isShowHidden = null)
         {
             var model = new Model.AdminRolesDelegate();
             using (var db = new CoreContext())
@@ -585,11 +578,11 @@ namespace OnXap.Modules.Customer
                 model.RolesUser = q.ToDictionary(x => x.User.IdUser, x => x.Roles);
 
             }
-            return display("admin/admin_customer_rolesDelegate.cshtml", model);
+            return View("admin/admin_customer_rolesDelegate.cshtml", model);
         }
 
         [ModuleAction("rolesDelegateSave", ModuleCustomer.PERM_MANAGEROLES)]
-        public virtual ActionResult RolesDelegateSave([Bind(Prefix = "Roles")] Dictionary<int, List<int>> model = null)
+        public virtual JsonResult RolesDelegateSave([Bind(Prefix = "Roles")] Dictionary<int, List<int>> model = null)
         {
             var result = JsonAnswer();
 
@@ -598,20 +591,40 @@ namespace OnXap.Modules.Customer
                 using (var db = this.CreateUnitOfWork())
                 using (var trans = db.CreateScope())
                 {
+                    var hiddenRoleList = db.Role.Where(x => x.IsHidden).Select(x => x.IdRole).ToList();
+                    var hiddenRoleUserQuery = from role in db.Role
+                                           join roleUser in db.RoleUser on role.IdRole equals roleUser.IdRole
+                                           where role.IsHidden
+                                           select roleUser;
+                    var hiddenRoleUserList = hiddenRoleUserQuery.ToList();
+
                     db.RoleUser.Delete();
 
+                    var saveList = hiddenRoleUserList.Select(x => new RoleUser()
+                    {
+                        IdRole = x.IdRole,
+                        IdUser = x.IdUser,
+                        IdUserChange = x.IdUserChange,
+                        DateChange = x.DateChange
+                    }).ToList();
+
                     if (model != null)
+                    {
                         foreach (var user in model)
                         {
-                            foreach (var role in user.Value) db.RoleUser.Add(new RoleUser()
-                            {
-                                IdRole = role,
-                                IdUser = user.Key,
-                                IdUserChange = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser,
-                                DateChange = DateTime.Now.Timestamp()
-                            });
+                            user.Value?.
+                                Where(x => !hiddenRoleList.Contains(x)).
+                                ForEach(x => saveList.Add(new RoleUser()
+                                {
+                                    IdRole = x,
+                                    IdUser = user.Key,
+                                    IdUserChange = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser,
+                                    DateChange = DateTime.Now.Timestamp()
+                                }));
                         }
+                    }
 
+                    db.RoleUser.Add(saveList.ToArray());
                     db.SaveChanges();
 
                     trans.Commit();

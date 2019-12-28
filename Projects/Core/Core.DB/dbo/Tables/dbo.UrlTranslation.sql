@@ -14,73 +14,44 @@
     CONSTRAINT [PK_urltranslation_IdTranslation] PRIMARY KEY CLUSTERED ([IdTranslation] ASC)
 );
 
-
-
-
-
-
-
-
 GO
 CREATE NONCLUSTERED INDEX [urltranslation$IdModule_2]
     ON [dbo].[UrlTranslation]([IdModule] ASC, [IdItem] ASC, [IdItemType] ASC, [Action] ASC, [IdTranslationType] ASC);
 
-
-GO
-
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.urltranslation', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UrlTranslation';
-
-
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Название Action из контроллера модуля', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UrlTranslation', @level2type = N'COLUMN', @level2name = N'Action';
-
 
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Аргументы для Action, сериализованные в json', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UrlTranslation', @level2type = N'COLUMN', @level2name = N'Arguments';
 
-
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Адрес в запросе к сайту, для которого определяется данная строка таблицы адресов.', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UrlTranslation', @level2type = N'COLUMN', @level2name = N'UrlFull';
-
 
 GO
 EXECUTE sp_addextendedproperty @name = N'MS_Description', @value = N'Адрес фиксированной длины означает, что при наличии в базе адреса "/коляски/коляска№123" и переходе пользователя по адресу "/коляски/коляска№123/123/46" он будет принудительно перенаправлен на "/коляски/коляска№123"', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'UrlTranslation', @level2type = N'COLUMN', @level2name = N'IsFixedLength';
 
-
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [urltranslationUniqueKey]
     ON [dbo].[UrlTranslation]([UniqueKey] ASC, [IdModule] ASC, [IdItem] ASC, [IdItemType] ASC, [Action] ASC) WHERE ([UniqueKey] IS NOT NULL AND [IdTranslationType]<>(2));
-
-
-GO
-
-
 
 GO
 CREATE NONCLUSTERED INDEX [NonClusteredIndex_IdTranslationType]
     ON [dbo].[UrlTranslation]([IdTranslationType] ASC)
     INCLUDE([IdTranslation], [UrlFull], [UniqueKey]);
 
-
 GO
 CREATE NONCLUSTERED INDEX [NonClusteredIndex_20180302_114957]
     ON [dbo].[UrlTranslation]([IdModule] ASC, [IdItem] ASC, [IdItemType] ASC, [UniqueKey] ASC)
     INCLUDE([UrlFull]);
-
-
+	
 GO
 CREATE NONCLUSTERED INDEX [HistoryIndex_ОтключенВеситМного]
     ON [dbo].[UrlTranslation]([IdTranslationType] ASC, [IdModule] ASC, [IdItem] DESC, [IdItemType] ASC, [Action] ASC, [Arguments] ASC, [UrlFull] ASC, [IsFixedLength] ASC)
     INCLUDE([IdTranslation]);
-
-
+	
 GO
 ALTER INDEX [HistoryIndex_ОтключенВеситМного]
     ON [dbo].[UrlTranslation] DISABLE;
-
 
 GO
 -- =============================================
@@ -179,6 +150,7 @@ BEGIN
     --)
 	   
 END
+
 GO
 CREATE NONCLUSTERED INDEX [NonClusteredIndex_RoutingByUrlFull]
     ON [dbo].[UrlTranslation]([UrlFull] ASC, [IsFixedLength] ASC)

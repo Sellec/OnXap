@@ -1,11 +1,12 @@
 namespace OnXap.Core.DB
 {
+    using Core.Items;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
     [Table("Role")]
-    public class Role
+    public class Role : ItemBase
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -15,6 +16,9 @@ namespace OnXap.Core.DB
         [Required(ErrorMessage = "Название роли не может быть пустым")]
         [StringLength(200)]
         public string NameRole { get; set; }
+
+        [Display(Name = "Скрытая роль")]
+        public bool IsHidden { get; set; }
 
         [ScaffoldColumn(false)]
         public int IdUserCreate { get; set; }
@@ -30,5 +34,10 @@ namespace OnXap.Core.DB
 
         [StringLength(100)]
         public string UniqueKey { get; set; }
+
+        #region ItemBase
+        public override int ID => IdRole;
+        public override string Caption => NameRole;
+        #endregion
     }
 }

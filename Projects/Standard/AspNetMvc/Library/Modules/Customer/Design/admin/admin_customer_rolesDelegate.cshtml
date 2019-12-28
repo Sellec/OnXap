@@ -109,7 +109,7 @@
                         $("table#UserRoles .plistRoles[Value=" + value + "]").prop('checked', true);
                     });
 
-                    $("table#UserRoles .plistRoles").prop("disabled", false);
+                    $("table#UserRoles div.js-role-list__role:not(.js-role-list__role_hidden) .plistRoles").prop("disabled", false);
                 }
             } catch(err) { alert(err); }
         });
@@ -121,14 +121,14 @@
         $("table#RoleUsers select.plistRoles").click(function(){
             try
             {
-                console.log("2");
+                var roleID = $(this).val(),
+                    optionSelected = $("option:selected", this);
 
-                var roleID = $(this).val();
                 Role = parseInt(roleID);
 
                 if (Role != null && Role != undefined)
                 {
-                    $("span#RoleName").text($("option:selected", this).text());
+                    $("span#RoleName").text(optionSelected.text());
 
                     $("table#RoleUsers .plistUsers").prop('checked', false);
 
@@ -136,7 +136,7 @@
                         if ($.inArray(Role, value) != -1) 
                             $("table#RoleUsers .plistUsers[Value=" + key + "]").prop('checked', true);
                     });
-                    $("table#RoleUsers .plistUsers").prop("disabled", false);
+                    $("table#RoleUsers .plistUsers").prop("disabled", optionSelected.closest("optgroup").hasClass("js-role-list__role_hidden"));
                 }
             } catch(err) { alert(err); }
         });
@@ -164,9 +164,16 @@
             });
         });
 
+        $("input#js-roles-list__enable-hidden").change(function () {
+            if ($(this).prop("checked"))
+                $(".js-role-list__role_hidden").show();
+            else
+                $(".js-role-list__role_hidden").hide();
+        }).change();
     });
 </script>
 <h2>Назначение ролей пользователям.</h2>
+<input type="checkbox" id="js-roles-list__enable-hidden" /> <label for="js-roles-list__enable-hidden">Показать скрытые роли (назначать и снимать скрытые роли нельзя, только увидеть назначенные)</label>
 
 <form method='post' id='delegateForm'>
     <table class="tablesorter">
@@ -201,9 +208,11 @@
                             Роли, назначенные пользователю '<span id="UserName"></span>'<br>
 
                             <div class="checkBoxList">
-                                @foreach (var role in Model.Roles)
+                                @foreach (var role in Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole))
                                 {
-                                    <label><input type="checkbox" value="@role.IdRole" class="plistRoles" disabled /> <span>@role.NameRole</span></label>
+                                    <div class="js-role-list__role @(role.IsHidden ? "js-role-list__role_hidden" : "")">
+                                        <label><input type="checkbox" value="@role.IdRole" class="plistRoles" disabled /> <span>@(role.NameRole + (role.IsHidden ? " (Скрытая роль)" : ""))</span></label>
+                                    </div>
                                 }
                             </div>
                         </td>
@@ -234,8 +243,14 @@
                         <tr>
                             <td>
                                 <select style='width:100%' class="plistRoles" size="40">
-                                    @foreach (var role in Model.Roles)
-                                    { @Html.Option(role.IdRole, role.NameRole) }
+                                    <optgroup label="Открытая роль">
+                                        @foreach (var role in Model.Roles.Where(x=>!x.IsHidden).OrderBy(x => x.NameRole))
+                                        {@Html.Option(role.IdRole, role.NameRole)}
+                                    </optgroup>
+                                    <optgroup label="Скрытая роль" class="js-role-list__role_hidden">
+                                        @foreach (var role in Model.Roles.Where(x => x.IsHidden).OrderBy(x => x.NameRole))
+                                        {@Html.Option(role.IdRole, role.NameRole)}
+                                    </optgroup>
                                 </select>
                             </td>
                             <td>

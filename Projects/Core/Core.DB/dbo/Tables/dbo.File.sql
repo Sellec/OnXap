@@ -15,33 +15,9 @@
     CONSTRAINT [PK_file_IdFile] PRIMARY KEY CLUSTERED ([IdFile] ASC)
 );
 
-
-
-
-
-
-
-
-
-
-GO
-
-
-
-GO
-EXECUTE sp_addextendedproperty @name = N'MS_SSMA_SOURCE', @value = N'fabrikae_fabrikanew.file', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'File';
-
-
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey]
     ON [dbo].[File]([UniqueKey] ASC) WHERE ([UniqueKey] IS NOT NULL);
-
-
-
-
-GO
-
-
 
 GO
 CREATE NONCLUSTERED INDEX [NCI_Removing]
