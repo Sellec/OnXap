@@ -131,7 +131,7 @@ namespace OnXap.Binding.Providers
                         module = moduleTmp;
                     }
 
-                    var type = typeof(ModuleControllerInternalErrors<>).MakeGenericType(module.GetType());
+                    var type = typeof(ModuleControllerInternalErrors<>).MakeGenericType(module.QueryType);
                     var controller = CreateController(module, type, requestContext.RouteData.Values);
                     (controller as IModuleControllerInternalErrors).SetException(ex);
                     // todo (controller as Modules.ModuleController).IsAdminController = isErrorAdmin;
