@@ -89,11 +89,18 @@ namespace OnXap.Core.Modules
                 var moduleCoreType = typeof(ModuleCore);
 
                 // Сначала ищем список модулей.
-                var filteredTypesList = AppCore.GetQueryTypes().Where(FilterModuleTypes);
+                var typesList = AppCore.GetQueryTypes().ToList();
+                var filteredTypesList = typesList.Where(FilterModuleTypes).ToList();
                 if (!filteredTypesList.IsNullOrEmpty() && filteredTypesList.Any(type => !typeof(ModuleCore).IsAssignableFrom(type)))
                     throw new ApplicationStartException(ApplicationStartStep.BindingsAutoStartCritical, typeof(ModulesManager), new ArgumentException());
 
-                // todo добавить журналирование this.RegisterEvent(Journaling.EventType.Info, "Первичная загрузка списка модулей", $"Найдены следующие привязки модулей:\r\n - {string.Join(";\r\n - ", modulesTypesList.Keys.Select(x => x.FullName))}.");
+                if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                {
+                    Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: список всех query-типов (всего {typesList.Count}):");
+                    typesList.OrderBy(x => x.FullName).ForEach(x => Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: {x}"));
+                    Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: список отфильтрованных query-типов (всего {filteredTypesList.Count}):");
+                    filteredTypesList.OrderBy(x => x.FullName).ForEach(x => Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: {x}"));
+                }
 
                 foreach (var moduleType in filteredTypesList)
                 {
