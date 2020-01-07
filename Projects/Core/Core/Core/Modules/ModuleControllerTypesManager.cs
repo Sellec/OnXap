@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using OnUtils.Architecture.AppCore;
 
 namespace OnXap.Core.Modules
 {
@@ -24,8 +25,10 @@ namespace OnXap.Core.Modules
         #region IModuleRegisteredHandler
         void IModuleRegisteredHandler.OnModuleInitialized<TModule>(TModule module)
         {
-            if (typeof(IModuleCore).IsAssignableFrom(typeof(TModule)))
-                _methodInfo.MakeGenericMethod(typeof(TModule)).Invoke(this, new object[] { module });
+            if (AppCore.AppDebugLevel >= DebugLevel.Common)
+                Debug.WriteLine($"{nameof(ModuleControllerTypesManager)}.{nameof(IModuleRegisteredHandler)}.{nameof(IModuleRegisteredHandler.OnModuleInitialized)}: перехват инициализации модуля '{typeof(TModule)}' ('{module.GetType()}').");
+
+            _methodInfo.MakeGenericMethod(typeof(TModule)).Invoke(this, new object[] { module });
         }
 
         private void OnModuleInitialized<TModuleType>(TModuleType module) where TModuleType : ModuleCore<TModuleType>
@@ -34,6 +37,9 @@ namespace OnXap.Core.Modules
 
             if (controllerTypes != null)
             {
+                if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                    Debug.WriteLine($"{nameof(ModuleControllerTypesManager)}.{nameof(OnModuleInitialized)}: найдены следующие типы контроллеров - '{string.Join("', '", controllerTypes)}'.");
+
                 var controllerTypesSplitIntoTypes = controllerTypes.
                     Select(x => new { Type = x, Attribute = x.GetCustomAttribute<ModuleControllerAttribute>() }).
                     Where(x => x.Attribute != null).
@@ -45,9 +51,11 @@ namespace OnXap.Core.Modules
             }
             else
             {
+                if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                    Debug.WriteLine($"{nameof(ModuleControllerTypesManager)}.{nameof(OnModuleInitialized)}: не найдено ни одного типа контроллеров.");
+
                 _moduleControllerTypesList[module.QueryType] = new Dictionary<int, Type>();
             }
-
         }
         #endregion
 

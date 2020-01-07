@@ -8,7 +8,7 @@ namespace OnXap.Site
 {
     public class MvcApplication : HttpApplicationBase
     {
-        public MvcApplication() 
+        public MvcApplication() : base(ApplicationRuntimeOptions.DebugLevelDetailed)
         {
             
         }

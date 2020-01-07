@@ -1,0 +1,22 @@
+﻿@using OnXap.Modules.Adminmain
+
+<script type="text/javascript">
+    $(function () {
+        $(".js-restart__button").click(function () {
+            $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.SystemRestart()))", null, function (result, message) {
+                if (result == JsonResult.OK) {
+                    setTimeout(function () {
+                        $.requestJSON("/", null, function (result, message) { });
+                    }, 5000);
+                }
+                if (message.length > 0) ShowAlert(message);
+            });
+        });
+    });
+</script>
+
+<h2>Состояние системы</h2>
+<span>Версия ядра приложения: @typeof(OnXap.Core.Modules.ModuleCore).Assembly.GetName().Version</span><br />
+<span>Версия веб-приложения: @typeof(OnXap.HttpApplicationBase).Assembly.GetName().Version</span><br />
+<span>Версия библиотеки стандартных компонентов: @typeof(OnXap.HttpApplicationBase).Assembly.GetName().Version</span><br />
+<input type="button" value="Перезагрузить веб-приложение" class="js-restart__button" />

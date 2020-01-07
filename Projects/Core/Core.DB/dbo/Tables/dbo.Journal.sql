@@ -4,7 +4,7 @@
     [EventType]         TINYINT        CONSTRAINT [DF_Journal_EventType] DEFAULT ((1)) NOT NULL,
     [EventInfo]         NVARCHAR (300) NOT NULL,
     [EventInfoDetailed] NVARCHAR (MAX) NULL,
-	[EventCode]	        INT            NULL,
+	[EventCode]	        INT            CONSTRAINT [DF_Journal_EventCode] DEFAULT ((0)) NOT NULL,
     [ExceptionDetailed] NVARCHAR (MAX) NULL,
     [DateEvent]         DATETIME       NOT NULL,
     [IdUser] INT NULL , 

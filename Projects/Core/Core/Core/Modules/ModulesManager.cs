@@ -81,6 +81,9 @@ namespace OnXap.Core.Modules
         /// </summary>
         internal protected void StartModules()
         {
+            if (AppCore.AppDebugLevel >= DebugLevel.Common)
+                Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}");
+
             lock (_syncRoot)
             {
                 var moduleCoreType = typeof(ModuleCore);
@@ -96,10 +99,19 @@ namespace OnXap.Core.Modules
                 {
                     try
                     {
+                        if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                            Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: запуск модуля '{moduleType}'");
+
                         var moduleInstance = AppCore.Get<ModuleCore>(moduleType);
                     }
                     catch (Exception ex)
                     {
+                        if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                        {
+                            Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: ошибка запуска модуля");
+                            Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(StartModules)}: {ex}");
+                        }
+
                         if (typeof(ICritical).IsAssignableFrom(moduleType)) throw new ApplicationStartException(ApplicationStartStep.BindingsAutoStartCritical, moduleType, ex);
                     }
                 }
@@ -126,49 +138,84 @@ namespace OnXap.Core.Modules
         private void LoadModuleCustom<TModuleType>(TModuleType module)
             where TModuleType : ModuleCore<TModuleType>
         {
-            var moduleType = typeof(TModuleType);
-            var moduleCoreAttribute = moduleType.GetCustomAttribute<ModuleCoreAttribute>();
+            var fullName = typeof(TModuleType).FullName;
 
-            var moduleRegisterHandlerTypes = AppCore.GetQueryTypes().Where(x => typeof(IModuleRegisteredHandler).IsAssignableFrom(x)).ToList();
-            var moduleRegisterHandlers = moduleRegisterHandlerTypes.Select(x => AppCore.Get<IModuleRegisteredHandler>(x)).ToList();
-
-            using (var db = this.CreateUnitOfWork())
+            try
             {
-                var fullName = Utils.TypeNameHelper.GetFullNameCleared(moduleType);
+                if (AppCore.AppDebugLevel >= DebugLevel.Common)
+                    Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: загрузка модуля '{typeof(TModuleType)}'.");
 
-                var config = db.Module.Where(x => x.UniqueKey == fullName).FirstOrDefault();
-                if (config == null)
+                var moduleType = typeof(TModuleType);
+                var moduleCoreAttribute = moduleType.GetCustomAttribute<ModuleCoreAttribute>();
+
+                var moduleRegisterHandlerTypes = AppCore.GetQueryTypes().Where(x => typeof(IModuleRegisteredHandler).IsAssignableFrom(x)).ToList();
+                var moduleRegisterHandlers = moduleRegisterHandlerTypes.Select(x => AppCore.Get<IModuleRegisteredHandler>(x)).ToList();
+
+                using (var db = this.CreateUnitOfWork())
                 {
-                    config = new ModuleConfig() { UniqueKey = fullName, DateChange = DateTime.Now };
-                    db.Module.Add(config);
-                    db.SaveChanges();
+                    fullName = Utils.TypeNameHelper.GetFullNameCleared(moduleType);
+
+                    if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                        Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: поиск настроек.");
+
+                    var config = db.Module.Where(x => x.UniqueKey == fullName).FirstOrDefault();
+                    if (config == null)
+                    {
+                        config = new ModuleConfig() { UniqueKey = fullName, DateChange = DateTime.Now };
+                        db.Module.Add(config);
+                        db.SaveChanges();
+                    }
+
+                    if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                        Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: применение настроек.");
+
+                    module.ID = config.IdModule;
+                    module._moduleCaption = moduleCoreAttribute.Caption;
+                    module._moduleUrlName = moduleCoreAttribute.DefaultUrlName;
+
+                    var configurationManipulator = new ModuleConfigurationManipulator<TModuleType>(module, CreateValuesProviderForModule(module));
+                    ((IComponentStartable)configurationManipulator).Start(AppCore);
+                    module._configurationManipulator = configurationManipulator;
+
+                    var cfg = configurationManipulator.GetUsable<ModuleConfiguration<TModuleType>>();
+
+                    if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                        Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: инициализация.");
+
+                    if (!string.IsNullOrEmpty(cfg.UrlName)) module._moduleUrlName = cfg.UrlName;
+                    module.InitModule();
+                    moduleRegisterHandlers.ForEach(x => x.OnModuleInitialized<TModuleType>(module));
+
+                    _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
+                    LoadModuleCallModuleStart(module);
+                    _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
+
+                    AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>("Журнал событий модуля '" + module.Caption + "'");
+
+                    this.RegisterEvent(
+                         EventType.Info,
+                        $"Загрузка модуля '{fullName}'",
+                        $"Модуль загружен на основе типа '{module.GetType().FullName}' с Id={config.IdModule}."
+                    );
+
+                    if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                        Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: успешно.");
                 }
-
-                module.ID = config.IdModule;
-                module._moduleCaption = moduleCoreAttribute.Caption;
-                module._moduleUrlName = moduleCoreAttribute.DefaultUrlName;
-
-                var configurationManipulator = new ModuleConfigurationManipulator<TModuleType>(module, CreateValuesProviderForModule(module));
-                ((IComponentStartable)configurationManipulator).Start(AppCore);
-                module._configurationManipulator = configurationManipulator;
-
-                var cfg = configurationManipulator.GetUsable<ModuleConfiguration<TModuleType>>();
-
-                if (!string.IsNullOrEmpty(cfg.UrlName)) module._moduleUrlName = cfg.UrlName;
-                module.InitModule();
-                moduleRegisterHandlers.ForEach(x => x.OnModuleInitialized<TModuleType>(module));
-
-                _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
-                LoadModuleCallModuleStart(module);
-                _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
-
-                AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>("Журнал событий модуля '" + module.Caption + "'");
+            }
+            catch (Exception ex)
+            {
+                if (AppCore.AppDebugLevel >= DebugLevel.Common)
+                    Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: ошибка.");
+                if (AppCore.AppDebugLevel >= DebugLevel.Detailed)
+                    Debug.WriteLine($"{nameof(ModulesManager)}.{nameof(LoadModuleCustom)}: {ex}");
 
                 this.RegisterEvent(
-                     EventType.Info,
+                     EventType.Error,
                     $"Загрузка модуля '{fullName}'",
-                    $"Модуль загружен на основе типа '{module.GetType().FullName}' с Id={config.IdModule}."
+                    $"Ошибка загрузки.",
+                    ex
                 );
+                throw;
             }
         }
 

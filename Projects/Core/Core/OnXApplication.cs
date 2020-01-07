@@ -72,8 +72,29 @@ namespace OnXap
         /// </summary>
         protected sealed override void OnStart()
         {
-            OnApplicationStartBase();
-            OnApplicationStart();
+            try
+            {
+                OnApplicationStartBase();
+            }
+            catch (Exception ex)
+            {
+                if (AppDebugLevel >= DebugLevel.Common)
+                    Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnApplicationStartBase)}: ошибка во время запуска.");
+                if (AppDebugLevel >= DebugLevel.Detailed)
+                    Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnApplicationStartBase)}: {ex}");
+            }
+
+            try
+            {
+                OnApplicationStart();
+            }
+            catch (Exception ex)
+            {
+                if (AppDebugLevel >= DebugLevel.Common)
+                    Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnApplicationStart)}: ошибка во время запуска.");
+                if (AppDebugLevel >= DebugLevel.Detailed)
+                    Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnApplicationStart)}: {ex}");
+            }
 
             DeprecatedApplicationHolder.Set(this);
         }
@@ -87,6 +108,8 @@ namespace OnXap
         /// </summary>
         protected sealed override void OnStop()
         {
+            if (AppDebugLevel >= DebugLevel.Common)
+                Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnStop)}");
             DeprecatedApplicationHolder.Remove(this);
         }
 
@@ -109,6 +132,9 @@ namespace OnXap
         /// </summary>
         protected override void OnBindingsRequired(IBindingsCollection<OnXApplication> bindingsCollection)
         {
+            if (AppDebugLevel >= DebugLevel.Common)
+                Debug.WriteLine($"{nameof(OnXApplication)}.{nameof(OnBindingsRequired)}");
+
             bindingsCollection.SetSingleton<ApplicationLauncher>();
             bindingsCollection.SetSingleton<Core.Items.ItemsManager>();
             bindingsCollection.SetSingleton<Journaling.JournalingManager>();

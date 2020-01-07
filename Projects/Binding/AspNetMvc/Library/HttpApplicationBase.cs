@@ -33,9 +33,8 @@ namespace OnXap
         /// <summary>
         /// Создает новый экземпляр приложения ASP.NET.
         /// </summary>
-        protected HttpApplicationBase()
+        protected HttpApplicationBase() : this(ApplicationRuntimeOptions.None)
         {
-            _runtimeOptions = ApplicationRuntimeOptions.None;
         }
 
         /// <summary>
@@ -139,6 +138,16 @@ namespace OnXap
                     var physicalApplicationPath = Server.MapPath("~");
 
                     _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    switch (_runtimeOptions)
+                    {
+                        case ApplicationRuntimeOptions.DebugLevelDetailed:
+                            _applicationCore.AppDebugLevel = DebugLevel.Detailed;
+                            break;
+
+                        case ApplicationRuntimeOptions.DebugLevelCommon:
+                            _applicationCore.AppDebugLevel = DebugLevel.Common;
+                            break;
+                    }
                     _applicationCoreStarted = false;
                 }
             }
@@ -198,6 +207,16 @@ namespace OnXap
                     var physicalApplicationPath = Server.MapPath("~");
 
                     _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    switch (_runtimeOptions)
+                    {
+                        case ApplicationRuntimeOptions.DebugLevelDetailed:
+                            _applicationCore.AppDebugLevel = DebugLevel.Detailed;
+                            break;
+
+                        case ApplicationRuntimeOptions.DebugLevelCommon:
+                            _applicationCore.AppDebugLevel = DebugLevel.Common;
+                            break;
+                    }
                     _applicationCoreStarted = false;
                 }
 

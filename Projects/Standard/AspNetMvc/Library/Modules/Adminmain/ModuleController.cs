@@ -22,6 +22,34 @@ namespace OnXap.Modules.Adminmain
     /// </summary>
     public class ModuleController : ModuleControllerAdmin<Module>
     {
+        [MenuAction("Состояние системы", null, Module.PERM_RESTART)]
+        public override ActionResult Index()
+        {
+            return View("SystemState.cshtml");
+        }
+
+        public virtual JsonResult SystemRestart()
+        {
+            try
+            {
+                if (Module.CheckPermission(Module.PERM_RESTART) != CheckPermissionResult.Allowed)
+                {
+                    RegisterEventWithCode(System.Net.HttpStatusCode.Forbidden, "Попытка перезагрузки.", "Недостаточно прав");
+                    return ReturnJson(false, "Недостаточно прав для перезагрузки системы.");
+                }
+
+                RegisterEventWithCode(System.Net.HttpStatusCode.Accepted, "Попытка перезагрузки.", null);
+                System.Web.HttpRuntime.UnloadAppDomain();
+
+                return ReturnJson(true, "Перезагрузка запущена.");
+            }
+            catch (Exception ex)
+            {
+                RegisterEventWithCode(System.Net.HttpStatusCode.InternalServerError, "Неожиданная ошибка при попытке перезагрузки", null, ex);
+                return ReturnJson(false, "Неожиднная ошибка во время перезагрузки системы.", ex.Message);
+            }
+        }
+
         [MenuAction("Настройки", "info", Module.PERM_CONFIGMAIN)]
         public virtual ActionResult MainSettings()
         {

@@ -16,6 +16,7 @@ namespace OnXap.Modules.Adminmain
         public const string PERM_ADDRESS = "address_system";
         public const string PERM_ROUTING = "routing_system";
         public const string PERM_MANAGE_MESSAGING = "manage_messaging";
+        public const string PERM_RESTART = "system_restart";
 
         protected override void OnModuleStart()
         {
@@ -25,6 +26,7 @@ namespace OnXap.Modules.Adminmain
             RegisterPermission(PERM_ADDRESS, "Система адресов (КЛАДР)");
             RegisterPermission(PERM_ROUTING, "Маршрутизация (ЧПУ)");
             RegisterPermission(PERM_MANAGE_MESSAGING, "Управление рассылками и уведомлениями");
+            RegisterPermission(PERM_RESTART, "Перезагрузка веб-приложения");
         }
     }
 }

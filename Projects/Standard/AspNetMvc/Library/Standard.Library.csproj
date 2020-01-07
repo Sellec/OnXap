@@ -79,6 +79,15 @@
     <PackageReference Include="Microsoft.AspNet.Mvc">
       <Version>5.2.7</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Mvc.ru">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.Razor.ru">
+      <Version>3.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNet.WebPages.ru">
+      <Version>3.2.7</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
       <Version>2.0.1</Version>
     </PackageReference>
@@ -98,7 +107,7 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>0.1.11</Version>
+      <Version>0.1.14</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
       <Version>0.0.8</Version>
@@ -1955,6 +1964,7 @@
     <None Include="Data\js\eckeditor\plugins\pastefromexcel\.editorconfig">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <Content Include="Modules\Adminmain\Design\SystemState.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -2108,8 +2118,8 @@
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
-   <Message Importance="normal" Text="Precompiling views" />
-   <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+    <Message Importance="normal" Text="Precompiling views" />
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>

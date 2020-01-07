@@ -13,8 +13,11 @@ namespace OnXap
         None = 0,
 
         /// <summary>
-        /// Позволяет обрабатывать пути, находящиеся не внутри каталога приложения. Создается виртуальный каталог Symlinks внутри каталога приложения.
         /// </summary>
-        IncludeSymlinks = 1,
+        DebugLevelCommon = 1,
+
+        /// <summary>
+        /// </summary>
+        DebugLevelDetailed = 2,
     }
 }
