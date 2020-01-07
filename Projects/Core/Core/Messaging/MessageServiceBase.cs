@@ -431,17 +431,6 @@ namespace OnXap.Messaging
                     db.SaveChanges();
                     scope.Commit();
                 }
-
-                if (messagesAll > 0)
-                {
-                    this.RegisterServiceState(messagesErrors == 0 ? ServiceStatus.RunningIdeal : ServiceStatus.RunningWithErrors, $"Сообщений в очереди - {messagesAll}. Отправлено - {messagesSent}. Ошибки отправки - {messagesErrors}.");
-                }
-
-                var service = AppCore.Get<Monitor>().GetService(ServiceID);
-                if (service != null && (DateTime.Now - service.LastDateEvent).TotalHours >= 1)
-                {
-                    this.RegisterServiceState(ServiceStatus.RunningIdeal, $"Сообщений нет, сервис работает без ошибок.");
-                }
             }
             catch (Exception ex)
             {
@@ -710,17 +699,6 @@ namespace OnXap.Messaging
                             }
                         }
                     }
-                }
-
-                if (messagesAll > 0)
-                {
-                    this.RegisterServiceState(messagesErrors == 0 ? ServiceStatus.RunningIdeal : ServiceStatus.RunningWithErrors, $"Сообщений в очереди - {messagesAll}. Обработано - {messagesSent}. Ошибки обработки - {messagesErrors}.");
-                }
-
-                var service = AppCore.Get<Monitor>().GetService(ServiceID);
-                if (service != null && (DateTime.Now - service.LastDateEvent).TotalHours >= 1)
-                {
-                    this.RegisterServiceState(ServiceStatus.RunningIdeal, $"Сообщений нет, сервис работает без ошибок.");
                 }
             }
             catch (Exception ex)
