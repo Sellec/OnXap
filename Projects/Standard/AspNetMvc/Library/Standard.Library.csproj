@@ -141,6 +141,7 @@
     <Compile Include="Design\Additionals\Helpers\UrlHelpers.cs" />
     <Compile Include="Design\Additionals\IntExtensions.cs" />
     <Compile Include="Modules\Adminmain\Model\JournalQueries.cs" />
+    <Compile Include="Modules\ApplicationStateMonitor\Module.cs" />
     <Compile Include="Modules\ApplicationStateMonitor\Startup.cs" />
     <Compile Include="Modules\FileManager\DB\DataContext.cs" />
     <Compile Include="Modules\FileManager\DB\FileRemoveQueue.cs" />
