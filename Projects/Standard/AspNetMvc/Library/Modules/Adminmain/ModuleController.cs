@@ -22,7 +22,7 @@ namespace OnXap.Modules.Adminmain
     /// </summary>
     public class ModuleController : ModuleControllerAdmin<Module>
     {
-        [MenuAction("Состояние системы", null, Module.PERM_RESTART)]
+        [MenuAction("Состояние системы", null, ModulesConstants.PermissionManageString)]
         public override ActionResult Index()
         {
             return View("SystemState.cshtml");

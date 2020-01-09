@@ -2,6 +2,7 @@
 
 namespace OnXap.Modules.Admin
 {
+    using Adminmain;
     using Core.Modules;
 
     public sealed class ModuleAdminController : ModuleControllerUser<ModuleAdmin>
@@ -9,7 +10,7 @@ namespace OnXap.Modules.Admin
         [ModuleAction(null, ModulesConstants.PermissionManageString)]
         public override ActionResult Index()
         {
-            return display("admin.cshtml");
+            return RedirectPermanent(Url.CreateRoute<Module, ModuleController>().ToString());
         }
     }
 

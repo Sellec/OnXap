@@ -12,6 +12,7 @@
     <RepositoryUrl>https://github.com/Sellec/OnXap</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>http://tracestudio.ru/favicon.ico</PackageIconUrl>
+   <Version>0.1.7.164</Version>
  </PropertyGroup>
   <Target Name="CopyPackage" AfterTargets="Pack">
     <Exec Command="copy /y &quot;$(TargetDir)..\$(PackageId).$(Version).symbols.nupkg&quot; &quot;$(SolutionDir)..\Build\$(PackageId).$(Version).nupkg&quot;" />
