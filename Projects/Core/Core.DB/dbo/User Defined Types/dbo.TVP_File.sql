@@ -6,7 +6,7 @@
     [UniqueKey]    UNIQUEIDENTIFIER NULL,
     [CountUsage]   INT              DEFAULT ((0)) NOT NULL,
     [TypeCommon]   INT              DEFAULT ((0)) NOT NULL,
-    [TypeConcrete] NVARCHAR (50)    NULL,
+    [TypeConcrete] NVARCHAR (100)   NULL,
     [DateChange]   INT              DEFAULT ((0)) NOT NULL,
     [DateExpire]   DATETIME         NULL,
     [IdUserChange] INT              DEFAULT ((0)) NOT NULL,

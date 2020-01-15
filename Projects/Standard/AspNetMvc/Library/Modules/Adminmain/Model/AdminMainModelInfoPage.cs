@@ -28,3 +28,4 @@ namespace OnXap.Modules.Adminmain.Model
         public WebCoreConfiguration WebCoreConfiguration { get; }
     }
 }
+

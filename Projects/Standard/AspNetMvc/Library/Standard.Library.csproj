@@ -129,6 +129,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Modules\EditableMenu\Model\" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Design\Additionals\ClassicStructures\PhotoList.cs" />
     <Compile Include="Design\Additionals\Extension\ButtonHtmlExtensions.cs" />
     <Compile Include="Design\Additionals\Extension\DropDownListHtmlExtensions.cs" />
@@ -269,10 +272,12 @@
     <Compile Include="Modules\Universal\Pagination\PaginationViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Modules\EditableMenu\Model\" />
-  </ItemGroup>
-  <ItemGroup>
+    <Content Include="..\SourceHelper\bin\ExternalSources\**\*">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Data\css\Auth\modules.auth.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

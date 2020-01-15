@@ -17,22 +17,20 @@ namespace OnXap.Site
         {
             try
             {
+                var resourceManager = AppCore.Get<Core.Storage.ResourceProvider>();
                 var physicalApplicationPath = AppCore.ApplicationWorkingFolder;
+                var paths = new List<string>();
 
-#if DEBUG
-                if (Debug.IsDeveloper)
-                {
-                    var paths = new List<string>();
+                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Binding.AspNetMvc,")).Count() > 0)
+                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Binding/AspNetMvc/Library")));
 
-                    if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Binding.AspNetMvc,")).Count() > 0)
-                        paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Binding/AspNetMvc/Library")));
+                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
+                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/Library")));
 
-                    if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
-                        paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/Library")));
+                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
+                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/SourceHelper/bin/ExternalSources")));
 
-                    AppCore.Get<Core.Storage.ResourceProvider>().SourceDevelopmentPathList.AddRange(paths);
-                }
-#endif
+                resourceManager.SourceDevelopmentPathList.AddRange(paths);
             }
             catch (Exception ex)
             {

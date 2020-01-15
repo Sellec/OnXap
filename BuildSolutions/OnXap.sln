@@ -50,11 +50,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Common", "1. Common", "{8172D6AB-E731-41E8-93E5-4073570EAFE6}"
 	ProjectSection(SolutionItems) = preProject
 		..\Projects\Common\Common.props = ..\Projects\Common\Common.props
+		package.json = package.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNetMvc", "AspNetMvc", "{62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard.Library", "..\Projects\Standard\AspNetMvc\Library\Standard.Library.csproj", "{C844D3BE-EC89-4A5F-B54E-B07D9DFCB4C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2} = {31A6CF03-2BF5-4ADB-9370-142647DE6BA2}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard.Package", "..\Projects\Standard\AspNetMvc\Package\Standard.Package.csproj", "{B63DB320-89EE-46F6-8020-3DCF71E21E9E}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -66,6 +70,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "..\Projects\TestSite\WebApplication1\WebApplication1.csproj", "{491FB1E6-B355-4FF1-BC1F-A2A59AF26AF8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Fake", "..\Projects\Core\Core.Fake\Core.Fake.csproj", "{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceHelper", "..\Projects\Standard\AspNetMvc\SourceHelper\SourceHelper.csproj", "{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +139,10 @@ Global
 		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -156,6 +166,7 @@ Global
 		{4EA01DDA-C6FD-4793-95F5-28F1BB989285} = {3ACC2628-7AFA-49A7-BA54-A89822448070}
 		{491FB1E6-B355-4FF1-BC1F-A2A59AF26AF8} = {3ACC2628-7AFA-49A7-BA54-A89822448070}
 		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0} = {620AF6BB-950C-49F1-AA20-76FB9C95A3DF}
+		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}

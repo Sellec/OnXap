@@ -34,6 +34,7 @@ namespace OnXap.Modules.FileManager.DB
         /// <summary>
         /// Точный mime-тип файла, определенный на основе расширения, заголовков и пр.
         /// </summary>
+        [StringLength(100)]
         public string TypeConcrete { get; set; }
 
         public int DateChange { get; set; }
