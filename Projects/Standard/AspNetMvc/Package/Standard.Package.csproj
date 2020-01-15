@@ -12,7 +12,7 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.7.167</Version>
+	  <Version>0.1.7.168</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.dll" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.dll" Pack="True" PackagePath="%(Link)" />
@@ -31,7 +31,7 @@
     <FileContent Include="..\Library\Modules\**\*" Exclude="..\Library\**\*.cs">
       <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </FileContent>
-    <FileContent Include="..\SourceHelper\ExternalSources\**\*">
+    <FileContent Include="..\SourceHelper\bin\ExternalSources\**\*">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </FileContent>
   </ItemGroup>
