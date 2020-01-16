@@ -196,6 +196,8 @@ else
 
             $(".open_all").click(function () { $("#left_panel ul li ul").slideDown(); return false; })
             $(".close_all").click(function () { $("#left_panel ul li ul").slideUp(); return false; })
+
+            $("#js-notification-window").puigrowl();
         });
         </script>
     </head>
@@ -206,6 +208,7 @@ else
         <div id="photo_result"></div>
         <div id="pages_result"></div>
         <div id='action_result'></div>
+        <div id="js-notification-window"></div>
 
         <div id="block"><p><img src="/data/img/loading.gif" alt=""> Загрузка...</p></div>
         <div id="photo_view"><img src=""></div>
