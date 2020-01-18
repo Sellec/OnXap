@@ -69,7 +69,7 @@ blockquote:first-letter {background:url(/data/img/design/quote_left.gif) no-repe
 
 .elem_pointer {cursor:pointer;}
 
-.cmain, .cleft {position:relative;padding:25px 0 0 25px;width:95%;height:100%;z-index:1;}
+.cmain, .cleft {position:relative;padding:25px 0 0 25px;width:95%;height:100%;}
 .cmain {padding-bottom:40px;}
 /*.cmain * {z-index:-1;} ломала работу uploadfile и ui кнопок */
 #adm {z-index:1;}
@@ -199,7 +199,7 @@ border: 1px solid #f0f !important;
 .imgareaselect-handle {background-color:#fff;border:solid 1px #000;opacity:0.5;filter:alpha(opacity=50);}
 .imgareaselect-outer {background-color:#000;opacity:0.5;filter:alpha(opacity=50);}
 
-#top_panel,#left_panel,#right_panel {z-index:1;position:relative;}
+#top_panel,#left_panel,#right_panel {position:relative;}
 #cmain {height:100%;padding:40px 0 40px 25px;}
 #top_panel {height:20px;padding:5px 0;z-index:9999;position:absolute;top:0;left:0;width:100%;background:#0089d7 url(/data/img/admin/top_panel.gif) repeat-x;}
 #top_panel ul {list-style:none;margin:0;width:100%;}

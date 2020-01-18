@@ -66,3 +66,10 @@
     
 });
 */
+
+$(function () {
+    $.extend($.primeui.puidatatable.prototype.options, {
+        draggableColumns: true,
+        resizableColumns: true
+    });
+});
