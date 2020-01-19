@@ -88,117 +88,120 @@ else
         <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/themes/simple.css" />
 
         <!--[if lte IE 7]>
-    <style type="text/css">
-    html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
-    </style>
-    <![endif]-->
+        <style type="text/css">
+        html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
+        </style>
+        <![endif]-->
 
         <script type='text/javascript'>
-        function changeTitle(new_title) {
-            try {
-                if (+"\v1") {
-                    var title = 'Администрирование | @title';
-                    if (typeof (new_title) != 'undefined') title = new_title + ' | ' + title;
-                    $('title').html(title);
-                }
-            } catch (err) { alert(err); }
-        }
+            var adminNotificationWindow = null;
 
-        function getResultAnim(form, div) {
-            form.submit(function () {
-                var div_res = div;
-                $("#loading_img").fadeIn("slow");
-                div_res.fadeIn("slow");
-                setTimeout(function () { div_res.fadeOut("slow") }, 2500);
-                var opros = setInterval(function () {
-                    if (div_res.text() != "") {
-                        setTimeout(function () { div_res.text(""); $("#loading_img").fadeOut("slow"); }, 3500);
-                        clearInterval(opros);
-                    };
-                }, 1000);
-                return false;
-            });
-        }
-
-        function endAnim(div_res) {
-            $("#loading_img").fadeOut();
-            div_res.fadeIn("slow");
-            $("#admin_botgr").fadeIn("slow");
-            div_res.click(function () { $(this).fadeOut(); $("#admin_botgr").fadeOut(); });
-        }
-
-        function stAnim() {
-            $("form").submit(function () {
-                $("#action_result").fadeOut().removeClass("action_error");
-                $("#loading_img").fadeIn("slow");
-            });
-            $("#loading_img").hide();
-        }
-
-        function stAnimPh() {
-            $("form").submit(function () {
-                $("#action_result").fadeOut();
-                if ($(this).attr("id") == "form_add_photo") $("#loading_photo").fadeIn("slow");
-            });
-            $("#loading_photo").hide();
-        }
-
-        $(document).ready(function () {
-            $('a.admin_menu').click(function () {
+            function changeTitle(new_title) {
                 try {
-                    var aj = new ajaxRequest();
-                    aj.load($(this).attr('href'), 'cmain');
-                    aj.userOnLoad = function () { $("#block").hide(); };
-                    $("#block").show();
-                    $("#cat_result, #item_result, #photo_result, #pages_result, #action_result").fadeOut();
+                    if (+"\v1") {
+                        var title = 'Администрирование | @title';
+                        if (typeof (new_title) != 'undefined') title = new_title + ' | ' + title;
+                        $('title').html(title);
+                    }
+                } catch (err) { alert(err); }
+            }
+
+            function getResultAnim(form, div) {
+                form.submit(function () {
+                    var div_res = div;
+                    $("#loading_img").fadeIn("slow");
+                    div_res.fadeIn("slow");
+                    setTimeout(function () { div_res.fadeOut("slow") }, 2500);
+                    var opros = setInterval(function () {
+                        if (div_res.text() != "") {
+                            setTimeout(function () { div_res.text(""); $("#loading_img").fadeOut("slow"); }, 3500);
+                            clearInterval(opros);
+                        };
+                    }, 1000);
                     return false;
-                }
-                catch (err) { alert(err); }
-                return false;
+                });
+            }
+
+            function endAnim(div_res) {
+                $("#loading_img").fadeOut();
+                div_res.fadeIn("slow");
+                $("#admin_botgr").fadeIn("slow");
+                div_res.click(function () { $(this).fadeOut(); $("#admin_botgr").fadeOut(); });
+            }
+
+            function stAnim() {
+                $("form").submit(function () {
+                    $("#action_result").fadeOut().removeClass("action_error");
+                    $("#loading_img").fadeIn("slow");
+                });
+                $("#loading_img").hide();
+            }
+
+            function stAnimPh() {
+                $("form").submit(function () {
+                    $("#action_result").fadeOut();
+                    if ($(this).attr("id") == "form_add_photo") $("#loading_photo").fadeIn("slow");
+                });
+                $("#loading_photo").hide();
+            }
+
+            $(document).ready(function () {
+                adminNotificationWindow = $("#js-notification-window")[0];
+
+                $('a.admin_menu').click(function () {
+                    try {
+                        var aj = new ajaxRequest();
+                        aj.load($(this).attr('href'), 'cmain');
+                        aj.userOnLoad = function () { $("#block").hide(); };
+                        $("#block").show();
+                        $("#cat_result, #item_result, #photo_result, #pages_result, #action_result").fadeOut();
+                        return false;
+                    }
+                    catch (err) { alert(err); }
+                    return false;
+                });
+
+                $('a#info').click();
+
+                $("#block").hide();
+                $("#block").css({ "opacity": "0.7" });
+                $("#cleft > a").click(function () {
+                    $("#block").show();
+                });
+
+                $(".inmenu").click(function () {
+                    return false;
+                })
+
+                changeTitle();
+
+                $("#left_panel ul li a.lmain2").click(function () {
+                    try {
+                        var menuBlock = $(this).parent().parent().find("ul");
+                        var menuBlockVisible = menuBlock.css("display") != "none";
+
+                        if (menuBlockVisible) menuBlock.slideUp();
+                        else menuBlock.slideDown();
+
+                        $.cookie(menuBlock.parent().attr('class'), !menuBlockVisible);
+                    }
+                    catch (err) { alert(err); }
+
+                    return false;
+                });
+
+                $("#left_panel ul li a.lmain2").each(function () {
+                    if ($.cookie($(this).parent().parent().attr('class')) === "true")
+                        $(this).parent().parent().find('ul').slideDown();
+                    else
+                        $(this).parent().parent().find('ul').slideUp();
+
+                });
+
+                $(".open_all").click(function () { $("#left_panel ul li ul").slideDown(); return false; })
+                $(".close_all").click(function () { $("#left_panel ul li ul").slideUp(); return false; })
+
             });
-
-            $('a#info').click();
-
-            $("#block").hide();
-            $("#block").css({ "opacity": "0.7" });
-            $("#cleft > a").click(function () {
-                $("#block").show();
-            });
-
-            $(".inmenu").click(function () {
-                return false;
-            })
-
-            changeTitle();
-
-            $("#left_panel ul li a.lmain2").click(function () {
-                try {
-                    var menuBlock = $(this).parent().parent().find("ul");
-                    var menuBlockVisible = menuBlock.css("display") != "none";
-
-                    if (menuBlockVisible) menuBlock.slideUp();
-                    else menuBlock.slideDown();
-
-                    $.cookie(menuBlock.parent().attr('class'), !menuBlockVisible);
-                }
-                catch (err) { alert(err); }
-
-                return false;
-            });
-
-            $("#left_panel ul li a.lmain2").each(function () {
-                if ($.cookie($(this).parent().parent().attr('class')) === "true")
-                    $(this).parent().parent().find('ul').slideDown();
-                else
-                    $(this).parent().parent().find('ul').slideUp();
-
-            });
-
-            $(".open_all").click(function () { $("#left_panel ul li ul").slideDown(); return false; })
-            $(".close_all").click(function () { $("#left_panel ul li ul").slideUp(); return false; })
-
-            $("#js-notification-window").puigrowl();
-        });
         </script>
     </head>
     <body>
@@ -208,7 +211,7 @@ else
         <div id="photo_result"></div>
         <div id="pages_result"></div>
         <div id='action_result'></div>
-        <div id="js-notification-window"></div>
+        <p-growl id="js-notification-window"></p-growl>
 
         <div id="block"><p><img src="/data/img/loading.gif" alt=""> Загрузка...</p></div>
         <div id="photo_view"><img src=""></div>
