@@ -5,61 +5,105 @@
 @{ var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>(); }
 
 <script type='text/javascript'>
+    class JournalsDataRow {
+        constructor(source) {
+            this.IdJournal = Number(source.@Html.NameOf(x => x.First().JournalName.IdJournal));
+            this.NameJournal = String(source.@Html.NameOf(x => x.First().JournalName.Name));
+            this.EventLastType = Number(source.@Html.NameOf(x => x.First().EventLastType));
+            this.EventLastDate = new moment(source.@Html.NameOf(x => x.First().EventLastDate));
+            this.EventsCount = Number(source.@Html.NameOf(x => x.First().EventsCount));
+        }
+    }
+
+    class JournalsModel {
+        constructor(source) {
+            this.DataList = source.map(x => new JournalsDataRow(x));
+        }
+    }
+
     $(document).ready(function(){
         $("#block").hide();
 
         changeTitle('Журналы системы');
 
-        $("input.ShowJournal").click(function ()
-        {
-            $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad("/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + $(this).data("id"), null, function (result, message)
-            {
-                if (message.length > 0) alert(message);
-            });
-        })
+        var model = new JournalsModel(@Model.ToArray().jsobject()),
+            journalsListTable = $("#js-journals-list__table");
+
+        journalsListTable.puidatatable({
+            caption: "<div style='height:20px'>Всего журналов: @Model.Count</div>", 
+            columns: [
+                {
+                    field: 'NameJournal',
+                    sortable: true,
+                    filter: true,
+                    headerText: 'Название журнала',
+                    headerStyle: 'width:200px;',
+                    filterMatchMode: 'contains'
+                },
+                {
+                    field: 'EventsCount',
+                    sortable: true,
+                    headerText: 'Количество событий',
+                    headerStyle: 'width:200px;',
+                    filterMatchMode: 'contains',
+                },
+                {
+                    field: 'EventLastDate',
+                    headerText: 'Дата',
+                    sortable: true,
+                    resizable: false,
+                    headerStyle: 'width:150px;',
+                    filterMatchMode: 'contains',
+                    content: function (row) {
+                        return row.EventLastDate ? row.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null;
+                        if (row.EventLastDate) {
+                            var date = row.EventLastDate.format("YYYY-MM-DD HH:mm:ss");
+                            switch (row.EventLastType) {
+                                case @((int)EventType.CriticalError):
+                                    return "<span style='background-color: #f44141 !important'>" + date + "</span>";
+                                case @((int)EventType.Error):
+                                    return "<span style='background-color: #f48341 !important'>" + date + "</span>";
+                                case @((int)EventType.Info):
+                                    return date;
+                                case @((int)EventType.Warning):
+                                    return "<span style='background-color: #f4c741 !important'>" + date + "</span>";
+                                default:
+                                    return "<span style='background-color: yellow !important'>" + date + "</span>";
+                            }
+                        }
+                    }
+                },
+                {
+                    headerText: 'Действия',
+                    sortable: false,
+                    filter: false,
+                    resizable: false,
+                    filterMatchMode: 'contains',
+                    content: row => "<input type=\"button\" class=\"js-journal-events__button\" data-id=\"" + row.IdJournal + "\" value=\"Журнал\"><br />"
+                }
+            ],
+            sortField: 'NameJournal',
+            sortOrder: 1,
+            lazy: false,
+            datasource: model.DataList,
+            emptyMessage: 'Ничего не найдено.',
+            render: function () {
+                $(".js-journal-events__button").click(function () {
+                    $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad("/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + $(this).data("id"), null, function (result, message) {
+                        if (message.length > 0) alert(message);
+                    });
+                });
+            }
+        });
+        journalsListTable.puidatatable("sort", 'NameJournal');
     });
 </script>
 <h2>Журналы системы</h2>
 
 <table width='100%'>
     <tr>
-        <td style='vertical-align:top;width:570px;min-width:570px;'>
-            <h4>Всего журналов: <span id="countRegistered">@Model.Count</span></h4>
-            <table class='tablesorter' width="100%">
-                <thead>
-                    <tr>
-                        <th style="width:150px">Название</th>
-                        <th style="width:200px">Количество событий</th>
-                        <th style="width:120px">Дата последнего события</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                @if (Model.Count == 0)
-                {
-                    <tr id='not_founded' style='display:none;'>
-                        <td class="center" colspan='10'>
-                            Ничего не найдено.
-                        </td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var journal in Model)
-                    {
-                        <tr>
-                            <td class="left">@journal.JournalName.Name</td>
-                            <td class="left">@journal.EventsCount</td>
-                            <td class="left" style="background-color: @(journal.EventLastType == EventType.CriticalError ? "#f44141 !important" : (journal.EventLastType == EventType.Error ? "#f48341 !important" : (journal.EventLastType == EventType.Warning ? "#f4c741 !important" : "")))">
-                                @(journal.EventLastDate.HasValue ? journal.EventLastDate.Value.ToString("dd.MM.yyyy HH:mm:ss") : "")
-                            </td>
-                            <td>
-                                <input type="button" class="ShowJournal" data-id="@journal.JournalName.IdJournal" value="Журнал"><br />
-                            </td>
-                        </tr>
-                    }
-                }
-            </table>
-
+        <td style='vertical-align:top;width:650px;min-width:650px;'>
+            <div id="js-journals-list__table"></div>
         </td>
         <td style='width:50px;'></td>
         <td style='width:100%;vertical-align:top;align:left;' id="containerForLoading"></td>

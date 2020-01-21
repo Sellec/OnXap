@@ -5,16 +5,7 @@
 @{ var formID = DateTime.Now.Ticks.ToString(); }
 
 <script type="text/javascript">
-    class Model {
-        constructor(source) {
-            this.JournalDataCountAll = Number(source.@Html.NameOf(x => x.JournalDataCountAll));
-
-            var dataList = source.@Html.NameOf(x => x.JournalData);
-            this.DataList = dataList.map(x => new DataRow(x));
-        }
-    }
-
-    class DataRow {
+    class JournalDetailsDataRow {
         constructor(source) {
             this.IdJournalData = Number(source.@Html.NameOf(x => x.JournalData.First().IdJournalData));
             this.EventType = Number(source.@Html.NameOf(x => x.JournalData.First().EventType));
@@ -26,10 +17,20 @@
         }
     }
 
+    class JournalDetailsModel {
+        constructor(source) {
+            this.JournalDataCountAll = Number(source.@Html.NameOf(x => x.JournalDataCountAll));
+
+            var dataList = source.@Html.NameOf(x => x.JournalData);
+            this.DataList = dataList.map(x => new JournalDetailsDataRow(x));
+        }
+    }
+
     $(function () {
         var eventsListTable = $("#js-events-list__table");
 
         eventsListTable.puidatatable({
+            caption: "<div style='height:20px'>@Model.JournalName.Name / <input type='button' id='ClearJournal' value='Очистить журнал' /><div>", 
             paginator: {
                 rows: 100,
                 totalRecords: @Model.JournalDataCountAll,
@@ -75,9 +76,7 @@
                     resizable: false,
                     headerStyle: 'width:150px;',
                     filterMatchMode: 'contains',
-                    content: function (row) {
-                        return row.DateEvent.format("YYYY-MM-DD HH:mm:ss");
-                    }
+                    content: row => row.DateEvent.format("YYYY-MM-DD HH:mm:ss")
                 },
                 {
                     field: 'EventInfo',
@@ -93,26 +92,26 @@
                     sortable: true,
                     filter: true,
                     filterMatchMode: 'contains',
-                    content: function (row) {
-                        return row.EventInfoDetailed;
-                    }
+                    content: row => nl2br(row.EventInfoDetailed + (row.ExceptionDetailed ? '<br />' + row.ExceptionDetailed : ''))
                 },
             ],
+            sortField: 'DateEvent',
+            sortOrder: -1,
             lazy: true,
             datasource: function (callback, ui) {
                 var requestOptions = new PrimeUiDataTableSourceRequest(ui);
                 var tt = this;
-                console.log(ui);
 
                 $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", requestOptions, function (result, message, data) {
                     if (message.length > 0) adminNotificationWindow.show([{ severity: result == JsonResult.OK ? 'info' : 'error', summary: message, detail: '' }]);
                     if (result == JsonResult.OK) {
-                        var data = new Model(data);
+                        var data = new JournalDetailsModel(data);
                         callback.call(tt, data.DataList);
                         eventsListTable.puidatatable('setTotalRecords', data.JournalDataCountAll);
                     }
                 });
-            }
+            },
+            emptyMessage: 'Ничего не найдено.',
         });
 
         $("input#ClearJournal").click(function () {
@@ -128,6 +127,5 @@
     });
 </script>
 
-<h4>Журнал: @Model.JournalName.Name / <input type="button" id="ClearJournal" value="Очистить журнал" /></h4>
 <div id="js-events-list__table"></div>
 
