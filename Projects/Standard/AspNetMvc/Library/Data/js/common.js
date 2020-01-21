@@ -359,7 +359,6 @@ $(function ()
             var message = result;
             if (status === 'error')
             {
-                success = JsonResult.NETWORKERROR;
                 if (xhr.ResponseText != null) message = xhr.ResponseText;
                 if (xhr.responseText != null) message = xhr.responseText;
 
@@ -725,11 +724,6 @@ function InvisibleRecaptchaInit(container)
  * */
 $(function ()
 {
-    $(document).ajaxComplete(function ()
-    {
-        console.log("ajax complete", $(this));
-    });
-
     /**
      * Применяем фильтр к таблицам, если указано.
      * */
@@ -857,3 +851,30 @@ function ShowAlert(text, closeCallback) {
     });
 }
 
+class PrimeUiDataTableFieldFilter {
+    constructor(source) {
+        this.FieldName = source.field;
+        this.MatchType =
+            source.filterMatchMode == "contains" ? 2 :
+                source.filterMatchMode == "startsWith" ? 1 : 0;
+        this.Value = source.value;
+    }
+}
+
+class PrimeUiDataTableSourceRequest {
+    constructor(source) {
+        this.FirstRow = source.first;
+        this.RowsLimit = source.rows;
+        this.SortByFieldName = source.sortField;
+        this.SortByAcsending = source.sortOrder == 1 ? true : false;
+        this.FilterFields = [];
+
+        if (source.filters) {
+            for (var i in source.filters) {
+                if (source.filters[i].value) {
+                    this.FilterFields[this.FilterFields.length] = new PrimeUiDataTableFieldFilter(source.filters[i]);
+                }
+            }
+        }
+    }
+}

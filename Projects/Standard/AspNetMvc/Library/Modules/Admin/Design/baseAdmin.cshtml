@@ -53,6 +53,7 @@ else
         <script type="text/javascript" src="~/Design/UI/primeui/primeui-all.min.js"></script>
         <script type="text/javascript" src="~/Design/UI/x-tag/x-tag-core.min.js"></script>
         <script type="text/javascript" src="~/Design/UI/primeui/primeelements.min.js"></script>
+        <script type="text/javascript" src="~/Design/UI/momentjs/moment-with-locales.min.js"></script>
 
         <link rel="stylesheet" type="text/css" href="/data/css/admin.css">
         <link rel="stylesheet" type="text/css" href="/data/img/flick/jquery-ui-1.8.custom.css">
@@ -72,6 +73,7 @@ else
         <script type="text/javascript" src="/data/js/jquery.tablefill.js "></script>
         <script type='text/javascript' src='/data/js/jquery.cookie.js'></script>
 
+        <script type='text/javascript' src='/data/js/admin.js'></script>
         <script type='text/javascript' src='/data/js/work.js'></script>
         <script type="text/javascript" src="/data/js/common.js"></script>
 
@@ -88,10 +90,10 @@ else
         <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/themes/simple.css" />
 
         <!--[if lte IE 7]>
-        <style type="text/css">
-        html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
-        </style>
-        <![endif]-->
+    <style type="text/css">
+    html .jqueryslidemenu{height: 1%;} /*Holly Hack for IE7 and below*/
+    </style>
+    <![endif]-->
 
         <script type='text/javascript'>
             var adminNotificationWindow = null;
@@ -106,46 +108,8 @@ else
                 } catch (err) { alert(err); }
             }
 
-            function getResultAnim(form, div) {
-                form.submit(function () {
-                    var div_res = div;
-                    $("#loading_img").fadeIn("slow");
-                    div_res.fadeIn("slow");
-                    setTimeout(function () { div_res.fadeOut("slow") }, 2500);
-                    var opros = setInterval(function () {
-                        if (div_res.text() != "") {
-                            setTimeout(function () { div_res.text(""); $("#loading_img").fadeOut("slow"); }, 3500);
-                            clearInterval(opros);
-                        };
-                    }, 1000);
-                    return false;
-                });
-            }
-
-            function endAnim(div_res) {
-                $("#loading_img").fadeOut();
-                div_res.fadeIn("slow");
-                $("#admin_botgr").fadeIn("slow");
-                div_res.click(function () { $(this).fadeOut(); $("#admin_botgr").fadeOut(); });
-            }
-
-            function stAnim() {
-                $("form").submit(function () {
-                    $("#action_result").fadeOut().removeClass("action_error");
-                    $("#loading_img").fadeIn("slow");
-                });
-                $("#loading_img").hide();
-            }
-
-            function stAnimPh() {
-                $("form").submit(function () {
-                    $("#action_result").fadeOut();
-                    if ($(this).attr("id") == "form_add_photo") $("#loading_photo").fadeIn("slow");
-                });
-                $("#loading_photo").hide();
-            }
-
             $(document).ready(function () {
+                moment.lang('ru');
                 adminNotificationWindow = $("#js-notification-window")[0];
 
                 $('a.admin_menu').click(function () {

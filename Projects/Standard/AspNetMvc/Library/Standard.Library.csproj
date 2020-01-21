@@ -270,6 +270,7 @@
     <Compile Include="Modules\Universal\Pagination\ListViewOptions.cs" />
     <Compile Include="Modules\Universal\Pagination\PagedView.cs" />
     <Compile Include="Modules\Universal\Pagination\PaginationViewModel.cs" />
+    <Compile Include="Modules\Universal\Pagination\PrimeUiDataTableSourceRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
@@ -1971,6 +1972,9 @@
     <None Include="Data\js\eckeditor\plugins\pastefromexcel\.editorconfig">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Modules\Adminmain\Design\SystemState.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

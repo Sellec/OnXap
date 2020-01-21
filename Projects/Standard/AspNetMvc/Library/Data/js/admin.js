@@ -1,71 +1,41 @@
-/*$(function(){       
-
-    $("#items_results tr td:even").css({"text-align":"right","font-weight":"bold"});
-    $("#items_results tr td:even").each(function(){
-        if ( $(this).parent().hasClass("editable") ) $(this).css({"cursor":"pointer"});        
-    });
-    $("#items_results tr td:even").click(function(){
-        if ( $(this).find("input").val() != "2" && !$(this).parent().hasClass("tcapt") ) {
-            if ( $(this).parent().hasClass("off") ) {
-                $(this).next().find("input,textarea,select").removeAttr("disabled");
-                $(this).parent().removeClass("off");
-
-                $(this).find('input.disable_elem').val(-1);
-            } else {
-                $(this).next().find("input,textarea,select").attr("disabled","disabled");
-                $(this).parent().addClass("off");
-
-                $(this).find('input.disable_elem').val(-2);
-                $(this).find('input.disable_elem').removeAttr("disabled");
-            }        
-        } else { $(this).next().find("input,textarea,select").removeAttr("disabled");
-            $(this).parent().removeClass("off");
-            
-            $(this).find('input.disable_elem').val(-1);
-        }
-
-    });
-    $(".tcapt td").css({"text-align":"left","padding":"2px 11px"});
-    
-      $("#items_results tr td:even").each(function (i) {
-        if ( $(this).find("input").val() == "0") {
-            $(this).next().find("input,textarea,select").attr("disabled","disabled");
-            $(this).parent().addClass("off");
-            
-            $(this).find('input.disable_elem').val(-2);
-            $(this).find('input.disable_elem').removeAttr("disabled");
-        } else if ( $(this).find("input").val() == "1" ){
-            $(this).next().find("input,textarea,select").removeAttr("disabled");
-            $(this).parent().removeClass("off");
-            
-            $(this).find('input.disable_elem').val(-1);
-        }
-      });
-   
-   $(".all_turn_on").click(function(){
-            $("#items_results tr td:even").next().find("input,textarea,select").removeAttr("disabled");
-            $("#items_results tr td:even").parent().removeClass("off");
-            
-            $("#items_results tr td:even").find('input.disable_elem').val(-1);
-            return false;
-   });
-   
-   $(".all_turn_off").click(function(){
-        $("#items_results tr td:even").each(function () {
-            if ( $(this).find("input").val() != "2" & !$(this).parent().hasClass("tcapt") ){
-                $(this).next().find("input,textarea,select").attr("disabled","disabled");
-                $(this).parent().addClass("off");
-
-                $(this).find('input.disable_elem').val(-2);
-                $(this).find('input.disable_elem').removeAttr("disabled");
-            }    
-        });
+function getResultAnim(form, div) {
+    form.submit(function () {
+        var div_res = div;
+        $("#loading_img").fadeIn("slow");
+        div_res.fadeIn("slow");
+        setTimeout(function () { div_res.fadeOut("slow") }, 2500);
+        var opros = setInterval(function () {
+            if (div_res.text() != "") {
+                setTimeout(function () { div_res.text(""); $("#loading_img").fadeOut("slow"); }, 3500);
+                clearInterval(opros);
+            };
+        }, 1000);
         return false;
-   }); 
-    $(".gettop").click(function(){scroll(0,0);return false});
-    
-});
-*/
+    });
+}
+
+function endAnim(div_res) {
+    $("#loading_img").fadeOut();
+    div_res.fadeIn("slow");
+    $("#admin_botgr").fadeIn("slow");
+    div_res.click(function () { $(this).fadeOut(); $("#admin_botgr").fadeOut(); });
+}
+
+function stAnim() {
+    $("form").submit(function () {
+        $("#action_result").fadeOut().removeClass("action_error");
+        $("#loading_img").fadeIn("slow");
+    });
+    $("#loading_img").hide();
+}
+
+function stAnimPh() {
+    $("form").submit(function () {
+        $("#action_result").fadeOut();
+        if ($(this).attr("id") == "form_add_photo") $("#loading_photo").fadeIn("slow");
+    });
+    $("#loading_photo").hide();
+}
 
 $(function () {
     $.extend($.primeui.puidatatable.prototype.options, {

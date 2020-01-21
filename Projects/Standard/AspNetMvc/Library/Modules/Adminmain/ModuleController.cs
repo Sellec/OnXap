@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using System.Net;
+using System.Data.Entity.SqlServer;
 
 namespace OnXap.Modules.Adminmain
 {
@@ -351,10 +353,10 @@ namespace OnXap.Modules.Adminmain
 
         public virtual ActionResult JournalDetails(int? IdJournal = null)
         {
+            if (!IdJournal.HasValue) throw new Exception("Не указан идентификатор журнала.");
+
             try
             {
-                if (!IdJournal.HasValue) throw new Exception("Не указан идентификатор журнала.");
-
                 using (var scope = TransactionsHelper.ReadUncommited())
                 {
                     var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
@@ -364,15 +366,12 @@ namespace OnXap.Modules.Adminmain
 
                     using (var db = new JournalingDB.DataContext())
                     {
-                        int skip = 0;
-                        int limit = 100;
-
-                        var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal).OrderByDescending(x => x.JournalData.DateEvent).Skip(skip).Take(limit);
-                        var data = dbAccessor.FetchQueryJournalData(query);
+                        var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal);
+                        var count = query.Count();
                         return View("JournalDetails.cshtml", new Design.Model.JournalDetails()
                         {
                             JournalName = result.Result,
-                            JournalData = data
+                            JournalDataCountAll = count
                         });
                     }
                 }
@@ -382,6 +381,159 @@ namespace OnXap.Modules.Adminmain
                 var answer = JsonAnswer();
                 answer.FromException(ex);
                 return ReturnJson(answer);
+            }
+        }
+
+        public virtual JsonResult JournalDetailsList(int? IdJournal = null, Universal.Pagination.PrimeUiDataTableSourceRequest requestOptions = null)
+        {
+            if (!IdJournal.HasValue) throw new Exception("Не указан идентификатор журнала.");
+            else if (!ModelState.IsValid) throw new Exception("Некорректные параметры запроса.");
+
+            try
+            {
+                using (var scope = TransactionsHelper.ReadUncommited())
+                {
+                    var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
+                    if (!result.IsSuccess) throw new Exception(result.Message);
+
+                    var dbAccessor = AppCore.Get<JournalingDB.JournalingManagerDatabaseAccessor>();
+
+                    using (var db = new JournalingDB.DataContext())
+                    {
+                        var sorted = false;
+                        var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal);
+                        if (requestOptions != null)
+                        {
+                            if (requestOptions.FilterFields != null)
+                            {
+                                foreach (var filter in requestOptions.FilterFields)
+                                {
+                                    switch (filter.FieldName)
+                                    {
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.IdJournalData):
+                                            if (!int.TryParse(filter.Value, out var idJournalData)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.IdJournalData).TrimStart().Contains(idJournalData.ToString()));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.IdJournalData).TrimStart().StartsWith(idJournalData.ToString()));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.EventCode):
+                                            if (!int.TryParse(filter.Value, out var eventCode)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.EventCode).TrimStart().Contains(eventCode.ToString()));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.EventCode).TrimStart().StartsWith(eventCode.ToString()));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.EventInfo):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.JournalData.EventInfo.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalData.EventInfo.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.EventInfoDetailed):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(filter.Value) || x.JournalData.ExceptionDetailed.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(filter.Value) || x.JournalData.ExceptionDetailed.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        default:
+                                            throw new HandledException($"Фильтр по полю '{filter.FieldName}' не поддерживается.");
+
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(requestOptions.SortByFieldName))
+                            {
+                                switch (requestOptions.SortByFieldName)
+                                {
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.IdJournalData):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.IdJournalData) : query.OrderByDescending(x => x.JournalData.IdJournalData);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.DateEvent):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.DateEvent) : query.OrderByDescending(x => x.JournalData.DateEvent);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.EventCode):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.EventCode) : query.OrderByDescending(x => x.JournalData.EventCode);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.EventInfo):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.EventInfo) : query.OrderByDescending(x => x.JournalData.EventInfo);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.EventInfoDetailed):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ?
+                                            query.OrderBy(x => x.JournalData.EventInfoDetailed).ThenBy(x => x.JournalData.ExceptionDetailed) :
+                                            query.OrderByDescending(x => x.JournalData.EventInfoDetailed).ThenByDescending(x => x.JournalData.ExceptionDetailed);
+                                        break;
+
+                                }
+                            }
+                        }
+
+                        var dataAllCount = query.Count();
+
+                        if (requestOptions != null)
+                        {
+                            if (!sorted) query = query.OrderByDescending(x => x.JournalData.IdJournalData);
+
+                            if (requestOptions.FirstRow > 0) query = query.Skip((int)requestOptions.FirstRow);
+                            if (requestOptions.RowsLimit > 0) query = query.Take((int)requestOptions.RowsLimit);
+                        }
+
+                        var data = dbAccessor.FetchQueryJournalData(query);
+                        return ReturnJson(true, null, new Design.Model.JournalDetails()
+                        {
+                            JournalDataCountAll = dataAllCount,
+                            JournalData = data
+                        });
+                    }
+                }
+            }
+            catch (HandledException ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка при загрузке данных журнала", $"Журнал №{IdJournal}. {ex.Message}");
+                return ReturnJson(false, $"Ошибка при загрузке данных журнала. {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неожиданная ошибка при загрузке данных журнала", $"Журнал №{IdJournal}.", ex);
+                return ReturnJson(false, "Неожиданная ошибка при загрузке данных журнала");
             }
         }
 

@@ -5,53 +5,129 @@
 @{ var formID = DateTime.Now.Ticks.ToString(); }
 
 <script type="text/javascript">
-$(function () {
-    $("input#ClearJournal").click(function () {
-        $(this).attr("disabled", true);
-        $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.JournalName.IdJournal)))", null, function (result, message) {
-            $(this).removeAttr("disabled");
-            if (message.length > 0) alert(message);
-            if (result == JsonResult.OK) {
-                $("table#FormID_@formID tbody tr:not(#not_founded)").remove();
-                $("table#FormID_@formID tbody tr#not_founded").show();
+    class Model {
+        constructor(source) {
+            this.JournalDataCountAll = Number(source.@Html.NameOf(x => x.JournalDataCountAll));
+
+            var dataList = source.@Html.NameOf(x => x.JournalData);
+            this.DataList = dataList.map(x => new DataRow(x));
+        }
+    }
+
+    class DataRow {
+        constructor(source) {
+            this.IdJournalData = Number(source.@Html.NameOf(x => x.JournalData.First().IdJournalData));
+            this.EventType = Number(source.@Html.NameOf(x => x.JournalData.First().EventType));
+            this.DateEvent = new moment(source.@Html.NameOf(x => x.JournalData.First().DateEvent));
+            this.EventCode = Number(source.@Html.NameOf(x => x.JournalData.First().EventCode));
+            this.EventInfo = String(source.@Html.NameOf(x => x.JournalData.First().EventInfo));
+            this.EventInfoDetailed = String(source.@Html.NameOf(x => x.JournalData.First().EventInfoDetailed));
+            this.ExceptionDetailed = String(source.@Html.NameOf(x => x.JournalData.First().ExceptionDetailed));
+        }
+    }
+
+    $(function () {
+        var eventsListTable = $("#js-events-list__table");
+
+        eventsListTable.puidatatable({
+            paginator: {
+                rows: 100,
+                totalRecords: @Model.JournalDataCountAll,
+            },
+            columns: [
+                {
+                    field: 'EventType',
+                    headerText: 'Тип события',
+                    sortable: true,
+                    filter: true,
+                    resizable: false,
+                    headerStyle: 'width:150px;',
+                    filterMatchMode: 'contains',
+                    content: function (row) {
+                        switch (row.EventType) {
+                            case @((int)EventType.CriticalError):
+                                return "<span style='background-color: #f44141 !important'>Критическая ошибка</span>";
+                            case @((int)EventType.Error):
+                                return "<span style='background-color: #f48341 !important'>Ошибка</span>";
+                            case @((int)EventType.Info):
+                                return "Событие";
+                            case @((int)EventType.Warning):
+                                return "<span style='background-color: #f4c741 !important'>Предупреждение</span>";
+                            default:
+                                return "<span style='background-color: #f44141 !important'>НЕИЗВЕСТНЫЙ ТИП СОБЫТИЯ</span>";
+                        }
+                    }
+                },
+                {
+                    field: 'EventCode',
+                    headerText: 'Код события',
+                    sortable: true,
+                    filter: true,
+                    resizable: false,
+                    headerStyle: 'width:120px;',
+                    filterMatchMode: 'contains',
+                },
+                {
+                    field: 'DateEvent',
+                    headerText: 'Дата',
+                    sortable: true,
+                    filter: false,
+                    resizable: false,
+                    headerStyle: 'width:150px;',
+                    filterMatchMode: 'contains',
+                    content: function (row) {
+                        return row.DateEvent.format("YYYY-MM-DD HH:mm:ss");
+                    }
+                },
+                {
+                    field: 'EventInfo',
+                    headerText: 'Информация',
+                    sortable: true,
+                    filter: true,
+                    headerStyle: 'width:300px;',
+                    filterMatchMode: 'contains',
+                },
+                {
+                    field: 'EventInfoDetailed',
+                    headerText: 'Информация с детализацией',
+                    sortable: true,
+                    filter: true,
+                    filterMatchMode: 'contains',
+                    content: function (row) {
+                        return row.EventInfoDetailed;
+                    }
+                },
+            ],
+            lazy: true,
+            datasource: function (callback, ui) {
+                var requestOptions = new PrimeUiDataTableSourceRequest(ui);
+                var tt = this;
+                console.log(ui);
+
+                $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", requestOptions, function (result, message, data) {
+                    if (message.length > 0) adminNotificationWindow.show([{ severity: result == JsonResult.OK ? 'info' : 'error', summary: message, detail: '' }]);
+                    if (result == JsonResult.OK) {
+                        var data = new Model(data);
+                        callback.call(tt, data.DataList);
+                        eventsListTable.puidatatable('setTotalRecords', data.JournalDataCountAll);
+                    }
+                });
             }
         });
+
+        $("input#ClearJournal").click(function () {
+            $(this).attr("disabled", true);
+            $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.JournalName.IdJournal)))", null, function (result, message) {
+                $(this).removeAttr("disabled");
+                if (message.length > 0) adminNotificationWindow.show([{ severity: result == JsonResult.OK ? 'info' : 'error', summary: message, detail: '' }]);
+                if (result == JsonResult.OK) {
+                    eventsListTable.puidatatable("reload");
+                }
+            });
+        });
     });
-});
 </script>
 
 <h4>Журнал: @Model.JournalName.Name / <input type="button" id="ClearJournal" value="Очистить журнал" /></h4>
-<table class='tablesorter' style="width:1140px" id="FormID_@formID">
-    <thead>
-        <tr>
-            <th style="width:120px;min-width:120px;max-width:120px">Тип события</th>
-            <th style="width:120px;min-width:120px;max-width:120px">Дата</th>
-            <th style="width:300px;min-width:300px;max-width:300px">Информация</th>
-            <th>Информация с детализацией</th>
-        </tr>
-    </thead>
-    <tr id='not_founded' style="@(Model.JournalData.Count > 0 ? "display:none;" : null)">
-        <td class="center" colspan='10'>
-            Журнал пуст
-        </td>
-    </tr>
-    @foreach (var pair in Model.JournalData)
-    {
-        <tr>
-            <td class="left" style="background-color: @(pair.EventType == EventType.CriticalError ? "#f44141 !important" : (pair.EventType == EventType.Error ? "#f48341 !important" : (pair.EventType == EventType.Warning ? "#f4c741 !important" : "")))">
-                <b>@Html.DisplayEnum(pair.EventType)</b>
-            </td>
-            <td class="left">@pair.DateEvent.ToString("dd.MM.yyyy HH:mm:ss")</td>
-            <td class="left">@pair.EventInfo</td>
-            <td class="left">
-                @Html.Nl2Br(pair.EventInfoDetailed)
-                @if (!string.IsNullOrEmpty(pair.ExceptionDetailed))
-                {
-                    <text>
-                        <br />Подробности исключения:<br />@Html.Nl2Br(pair.ExceptionDetailed)
-                    </text>
-                }
-            </td>
-        </tr>
-    }
-</table>
+<div id="js-events-list__table"></div>
+
