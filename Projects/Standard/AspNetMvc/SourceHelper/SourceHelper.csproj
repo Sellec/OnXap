@@ -76,10 +76,43 @@
       <Link>ExternalSources\Design\UI\primeui\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\calendar.js">
+      <Link>ExternalSources\Design\UI\primevue\calendar.js</Link>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\datatable\datatable.umd.min.js">
+      <Link>ExternalSources\Design\UI\primevue\components\datatable.umd.min.js</Link>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\datatable.js">
+      <Link>ExternalSources\Design\UI\primevue\datatable.js</Link>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\primevue.min.css">
+      <Link>ExternalSources\Design\UI\primevue\resources\primevue.min.css</Link>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\vue\dist\vue.min.js">
+      <Link>ExternalSources\Design\UI\vue\vue.min.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\x-tag\dist\x-tag-core.min.js">
       <Link>ExternalSources\Design\UI\x-tag\x-tag-core.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeicons\fonts\**\*">
+      <Link>ExternalSources\Design\UI\primeicons\fonts\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeicons\primeicons.css">
+      <Link>ExternalSources\Design\UI\primeicons\primeicons.css</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\images\**\*">
+      <Link>ExternalSources\Design\UI\primevue\resources\images\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\themes\**\*">
+      <Link>ExternalSources\Design\UI\primevue\resources\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
