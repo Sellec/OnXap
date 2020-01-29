@@ -4,6 +4,13 @@
 @model JournalDetails
 @{ var formID = DateTime.Now.Ticks.ToString(); }
 
+<style>
+    .js-journal-events__@((int)EventType.CriticalError) { background-color: #f44141 !important }
+    .js-journal-events__@((int)EventType.Error) { background-color: #f48341 !important }
+    .js-journal-events__@((int)EventType.Warning) { background-color: #f4c741 !important }
+    .js-journal-events__@((int)EventType.Info) {  }
+    #js-events-list__table td { vertical-align: top; }
+</style>
 <script type="text/javascript">
     class JournalDetailsDataRow {
         constructor(source) {
@@ -15,117 +22,103 @@
             this.EventInfoDetailed = String(source.@Html.NameOf(x => x.JournalData.First().EventInfoDetailed));
             this.ExceptionDetailed = String(source.@Html.NameOf(x => x.JournalData.First().ExceptionDetailed));
         }
+
+        EventInfoFull() { 
+            return ((this.EventInfoDetailed ? this.EventInfoDetailed + "\n" : '') + (this.ExceptionDetailed ? this.ExceptionDetailed : '')).trimRight();
+        }
     }
 
     class JournalDetailsModel {
         constructor(source) {
-            this.JournalDataCountAll = Number(source.@Html.NameOf(x => x.JournalDataCountAll));
-
             var dataList = source.@Html.NameOf(x => x.JournalData);
             this.DataList = dataList.map(x => new JournalDetailsDataRow(x));
+            this.DataCountAll = Number(source.@Html.NameOf(x => x.JournalDataCountAll));
         }
     }
 
     $(function () {
-        var eventsListTable = $("#js-events-list__table");
+        //    emptyMessage: 'Ничего не найдено.',
 
-        eventsListTable.puidatatable({
-            caption: "<div style='height:20px'>@Model.JournalName.Name / <input type='button' id='ClearJournal' value='Очистить журнал' /><div>", 
-            paginator: {
-                rows: 100,
-                totalRecords: @Model.JournalDataCountAll,
+        new Vue({
+            el: "#js-events-list__table",
+            components: {
+                'datatable': datatable,
+                'column': column,
             },
-            columns: [
-                {
-                    field: 'EventType',
-                    headerText: 'Тип события',
-                    sortable: true,
-                    filter: true,
-                    resizable: false,
-                    headerStyle: 'width:150px;',
-                    filterMatchMode: 'contains',
-                    content: function (row) {
-                        switch (row.EventType) {
-                            case @((int)EventType.CriticalError):
-                                return "<span style='background-color: #f44141 !important'>Критическая ошибка</span>";
-                            case @((int)EventType.Error):
-                                return "<span style='background-color: #f48341 !important'>Ошибка</span>";
-                            case @((int)EventType.Info):
-                                return "Событие";
-                            case @((int)EventType.Warning):
-                                return "<span style='background-color: #f4c741 !important'>Предупреждение</span>";
-                            default:
-                                return "<span style='background-color: #f44141 !important'>НЕИЗВЕСТНЫЙ ТИП СОБЫТИЯ</span>";
+            data: {
+                IsLoading: false,
+                DataCountAll: @Model.JournalDataCountAll,
+                DataList: null,
+                LazyRequestOptions: new PrimeVueDataTableSourceRequest(),
+                paginatorRows: 10,
+            },
+            methods:
+            {
+                rowClass: row => "js-journal-events__" + row.EventType,
+                OnPage: function (event) {
+                    this.LazyRequestOptions.ApplyPagination(event);
+                    this.OnLazy();
+                },
+                OnSort: function (event) {
+                    this.LazyRequestOptions.ApplySort(event);
+                    this.OnLazy();
+                },
+                OnLazy: function () {
+                    var component = this;
+                    component.IsLoading = true;
+
+                    $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", this.LazyRequestOptions, function (result, message, data) {
+                        component.IsLoading = false;
+                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
+                        if (result == JsonResult.OK) {
+                            var data = new JournalDetailsModel(data);
+                            component.DataCountAll = data.DataCountAll;
+                            component.DataList = data.DataList;
                         }
-                    }
-                },
-                {
-                    field: 'EventCode',
-                    headerText: 'Код события',
-                    sortable: true,
-                    filter: true,
-                    resizable: false,
-                    headerStyle: 'width:120px;',
-                    filterMatchMode: 'contains',
-                },
-                {
-                    field: 'DateEvent',
-                    headerText: 'Дата',
-                    sortable: true,
-                    filter: false,
-                    resizable: false,
-                    headerStyle: 'width:150px;',
-                    filterMatchMode: 'contains',
-                    content: row => row.DateEvent.format("YYYY-MM-DD HH:mm:ss")
-                },
-                {
-                    field: 'EventInfo',
-                    headerText: 'Информация',
-                    sortable: true,
-                    filter: true,
-                    headerStyle: 'width:300px;',
-                    filterMatchMode: 'contains',
-                },
-                {
-                    field: 'EventInfoDetailed',
-                    headerText: 'Информация с детализацией',
-                    sortable: true,
-                    filter: true,
-                    filterMatchMode: 'contains',
-                    content: row => nl2br(row.EventInfoDetailed + (row.ExceptionDetailed ? '<br />' + row.ExceptionDetailed : ''))
-                },
-            ],
-            sortField: 'DateEvent',
-            sortOrder: -1,
-            lazy: true,
-            datasource: function (callback, ui) {
-                var requestOptions = new PrimeUiDataTableSourceRequest(ui);
-                var tt = this;
-
-                $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", requestOptions, function (result, message, data) {
-                    if (message.length > 0) adminNotificationWindow.show([{ severity: result == JsonResult.OK ? 'info' : 'error', summary: message, detail: '' }]);
-                    if (result == JsonResult.OK) {
-                        var data = new JournalDetailsModel(data);
-                        callback.call(tt, data.DataList);
-                        eventsListTable.puidatatable('setTotalRecords', data.JournalDataCountAll);
-                    }
-                });
-            },
-            emptyMessage: 'Ничего не найдено.',
-        });
-
-        $("input#ClearJournal").click(function () {
-            $(this).attr("disabled", true);
-            $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.JournalName.IdJournal)))", null, function (result, message) {
-                $(this).removeAttr("disabled");
-                if (message.length > 0) adminNotificationWindow.show([{ severity: result == JsonResult.OK ? 'info' : 'error', summary: message, detail: '' }]);
-                if (result == JsonResult.OK) {
-                    eventsListTable.puidatatable("reload");
+                    });
                 }
-            });
+            },
+            mounted() {
+                var component = this;
+                component.$toast.removeAllGroups();
+
+                $("input#ClearJournal").click(function () {
+                    var button = $(this);
+                    component.IsLoading = true;
+
+                    button.attr("disabled", true);
+                    $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.JournalName.IdJournal)))", null, function (result, message) {
+                        component.IsLoading = true;
+                        button.removeAttr("disabled");
+                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
+                        if (result == JsonResult.OK) component.OnLazy();
+                    });
+                });
+
+                this.LazyRequestOptions.ApplyPagination({ first: 0, rows: this.paginatorRows });
+                this.LazyRequestOptions.ApplySort({ sortField: this.sortField, sortOrder: this.sortOrder });
+                this.OnLazy();
+            }
         });
     });
 </script>
 
-<div id="js-events-list__table"></div>
-
+<div id="js-events-list__table">
+    <datatable :value="DataList" :paginator="true" :rows="paginatorRows" :row-class="rowClass"
+               :lazy="true" :total-records="DataCountAll" :loading="IsLoading" 
+               @@page="OnPage($event)" @@sort="OnSort($event)"
+               sort-field="DateEvent" sort-order="-1">
+        <template #header>
+            <div style="height:20px">@Model.JournalName.Name / <input type='button' id='ClearJournal' value='Очистить журнал' /></div>
+        </template>
+        <column field="EventType" header="Тип события" sortable="true" resizable="false" header-style="width:150px;" filter-match-mode="contains"></column>
+        <column field="EventCode" header="Код события" sortable="true" resizable="false" header-style="width:120px;" filter-match-mode="contains"></column>
+        <column field="DateEvent" header="Дата" sortable="true" resizable="false" header-style="width:150px;">
+            <template #body="slotProps">{{ slotProps.data.DateEvent ? slotProps.data.DateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}</template>
+        </column>
+        <column field="EventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;"></column>
+        <column column-key="EventInfoDetailed" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
+            <template #body="slotProps">{{ slotProps.data.EventInfoFull() }}</template>
+        </column>
+    </datatable>
+</div>

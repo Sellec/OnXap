@@ -851,7 +851,7 @@ function ShowAlert(text, closeCallback) {
     });
 }
 
-class PrimeUiDataTableFieldFilter {
+class PrimeVueDataTableFieldFilter {
     constructor(source) {
         this.FieldName = source.field;
         this.MatchType =
@@ -861,20 +861,30 @@ class PrimeUiDataTableFieldFilter {
     }
 }
 
-class PrimeUiDataTableSourceRequest {
-    constructor(source) {
-        this.FirstRow = source.first;
-        this.RowsLimit = source.rows;
-        this.SortByFieldName = source.sortField;
-        this.SortByAcsending = source.sortOrder == 1 ? true : false;
+class PrimeVueDataTableSourceRequest {
+    constructor() {
+        this.FirstRow = 0;
+        this.RowsLimit = 0;
+        this.SortByFieldName = null;
+        this.SortByAcsending = true;
         this.FilterFields = [];
 
-        if (source.filters) {
-            for (var i in source.filters) {
-                if (source.filters[i].value) {
-                    this.FilterFields[this.FilterFields.length] = new PrimeUiDataTableFieldFilter(source.filters[i]);
-                }
-            }
-        }
+        //if (source.filters) {
+        //    for (var i in source.filters) {
+        //        if (source.filters[i].value) {
+        //            this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter(source.filters[i]);
+        //        }
+        //    }
+        //}
+    }
+
+    ApplyPagination(source) {
+        this.FirstRow = source && source.first ? Number(source.first) : 0;
+        this.RowsLimit = source && source.rows ? Number(source.rows) : 0;
+    }
+
+    ApplySort(source) {
+        this.SortByFieldName = source && source.sortField ? String(source.sortField) : null;
+        this.SortByAcsending = source ? (source.sortOrder == 1 ? true : false) : true;
     }
 }

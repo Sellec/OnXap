@@ -44,56 +44,20 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\font-awesome\css\font-awesome.min.css">
-      <Link>ExternalSources\Design\UI\font-awesome\css\font-awesome.min.css</Link>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\jqueryui\jquery-ui.min.css">
+      <Link>ExternalSources\Design\UI\jqueryui\jquery-ui.min.css</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\font-awesome\fonts\**\*">
-      <Link>ExternalSources\Design\UI\font-awesome\fonts\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\jqueryui\jquery-ui.min.js">
+      <Link>ExternalSources\Design\UI\jqueryui\jquery-ui.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\jqueryui\images\**\*">
-      <Link>ExternalSources\Design\UI\primeui\images\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\jquery\dist\jquery.min.js">
+      <Link>ExternalSources\Design\UI\jquery\jquery.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeui\images\**\*">
-      <Link>ExternalSources\Design\UI\primeui\images\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeui\primeelements.min.js">
-      <Link>ExternalSources\Design\UI\primeui\primeelements.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeui\primeui-all.min.css">
-      <Link>ExternalSources\Design\UI\primeui\primeui-all.min.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeui\primeui-all.min.js">
-      <Link>ExternalSources\Design\UI\primeui\primeui-all.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeui\themes\**\*">
-      <Link>ExternalSources\Design\UI\primeui\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\calendar.js">
-      <Link>ExternalSources\Design\UI\primevue\calendar.js</Link>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\datatable\datatable.umd.min.js">
-      <Link>ExternalSources\Design\UI\primevue\components\datatable.umd.min.js</Link>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\datatable.js">
-      <Link>ExternalSources\Design\UI\primevue\datatable.js</Link>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\primevue.min.css">
-      <Link>ExternalSources\Design\UI\primevue\resources\primevue.min.css</Link>
     </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\vue\dist\vue.min.js">
       <Link>ExternalSources\Design\UI\vue\vue.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\x-tag\dist\x-tag-core.min.js">
-      <Link>ExternalSources\Design\UI\x-tag\x-tag-core.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primeicons\fonts\**\*">
@@ -104,12 +68,28 @@
       <Link>ExternalSources\Design\UI\primeicons\primeicons.css</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\primevue.min.css">
+      <Link>ExternalSources\Design\UI\primevue\resources\primevue.min.css</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\images\**\*">
       <Link>ExternalSources\Design\UI\primevue\resources\images\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\themes\**\*">
       <Link>ExternalSources\Design\UI\primevue\resources\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\*.js">
+      <Link>ExternalSources\Design\UI\primevue\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.vue">
+      <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.umd*.js">
+      <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -4,6 +4,12 @@
 @model List<JournalsList>
 @{ var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>(); }
 
+<style>
+    .js-journal-events__@((int)EventType.CriticalError) { background-color: #f44141 !important }
+    .js-journal-events__@((int)EventType.Error) { background-color: #f48341 !important }
+    .js-journal-events__@((int)EventType.Warning) { background-color: #f4c741 !important }
+    .js-journal-events__@((int)EventType.Info) {  }
+</style>
 <script type='text/javascript'>
     class JournalsDataRow {
         constructor(source) {
@@ -26,84 +32,53 @@
 
         changeTitle('Журналы системы');
 
-        var model = new JournalsModel(@Model.ToArray().jsobject()),
-            journalsListTable = $("#js-journals-list__table");
+        var model = new JournalsModel(@Model.ToArray().jsobject());
 
-        journalsListTable.puidatatable({
-            caption: "<div style='height:20px'>Всего журналов: @Model.Count</div>", 
-            columns: [
-                {
-                    field: 'NameJournal',
-                    sortable: true,
-                    filter: true,
-                    headerText: 'Название журнала',
-                    headerStyle: 'width:200px;',
-                    filterMatchMode: 'contains'
-                },
-                {
-                    field: 'EventsCount',
-                    sortable: true,
-                    headerText: 'Количество событий',
-                    headerStyle: 'width:200px;',
-                    filterMatchMode: 'contains',
-                },
-                {
-                    field: 'EventLastDate',
-                    headerText: 'Дата',
-                    sortable: true,
-                    resizable: false,
-                    headerStyle: 'width:150px;',
-                    filterMatchMode: 'contains',
-                    content: function (row) {
-                        return row.EventLastDate ? row.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null;
-                        if (row.EventLastDate) {
-                            var date = row.EventLastDate.format("YYYY-MM-DD HH:mm:ss");
-                            switch (row.EventLastType) {
-                                case @((int)EventType.CriticalError):
-                                    return "<span style='background-color: #f44141 !important'>" + date + "</span>";
-                                case @((int)EventType.Error):
-                                    return "<span style='background-color: #f48341 !important'>" + date + "</span>";
-                                case @((int)EventType.Info):
-                                    return date;
-                                case @((int)EventType.Warning):
-                                    return "<span style='background-color: #f4c741 !important'>" + date + "</span>";
-                                default:
-                                    return "<span style='background-color: yellow !important'>" + date + "</span>";
-                            }
-                        }
-                    }
-                },
-                {
-                    headerText: 'Действия',
-                    sortable: false,
-                    filter: false,
-                    resizable: false,
-                    filterMatchMode: 'contains',
-                    content: row => "<input type=\"button\" class=\"js-journal-events__button\" data-id=\"" + row.IdJournal + "\" value=\"Журнал\"><br />"
-                }
-            ],
-            sortField: 'NameJournal',
-            sortOrder: 1,
-            lazy: false,
-            datasource: model.DataList,
-            emptyMessage: 'Ничего не найдено.',
-            render: function () {
-                $(".js-journal-events__button").click(function () {
-                    $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad("/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + $(this).data("id"), null, function (result, message) {
+        var d = new Vue({
+            el: "#js-journals-list__table",
+            components: {
+                'datatable': datatable,
+                'column': column
+            },
+            data: {
+                dataList: model.DataList
+            },
+            methods: {
+                rowClass: row => "js-journal-events__" + row.EventLastType,
+                ShowJournal: function (idJournal) {
+                    $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad("/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + idJournal, null, function (result, message) {
                         if (message.length > 0) alert(message);
                     });
-                });
+                }
             }
         });
-        journalsListTable.puidatatable("sort", 'NameJournal');
     });
 </script>
+
 <h2>Журналы системы</h2>
 
 <table width='100%'>
     <tr>
         <td style='vertical-align:top;width:650px;min-width:650px;'>
-            <div id="js-journals-list__table"></div>
+            <div id="js-journals-list__table">
+                <datatable :value="dataList" :row-class="rowClass">
+                    <template #header>
+                        <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
+                    </template>
+                    <column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains"></column>
+                    <column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></column>
+                    <column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
+                        <template #body="slotProps">
+                            {{ slotProps.data.EventLastDate ? slotProps.data.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
+                        </template>
+                    </column>
+                    <column column-key="Actions" header="Действия" header-style="width:100px;">
+                        <template #body="slotProps">
+                            <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data.IdJournal)" value="Журнал">
+                        </template>
+                    </column>
+                </datatable>
+            </div>
         </td>
         <td style='width:50px;'></td>
         <td style='width:100%;vertical-align:top;align:left;' id="containerForLoading"></td>

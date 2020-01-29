@@ -4,8 +4,15 @@ namespace OnXap.Utils
 {
     using Core.Modules;
 
-    class TypeNameHelper
+    /// <summary>
+    /// Вспомогательные методы для работы с типами.
+    /// </summary>
+    public static class TypeNameHelper
     {
+        /// <summary>
+        /// Очищает полное имя (с именем сборки) указанного типа <paramref name="type"/>, удаляя версию сборки и язык.
+        /// </summary>
+        /// <remarks>Подходит для сохранения имени типа в базе данных для случаев, например, когда может меняться культура или generic-тип оборачивает тип из сторонней сборки.</remarks>
         public static string GetFullNameCleared(Type type)
         {
             var fullName = type.FullName;

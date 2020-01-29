@@ -47,14 +47,21 @@ else
         </title>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
-        <script type="text/javascript" src="~/Design/UI/vue/vue.min.js"></script>
+        <link href="~/Design/UI/primevue/resources/themes/nova-dark/theme.css " rel="stylesheet">
+        <link href="~/Design/UI/primevue/resources/primevue.min.css " rel="stylesheet">
+        <link href="~/Design/UI/primeicons/primeicons.css " rel="stylesheet">
+        <script src="~/Design/UI/vue/vue.min.js"></script>
+        <script src="~/Design/UI/primevue/components/calendar/calendar.umd.min.js"></script>
+        <script src="~/Design/UI/primevue/components/datatable/datatable.umd.js"></script>
+        <script src="~/Design/UI/primevue/components/column/column.umd.min.js"></script>
+        <script src="~/Design/UI/primevue/components/toast/toastservice.umd.js"></script>
+        <script src="~/Design/UI/primevue/components/toast/toast.umd.js"></script>
 
-        <link rel="stylesheet" href="~/Design/UI/font-awesome/css/font-awesome.min.css" />
-        <link rel="stylesheet" href="~/Design/UI/primeui/primeui-all.min.css" />
-        <link rel="stylesheet" href="~/Design/UI/primeui/themes/bootstrap/theme.css" />
         <script type="text/javascript" src="~/Design/UI/primeui/primeui-all.min.js"></script>
-        <script type="text/javascript" src="~/Design/UI/x-tag/x-tag-core.min.js"></script>
-        <script type="text/javascript" src="~/Design/UI/primeui/primeelements.min.js"></script>
+
+        <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
+        <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
+        <script type="text/javascript" src="~/Design/UI/jqueryui/jquery-ui.min.js"></script>
         <script type="text/javascript" src="~/Design/UI/momentjs/moment-with-locales.min.js"></script>
 
         <link rel="stylesheet" type="text/css" href="/data/css/admin.css">
@@ -98,8 +105,6 @@ else
     <![endif]-->
 
         <script type='text/javascript'>
-            var adminNotificationWindow = null;
-
             function changeTitle(new_title) {
                 try {
                     if (+"\v1") {
@@ -111,8 +116,16 @@ else
             }
 
             $(document).ready(function () {
+                Vue.use(toastservice);
+
+                new Vue({
+                    el: "#js-notification",
+                    components: {
+                        "toast": toast
+                    }
+                });
+
                 moment.locale('ru-RU');
-                adminNotificationWindow = $("#js-notification-window")[0];
 
                 $('a.admin_menu').click(function () {
                     try {
@@ -177,7 +190,7 @@ else
         <div id="photo_result"></div>
         <div id="pages_result"></div>
         <div id='action_result'></div>
-        <p-growl id="js-notification-window"></p-growl>
+        <div id="js-notification"><toast position="topright" /></div>
 
         <div id="block"><p><img src="/data/img/loading.gif" alt=""> Загрузка...</p></div>
         <div id="photo_view"><img src=""></div>
