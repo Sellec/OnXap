@@ -13,8 +13,19 @@ namespace OnXap.Modules.Customer
     [ModuleCore("Личный кабинет", DefaultUrlName = "Customer")]
     public abstract class ModuleCustomer : ModuleCore<ModuleCustomer>, IUnitOfWorkAccessor<CoreContext>
     {
+        /// <summary>
+        /// Управление пользователями
+        /// </summary>
         public const string PERM_MANAGEUSERS = "manage_users";
+
+        /// <summary>
+        /// Управление ролями
+        /// </summary>
         public const string PERM_MANAGEROLES = "manage_roles";
+
+        /// <summary>
+        /// Просмотр истории
+        /// </summary>
         public const string PERM_VIEWHISTORY = "history";
 
         /// <summary>
@@ -35,11 +46,11 @@ namespace OnXap.Modules.Customer
         protected abstract void RegisterModelValidators();
 
         /// <summary>
-        /// См. <see cref="ModuleCore{TSelfReference}.GenerateLink(ItemBase)"/>.
+        /// См. <see cref="ModuleCore.GenerateLink(ItemBase)"/>.
         /// </summary>
         public sealed override Uri GenerateLink(ItemBase item)
         {
-            if (item is Core.DB.User) return new Uri(AppCore.ServerUrl, $"{UrlName}/user/{item.ID}");
+            if (item is User) return new Uri(AppCore.ServerUrl, $"{UrlName}/user/{item.ID}");
             //else if (item is Register.Model.Register) return new Uri(ApplicationCore.Instance.ServerUrl, $"{Name}/user/{item.ID}");
             //return base.GenerateLink(item);
 

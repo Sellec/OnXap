@@ -1,7 +1,7 @@
 @using Core = OnXap.Core.DB
-@using OnXap.Modules.Customer.Model
+@using OnXap.Modules.Customer.Design.Model
 @using OnXap.Types
-@model AdminUserEdit
+@model AdminUserEditForm
 @{ 
     var userStateList = new List<SelectListItem>() {
         new SelectListItem() { Value = UserState.Active.ToString(), Text = UserState.GetName(UserState.Active) },
@@ -66,11 +66,12 @@
             }
         });
 
-        $("input[name=changepass]").change(function(){
-            if ($(this).is(":checked"))
-                $("input[name='User.password']").show();
-            else
-                $("input[name='User.password']").hide();
+        $("input[name='@Html.NameFor(x => x.IsNeedToChangePassword)']").change(function () {
+            var passwordFieldSelector = "input[name='@Html.NameFor(x => x.User.password)']",
+                isChecked = $(this).is(":checked");
+
+            $(passwordFieldSelector + "[type=hidden]").prop("disabled", isChecked);
+            $(passwordFieldSelector + ":not([type=hidden])").prop("disabled", !isChecked);
         }).change();
 
     });
@@ -131,12 +132,15 @@ else
                             @if (Model.User.IdUser > 0)
                             {
                                 <span>
-                                    <span><input type='checkbox' name='changepass' value='2'>&nbsp;Изменить пароль</span><br />
-                                    @Html.EditorFor(x => x.User.password, new { htmlAttributes = new { style = "display:none;margin-bottom:10px", size = 40 } })
+                                    @Html.Hidden(Html.NameFor(x => x.User.password).ToString(), "!!")
+                                    @Html.CheckBoxFor(x => x.IsNeedToChangePassword) @Html.LabelFor(x => x.IsNeedToChangePassword)<br />
+                                    @Html.EditorFor(x => x.User.password, new { htmlAttributes = new { style = "margin-bottom:10px", size = 40 } })
                                 </span>
                             }
                             else
                             {
+                                Model.IsNeedToChangePassword = true;
+                                @Html.HiddenFor(x => x.IsNeedToChangePassword)
                                 @Html.EditorFor(x => x.User.password, new { htmlAttributes = new { style = "margin-bottom:10px", size = 40 } })
                             }
                             <br />@Html.ValidationMessageFor(x => x.User.password)

@@ -44,8 +44,10 @@
             components: {
                 'datatable': datatable,
                 'column': column,
+                'inputtext': inputtext,
             },
             data: {
+                filters: {},
                 IsLoading: false,
                 DataCountAll: @Model.JournalDataCountAll,
                 DataList: null,
@@ -63,6 +65,10 @@
                     this.LazyRequestOptions.ApplySort(event);
                     this.OnLazy();
                 },
+                OnFilter: function (event) {
+                    //this.LazyRequestOptions.ApplySort(event);
+                    //this.OnLazy();
+                },
                 OnLazy: function () {
                     var component = this;
                     component.IsLoading = true;
@@ -76,6 +82,15 @@
                             component.DataList = data.DataList;
                         }
                     });
+                }
+            },
+            watch: {
+                'filters': {
+                    handler: function (v1, v2) {
+                        this.LazyRequestOptions.ApplyFilter(this.filters);
+                        this.OnLazy();
+                    },
+                    deep: true
                 }
             },
             mounted() {
@@ -106,13 +121,16 @@
 <div id="js-events-list__table">
     <datatable :value="DataList" :paginator="true" :rows="paginatorRows" :row-class="rowClass"
                :lazy="true" :total-records="DataCountAll" :loading="IsLoading" 
-               @@page="OnPage($event)" @@sort="OnSort($event)"
+               @@page="OnPage($event)" @@sort="OnSort($event)" @@filter="OnFilter($event)"
+               :filters="filters"
                sort-field="DateEvent" sort-order="-1">
         <template #header>
             <div style="height:20px">@Model.JournalName.Name / <input type='button' id='ClearJournal' value='Очистить журнал' /></div>
         </template>
         <column field="EventType" header="Тип события" sortable="true" resizable="false" header-style="width:150px;" filter-match-mode="contains"></column>
-        <column field="EventCode" header="Код события" sortable="true" resizable="false" header-style="width:120px;" filter-match-mode="contains"></column>
+        <column field="EventCode" header="Код события" sortable="true" resizable="false" header-style="width:120px;" filter-match-mode="contains">
+            <template #filter><InputText type="text" v-model="filters['EventCode']" class="p-column-filter" /></template>
+        </column>
         <column field="DateEvent" header="Дата" sortable="true" resizable="false" header-style="width:150px;">
             <template #body="slotProps">{{ slotProps.data.DateEvent ? slotProps.data.DateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}</template>
         </column>

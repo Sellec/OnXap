@@ -12,7 +12,7 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.7.179</Version>
+	  <Version>0.1.7.182</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.dll" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.dll" Pack="True" PackagePath="%(Link)" />

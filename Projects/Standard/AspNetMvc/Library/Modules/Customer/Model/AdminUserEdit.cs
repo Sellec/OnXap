@@ -1,27 +1,20 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Web.Mvc;
+using System.ComponentModel;
 
 namespace OnXap.Modules.Customer.Model
 {
     using Core.DB;
-    using Journaling.Model;
 
     public class AdminUserEdit
     {
-        public AdminUserEdit()
-        {
-
-        }
-
-        [ScaffoldColumn(false)]
-        public IList<JournalData> history;
+        [DefaultValue(false)]
+        [Display(Name = "Сменить пароль")]
+        public bool IsNeedToChangePassword { get; set; }
 
         public User User { get; set; }
 
         [Display(Name = "Роли пользователя")]
         public IEnumerable<int> UserRoles { get; set; }
-
-        public IEnumerable<SelectListItem> Roles;
     }
 }

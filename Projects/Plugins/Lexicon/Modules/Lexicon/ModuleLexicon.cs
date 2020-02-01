@@ -13,7 +13,7 @@ namespace OnXap.Modules.Lexicon
     {
         private static ModuleLexicon _thisModule = null;
 
-        protected override void InitModuleCustom()
+        protected override void OnModuleStart()
         {
             _thisModule = this;
 

@@ -887,4 +887,18 @@ class PrimeVueDataTableSourceRequest {
         this.SortByFieldName = source && source.sortField ? String(source.sortField) : null;
         this.SortByAcsending = source ? (source.sortOrder == 1 ? true : false) : true;
     }
+
+    ApplyFilter(source) {
+        this.FilterFields = [];
+        for (var field in source) {
+            if (source[field]) {
+                this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter({
+                    field: field,
+                    value: source[field],
+                    filterMatchMode: 'contains'
+                });
+            }
+        }
+    }
 }
+

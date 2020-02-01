@@ -38,9 +38,11 @@
             el: "#js-journals-list__table",
             components: {
                 'datatable': datatable,
-                'column': column
+                'column': column,
+                'inputtext': inputtext,
             },
             data: {
+                filters: {},
                 dataList: model.DataList
             },
             methods: {
@@ -61,11 +63,17 @@
     <tr>
         <td style='vertical-align:top;width:650px;min-width:650px;'>
             <div id="js-journals-list__table">
-                <datatable :value="dataList" :row-class="rowClass">
+                <datatable :value="dataList" :row-class="rowClass" 
+                            sort-field="NameJournal" sort-order="1"
+                           :filters="filters">
                     <template #header>
                         <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
                     </template>
-                    <column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains"></column>
+                    <column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
+                        <template #filter>
+                            <InputText type="text" v-model="filters['NameJournal']" class="p-column-filter" />
+                        </template>
+                    </column>
                     <column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></column>
                     <column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
                         <template #body="slotProps">

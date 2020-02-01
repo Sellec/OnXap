@@ -107,7 +107,7 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>0.1.15</Version>
+      <Version>0.1.17</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
       <Version>0.0.8</Version>
@@ -146,6 +146,8 @@
     <Compile Include="Modules\Adminmain\Model\JournalQueries.cs" />
     <Compile Include="Modules\ApplicationStateMonitor\Module.cs" />
     <Compile Include="Modules\ApplicationStateMonitor\Startup.cs" />
+    <Compile Include="Modules\Customer\Design\Model\AdminUserEditForm.cs" />
+    <Compile Include="Modules\Customer\Design\Model\AdminUsersManage.cs" />
     <Compile Include="Modules\FileManager\DB\DataContext.cs" />
     <Compile Include="Modules\FileManager\DB\FileRemoveQueue.cs" />
     <Compile Include="Modules\FileManager\FileTypeCommon.cs" />
@@ -2069,8 +2071,8 @@
     <Content Include="Modules\Customer\Design\admin\admin_customer_modules.cshtml" />
     <Content Include="Modules\Customer\Design\admin\admin_customer_rolesDelegate.cshtml" />
     <Content Include="Modules\Customer\Design\admin\admin_customer_rolesManage.cshtml" />
-    <Content Include="Modules\Customer\Design\admin\admin_customer_users.cshtml" />
-    <Content Include="Modules\Customer\Design\admin\admin_customer_users_ae.cshtml" />
+    <Content Include="Modules\Customer\Design\admin\AdminUsersManage.cshtml" />
+    <Content Include="Modules\Customer\Design\admin\AdminUserEditForm.cshtml" />
     <Content Include="Modules\Customer\Design\baseCustomer.cshtml" />
     <Content Include="Modules\Customer\Design\customerIndex.cshtml" />
     <Content Include="Modules\Customer\Design\customerPassword.cshtml" />

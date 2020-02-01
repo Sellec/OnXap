@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using System.Web.Mvc;
+using System.Data.Entity.SqlServer;
+using System.Net;
 
 namespace OnXap.Modules.Customer
 {
@@ -41,25 +43,220 @@ namespace OnXap.Modules.Customer
         {
             using (var db = this.CreateUnitOfWork())
             {
-                var users = state.HasValue ?
-                                db.Users.Where(x => x.State == state.Value).OrderBy(x => x.name).ToList() :
-                                db.Users.OrderBy(x => x.name).ToList();
+                var usersQuery = state.HasValue ?
+                                db.Users.Where(x => x.State == state.Value).OrderBy(x => x.name) :
+                                db.Users.OrderBy(x => x.name);
 
+                var usersCount = usersQuery.Count();
 
-                this.assign("IsSuperuser", AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser);
-                return View("admin/admin_customer_users.cshtml", users);
+                var model = new Design.Model.AdminUsersManage()
+                {
+                    RequestedState = state,
+                    DataCountAll = usersCount
+                };
+
+                return View("admin/AdminUsersManage.cshtml", model);
             }
         }
 
         [ModuleAction("users2", ModuleCustomer.PERM_MANAGEUSERS)]
         public virtual ActionResult Users2()
         {
-            using (var db = this.CreateUnitOfWork())
-            {
-                var users = db.Users.Where(x => x.State == 0).OrderBy(x => x.name).ToList();
+            return Users(UserState.Active);
+        }
 
-                this.assign("IsSuperuser", AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser);
-                return View("admin/admin_customer_users.cshtml", users);
+        public virtual JsonResult UsersList(UserState? state = null, Universal.Pagination.PrimeUiDataTableSourceRequest requestOptions = null)
+        {
+            if (!ModelState.IsValid) throw new Exception("Некорректные параметры запроса.");
+
+            try
+            {
+                using (var scope = TransactionsHelper.ReadUncommited())
+                {
+                    using (var db = this.CreateUnitOfWork())
+                    {
+                        var query = state.HasValue ?
+                                        db.Users.Where(x => x.State == state.Value) :
+                                        db.Users;
+
+                        var sorted = false;
+                        if (requestOptions != null)
+                        {
+                            if (requestOptions.FilterFields != null)
+                            {
+                                foreach (var filter in requestOptions.FilterFields)
+                                {
+                                    switch (filter.FieldName)
+                                    {
+                                        case nameof(Core.DB.User.IdUser):
+                                            if (!int.TryParse(filter.Value, out var idUser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.IdUser).TrimStart().Contains(idUser.ToString()));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.IdUser).TrimStart().StartsWith(idUser.ToString()));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(Core.DB.User.Superuser):
+                                            if (!int.TryParse(filter.Value, out var superuser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                            query = query.Where(x => x.Superuser == superuser);
+                                            break;
+
+                                        case "Requisites":
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => (x.name + "." + x.email + "." + x.phone).Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => (x.name + "." + x.email + "." + x.phone).StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(Core.DB.User.email):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.email.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.email.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(Core.DB.User.phone):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.phone.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.phone.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(Core.DB.User.name):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.name.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.name.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(Core.DB.User.CommentAdmin):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.CommentAdmin.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.CommentAdmin.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        default:
+                                            throw new HandledException($"Фильтр по полю '{filter.FieldName}' не поддерживается.");
+
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(requestOptions.SortByFieldName))
+                            {
+                                switch (requestOptions.SortByFieldName)
+                                {
+                                    case nameof(Core.DB.User.IdUser):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.IdUser) : query.OrderByDescending(x => x.IdUser);
+                                        break;
+
+                                    case "Requisites":
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ?
+                                            query.OrderBy(x => x.name).ThenBy(x => x.email).ThenBy(x => x.phone) :
+                                            query.OrderByDescending(x => x.name).ThenByDescending(x => x.email).ThenByDescending(x => x.phone);
+                                        break;
+
+                                    case nameof(Core.DB.User.email):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.email) : query.OrderByDescending(x => x.email);
+                                        break;
+
+                                    case nameof(Core.DB.User.phone):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.phone) : query.OrderByDescending(x => x.phone);
+                                        break;
+
+                                    case nameof(Core.DB.User.name):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.name) : query.OrderByDescending(x => x.name);
+                                        break;
+
+                                    case nameof(Core.DB.User.State):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.State) : query.OrderByDescending(x => x.State);
+                                        break;
+
+                                    case nameof(Core.DB.User.Superuser):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.Superuser) : query.OrderByDescending(x => x.Superuser);
+                                        break;
+
+                                    case nameof(Core.DB.User.CommentAdmin):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.CommentAdmin) : query.OrderByDescending(x => x.CommentAdmin);
+                                        break;
+                                }
+                            }
+                        }
+
+                        var dataAllCount = query.Count();
+
+                        if (requestOptions != null)
+                        {
+                            if (!sorted) query = query.OrderBy(x => x.IdUser);
+
+                            if (requestOptions.FirstRow > 0) query = query.Skip((int)requestOptions.FirstRow);
+                            if (requestOptions.RowsLimit > 0) query = query.Take((int)requestOptions.RowsLimit);
+                        }
+
+                        var data = query.ToList();
+                        return ReturnJson(true, null, new Design.Model.AdminUsersManage()
+                        {
+                            RequestedState = state,
+                            DataCountAll = dataAllCount,
+                            DataList = data
+                        });
+                    }
+                }
+            }
+            catch (HandledException ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка при загрузке списка пользователей", null, ex);
+                return ReturnJson(false, $"Ошибка при загрузке списка пользователей. {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неожиданная ошибка при загрузке списка пользователей", null, ex);
+                return ReturnJson(false, "Неожиданная ошибка при загрузке списка пользователей");
             }
         }
 
@@ -78,9 +275,10 @@ namespace OnXap.Modules.Customer
                 if (data == null) throw new KeyNotFoundException("Неправильно указан пользователь!");
                 var history = AppCore.Get<JournalingManager>().GetJournalForItem(data);
 
-                var model = new Model.AdminUserEdit()
+                var model = new Design.Model.AdminUserEditForm()
                 {
                     history = history.Result,
+                    IsNeedToChangePassword = false,
                     User = data,
                     UserRoles = db.RoleUser
                                     .Where(x => x.IdUser == data.IdUser)
@@ -96,7 +294,7 @@ namespace OnXap.Modules.Customer
                                 .ToList(),
                 };
 
-                return View("admin/admin_customer_users_ae.cshtml", model);
+                return View("admin/AdminUserEditForm.cshtml", model);
             }
         }
 
@@ -179,9 +377,9 @@ namespace OnXap.Modules.Customer
                             }
                         }
 
-                        if (ModelState.ContainsKeyCorrect("User.password"))
+                        if (ModelState.ContainsKeyCorrect(nameof(model.IsNeedToChangePassword)) && ModelState.ContainsKeyCorrect(nameof(model.User) + "." + nameof(model.User.password)))
                         {
-                            if (data.IdUser > 0 && Request.Form.HasKey("changepass") && Request.Form["changepass"] == "2")
+                            if (data.IdUser > 0 && model.IsNeedToChangePassword)
                                 data.password = UsersExtensions.hashPassword(model.User.password);
                             else if (data.IdUser == 0)
                                 data.password = UsersExtensions.hashPassword(model.User.password);

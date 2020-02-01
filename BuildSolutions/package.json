@@ -7,7 +7,7 @@
         "jquery": "^2.2.1",
         "jqueryui": "^1.11.1",
         "primeicons": "^2.0.0",
-        "primevue": "^1.0.1",
+        "primevue": "^1.0.2",
         "vue": "^2.6.11"
     }
 }
