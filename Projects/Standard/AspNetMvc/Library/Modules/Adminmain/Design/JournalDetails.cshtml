@@ -19,12 +19,9 @@
             this.DateEvent = new moment(source.@Html.NameOf(x => x.JournalData.First().DateEvent));
             this.EventCode = Number(source.@Html.NameOf(x => x.JournalData.First().EventCode));
             this.EventInfo = String(source.@Html.NameOf(x => x.JournalData.First().EventInfo));
-            this.EventInfoDetailed = String(source.@Html.NameOf(x => x.JournalData.First().EventInfoDetailed));
-            this.ExceptionDetailed = String(source.@Html.NameOf(x => x.JournalData.First().ExceptionDetailed));
-        }
-
-        EventInfoFull() { 
-            return ((this.EventInfoDetailed ? this.EventInfoDetailed + "\n" : '') + (this.ExceptionDetailed ? this.ExceptionDetailed : '')).trimRight();
+            this.EventInfoDetailed = source.@Html.NameOf(x => x.JournalData.First().EventInfoDetailed) ? String(source.@Html.NameOf(x => x.JournalData.First().EventInfoDetailed)) : null;
+            this.ExceptionDetailed = source.@Html.NameOf(x => x.JournalData.First().ExceptionDetailed) ? String(source.@Html.NameOf(x => x.JournalData.First().ExceptionDetailed)) : null;
+            this.EventInfoFull = ((this.EventInfoDetailed ? this.EventInfoDetailed + '\n' : '') + (this.ExceptionDetailed ? this.ExceptionDetailed + '\n' : '')).trimRight();
         }
     }
 
@@ -134,9 +131,12 @@
         <column field="DateEvent" header="Дата" sortable="true" resizable="false" header-style="width:150px;">
             <template #body="slotProps">{{ slotProps.data.DateEvent ? slotProps.data.DateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}</template>
         </column>
-        <column field="EventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;"></column>
-        <column column-key="EventInfoDetailed" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
-            <template #body="slotProps">{{ slotProps.data.EventInfoFull() }}</template>
+        <column field="EventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;">
+            <template #filter><InputText type="text" v-model="filters['EventInfo']" class="p-column-filter" /></template>
+        </column>
+        <column field="EventInfoFull" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
+            <template #filter><InputText type="text" v-model="filters['EventInfoFull']" class="p-column-filter" /></template>
+            <template #body="slotProps">{{ slotProps.data.EventInfoFull }}</template>
         </column>
     </datatable>
 </div>

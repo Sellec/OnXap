@@ -177,8 +177,8 @@ namespace OnXap.Binding.Providers
             method.Invoke(controller, new object[] { module });
 
             var methods = controller.GetType().GetMethods();
-            var action = routeValues["action"]?.ToString() ?? "";
-            method = (from p in methods where p.Name.ToLower() == action.ToLower() select p).FirstOrDefault();
+            var action = (routeValues["action"]?.ToString() ?? "").ToLower();
+            method = (from p in methods where p.Name.ToLower() == action select p).FirstOrDefault();
             if (method == null)
             {
                 foreach (var mm in methods)
@@ -187,7 +187,7 @@ namespace OnXap.Binding.Providers
                     if (attrs != null && attrs.Length > 0)
                     {
                         var attr = attrs.First() as ModuleActionAttribute;
-                        if (attr.Alias == action)
+                        if (attr.Alias?.ToLower() == action)
                         {
                             routeValues["action"] = mm.Name;
                             method = mm;
