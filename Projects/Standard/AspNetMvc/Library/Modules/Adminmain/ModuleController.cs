@@ -455,6 +455,32 @@ namespace OnXap.Modules.Adminmain
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.ExceptionDetailed):
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.JournalData.ExceptionDetailed.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalData.ExceptionDetailed.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
+                                        case "EventInfoFull":
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
                                                     query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(filter.Value) || x.JournalData.ExceptionDetailed.Contains(filter.Value));
                                                     break;
 
@@ -496,6 +522,20 @@ namespace OnXap.Modules.Adminmain
                                         break;
 
                                     case nameof(JournalingDB.QueryJournalData.JournalData.EventInfoDetailed):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ?
+                                            query.OrderBy(x => x.JournalData.EventInfoDetailed) :
+                                            query.OrderByDescending(x => x.JournalData.EventInfoDetailed);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.ExceptionDetailed):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ?
+                                            query.OrderBy(x => x.JournalData.ExceptionDetailed) :
+                                            query.OrderByDescending(x => x.JournalData.ExceptionDetailed);
+                                        break;
+
+                                    case "EventInfoFull":
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ?
                                             query.OrderBy(x => x.JournalData.EventInfoDetailed).ThenBy(x => x.JournalData.ExceptionDetailed) :
