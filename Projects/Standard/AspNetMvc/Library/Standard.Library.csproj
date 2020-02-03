@@ -547,7 +547,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\img\admin\gear_wheel.png" />
-    <None Include="Data\img\admin\icon_main.png" />
     <None Include="Data\img\admin\left_bg.gif" />
     <None Include="Data\img\admin\left_panel.gif" />
     <None Include="Data\img\admin\top_panel.gif" />

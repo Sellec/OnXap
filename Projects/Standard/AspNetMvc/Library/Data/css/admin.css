@@ -223,8 +223,8 @@ border: 1px solid #f0f !important;
 #top_panel ul li.admin_login {float:right;}
 #left_panel {width:200px;height:100%;vertical-align:top;position:relative;z-index:100;float:left;margin-left:-210px;padding:0 5px;background:#e9f6ff url(/data/img/admin/left_panel.gif);}
 #left_panel ul {margin:0;list-style:none;}
-#left_panel ul li {padding:0;background:#3d93d9 url(/data/img/admin/left_bg.gif) repeat-x;margin-bottom:4px;}
-#left_panel ul li .lmain {color:#fff;text-decoration:none;padding:2px 0 4px 25px;display:block;background:url(/data/img/admin/icon_main.png) no-repeat 3px center;}
+#left_panel ul li {padding:0;margin-bottom:4px;}
+#left_panel ul li .lmain {color:#fff;text-decoration:none;padding:2px 0 4px 5px;display:block;background:#3d93d9 url(/data/img/admin/left_bg.gif) repeat-x;background-size: auto 100%;}
 #left_panel ul li .lmain a{color:#fff;text-decoration:none;}
 #left_panel ul li.i_pages .lmain {background-image:url(/data/img/admin/icon_pages.png);}
 #left_panel ul li.i_news .lmain {background-image:url(/data/img/admin/icon_news.png);}
