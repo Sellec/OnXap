@@ -205,10 +205,13 @@ namespace OnXap.Users
                         if (!string.IsNullOrEmpty(res.Permission))
                         {
                             var guidModule = GuidIdentifierGenerator.GenerateGuid(GuidType.Module, res.IdModule);
-                            var guidPermission = res.Permission.GenerateGuid();
-
                             if (!perms.ContainsKey(guidModule)) perms.Add(guidModule, new List<Guid>());
+
+                            var guidPermission = res.Permission.GenerateGuid();
                             if (!perms[guidModule].Contains(guidPermission)) perms[guidModule].Add(guidPermission);
+
+                            // Временное двойное распознавание разрешения через строку и потенциальный гуид.
+                            if (Guid.TryParse(res.Permission, out var guidPermissionTemp) && !perms[guidModule].Contains(guidPermissionTemp)) perms[guidModule].Add(guidPermissionTemp);
                         }
                     }
 
