@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OnXap.Modules.UsersManagement
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Journaling;
 

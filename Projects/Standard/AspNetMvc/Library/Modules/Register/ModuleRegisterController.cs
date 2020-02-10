@@ -7,7 +7,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Register
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Exceptions;
     using Types;
@@ -76,15 +76,15 @@ namespace OnXap.Modules.Register
                     switch (regMode)
                     {
                         case RegisterMode.SelfConfirmation:
-                            preparedData.State = Core.DB.UserState.RegisterNeedConfirmation;
+                            preparedData.State = Core.Db.UserState.RegisterNeedConfirmation;
                             break;
 
                         case RegisterMode.Immediately:
-                            preparedData.State = Core.DB.UserState.Active;
+                            preparedData.State = Core.Db.UserState.Active;
                             break;
 
                         case RegisterMode.ManualCheck:
-                            preparedData.State = Core.DB.UserState.RegisterWaitForModerate;
+                            preparedData.State = Core.Db.UserState.RegisterWaitForModerate;
                             break;
                     }
 
@@ -105,7 +105,7 @@ namespace OnXap.Modules.Register
                     if (isSuperuserNeeded)
                     {
                         preparedData.Superuser = 1;
-                        preparedData.State = Core.DB.UserState.Active;
+                        preparedData.State = Core.Db.UserState.Active;
                     }
 
                     var result = Module.RegisterUser(preparedData);
@@ -144,11 +144,11 @@ namespace OnXap.Modules.Register
                     }
                     else
                     {
-                        if (data.State == Core.DB.UserState.Active)
+                        if (data.State == Core.Db.UserState.Active)
                         {
                             message = "Учетная запись уже активирована.";
                         }
-                        else if (data.State != Core.DB.UserState.RegisterNeedConfirmation)
+                        else if (data.State != Core.Db.UserState.RegisterNeedConfirmation)
                         {
                             message = "Учетная запись не находится в состоянии ожидания подтверждения.";
                         }
@@ -160,7 +160,7 @@ namespace OnXap.Modules.Register
                             }
                             else
                             {
-                                data.State = Core.DB.UserState.Active;
+                                data.State = Core.Db.UserState.Active;
                                 data.StateConfirmation = "";
                                 db.SaveChanges();
                                 message = "Ваша учетная запись была активирована. Теперь вы можете зайти на сайт, используя реквизиты, указанные при регистрации.";

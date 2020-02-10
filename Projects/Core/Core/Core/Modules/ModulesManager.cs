@@ -9,7 +9,7 @@ using System.Reflection;
 namespace OnXap.Core.Modules
 {
     using Configuration;
-    using DB;
+    using Db;
     using Journaling;
 
     /// <summary>

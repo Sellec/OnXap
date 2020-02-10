@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnXap.Modules.Register.Model
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Items;
     using Modules.ItemsCustomize;
     using Modules.ItemsCustomize.Data;

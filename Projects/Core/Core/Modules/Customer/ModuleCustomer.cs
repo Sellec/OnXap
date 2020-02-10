@@ -3,7 +3,7 @@ using System;
 
 namespace OnXap.Modules.Customer
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Items;
     using Core.Modules;
 

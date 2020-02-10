@@ -1,6 +1,6 @@
 ﻿namespace OnXap.Journaling.Model
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Items;
     using Users;
     using System;

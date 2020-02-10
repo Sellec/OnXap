@@ -2,7 +2,7 @@
 
 namespace OnXap.Modules.Adminmain
 {
-    using Core.DB;
+    using Core.Db;
     using Routing.DB;
 
     /// <summary>

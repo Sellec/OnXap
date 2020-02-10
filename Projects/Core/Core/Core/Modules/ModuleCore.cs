@@ -333,7 +333,7 @@ namespace OnXap.Core.Modules
         /// <summary>
         /// Возвращает список типов объектов, используемых в модуле.
         /// </summary>
-        public List<DB.ItemType> GetItemTypes()
+        public List<Db.ItemType> GetItemTypes()
         {
             return AppCore.Get<Items.ItemsManager>().GetModuleItemTypes<TSelfReference>();
         }

@@ -6,7 +6,7 @@ using System.Linq;
 namespace OnXap.Modules.ItemsCustomize
 {
     using AdminForModules.Menu;
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Modules.ItemsCustomize.DB;
     using Modules.ItemsCustomize.Scheme;

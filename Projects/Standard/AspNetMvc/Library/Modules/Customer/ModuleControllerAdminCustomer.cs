@@ -9,7 +9,7 @@ using System.Net;
 
 namespace OnXap.Modules.Customer
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Journaling;
     using MessagingEmail;
@@ -88,7 +88,7 @@ namespace OnXap.Modules.Customer
                                 {
                                     switch (filter.FieldName)
                                     {
-                                        case nameof(Core.DB.User.IdUser):
+                                        case nameof(Core.Db.User.IdUser):
                                             if (!int.TryParse(filter.Value, out var idUser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
                                             switch (filter.MatchType)
                                             {
@@ -102,7 +102,7 @@ namespace OnXap.Modules.Customer
                                             }
                                             break;
 
-                                        case nameof(Core.DB.User.Superuser):
+                                        case nameof(Core.Db.User.Superuser):
                                             if (!int.TryParse(filter.Value, out var superuser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
                                             query = query.Where(x => x.Superuser == superuser);
                                             break;
@@ -120,7 +120,7 @@ namespace OnXap.Modules.Customer
                                             }
                                             break;
 
-                                        case nameof(Core.DB.User.email):
+                                        case nameof(Core.Db.User.email):
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
@@ -133,7 +133,7 @@ namespace OnXap.Modules.Customer
                                             }
                                             break;
 
-                                        case nameof(Core.DB.User.phone):
+                                        case nameof(Core.Db.User.phone):
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
@@ -146,7 +146,7 @@ namespace OnXap.Modules.Customer
                                             }
                                             break;
 
-                                        case nameof(Core.DB.User.name):
+                                        case nameof(Core.Db.User.name):
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
@@ -159,7 +159,7 @@ namespace OnXap.Modules.Customer
                                             }
                                             break;
 
-                                        case nameof(Core.DB.User.CommentAdmin):
+                                        case nameof(Core.Db.User.CommentAdmin):
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
@@ -183,7 +183,7 @@ namespace OnXap.Modules.Customer
                             {
                                 switch (requestOptions.SortByFieldName)
                                 {
-                                    case nameof(Core.DB.User.IdUser):
+                                    case nameof(Core.Db.User.IdUser):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.IdUser) : query.OrderByDescending(x => x.IdUser);
                                         break;
@@ -195,32 +195,32 @@ namespace OnXap.Modules.Customer
                                             query.OrderByDescending(x => x.name).ThenByDescending(x => x.email).ThenByDescending(x => x.phone);
                                         break;
 
-                                    case nameof(Core.DB.User.email):
+                                    case nameof(Core.Db.User.email):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.email) : query.OrderByDescending(x => x.email);
                                         break;
 
-                                    case nameof(Core.DB.User.phone):
+                                    case nameof(Core.Db.User.phone):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.phone) : query.OrderByDescending(x => x.phone);
                                         break;
 
-                                    case nameof(Core.DB.User.name):
+                                    case nameof(Core.Db.User.name):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.name) : query.OrderByDescending(x => x.name);
                                         break;
 
-                                    case nameof(Core.DB.User.State):
+                                    case nameof(Core.Db.User.State):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.State) : query.OrderByDescending(x => x.State);
                                         break;
 
-                                    case nameof(Core.DB.User.Superuser):
+                                    case nameof(Core.Db.User.Superuser):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.Superuser) : query.OrderByDescending(x => x.Superuser);
                                         break;
 
-                                    case nameof(Core.DB.User.CommentAdmin):
+                                    case nameof(Core.Db.User.CommentAdmin):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.CommentAdmin) : query.OrderByDescending(x => x.CommentAdmin);
                                         break;

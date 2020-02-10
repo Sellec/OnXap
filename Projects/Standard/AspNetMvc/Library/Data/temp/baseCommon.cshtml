@@ -219,63 +219,10 @@
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
     <script src="/data/js/script.js"></script>
 
-    @*RenderPartial("scripts.cshtml")*@
-
     <link href="/data/libs/jquery.uploadfile/uploadfile.css" rel="stylesheet">
     <script src="/data/libs/jquery.uploadfile/jquery.uploadfile.js"></script>
 
     @RenderSection("scripts", false)
     @RenderSection("stats", false)
-
-    @if (this.GetCurrentUserContext().IsSuperuser)
-    {
-        var isShow = Request.Params.HasKey("queries");
-        var isBatch = false;
-
-        if (isShow)
-        {
-            /*
-            var queries = Utils.QueryLogHelper.GetQueries();
-            var totalTime = TimeSpan.FromMilliseconds(queries.Sum(x => x.ExecutionTime.TotalMilliseconds));
-            <text>
-                &nbsp;<center><b>Запросов на странице: @queries.Count, суммарное время выполнения запросов: @((int)totalTime.TotalSeconds).@totalTime.Milliseconds, сортировка запросов по убыванию времени выполнения.</b></center><br />
-                @if (queries.Count > 0)
-                {
-                    <table width="100%" style="border: 1px solid;">
-                        @foreach (var query in queries.OrderByDescending(x => x.ExecutionTime))
-                        {
-                            if (isBatch)
-                            {
-                                @*var qqq = query.QueryText.Replace("\r\n", "\r\n<br>").Replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-                                    foreach (var p in query.Value)
-                                    {
-                                        qqq = qqq.Replace("@" + p.Key, "'" + p.Value + "'");
-                                    }
-                                    <tr>
-                                        <td style="border: 1px solid;">
-                                            @Html.Raw(qqq)
-                                        </td>
-                                    </tr>*@
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td style="border: 1px solid;">
-                                        @Html.Raw(query.QueryText.Replace("\r\n", "\r\n<br>").Replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"))
-                                    </td>
-                                    <td style="border: 1px solid;">
-                                        @((int)query.ExecutionTime.TotalSeconds).@query.ExecutionTime.Milliseconds<br />
-                                        @Html.Raw(string.Join("\r\n", query.Parameters.Select(x => $"{x.Key} = '{x.Value}'")).Replace("\r\n", "\r\n<br>").Replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"))
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </table>
-                }
-            </text>
-            */
-        }
-    }
-
 </body>
 </html>

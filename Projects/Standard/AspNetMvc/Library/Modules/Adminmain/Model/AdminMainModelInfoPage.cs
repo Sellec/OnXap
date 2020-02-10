@@ -4,7 +4,7 @@ using System.Web.Mvc;
 namespace OnXap.Modules.Adminmain.Model
 {
     using Core.Configuration;
-    using Core.DB;
+    using Core.Db;
     using WebCoreModule;
 
     public class AdminMainModelInfoPage

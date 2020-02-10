@@ -7,6 +7,6 @@ namespace OnXap.Journaling.DB
 
         public JournalNameDAO JournalName { get; set; }
 
-        public Core.DB.User User { get; set; }
+        public Core.Db.User User { get; set; }
     }
 }

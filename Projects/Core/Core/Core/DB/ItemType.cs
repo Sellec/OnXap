@@ -1,4 +1,4 @@
-namespace OnXap.Core.DB
+namespace OnXap.Core.Db
 {
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;

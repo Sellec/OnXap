@@ -9,14 +9,16 @@ using System.Transactions;
 namespace OnXap.Users
 {
     using Core;
-    using CoreDB = Core.DB;
+    using CoreDB = Core.Db;
     using Journaling;
 
     /// <summary>
     /// Менеджер, управляющий контекстами пользователей (см. <see cref="IUserContext"/>).
     /// Каждый поток приложения имеет ассоциированный контекст пользователя, от имени которого могут выполняться запросы и выполняться действия. 
-    /// Более подробно см. <see cref="UserContextManager.GetCurrentUserContext"/> / <see cref="UserContextManager.SetCurrentUserContext(IUserContext)"/> / <see cref="UserContextManager.ClearCurrentUserContext"/>.
     /// </summary>
+    /// <seealso cref="UserContextManagerBase.GetCurrentUserContext"/>
+    /// <seealso cref="UserContextManagerBase.SetCurrentUserContext(IUserContext)"/>
+    /// <seealso cref="UserContextManagerBase.ClearCurrentUserContext"/>
     public class UserContextManager : UserContextManagerBase
     {
         #region Методы
@@ -317,15 +319,12 @@ namespace OnXap.Users
         {
             try
             {
-                // todo setError(null);
-
                 db.UserLogHistory.Add(new CoreDB.UserLogHistory()
                 {
                     IdUser = IdUser,
                     IdEventType = IdEventType,
                     DateEvent = DateTime.Now.Timestamp(),
                     Comment = string.IsNullOrEmpty(Comment) ? "" : Comment,
-                    //IP = System.Web.HttpContext.Current.Request.UserHostAddress // todo добавить адрес
                 });
 
                 db.SaveChanges();
@@ -334,7 +333,6 @@ namespace OnXap.Users
             }
             catch (Exception ex)
             {
-                // todo setError(ex.Message);
                 Debug.WriteLine(ex.ToString());
                 return false;
             }

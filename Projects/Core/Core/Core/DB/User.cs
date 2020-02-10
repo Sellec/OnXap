@@ -2,7 +2,7 @@ using OnXap.Core.Modules;
 using OnXap.Modules.ItemsCustomize;
 using OnXap.Modules.ItemsCustomize.Data;
 
-namespace OnXap.Core.DB
+namespace OnXap.Core.Db
 {
     using Items;
     using System;

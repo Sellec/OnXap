@@ -1,6 +1,7 @@
 ﻿using OnUtils.Utils;
 using OnXap.Binding.Routing;
 using OnXap.Core.Modules;
+using OnXap.Modules.WebCoreModule;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -107,11 +108,12 @@ namespace System.Web.Mvc
         }
 
         /// <summary>
-        /// Формирует абсолютный или относительный url (см. <paramref name="includeAuthority"/>) к разделу по-умолчанию в пользовательской части сайта для контроллера <typeparamref name="TModuleController"/>.
+        /// Формирует абсолютный или относительный url (см. <paramref name="includeAuthority"/>) к разделу по-умолчанию в пользовательской части сайта для модуля по-умолчанию.
         /// </summary>
         /// <param name="helper"></param>
         /// <param name="includeAuthority">Если равно true, то формируется абсолютный url, включающий в себя адрес сервера.</param>
         /// <seealso cref="RoutingManager.CreateRoute{TModule, TModuleController}(Expression{Func{TModuleController, ActionResult}}, bool)"/>
+        /// <seealso cref="WebCoreConfiguration.IdModuleDefault"/>
         public static Uri CreateRoute(this UrlHelper helper, bool includeAuthority = false)
         {
             var appCore = helper.RequestContext.HttpContext.GetAppCore();

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnXap.Modules.Customer.Model
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Items;
     using Modules.ItemsCustomize;
     using Modules.ItemsCustomize.Data;

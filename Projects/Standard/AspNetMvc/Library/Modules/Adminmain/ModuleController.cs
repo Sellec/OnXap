@@ -11,7 +11,7 @@ namespace OnXap.Modules.Adminmain
     using AdminForModules.Menu;
     using Binding.Routing;
     using Core.Configuration;
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Journaling;
     using Modules.CoreModule;

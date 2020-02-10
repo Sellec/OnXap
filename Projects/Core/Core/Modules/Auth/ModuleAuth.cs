@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OnXap.Modules.Auth
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Users;
 

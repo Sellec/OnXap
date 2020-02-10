@@ -1,7 +1,7 @@
 ﻿namespace OnXap.Users
 {
     using Core;
-    using Core.DB;
+    using Core.Db;
 
     class UserContext : CoreComponentBase, IUserContext
     {

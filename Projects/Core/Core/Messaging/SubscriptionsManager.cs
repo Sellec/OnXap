@@ -6,7 +6,7 @@ using System.Linq;
 namespace OnXap.Messaging
 {
     using Core;
-    using Core.DB;
+    using Core.Db;
     using Modules.MessagingEmail;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Compiler", "CS0618")]

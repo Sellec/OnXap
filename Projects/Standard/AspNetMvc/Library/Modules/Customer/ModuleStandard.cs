@@ -5,7 +5,7 @@ using System.Web.Mvc;
 namespace OnXap.Modules.Customer
 {
     using AdminForModules.Menu;
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Types;
 
@@ -35,7 +35,7 @@ namespace OnXap.Modules.Customer
 
             using (var db = new CoreContext())
             {
-                var countNewUsers = db.Users.Where(x => x.State == Core.DB.UserState.RegisterWaitForModerate).Count();
+                var countNewUsers = db.Users.Where(x => x.State == Core.Db.UserState.RegisterWaitForModerate).Count();
                 if (countNewUsers > 0) gr.Links.Add(RelativeToModule("users/2", $"Заявки на регистрацию ({countNewUsers})", this));
             }
 

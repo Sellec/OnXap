@@ -4,7 +4,7 @@ using OnUtils.Data;
 
 namespace OnXap.Core.Configuration
 {
-    using DB;
+    using Db;
     using Modules;
 
     /// <summary>

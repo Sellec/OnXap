@@ -5,7 +5,7 @@ using OnUtils.Data;
 
 namespace OnXap.Languages.DB
 {
-    class DataContext : Core.DB.CoreContextBase
+    class DataContext : Core.Db.CoreContextBase
     {
         public IRepository<Language> Language { get; set; }
     }

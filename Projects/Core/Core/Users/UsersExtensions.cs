@@ -11,9 +11,9 @@ namespace OnXap
     public static class UsersExtensions
     {
         /// <summary>
-        /// Возвращает данные пользователя, ассоциированного с контекстом. См. <see cref="Core.DB.User"/>.
+        /// Возвращает данные пользователя, ассоциированного с контекстом. См. <see cref="Core.Db.User"/>.
         /// </summary>
-        public static Core.DB.User GetData(this IUserContext context)
+        public static Core.Db.User GetData(this IUserContext context)
         {
             if (context is UserContext coreContext) return coreContext.GetData();
             throw new ArgumentException("Контекст пользователя не является контекстом, используемым в веб-ядре.", nameof(context));

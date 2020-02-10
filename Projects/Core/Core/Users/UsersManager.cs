@@ -7,7 +7,7 @@ using System.Transactions;
 namespace OnXap.Users
 {
     using Core;
-    using Core.DB;
+    using Core.Db;
     using Journaling;
 
     /// <summary>

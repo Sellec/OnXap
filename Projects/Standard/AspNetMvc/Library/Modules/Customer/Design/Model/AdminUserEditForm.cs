@@ -4,7 +4,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Customer.Design.Model
 {
-    using Core.DB;
+    using Core.Db;
     using Journaling.Model;
     using Customer.Model;
 

@@ -2,7 +2,7 @@
 
 namespace OnXap.Modules.Customer
 {
-    using Core.DB;
+    using Core.Db;
 
     class Startup : IExecuteStart
     {

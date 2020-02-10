@@ -1,9 +1,9 @@
-namespace OnXap.Core.DB
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace OnXap.Core.Db
+{
     /// <summary>
     /// Описывает параметры модуля.
     /// </summary>

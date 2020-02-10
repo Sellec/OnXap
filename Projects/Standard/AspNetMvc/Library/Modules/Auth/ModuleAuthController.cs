@@ -5,7 +5,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Auth
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Users;
     using Exceptions;
@@ -17,21 +17,14 @@ namespace OnXap.Modules.Auth
         public override ActionResult Index()
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
-
-            this.assign("authorized", !AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest);
-            this.assign("result", "");
-
-            return display("login.cshtml", new Design.Model.Login());
+            return View("login.cshtml", new Design.Model.Login());
         }
 
         [ModuleAction("unauthorized")]
         public ActionResult UnauthorizedAccess(string RedirectedFrom = null)
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
-
-            this.assign("authorized", !AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest);
-
-            return display("unauthorizedAccess.cshtml");
+            return View("unauthorizedAccess.cshtml");
         }
 
         [ModuleAction("login")]
@@ -78,8 +71,6 @@ namespace OnXap.Modules.Auth
                 var redirect = Module.GetRememberedUserContextRequestedAddressWhenRedirectedToAuthorization();
                 if (redirect != null) return new RedirectResult(redirect.ToString(), false);
             }
-
-            this.assign("authorized", !AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest);
 
             return View("login.cshtml", new Design.Model.Login() { Result = message });
         }
@@ -145,7 +136,7 @@ namespace OnXap.Modules.Auth
 
             if (!ModelState.IsValid || !string.IsNullOrEmpty(message)) this.RegisterEventInvalidModel("Форма авторизации JSON", ignoreParamsKeys: new List<string>() { nameof(model.pass) });
 
-            return this.ReturnJson(success, message, new
+            return ReturnJson(success, message, new
             {
                 authorized = !AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest,
                 admin = this.Module.CheckPermission(ModulesConstants.PermissionManage)
@@ -179,7 +170,7 @@ namespace OnXap.Modules.Auth
                 message = ex.Message;
             }
 
-            return this.ReturnJson(success, message, Module.GetRememberedUserContextRequestedAddressWhenRedirectedToAuthorization());
+            return ReturnJson(success, message, Module.GetRememberedUserContextRequestedAddressWhenRedirectedToAuthorization());
         }
 
         [ModuleAction("restore")]
@@ -188,7 +179,7 @@ namespace OnXap.Modules.Auth
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
 
             if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest) return RedirectToAction(nameof(Login));
-            return display("PasswordRestore.cshtml", new Model.PasswordRestore());
+            return View("PasswordRestore.cshtml", new Model.PasswordRestore());
         }
 
         [ModuleAction("restore2")]

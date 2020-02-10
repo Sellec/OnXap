@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Register
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using Journaling;
     using MessagingEmail;
@@ -109,15 +109,15 @@ namespace OnXap.Modules.Register
                         {
                             switch (data.State)
                             {
-                                case Core.DB.UserState.Active:
+                                case Core.Db.UserState.Active:
                                     regMode = RegisterMode.Immediately;
                                     break;
 
-                                case Core.DB.UserState.RegisterWaitForModerate:
+                                case Core.Db.UserState.RegisterWaitForModerate:
                                     regMode = RegisterMode.ManualCheck;
                                     break;
 
-                                case Core.DB.UserState.RegisterNeedConfirmation:
+                                case Core.Db.UserState.RegisterNeedConfirmation:
                                     regMode = RegisterMode.SelfConfirmation;
                                     break;
 
@@ -130,15 +130,15 @@ namespace OnXap.Modules.Register
                             switch (regMode)
                             {
                                 case RegisterMode.Immediately:
-                                    data.State = Core.DB.UserState.Active;
+                                    data.State = Core.Db.UserState.Active;
                                     break;
 
                                 case RegisterMode.SelfConfirmation:
-                                    data.State = Core.DB.UserState.RegisterNeedConfirmation;
+                                    data.State = Core.Db.UserState.RegisterNeedConfirmation;
                                     break;
 
                                 case RegisterMode.ManualCheck:
-                                    data.State = Core.DB.UserState.RegisterWaitForModerate;
+                                    data.State = Core.Db.UserState.RegisterWaitForModerate;
                                     break;
                             }
                         }

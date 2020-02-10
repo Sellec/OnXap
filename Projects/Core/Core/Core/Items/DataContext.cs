@@ -2,11 +2,11 @@
 
 namespace OnXap.Core.Items
 {
-    class DataContext : DB.CoreContextBase
+    class DataContext : Db.CoreContextBase
     {
-        public IRepository<DB.ItemLink> ItemLink { get; set; }
-        public IRepository<DB.ItemParent> ItemParent { get; set; }
-        public IRepository<DB.ItemType> ItemType { get; set; }
+        public IRepository<Db.ItemLink> ItemLink { get; set; }
+        public IRepository<Db.ItemParent> ItemParent { get; set; }
+        public IRepository<Db.ItemType> ItemType { get; set; }
 
     }
 }

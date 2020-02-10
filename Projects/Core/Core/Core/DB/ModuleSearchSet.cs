@@ -1,6 +1,6 @@
 using OnXap.Core.Modules;
 
-namespace OnXap.Core.DB
+namespace OnXap.Core.Db
 {
     using System;
     using Items;

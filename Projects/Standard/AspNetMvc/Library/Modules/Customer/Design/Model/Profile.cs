@@ -1,6 +1,6 @@
 ﻿namespace OnXap.Modules.Customer.Design.Model
 {
-    using Core.DB;
+    using Core.Db;
 
     public class Profile
     {

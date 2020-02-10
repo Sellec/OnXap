@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnXap.Modules.Customer.Model
 {
-    using Core.DB;
+    using Core.Db;
 
     [NotMapped]
     public class AdminRoleEdit : Role

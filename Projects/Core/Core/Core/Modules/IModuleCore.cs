@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace OnXap.Core.Modules
 {
-    using Core.DB;
+    using Core.Db;
     using Users;
     using Types;
 

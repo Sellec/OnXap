@@ -25,7 +25,7 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="OnUtils" Version="0.1.17" />
+    <PackageReference Include="OnUtils" Version="0.1.20" />
     <PackageReference Include="OnXap.Core" Version="0.1.7.182" />
   </ItemGroup>
 

@@ -9,7 +9,7 @@ namespace OnXap.Users
 {
     using Core;
     using Journaling;
-    using CoreDB = Core.DB;
+    using CoreDB = Core.Db;
     using ExecutionResultEntities = ExecutionResult<IEnumerable<UserEntity>>;
 
     class EntitiesManager : CoreComponentBase, IEntitiesManager, IUnitOfWorkAccessor<UnitOfWork<CoreDB.UserEntity>>

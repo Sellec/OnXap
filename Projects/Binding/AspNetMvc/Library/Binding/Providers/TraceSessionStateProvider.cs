@@ -12,7 +12,7 @@ using System.Web.SessionState;
 
 namespace OnXap.Binding.Providers
 {
-    using Core.DB;
+    using Core.Db;
 
     static class TraceSessionStorage
     {

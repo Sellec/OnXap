@@ -2,7 +2,7 @@
 
 namespace OnXap.Modules.ItemsCustomize.Model
 {
-    using Core.DB;
+    using Core.Db;
     using Field;
     using Scheme;
 

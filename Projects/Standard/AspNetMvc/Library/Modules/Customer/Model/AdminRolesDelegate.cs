@@ -3,7 +3,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Customer.Model
 {
-    using Core.DB;
+    using Core.Db;
 
     public class AdminRolesDelegate
     {

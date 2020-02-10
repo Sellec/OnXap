@@ -5,7 +5,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Customer.NetSpecific.NetFramework
 {
-    using Core.DB;
+    using Core.Db;
 
     class CustomerModelValidator : ModelValidator
     {

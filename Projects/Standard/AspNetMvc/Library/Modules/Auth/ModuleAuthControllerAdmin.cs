@@ -15,7 +15,7 @@ namespace OnXap.Modules.Auth
             {
                 viewModelForFill.ApplyConfiguration(Module.GetConfiguration<ModuleConfiguration>());
                 viewModelForFill.EventTypes = (from p in db.UserLogHistoryEventType orderby p.NameEventType ascending select p).ToList();
-                viewModelForFill.EventTypes.Insert(0, new Core.DB.UserLogHistoryEventType() { IdEventType = 0, NameEventType = "Не выбрано" });
+                viewModelForFill.EventTypes.Insert(0, new Core.Db.UserLogHistoryEventType() { IdEventType = 0, NameEventType = "Не выбрано" });
                 viewName = "ModuleSettings.cshtml";
             }
         }

@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.Customer
 {
-    using Core.DB;
+    using Core.Db;
     using Core.Modules;
     using FileManager;
 

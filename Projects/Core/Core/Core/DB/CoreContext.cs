@@ -1,7 +1,7 @@
 using OnUtils.Data;
 using OnUtils.Data.UnitOfWork;
 
-namespace OnXap.Core.DB
+namespace OnXap.Core.Db
 {
     using Languages.DB;
 

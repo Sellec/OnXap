@@ -28,14 +28,14 @@ namespace OnXap.Core.Items
             public int level;
         }
 
-        private ConcurrentDictionary<Type, Tuple<DB.ItemType, Type>> _itemTypeModuleType;
+        private ConcurrentDictionary<Type, Tuple<Db.ItemType, Type>> _itemTypeModuleType;
         private ConcurrentDictionary<ItemKey, object> _currentProcessingItemKey = new ConcurrentDictionary<ItemKey, object>();
 
         /// <summary>
         /// </summary>
         public ItemsManager()
         {
-            _itemTypeModuleType = new ConcurrentDictionary<Type, Tuple<DB.ItemType, Type>>();
+            _itemTypeModuleType = new ConcurrentDictionary<Type, Tuple<Db.ItemType, Type>>();
         }
 
         #region CoreComponentBase
@@ -57,7 +57,7 @@ namespace OnXap.Core.Items
         /// </summary>
         /// <param name="module">Модуль</param>
         /// <param name="relationsList">Список взаимосвязей</param>
-        /// <param name="idItemType">Идентификатор типа сущности (см. <see cref="DB.ItemType.IdItemType"/>).</param>
+        /// <param name="idItemType">Идентификатор типа сущности (см. <see cref="Db.ItemType.IdItemType"/>).</param>
         /// <returns>Возвращает true, если сохранение прошло успешно и false, если возникла ошибка. Возвращает true, если <paramref name="relationsList"/> пуст.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="module"/> равен null.</exception>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="relationsList"/> равен null.</exception>
@@ -123,7 +123,7 @@ namespace OnXap.Core.Items
                 {
                     foreach (var item in toBase.GroupBy(x => $"{x.item}_{x.type}_{x.parent}", x => x).Select(x => x.First()))
                     {
-                        db.ItemParent.Add(new DB.ItemParent()
+                        db.ItemParent.Add(new Db.ItemParent()
                         {
                             IdModule = module.IdModule,
                             IdItem = item.item,
@@ -193,9 +193,9 @@ namespace OnXap.Core.Items
             }
 
             var itemType = ItemTypeFactory.GetItemType(type);
-            _itemTypeModuleType[type] = new Tuple<DB.ItemType, Type>(itemType, typeof(TModule));
+            _itemTypeModuleType[type] = new Tuple<Db.ItemType, Type>(itemType, typeof(TModule));
 
-            using (var db = new DB.CoreContext())
+            using (var db = new Db.CoreContext())
             {
                 var query = db.ItemParent.Where(x => x.IdItemType == itemType.IdItemType && x.IdModule == module.IdModule);
                 if (query.Count() == 0) SaveChildToParentRelations(module, itemType.IdItemType, new ChildToParentRelation() { IdChild = 0, IdParent = 0 }.ToEnumerable());
@@ -206,7 +206,7 @@ namespace OnXap.Core.Items
         /// Возвращает список типов объектов, зарегистрированных для модуля <typeparamref name="TModule"/>.
         /// </summary>
         /// <seealso cref="ModuleCore{TSelfReference}.QueryType"/>
-        public List<DB.ItemType> GetModuleItemTypes<TModule>()
+        public List<Db.ItemType> GetModuleItemTypes<TModule>()
         {
             return _itemTypeModuleType.Where(x => x.Value.Item2 == typeof(TModule)).Select(x => x.Value.Item1).ToList();
         }
@@ -294,7 +294,7 @@ namespace OnXap.Core.Items
                                     x.ItemId,
                                     x.ItemKey
                                 },
-                                new DB.ItemLink()
+                                new Db.ItemLink()
                                 {
                                     ItemIdType = itemKey.IdType,
                                     ItemId = itemKey.IdItem,

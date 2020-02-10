@@ -5,7 +5,7 @@
     /// </summary>
     public class UserInfo
     {
-        internal UserInfo(Core.DB.User source)
+        internal UserInfo(Core.Db.User source)
         {
             IdUser = source.IdUser;
             IsSuperuser = source.Superuser != 0;

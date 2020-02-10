@@ -1,6 +1,6 @@
 ﻿namespace OnXap.Modules.Register.Model
 {
-    using Core.DB;
+    using Core.Db;
 
     /// <summary>
     /// Содержит информацию о зарегистрированном пользователе.

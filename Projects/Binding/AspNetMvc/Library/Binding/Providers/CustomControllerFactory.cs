@@ -18,7 +18,7 @@ namespace OnXap.Binding.Providers
     using Journaling;
     using Routing;
 
-    class CustomControllerFactory : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<Core.DB.CoreContext>, IControllerFactory
+    class CustomControllerFactory : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<Core.Db.CoreContext>, IControllerFactory
     {
         private readonly IControllerFactory _controllerFactoryOld = null;
 

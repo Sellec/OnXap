@@ -32,7 +32,7 @@ namespace OnXap.Core.Items
         /// <summary>
         /// Идентификатор типа объекта.
         /// </summary>
-        /// <seealso cref="DB.ItemType.IdItemType"/>.
+        /// <seealso cref="Db.ItemType.IdItemType"/>.
         public int IdType { get; set; }
 
         /// <summary>

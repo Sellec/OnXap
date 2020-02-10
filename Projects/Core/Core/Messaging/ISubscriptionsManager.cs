@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace OnXap.Messaging
 {
     using Core;
-    using Core.DB;
+    using Core.Db;
     using Modules.MessagingEmail;
 
     /// <summary>

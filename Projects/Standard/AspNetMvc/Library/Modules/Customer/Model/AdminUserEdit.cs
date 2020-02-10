@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace OnXap.Modules.Customer.Model
 {
-    using Core.DB;
+    using Core.Db;
 
     public class AdminUserEdit
     {
