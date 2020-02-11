@@ -52,11 +52,5 @@ namespace OnXap.Core.Db
         public IRepository<Role> Role { get; }
         public IRepository<RoleUser> RoleUser { get; }
         public IRepository<RolePermission> RolePermission { get; }
-
-        public IRepository<Subscription> Subscription { get; }
-        public IRepository<SubscriptionEmail> SubscriptionEmail { get; }
-        public IRepository<SubscriptionRole> SubscriptionRole { get; }
-        public IRepository<SubscriptionHistory> SubscriptionHistory { get; }
-
     }
 }

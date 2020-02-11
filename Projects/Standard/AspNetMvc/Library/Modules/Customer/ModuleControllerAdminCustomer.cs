@@ -319,7 +319,7 @@ namespace OnXap.Modules.Customer
                         {
                             data = db.Users.Where(u => u.IdUser == IdUser).FirstOrDefault();
                             if (data == null) ModelState.AddModelError("IdUser", "Неправильно указан пользователь!");
-                            else if (data.Superuser != 0 && AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser) ModelState.AddModelError("IdUser", "У вас нет прав на редактирование суперпользователей - это могут делать только другие суперпользователи!");
+                            else if (data.Superuser != 0 && !AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser) ModelState.AddModelError("IdUser", "У вас нет прав на редактирование суперпользователей - это могут делать только другие суперпользователи!");
                             else
                             {
                                 oldState = data.State;

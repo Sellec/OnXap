@@ -2,6 +2,8 @@
 
 namespace OnXap.Core.Items
 {
+    using Core.Db;
+
     /// <summary>
     /// Описывает объект через его свойства.
     /// </summary>
@@ -32,7 +34,7 @@ namespace OnXap.Core.Items
         /// <summary>
         /// Идентификатор типа объекта.
         /// </summary>
-        /// <seealso cref="Db.ItemType.IdItemType"/>.
+        /// <seealso cref="ItemType.IdItemType"/>.
         public int IdType { get; set; }
 
         /// <summary>

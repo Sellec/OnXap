@@ -12,14 +12,11 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.8.8</Version>
+    <Version>0.1.8.9</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageReleaseNotes>Пополнена кодовая база для использования FluentMigrator в качестве средства для автоматического поддержания актуальной схемы базы данных.
-Добавлен класс OnXap.Core.DbSchema.DbSchemaManagerConfigure для настройки системы контроля схемы базы данных.
-Рефакторинг части кода.
-</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <Import Project="..\..\Common\Common.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

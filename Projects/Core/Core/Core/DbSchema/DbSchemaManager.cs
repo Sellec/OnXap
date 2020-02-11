@@ -14,8 +14,6 @@ namespace OnXap.Core.DbSchema
         #region CoreComponentBase
         protected sealed override void OnStart()
         {
-            //this.RegisterJournal("Журнал обслуживания схемы базы данных.");
-
             if (!AppCore.Get<DbSchemaManagerConfigure>().IsSchemaControlEnabled) return;
 
             try
@@ -38,7 +36,12 @@ namespace OnXap.Core.DbSchema
             }
             catch (Exception ex)
             {
-                //this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex);
+                try
+                {
+                    this.RegisterJournal("Журнал обслуживания схемы базы данных.");
+                    this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex);
+                }
+                catch { }
             }
         }
 
