@@ -36,12 +36,12 @@ namespace OnXap.Core.DbSchema
             }
             catch (Exception ex)
             {
-                try
-                {
-                    this.RegisterJournal("Журнал обслуживания схемы базы данных.");
-                    this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex);
-                }
-                catch { }
+                //try
+                //{
+                //    this.RegisterJournal("Журнал обслуживания схемы базы данных.");
+                //    this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex);
+                //}
+                //catch { }
             }
         }
 
