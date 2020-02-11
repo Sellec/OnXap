@@ -1,12 +1,12 @@
-namespace OnXap.Core.Db
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Core.Items.Db
+{
     [Table("ItemLink")]
-    public partial class ItemLink
+    public class ItemLink
     {
         [Key]
         [Column(Order = 0)]

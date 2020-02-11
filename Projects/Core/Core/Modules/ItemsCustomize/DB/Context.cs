@@ -1,6 +1,8 @@
+using OnUtils.Data;
+
 namespace OnXap.Modules.ItemsCustomize.DB
 {
-    using OnUtils.Data;
+    using Core.Items.Db;
 
 #pragma warning disable CS1591 // todo внести комментарии.
     public class Context : UnitOfWorkBase
@@ -17,7 +19,7 @@ namespace OnXap.Modules.ItemsCustomize.DB
 
         public IRepository<CustomFieldsValueType> CustomFieldsValueTypes { get; }
 
-        public IRepository<Core.Db.ItemParent> ItemParent { get; }
+        public IRepository<ItemParent> ItemParent { get; }
 
     }
 }

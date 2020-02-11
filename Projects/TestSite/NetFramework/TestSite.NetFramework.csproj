@@ -57,7 +57,7 @@
       <Version>0.1.20</Version>
     </PackageReference>
     <PackageReference Include="OnUtils.Data.EntityFramework">
-      <Version>0.1.14</Version>
+      <Version>0.1.15</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations">
       <Version>4.5.0</Version>
@@ -640,6 +640,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\temp\Customer\admin\" />
+    <Folder Include="NewFolder1\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Binding\AspNetMvc\Library\Binding.Library.csproj">

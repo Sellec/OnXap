@@ -38,7 +38,6 @@ namespace OnXap.Core.Db
 #pragma warning disable CS1591 // todo внести комментарии.
         public IRepository<ModuleConfig> Module { get; }
 
-        public IRepository<ItemParent> ItemParent { get; }
         public IRepository<ItemType> ItemType { get; }
         public IRepository<Language> Language { get; }
         public IRepository<Sessions> Sessions { get; }

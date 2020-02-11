@@ -2,7 +2,7 @@
 
 namespace OnXap.Modules.Lexicon.DB
 {
-    class DataContext : Core.DBb.CoreContext
+    class DataContext : Core.Db.CoreContext
     {
         public IRepository<WordCase> WordCase { get; set; }
     }

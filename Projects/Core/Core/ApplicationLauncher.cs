@@ -12,6 +12,7 @@ namespace OnXap
     {
         protected override void OnStart()
         {
+            var dbSchemaManager = AppCore.Get<Core.DbSchema.DbSchemaManager>();
             var modulesManager = AppCore.GetModulesManager();
         }
 

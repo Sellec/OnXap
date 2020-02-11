@@ -12,7 +12,7 @@ namespace OnXap.Binding.Routing
 {
     class LanguageRouteConstraint : IRouteConstraint
     {
-        private string[] _languages;
+        private readonly string[] _languages;
 
         public LanguageRouteConstraint(string[] languages)
         {
@@ -27,8 +27,8 @@ namespace OnXap.Binding.Routing
             if (parameterName == "language")
             {
                 return true;
-                if (!string.IsNullOrEmpty(__value)) return _languages.Contains(__value);
-                else return true;
+                //if (!string.IsNullOrEmpty(__value)) return _languages.Contains(__value);
+                //else return true;
             }
 
             if (parameterName == "controller" && values["controller"]?.ToString()?.ToLower() == "data")

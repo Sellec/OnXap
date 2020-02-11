@@ -8,7 +8,7 @@ namespace OnXap.Core.Db
     /// Описывает параметры модуля.
     /// </summary>
     [Table("ModuleConfig")]
-    public partial class ModuleConfig
+    public class ModuleConfig
     {
         /// <summary>
         /// Идентификатор модуля.

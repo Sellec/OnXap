@@ -157,8 +157,8 @@ namespace OnXap.Modules.Register
                             about = data.about,
                             Comment = data.Comment,
                             UniqueKey = data.UniqueKey,
-                            DateReg = data.DateReg.Timestamp(),
-                            IP_reg = data.IP_reg,
+                            //DateReg = data.DateReg.Timestamp(),
+                            // todo добавить запись о регистрации в журнал регистраций
                             Superuser = data.Superuser,
                             StateConfirmation = regMode == RegisterMode.SelfConfirmation ? stateConfirmation : string.Empty,
                         };

@@ -1,13 +1,14 @@
 ﻿using OnUtils.Data;
-using System.ComponentModel.DataAnnotations;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 
 namespace OnXap.Core.Items
 {
+    using Core.Db;
     using Utils;
 
     /// <summary>
@@ -18,17 +19,17 @@ namespace OnXap.Core.Items
         /// <summary>
         /// Значение, обозначающее, что идентификатор типа объектов не найден.
         /// </summary>
-        public const Db.ItemType NotFound = null;
-        private static Lazy<Tuple<DateTime, ConcurrentDictionary<string, Db.ItemType>>> _itemsTypes = null;
+        public const ItemType NotFound = null;
+        private static Lazy<Tuple<DateTime, ConcurrentDictionary<string, ItemType>>> _itemsTypes = null;
         private static ConcurrentDictionary<int, Type> _itemsClsTypes = new ConcurrentDictionary<int, Type>();
 
-        private static Tuple<DateTime, ConcurrentDictionary<string, Db.ItemType>> ItemsTypesProvide()
+        private static Tuple<DateTime, ConcurrentDictionary<string, ItemType>> ItemsTypesProvide()
         {
             try
             {
-                var types = new ConcurrentDictionary<string, Db.ItemType>();
+                var types = new ConcurrentDictionary<string, ItemType>();
 
-                using (var db = new UnitOfWork<Db.ItemType>())
+                using (var db = new UnitOfWork<ItemType>())
                 {
                     db.Repo1.Where(x => !string.IsNullOrEmpty(x.UniqueKey)).ForEach(x => types[x.UniqueKey] = x);
                 }
@@ -37,11 +38,11 @@ namespace OnXap.Core.Items
 
                 //Debug.WriteLineNoLog("ItemTypeFactory: generate new cache with {0} types, expires at {1}", types.Count, expires.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                return new Tuple<DateTime, ConcurrentDictionary<string, Db.ItemType>>(DateTime.Now.AddMinutes(2), types);
+                return new Tuple<DateTime, ConcurrentDictionary<string, ItemType>>(DateTime.Now.AddMinutes(2), types);
             }
             catch
             {
-                return new Tuple<DateTime, ConcurrentDictionary<string, Db.ItemType>>(DateTime.Now, new ConcurrentDictionary<string, Db.ItemType>());
+                return new Tuple<DateTime, ConcurrentDictionary<string, ItemType>>(DateTime.Now, new ConcurrentDictionary<string, ItemType>());
             }
         }
 
@@ -49,13 +50,13 @@ namespace OnXap.Core.Items
         /// Возвращает тип объектов для идентификатора <paramref name="type"/>.
         /// </summary>
         /// <param name="type">Идентификатор, для которого следует получить тип объектов.</param>
-        public static Db.ItemType GetItemType(int type)
+        public static ItemType GetItemType(int type)
         {
             if (type <= 0) return NotFound;
 
             var _r = ItemTypes.Where(x => x.Value.IdItemType == type).Select(x => x.Value).FirstOrDefault();
             if (_r == null)
-                using (var db = new UnitOfWork<Db.ItemType>())
+                using (var db = new UnitOfWork<ItemType>())
                     _r = db.Repo1.Where(x => x.IdItemType == type).FirstOrDefault();
 
             if (_r != null) return _r;
@@ -67,7 +68,7 @@ namespace OnXap.Core.Items
         /// Возвращает идентификатор указанного типа объектов <typeparamref name="TItemType"/>.
         /// </summary>
         /// <typeparam name="TItemType">Тип объектов, для которого следует получить идентификатор.</typeparam>
-        public static Db.ItemType GetItemType<TItemType>()
+        public static ItemType GetItemType<TItemType>()
         {
             return GetItemType(typeof(TItemType));
         }
@@ -77,7 +78,7 @@ namespace OnXap.Core.Items
         /// </summary>
         /// <param name="type">Тип объектов, для которого следует получить идентификатор.</param>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="type"/> равен null.</exception>
-        public static Db.ItemType GetItemType(Type type)
+        public static ItemType GetItemType(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type), "Следует указать тип объекта");
 
@@ -147,17 +148,17 @@ namespace OnXap.Core.Items
             return value;
         }
 
-        private static Db.ItemType GetOrAdd(string caption, string uniqueKey, bool registerIfNoFound)
+        private static ItemType GetOrAdd(string caption, string uniqueKey, bool registerIfNoFound)
         {
             var r = ItemTypes.Where(x => x.Value.UniqueKey == uniqueKey).Select(x => x.Value).FirstOrDefault();
             if (r == null)
             {
-                using (var db = new UnitOfWork<Db.ItemType>())
+                using (var db = new UnitOfWork<ItemType>())
                 {
                     r = db.Repo1.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                     if (r == null && registerIfNoFound)
                     {
-                        var r_ = new Db.ItemType() { NameItemType = caption, UniqueKey = uniqueKey };
+                        var r_ = new ItemType() { NameItemType = caption, UniqueKey = uniqueKey };
                         db.Repo1.AddOrUpdate(x => x.UniqueKey, r_);
                         db.SaveChanges();
 
@@ -169,7 +170,7 @@ namespace OnXap.Core.Items
             else if (r.NameItemType != caption)
             {
                 r.NameItemType = caption;
-                using (var db = new UnitOfWork<Db.ItemType>())
+                using (var db = new UnitOfWork<ItemType>())
                 {
                     db.Repo1.InsertOrDuplicateUpdate(r.ToEnumerable(), new UpsertField(nameof(r.NameItemType)));
                 }
@@ -178,11 +179,11 @@ namespace OnXap.Core.Items
             return r;
         }
 
-        internal static ConcurrentDictionary<string, Db.ItemType> ItemTypes
+        internal static ConcurrentDictionary<string, ItemType> ItemTypes
         {
             get
             {
-                if (_itemsTypes == null || (_itemsTypes.IsValueCreated && _itemsTypes.Value.Item1 <= DateTime.Now)) _itemsTypes = new Lazy<Tuple<DateTime, ConcurrentDictionary<string, Db.ItemType>>>(ItemsTypesProvide);
+                if (_itemsTypes == null || (_itemsTypes.IsValueCreated && _itemsTypes.Value.Item1 <= DateTime.Now)) _itemsTypes = new Lazy<Tuple<DateTime, ConcurrentDictionary<string, ItemType>>>(ItemsTypesProvide);
                 return _itemsTypes.Value.Item2;
             }
         }

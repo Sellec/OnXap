@@ -220,7 +220,6 @@ namespace OnXap.Binding.Providers
     class TraceSessionStateProvider : SessionStateStoreProviderBase
     {
         int _timeoutSession = 0;
-        int _timeoutRead = 30000;
 
         private class InternalStoreInfo
         {

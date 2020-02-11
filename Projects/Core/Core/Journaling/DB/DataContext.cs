@@ -3,9 +3,12 @@
 #pragma warning disable CS1591
 namespace OnXap.Journaling.DB
 {
-    public class DataContext : Core.Db.CoreContext
+    using Core.Db;
+    using Core.Items.Db;
+
+    public class DataContext : CoreContext
     {
-        public IRepository<Core.Db.ItemLink> ItemLink { get; }
+        public IRepository<ItemLink> ItemLink { get; }
         public IRepository<JournalDAO> Journal { get; }
         public IRepository<JournalNameDAO> JournalName { get; }
     }

@@ -835,7 +835,7 @@ function ShowAlert(text, closeCallback) {
 
     var messageElement = $("<span></span>");
     messageElement.addClass("css-popup-alert__message");
-    messageElement.text(text);
+    messageElement.html(text);
 
     bodyElement.append(messageElement);
 

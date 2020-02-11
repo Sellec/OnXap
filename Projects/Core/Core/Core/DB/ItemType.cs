@@ -1,11 +1,11 @@
-namespace OnXap.Core.Db
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Core.Db
+{
     [Table("ItemType")]
-    public partial class ItemType
+    public class ItemType
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -8,6 +8,8 @@ using System.Transactions;
 
 namespace OnXap.Core.Items
 {
+    using Core.Db;
+    using Db;
     using Journaling;
     using Modules;
 
@@ -28,14 +30,14 @@ namespace OnXap.Core.Items
             public int level;
         }
 
-        private ConcurrentDictionary<Type, Tuple<Db.ItemType, Type>> _itemTypeModuleType;
+        private ConcurrentDictionary<Type, Tuple<ItemType, Type>> _itemTypeModuleType;
         private ConcurrentDictionary<ItemKey, object> _currentProcessingItemKey = new ConcurrentDictionary<ItemKey, object>();
 
         /// <summary>
         /// </summary>
         public ItemsManager()
         {
-            _itemTypeModuleType = new ConcurrentDictionary<Type, Tuple<Db.ItemType, Type>>();
+            _itemTypeModuleType = new ConcurrentDictionary<Type, Tuple<ItemType, Type>>();
         }
 
         #region CoreComponentBase
@@ -193,9 +195,9 @@ namespace OnXap.Core.Items
             }
 
             var itemType = ItemTypeFactory.GetItemType(type);
-            _itemTypeModuleType[type] = new Tuple<Db.ItemType, Type>(itemType, typeof(TModule));
+            _itemTypeModuleType[type] = new Tuple<ItemType, Type>(itemType, typeof(TModule));
 
-            using (var db = new Db.CoreContext())
+            using (var db = new DataContext())
             {
                 var query = db.ItemParent.Where(x => x.IdItemType == itemType.IdItemType && x.IdModule == module.IdModule);
                 if (query.Count() == 0) SaveChildToParentRelations(module, itemType.IdItemType, new ChildToParentRelation() { IdChild = 0, IdParent = 0 }.ToEnumerable());
@@ -206,7 +208,7 @@ namespace OnXap.Core.Items
         /// Возвращает список типов объектов, зарегистрированных для модуля <typeparamref name="TModule"/>.
         /// </summary>
         /// <seealso cref="ModuleCore{TSelfReference}.QueryType"/>
-        public List<Db.ItemType> GetModuleItemTypes<TModule>()
+        public List<ItemType> GetModuleItemTypes<TModule>()
         {
             return _itemTypeModuleType.Where(x => x.Value.Item2 == typeof(TModule)).Select(x => x.Value.Item1).ToList();
         }

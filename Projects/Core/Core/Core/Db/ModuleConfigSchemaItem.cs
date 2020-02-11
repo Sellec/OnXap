@@ -12,32 +12,22 @@ namespace OnXap.Core.Db
 
         public override void Up()
         {
-            if (!Schema.Table("ModuleConfig").Exists())
+            if (!Schema.Table<ModuleConfig>().Exists())
             {
-                Create.Table("ModuleConfig").
-                    WithColumn("IdModule").AsInt32().NotNullable().PrimaryKey().Identity().
-                    WithColumn("UniqueKey").AsString(200).NotNullable().Unique("UniqueKey").
-                    WithColumn("Configuration").AsString(int.MaxValue).Nullable().
-                    WithColumn("DateChange").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime).
-                    WithColumn("IdUserChange").AsInt32().NotNullable().WithDefaultValue(0);
+                Create.Table<ModuleConfig>().
+                    WithColumn((ModuleConfig x) => x.IdModule).AsInt32().NotNullable().PrimaryKey().Identity().
+                    WithColumn((ModuleConfig x) => x.UniqueKey).AsString(200).NotNullable().Unique("UniqueKey").
+                    WithColumn((ModuleConfig x) => x.Configuration).AsString(int.MaxValue).Nullable().
+                    WithColumn((ModuleConfig x) => x.DateChange).AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime).
+                    WithColumn((ModuleConfig x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0);
             }
             else
             {
-                if (!Schema.Table("ModuleConfig").Column("IdModule").Exists())
-                    Alter.Table("ModuleConfig").AddColumn("IdModule").AsInt32().NotNullable().PrimaryKey().Identity();
-
-                if (!Schema.Table("ModuleConfig").Column("UniqueKey").Exists())
-                    Alter.Table("ModuleConfig").AddColumn("UniqueKey").AsString(200).NotNullable().Unique("UniqueKey");
-
-                if (!Schema.Table("ModuleConfig").Column("Configuration").Exists())
-                    Alter.Table("ModuleConfig").AddColumn("Configuration").AsString(int.MaxValue).Nullable();
-
-                if (!Schema.Table("ModuleConfig").Column("DateChange").Exists())
-                    Alter.Table("ModuleConfig").AddColumn("DateChange").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime);
-
-                if (!Schema.Table("ModuleConfig").Column("IdUserChange").Exists())
-                    Alter.Table("ModuleConfig").AddColumn("IdUserChange").AsInt32().NotNullable().WithDefaultValue(0);
-
+                AddColumnIfNotExists(Schema, (ModuleConfig x) => x.IdModule, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
+                AddColumnIfNotExists(Schema, (ModuleConfig x) => x.UniqueKey, x => x.AsString(200).NotNullable().Unique("UniqueKey"));
+                AddColumnIfNotExists(Schema, (ModuleConfig x) => x.Configuration, x => x.AsString(int.MaxValue).Nullable());
+                AddColumnIfNotExists(Schema, (ModuleConfig x) => x.DateChange, x => x.AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime));
+                AddColumnIfNotExists(Schema, (ModuleConfig x) => x.IdUserChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
             }
         }
     }

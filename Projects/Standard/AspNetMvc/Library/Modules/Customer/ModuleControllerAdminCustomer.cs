@@ -331,8 +331,8 @@ namespace OnXap.Modules.Customer
                             data = new User()
                             {
                                 salt = "",
-                                DateReg = DateTime.Now.Timestamp(),
-                                IP_reg = Request.ServerVariables["HTTP_X_FORWARDED_FOR"] ?? Request.ServerVariables["REMOTE_ADDR"]
+                                //DateReg = DateTime.Now.Timestamp(),
+                                // todo добавить запись о регистрации в журнал регистраций
                             };
                         }
 

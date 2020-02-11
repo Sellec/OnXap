@@ -1,10 +1,11 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+#pragma warning disable CS1591 // todo внести комментарии.
 namespace OnXap.Core.Db
 {
     using Core.Items;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-
-#pragma warning disable CS1591 // todo внести комментарии.
+    // todo вынести пол€ IdUserXX/DateXX из класса и писать событи€ в журнал ролей.
     [Table("Role")]
     public class Role : ItemBase
     {

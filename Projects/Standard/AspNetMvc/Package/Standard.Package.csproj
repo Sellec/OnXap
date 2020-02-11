@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\..\Common\Common.props" />
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>OnXap.Standard.AspNetMvc.Package</AssemblyName>
@@ -12,8 +11,11 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.7.185</Version>
+	  <Version>0.1.8.4</Version>
+	  <PackageReleaseNotes>Поддержка OnXap.Core 0.1.8.8
+</PackageReleaseNotes>
   </PropertyGroup>
+  <Import Project="..\..\..\Common\Common.props" />
   <ItemGroup>
     <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.dll" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.dll" Pack="True" PackagePath="%(Link)" />
     <None Include="..\Library\bin\OnXap.Standard.AspNetMvc.pdb" Link="lib\$(TargetFramework)\OnXap.Standard.AspNetMvc.pdb" Pack="True" PackagePath="%(Link)" />
