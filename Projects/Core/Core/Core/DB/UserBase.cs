@@ -56,6 +56,7 @@ namespace OnXap.Core.Db
         public int DateChange { get; set; }
 
         [StringLength(200)]
+        [Display(Name = "”никальный ключ учетной записи")]
         public string UniqueKey { get; set; }
 
         public int IdUserChange { get; set; }

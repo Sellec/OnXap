@@ -272,9 +272,6 @@ namespace OnXap.Core.Items
 
             try
             {
-                var currentUserId = AppCore.GetUserContextManager().GetCurrentUserContext()?.IdUser;
-                if (currentUserId <= 0) currentUserId = null;
-
                 var guid = Utils.GuidGenerator.GetUnique();
 
                 int i = 1;
@@ -302,7 +299,6 @@ namespace OnXap.Core.Items
                                     ItemId = itemKey.IdItem,
                                     ItemKey = itemKey.Key,
                                     LinkId = guid,
-                                    IdUser = currentUserId,
                                     DateCreate = DateTime.Now
                                 }
                             );

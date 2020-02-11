@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Transactions;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -57,6 +58,7 @@ namespace OnXap.Core.Items
             var _r = ItemTypes.Where(x => x.Value.IdItemType == type).Select(x => x.Value).FirstOrDefault();
             if (_r == null)
                 using (var db = new UnitOfWork<ItemType>())
+                using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                     _r = db.Repo1.Where(x => x.IdItemType == type).FirstOrDefault();
 
             if (_r != null) return _r;
@@ -154,6 +156,7 @@ namespace OnXap.Core.Items
             if (r == null)
             {
                 using (var db = new UnitOfWork<ItemType>())
+                using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     r = db.Repo1.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                     if (r == null && registerIfNoFound)

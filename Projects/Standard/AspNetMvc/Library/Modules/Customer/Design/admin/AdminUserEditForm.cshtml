@@ -159,6 +159,12 @@ else
                             @Html.ValidationMessageFor(x => x.UserRoles)
                         </td>
                     </tr>
+                    <tr>
+                        <td width="175">@Html.LabelFor(x => x.User.UniqueKey):</td>
+                        <td>
+                            @Html.TextBoxFor(x => x.User.UniqueKey, new { disabled = true })
+                        </td>
+                    </tr>
                 </table>
 
                 <br>

@@ -11,8 +11,8 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.8.5</Version>
-	  <PackageReleaseNotes>Поддержка OnXap.Core 0.1.8.8
+	  <Version>0.1.8.7</Version>
+	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>
   <Import Project="..\..\..\Common\Common.props" />

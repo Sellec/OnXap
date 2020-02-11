@@ -15,6 +15,10 @@
 
         public override void Up()
         {
+            /*
+             * На этом объекте нельзя создавать внешние ключи, т.к. все запросы к объектам данного типа оборачиваются в Suppress-транзакцию.
+             * */
+
             if (!Schema.Table<ItemLink>().Exists())
             {
                 Create.Table<ItemLink>().
@@ -22,7 +26,6 @@
                     WithColumn((ItemLink x) => x.ItemId).AsInt32().NotNullable().
                     WithColumn((ItemLink x) => x.ItemKey).AsString(200).NotNullable().
                     WithColumn((ItemLink x) => x.LinkId).AsGuid().NotNullable().
-                    WithColumn((ItemLink x) => x.IdUser).AsInt32().Nullable().
                     WithColumn((ItemLink x) => x.DateCreate).AsDateTime().NotNullable();
 
                 Create.PrimaryKey("ItemLinkKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).Columns(
@@ -34,10 +37,6 @@
                 Create.Index("LinkIdKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).
                     OnColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).Ascending().
                     WithOptions().Unique();
-
-                Create.ForeignKey("FK_ItemLink_User").
-                    FromTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).ForeignColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.IdUser)).
-                    ToTable(FluentMigratorTableExtensions.GetTableName<User>()).PrimaryColumn(FluentMigratorColumnExtensions.GetColumnName((User x) => x.IdUser));
             }
             else
             {
@@ -45,7 +44,6 @@
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.ItemId, x => x.AsInt32().NotNullable());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.ItemKey, x => x.AsString(200).NotNullable());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.LinkId, x => x.AsGuid().NotNullable());
-                AddColumnIfNotExists(Schema, (ItemLink x) => x.IdUser, x => x.AsInt32().Nullable());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.DateCreate, x => x.AsDateTime().NotNullable());
 
                 if (!Schema.Table<ItemLink>().Index("ItemLinkKey").Exists())
@@ -61,11 +59,8 @@
                         OnColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).Ascending().
                         WithOptions().Unique();
 
-                if (!Schema.Table<ItemLink>().Constraint("FK_ItemLink_User").Exists())
-                    Create.ForeignKey("FK_ItemLink_User").
-                        FromTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).ForeignColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.IdUser)).
-                        ToTable(FluentMigratorTableExtensions.GetTableName<User>()).PrimaryColumn(FluentMigratorColumnExtensions.GetColumnName((User x) => x.IdUser));
-
+                if (Schema.Table<ItemLink>().Constraint("FK_ItemLink_User").Exists())
+                    Delete.ForeignKey("FK_ItemLink_User").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>());
             }
         }
     }

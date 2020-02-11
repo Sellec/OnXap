@@ -6,6 +6,8 @@ namespace OnXap.Messaging.DB
     [Table("MessageSubscription")]
     class MessageSubscription
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdSubscription { get; set; }
 
         [Required]

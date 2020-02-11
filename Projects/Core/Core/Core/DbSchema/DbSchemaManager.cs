@@ -92,7 +92,9 @@ namespace OnXap.Core.DbSchema
                 }
             }
 
-            var dbSchemaItemListFiltered = dbSchemaItemList.Where(x => dbSchemaManagerConfigure.FilterMigration(x)).ToList();
+            var dbSchemaItemListFiltered = dbSchemaItemList.Where(x => x.GetType() == typeof(DbSchemaDefaultMigration) ||
+                                                                       x.GetType() == typeof(DbSchemaDefaultProfile) ||
+                                                                       dbSchemaManagerConfigure.FilterMigration(x)).ToList();
             return dbSchemaItemListFiltered;
         }
 
