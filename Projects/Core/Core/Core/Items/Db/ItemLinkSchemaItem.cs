@@ -60,7 +60,13 @@
                         WithOptions().Unique();
 
                 if (Schema.Table<ItemLink>().Constraint("FK_ItemLink_User").Exists())
+                {
                     Delete.ForeignKey("FK_ItemLink_User").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>());
+                }
+                else
+                {
+                    if (Schema.Table<ItemLink>().Column("IdUser").Exists()) Delete.Column("IdUser").FromTable(FluentMigratorTableExtensions.GetTableName<ItemLink>());
+                }
             }
         }
     }

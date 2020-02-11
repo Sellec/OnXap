@@ -11,6 +11,8 @@ namespace OnXap.Core.DbSchema
 {
     class DbSchemaManager : CoreComponentBase, IComponentSingleton, ICritical, IFilteringMigrationSource
     {
+        private Exception[] _startErrors = null;
+
         #region CoreComponentBase
         protected sealed override void OnStart()
         {
@@ -36,12 +38,8 @@ namespace OnXap.Core.DbSchema
             }
             catch (Exception ex)
             {
-                //try
-                //{
-                //    this.RegisterJournal("Журнал обслуживания схемы базы данных.");
-                //    this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex);
-                //}
-                //catch { }
+                _startErrors = new Exception[] { ex };
+                Debug.WriteLine($"DbSchemaManager.OnStart: {ex}");
             }
         }
 
@@ -103,5 +101,18 @@ namespace OnXap.Core.DbSchema
             return Enumerable.Empty<IMigration>();
         }
         #endregion
+
+        public void WriteErrors()
+        {
+            try
+            {
+                this.RegisterJournal("Журнал обслуживания схемы базы данных.");
+                _startErrors?.ForEach(ex => this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка запуска миграций", null, ex));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DbSchemaManager.WriteErrors: {ex}");
+            }
+        }
     }
 }

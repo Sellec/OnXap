@@ -101,7 +101,8 @@ namespace OnXap
 
         private void OnApplicationStartBase()
         {
-
+            // Проверка ошибок применения схемы
+            Get<Core.DbSchema.DbSchemaManager>().WriteErrors();
         }
 
         /// <summary>

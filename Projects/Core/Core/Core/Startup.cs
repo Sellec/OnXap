@@ -27,6 +27,7 @@ namespace OnXap.Core
             bindingsCollection.SetTransient<Db.UserSchemaItem>();
 
             bindingsCollection.SetTransient<Items.Db.ItemLinkSchemaItem>();
+            bindingsCollection.SetTransient<Items.Db.ItemLinkSchemaItemPre>();
             bindingsCollection.SetTransient<Items.Db.ItemParentSchemaItem>();
         }
     }
