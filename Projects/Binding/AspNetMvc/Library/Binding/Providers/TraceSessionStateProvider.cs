@@ -24,7 +24,7 @@ namespace OnXap.Binding.Providers
         /// <summary>
         /// Кеш всех записей сессий.
         /// </summary>
-        private static ConcurrentDictionary<string, Sessions> _sessionsCache = null;
+        private static ConcurrentDictionary<string, UserSession> _sessionsCache = null;
 
         /// <summary>
         /// Основной контекст, хранящий записи и предоставляющий возможность их сохранять при изменениях. Чтение новых записей осуществляется при помощи локальных контекстов.
@@ -36,13 +36,13 @@ namespace OnXap.Binding.Providers
         /// </summary>
         private static object _sessionsSyncRoot = new object();
 
-        private static ConcurrentDictionary<string, Sessions> _upsertQueue { get; set; }
+        private static ConcurrentDictionary<string, UserSession> _upsertQueue { get; set; }
         private static ConcurrentDictionary<string, string> _deleteQueue { get; set; }
 
         static TraceSessionStorage()
         {
             _sessionsSaveContext = new Lazy<Session.SessionContext>(() => new Session.SessionContext());
-            _upsertQueue = new ConcurrentDictionary<string, Sessions>();
+            _upsertQueue = new ConcurrentDictionary<string, UserSession>();
             _deleteQueue = new ConcurrentDictionary<string, string>();
         }
 
@@ -50,13 +50,13 @@ namespace OnXap.Binding.Providers
         /// Возвращает кеш сессий.
         /// </summary>
         /// <returns></returns>
-        public static ConcurrentDictionary<string, Sessions> GetSessionsCache()
+        public static ConcurrentDictionary<string, UserSession> GetSessionsCache()
         {
             lock (_sessionsSyncRoot)
             {
                 if (_sessionsCache == null)
                 {
-                    _sessionsCache = new ConcurrentDictionary<string, Sessions>();
+                    _sessionsCache = new ConcurrentDictionary<string, UserSession>();
                     var value = _sessionsSaveContext.Value;
                     TaskReadFromDB();
                 }
@@ -84,7 +84,7 @@ namespace OnXap.Binding.Providers
             catch (Exception ex) { Debug.WriteLine("TaskReadFromDB.Error: {0}", ex.Message); }
         }
 
-        public static void AddSession(Sessions sessionItem)
+        public static void AddSession(UserSession sessionItem)
         {
             if (GetSessionsCache().TryAdd(sessionItem.SessionId, sessionItem))
             {
@@ -93,14 +93,14 @@ namespace OnXap.Binding.Providers
             }
         }
 
-        public static void MarkSessionUpdated(Sessions sessionItem)
+        public static void MarkSessionUpdated(UserSession sessionItem)
         {
             var sessionItem2 = GetSessionsCache().GetOrAdd(sessionItem.SessionId, sessionItem);
             _upsertQueue.TryAdd(sessionItem.SessionId, sessionItem);
             SaveChanges();
         }
 
-        public static void RemoveSession(Sessions sessionItem)
+        public static void RemoveSession(UserSession sessionItem)
         {
             if (sessionItem == null) return;
 
@@ -111,9 +111,9 @@ namespace OnXap.Binding.Providers
             }
         }
 
-        public static Sessions GetSessionItem(string id)
+        public static UserSession GetSessionItem(string id)
         {
-            Sessions item = null;
+            UserSession item = null;
             if (GetSessionsCache().TryGetValue(id, out item))
             {
                 if (item.Expires < DateTime.UtcNow)
@@ -141,7 +141,7 @@ namespace OnXap.Binding.Providers
                         try
                         {
                             var oldUpsertQueue = _upsertQueue.Values.ToList();
-                            _upsertQueue = new ConcurrentDictionary<string, Sessions>();
+                            _upsertQueue = new ConcurrentDictionary<string, UserSession>();
 
                             var oldDeleteQueue = _deleteQueue.Values.ToList();
                             _deleteQueue = new ConcurrentDictionary<string, string>();
@@ -150,13 +150,13 @@ namespace OnXap.Binding.Providers
                             {
                                 _sessionsSaveContext.Value.Sessions.InsertOrDuplicateUpdate(
                                     oldUpsertQueue,
-                                    new UpsertField(nameof(Sessions.Created)),
-                                    new UpsertField(nameof(Sessions.Expires)),
-                                    new UpsertField(nameof(Sessions.LockDate)),
-                                    new UpsertField(nameof(Sessions.LockId)),
-                                    new UpsertField(nameof(Sessions.Locked)),
-                                    new UpsertField(nameof(Sessions.ItemContent)),
-                                    new UpsertField(nameof(Sessions.IdUser))
+                                    new UpsertField(nameof(UserSession.Created)),
+                                    new UpsertField(nameof(UserSession.Expires)),
+                                    new UpsertField(nameof(UserSession.LockDate)),
+                                    new UpsertField(nameof(UserSession.LockId)),
+                                    new UpsertField(nameof(UserSession.Locked)),
+                                    new UpsertField(nameof(UserSession.ItemContent)),
+                                    new UpsertField(nameof(UserSession.IdUser))
                                 );
                             }
 
@@ -456,7 +456,7 @@ namespace OnXap.Binding.Providers
         /// </summary>
         public override void CreateUninitializedItem(HttpContext context, string id, int timeout)
         {
-            var session = new Sessions
+            var session = new UserSession
             {
                 SessionId = id,
                 IdUser = 0,
@@ -516,7 +516,7 @@ namespace OnXap.Binding.Providers
     {
         class SessionContext : UnitOfWorkBase
         {
-            public IRepository<Sessions> Sessions { get; set; }
+            public IRepository<UserSession> Sessions { get; set; }
         }
     }
 }

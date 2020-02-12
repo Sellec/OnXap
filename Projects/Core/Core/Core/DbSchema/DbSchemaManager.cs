@@ -56,7 +56,7 @@ namespace OnXap.Core.DbSchema
             dbSchemaItemTypes = dbSchemaItemTypes.Where(predicate);
             var dbSchemaItemList = dbSchemaItemTypes.Select(x => AppCore.Create<DbSchemaItem>(x)).OrderBy(x => x is DbSchemaItem).ToList();
 
-            var moved = new List<object>();
+            var moved = new Dictionary<object, int>();
             for (int i = 0; i < dbSchemaItemList.Count; i++)
             {
                 var item = dbSchemaItemList[i];
@@ -82,17 +82,24 @@ namespace OnXap.Core.DbSchema
                 }
                 if (dependencyIndexMax > i)
                 {
-                    if (moved.Contains(item)) throw new InvalidProgramException($"Обнаружена циклическая зависимость типа '{item.GetType().FullName}' от некоторых других. Проверьте цепочку зависимости dependsOn.");
+                    if (!moved.ContainsKey(item)) moved[item] = 0;
+                    if (moved[item] > dbSchemaItemList.Count * dbSchemaItemList.Count) throw new InvalidProgramException($"Обнаружена циклическая зависимость типа '{item.GetType().FullName}' от некоторых других. Проверьте цепочку зависимости dependsOn.");
                     dbSchemaItemList.RemoveAt(i);
                     dbSchemaItemList.Insert(dependencyIndexMax, item);
-                    moved.Add(item);
+                    moved[item]++;
                     i = -1;
                 }
             }
 
             var dbSchemaItemListFiltered = dbSchemaItemList.Where(x => x.GetType() == typeof(DbSchemaDefaultMigration) ||
                                                                        x.GetType() == typeof(DbSchemaDefaultProfile) ||
+                                                                       x.GetType() == typeof(Db.InsertOnDuplicateUpdateSchemaItem) ||
                                                                        dbSchemaManagerConfigure.FilterMigration(x)).ToList();
+
+            var dupl = dbSchemaItemListFiltered.Where(x => x.GetType() == typeof(Db.InsertOnDuplicateUpdateSchemaItem)).ToList();
+            dupl.ForEach(x => dbSchemaItemListFiltered.Remove(x));
+            dupl.ForEach(x => dbSchemaItemListFiltered.Insert(0, x));
+
             return dbSchemaItemListFiltered;
         }
 

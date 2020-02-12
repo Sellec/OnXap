@@ -10,6 +10,7 @@ namespace OnXap.Modules.Auth
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
             bindingsCollection.SetTransient<IModuleController<ModuleAuth>>(typeof(ModuleAuthController), typeof(ModuleAuthControllerAdmin));
+            bindingsCollection.SetTransient<Db.UserPasswordRecoverySchemaItem>();
         }
     }
 }

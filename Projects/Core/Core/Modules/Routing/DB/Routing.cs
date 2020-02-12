@@ -8,13 +8,12 @@ namespace OnXap.Modules.Routing.DB
     [Table("UrlTranslation")]
     public partial class Routing
     {
-        #region Отражение базы
         [Key]
         [Column("IdTranslation")]
         public int IdRoute { get; set; }
 
         [Column("IdTranslationType")]
-        public RoutingType.eTypes IdRoutingType { get; set; }
+        public RoutingType IdRoutingType { get; set; }
 
         public int IdModule { get; set; }
 
@@ -34,11 +33,7 @@ namespace OnXap.Modules.Routing.DB
         public string UrlFull
         {
             get => _UrlFull;
-            set
-            {
-                var url = UriExtensions.MakeRelativeFromUrl(value);
-                _UrlFull = url;
-            }
+            set => _UrlFull = UriExtensions.MakeRelativeFromUrl(value);
         }
 
         public int DateChange { get; set; }
@@ -48,12 +43,6 @@ namespace OnXap.Modules.Routing.DB
         public bool IsFixedLength { get; set; }
 
         public string UniqueKey { get; set; }
-        #endregion
 
-        #region Дополнительные свойства
-        [ForeignKey("IdRoutingType")]
-        public virtual RoutingType RouteType { get; set; }
-
-        #endregion
     }
 }

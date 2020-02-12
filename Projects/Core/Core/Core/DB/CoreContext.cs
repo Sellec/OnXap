@@ -39,14 +39,7 @@ namespace OnXap.Core.Db
         public IRepository<ModuleConfig> Module { get; }
 
         public IRepository<ItemType> ItemType { get; }
-        public IRepository<Language> Language { get; }
-        public IRepository<Sessions> Sessions { get; }
 
-        public IRepository<PasswordRemember> PasswordRemember { get; }
-
-        public IRepository<UserEntity> UserEntity { get; }
-        public IRepository<UserLogHistory> UserLogHistory { get; }
-        public IRepository<UserLogHistoryEventType> UserLogHistoryEventType { get; }
         public IRepository<User> Users { get; }
 
         public IRepository<Role> Role { get; }

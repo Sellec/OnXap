@@ -31,7 +31,7 @@
 <h4>Маршрутизация модуля '@Model.Module.Caption (@Model.Module.UrlName)'</h4>
 <div id="routeEdit" style="display: none;">
     <form>
-        <label for="@nameof(Routing.IdRoutingType)">Тип маршрута: </label> @Html.DropDownList(nameof(Routing.IdRoutingType), Model.RoutingTypes)<br />
+        <label for="@nameof(Routing.IdRoutingType)">Тип маршрута: </label> <br />
         <label for="@nameof(Routing.Action)">Модуль и Action: </label> @Html.DropDownList(nameof(Routing.Action), Model.ModulesActions)<br />
         <label for="@nameof(Routing.Arguments)">Аргументы: </label> @Html.TextArea(nameof(Routing.Arguments), new { rows = 3, cols = 50 })<br />
         <label for="@nameof(Routing.IdItem)">Объект, к которому привязан маршрут: </label> @Html.TextBox(nameof(Routing.IdItem))<br />
@@ -52,7 +52,7 @@
         @foreach (var route in Model.Routes)  
         {
             <tr>
-                <td>@(route.Route.RouteType?.NameTranslationType)</td>    
+                <td>@(route.Route.IdRoutingType)</td>    
                 <td>@(Model.ModulesActions.Where(x=> x.Value == $"{route.Route.IdModule}_{route.Route.Action}").FirstOrDefault()?.Text)</td>
                 <td>@route.Route.Arguments</td>
                 <td>@route.ItemName</td>

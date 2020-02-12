@@ -177,7 +177,7 @@ namespace OnXap.Modules.Routing
                     UniqueKey = string.IsNullOrEmpty(x.UniqueKey) ? null : x.UniqueKey,
                     DateChange = DateTime.Now.Timestamp(),
                     IdUserChange = idUser,
-                    IdRoutingType = DB.RoutingType.eTypes.Main,
+                    IdRoutingType = DB.RoutingType.Main,
                     IsFixedLength = true,
                 }).ToList();
 

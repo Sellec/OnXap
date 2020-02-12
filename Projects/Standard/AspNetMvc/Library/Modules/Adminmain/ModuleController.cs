@@ -212,14 +212,14 @@ namespace OnXap.Modules.Adminmain
                                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.IdModule, y => y.Count))
                                 ;
 
-                var query2 = (new RoutingType.eTypes[] { RoutingType.eTypes.Main, RoutingType.eTypes.Additional, RoutingType.eTypes.Old })
+                var query2 = (new RoutingType[] { RoutingType.Main, RoutingType.Additional, RoutingType.Old })
                                 .ToDictionary(x => x,
                                               x => model.Modules.ToDictionary(y => y.IdModule,
                                                                                    y => query.ContainsKey(x) && query[x].ContainsKey(y.IdModule) ? query[x][y.IdModule] : 0));
 
-                model.RoutesMain = query2[RoutingType.eTypes.Main];
-                model.RoutesAdditional = query2[RoutingType.eTypes.Additional];
-                model.RoutesOld = query2[RoutingType.eTypes.Old];
+                model.RoutesMain = query2[RoutingType.Main];
+                model.RoutesAdditional = query2[RoutingType.Additional];
+                model.RoutesOld = query2[RoutingType.Old];
             }
 
             return View("routing.cshtml", model);
@@ -235,10 +235,8 @@ namespace OnXap.Modules.Adminmain
 
             var model = new Model.RoutingModule() { Module = (IModuleCore)module };
 
-            using (var db = new UnitOfWork<Routing, RoutingType>())// Module.CreateUnitOfWork())
+            using (var db = new UnitOfWork<Routing>())// Module.CreateUnitOfWork())
             {
-                model.RoutingTypes = db.Repo2.OrderBy(x => x.NameTranslationType).Select(x => new SelectListItem() { Value = x.IdTranslationType.ToString(), Text = x.NameTranslationType }).ToList();
-
                 var moduleActionAttributeType = typeof(ModuleActionAttribute);
                 var moduleActionGetDisplayName = new Func<ActionDescriptor, string>(action =>
                 {

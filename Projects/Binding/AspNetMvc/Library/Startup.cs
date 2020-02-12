@@ -12,6 +12,7 @@ namespace OnXap.Binding
         {
             bindingsCollection.SetSingleton<ModuleAuth, Module2>();
             bindingsCollection.SetSingleton<SessionBinder>();
+            bindingsCollection.SetTransient<Core.Db.UserSessionSchemaItem>();
         }
     }
 }

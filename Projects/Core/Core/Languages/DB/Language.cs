@@ -1,15 +1,13 @@
-﻿namespace OnXap.Languages.DB
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-#pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Languages.DB
+{
     [Table("Language")]
-    public partial class Language
+    public class Language
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdLanguage { get; set; }
 
         [Required]

@@ -21,9 +21,5 @@ namespace OnXap.Modules.Adminmain
         /// <summary>
         /// </summary>
         public IRepository<Routing> Routes { get; }
-
-        /// <summary>
-        /// </summary>
-        public IRepository<RoutingType> RouteTypes { get; }
     }
 }

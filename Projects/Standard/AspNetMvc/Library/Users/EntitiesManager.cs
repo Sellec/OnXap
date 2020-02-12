@@ -9,10 +9,10 @@ namespace OnXap.Users
 {
     using Core;
     using Journaling;
-    using CoreDB = Core.Db;
+    using CoreDB = Db;
     using ExecutionResultEntities = ExecutionResult<IEnumerable<UserEntity>>;
 
-    class EntitiesManager : CoreComponentBase, IEntitiesManager, IUnitOfWorkAccessor<UnitOfWork<CoreDB.UserEntity>>
+    class EntitiesManager : CoreComponentBase, IEntitiesManager
     {
         private const string SessionEntityKey = "UserEntity_";
 
@@ -104,9 +104,9 @@ namespace OnXap.Users
 
                 if (entityTypeClr == null) return new ExecutionResultEntities(false, $"Тип объектов пользователя '{entityType}' не существует.");
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
-                    var entities = db.Repo1.
+                    var entities = db.UserEntity.
                         Where(x => x.EntityType == entityType).
                         ToList().
                         Select(res => CreateEntityInstance(res, entityTypeClr)).
@@ -127,9 +127,9 @@ namespace OnXap.Users
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
-                    var sql = db.Repo1.Where(x => x.IdUser == idUser);
+                    var sql = db.UserEntity.Where(x => x.IdUser == idUser);
                     if (!string.IsNullOrEmpty(entityTag)) sql = sql.Where(x => x.Tag == entityTag);
 
                     var list = sql.

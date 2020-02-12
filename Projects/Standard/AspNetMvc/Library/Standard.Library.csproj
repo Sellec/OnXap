@@ -132,6 +132,11 @@
     <Folder Include="Modules\EditableMenu\Model\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\Auth\Db\DataContext.cs" />
+    <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
+    <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
+    <Compile Include="Users\Db\DataContext.cs" />
+    <Compile Include="Users\Db\UserEntity.cs" />
     <Compile Include="Design\Additionals\ClassicStructures\PhotoList.cs" />
     <Compile Include="Design\Additionals\Extension\ButtonHtmlExtensions.cs" />
     <Compile Include="Design\Additionals\Extension\DropDownListHtmlExtensions.cs" />
@@ -183,7 +188,6 @@
     <Compile Include="Modules\Customer\Model\AdminRolesManage.cs" />
     <Compile Include="Modules\Customer\Model\AdminUserEdit.cs" />
     <Compile Include="Modules\Customer\Model\History.cs" />
-    <Compile Include="Modules\Customer\Model\HistoryUserLog.cs" />
     <Compile Include="Modules\Customer\Model\ProfileEdit.cs" />
     <Compile Include="Modules\Customer\Model\UserEditable.cs" />
     <Compile Include="Modules\Customer\Model\UserPasschange.cs" />
@@ -274,6 +278,11 @@
     <Compile Include="Modules\Universal\Pagination\PaginationViewModel.cs" />
     <Compile Include="Modules\Universal\Pagination\PrimeUiDataTableSourceRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Users\Db\UserEntitySchemaItem.cs" />
+    <Compile Include="Users\EntitiesManager.cs" />
+    <Compile Include="Users\IEntitiesManager.cs" />
+    <Compile Include="Users\Startup.cs" />
+    <Compile Include="Users\UserEntity.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

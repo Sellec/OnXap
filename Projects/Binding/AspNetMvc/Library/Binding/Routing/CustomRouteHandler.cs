@@ -51,7 +51,7 @@ namespace OnXap.Binding.Routing
                 //Пока что не получилось заставить его делать как надо.
                 //var routes = DB.Routing
                 //    .Where(x => (url.StartsWith(x.UrlFull) && !x.IsFixedLength) || (url == x.UrlFull && x.IsFixedLength))
-                //    .OrderBy(x => x.IdRoutingType == RoutingType.eTypes.Main ? 0 : 1)
+                //    .OrderBy(x => x.IdRoutingType == RoutingType.Main ? 0 : 1)
                 //    .ThenBy(x => x.IsFixedLength)
                 //    .ThenByDescending(x => x.UrlFull.Length)
                 //    .ThenByDescending(x => x.DateChange)
@@ -134,13 +134,13 @@ namespace OnXap.Binding.Routing
             var route = requestContext.RouteData.Values["matchedRoute"] as Routing;
             if (route != null)
             {
-                if (route.IdRoutingType == RoutingType.eTypes.Old)
+                if (route.IdRoutingType == RoutingType.Old)
                 {
                     using (var db = new OnUtils.Data.UnitOfWork<Routing>())
                     {
                         var routeMain = db.Repo1
                             .Where(x => x.IdModule == route.IdModule && x.IdItem == route.IdItem &&
-                                        x.IdItemType == route.IdItemType && x.IdRoutingType == RoutingType.eTypes.Main)
+                                        x.IdItemType == route.IdItemType && x.IdRoutingType == RoutingType.Main)
                             .OrderByDescending(x => x.DateChange)
                             .FirstOrDefault();
 

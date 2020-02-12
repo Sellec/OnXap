@@ -9,7 +9,7 @@ namespace OnXap
     /// <summary>
     /// Будет удалено в будущих версиях.
     /// </summary>
-    static class DeprecatedSingletonInstances
+    public static class DeprecatedSingletonInstances
     {
         private static ConcurrentDictionary<Type, object> _modulesManagers = new ConcurrentDictionary<Type, object>();
 

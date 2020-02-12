@@ -1,14 +1,14 @@
-namespace OnXap.Core.Db
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-#pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Users.Db
+{
     [Table("UserEntity")]
-    public partial class UserEntity
+    class UserEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdEntity { get; set; }
 
         public int IdUser { get; set; }
@@ -25,7 +25,10 @@ namespace OnXap.Core.Db
         public string Entity { get; set; }
 
         [Required]
-        public Boolean IsTagged { get; set; }
+        public bool IsTagged { get; set; }
+
+        [MaxLength(200)]
+        public string UniqueKey { get; set; }
 
     }
 }

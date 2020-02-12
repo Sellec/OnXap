@@ -1,23 +1,20 @@
-﻿namespace OnXap.Core.Db
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-#pragma warning disable CS1591 // todo внести комментарии.
-    public partial class Sessions
+namespace OnXap.Core.Db
+{
+    [Table("UserSession")]
+    class UserSession
     {
         [Key]
         [StringLength(24)]
         public string SessionId { get; set; }
 
-        [Column(TypeName = "smalldatetime")]
         public DateTime Created { get; set; }
 
-        [Column(TypeName = "smalldatetime")]
         public DateTime Expires { get; set; }
 
-        [Column(TypeName = "smalldatetime")]
         public DateTime LockDate { get; set; }
 
         public int LockId { get; set; }

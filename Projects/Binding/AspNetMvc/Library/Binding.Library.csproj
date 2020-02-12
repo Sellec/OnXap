@@ -110,6 +110,8 @@
     <Compile Include="Binding\Providers\TraceModelMultipleMetadataProvider.cs" />
     <Compile Include="Binding\Providers\TraceSessionStateCacheProvider.cs" />
     <Compile Include="Binding\Providers\TraceSessionStateProvider.cs" />
+    <Compile Include="Core\Db\UserSessionSchemaItem.cs" />
+    <Compile Include="Core\Db\UserSession.cs" />
     <Compile Include="_Initialize\WebStartup.cs" />
     <Compile Include="Binding\Routing\AreaConstants.cs" />
     <Compile Include="Binding\Routing\ControllerRouteConstraint.cs" />

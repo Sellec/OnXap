@@ -285,32 +285,5 @@ namespace OnXap.Users
                 throw ex;
             }
         }
-
-        [ApiReversible]
-        public IList<UserLogHistory> GetLogHistoryEvents(DateTime dateFrom, DateTime dateTo)
-        {
-            try
-            {
-                // todo setError(null);
-
-                var dF = dateFrom.Timestamp();
-                var dT = dateTo.Timestamp();
-
-                using (var db = this.CreateUnitOfWork())
-                {
-                    var list = db.UserLogHistory
-                                    .Where(x => x.DateEvent >= dF && x.DateEvent <= dT)
-                                    .OrderByDescending(x => x.DateEvent).ToList();
-
-                    return list;
-                }
-            }
-            catch (Exception ex)
-            {
-                // todo setError(ex.Message);
-                Debug.WriteLine(ex.Message);
-                return null;
-            }
-        }
     }
 }

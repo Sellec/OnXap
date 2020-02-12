@@ -16,17 +16,17 @@ namespace OnXap.Modules.Routing
         None,
 
         /// <summary>
-        /// Адрес из основной таблицы маршрутизации (зарегистрированный через <see cref="Routing.UrlManager"/> с ключом <see cref="Routing.RoutingConstants.MAINKEY"/>).
+        /// Адрес из основной таблицы маршрутизации (зарегистрированный через <see cref="UrlManager"/> с ключом <see cref="RoutingConstants.MAINKEY"/>).
         /// </summary>
-        /// <seealso cref="UrlManager.Register{TModuleType}(Core.Modules.ModuleCore{TModuleType}, IEnumerable{RegisterItem})"/>
-        /// <seealso cref="UrlManager.Register{TModuleType}(Core.Modules.ModuleCore{TModuleType}, int, int, string, IEnumerable{ActionArgument}, string, string)"/>
+        /// <seealso cref="UrlManager.Register{TModuleType}(ModuleCore{TModuleType}, IEnumerable{RegisterItem})"/>
+        /// <seealso cref="UrlManager.Register{TModuleType}(ModuleCore{TModuleType}, int, int, string, IEnumerable{ActionArgument}, string, string)"/>
         Routing,
 
         /// <summary>
         /// Адрес, сгенерированный модулем.
         /// </summary>
-        /// <seealso cref="ModuleCore{TSelfReference}.GenerateLink(ItemBase)"/>
-        /// <seealso cref="ModuleCore{TSelfReference}.GenerateLinks(IEnumerable{ItemBase})"/>
+        /// <seealso cref="ModuleCore.GenerateLink(ItemBase)"/>
+        /// <seealso cref="ModuleCore.GenerateLinks(IEnumerable{ItemBase})"/>
         Module,
     }
 }

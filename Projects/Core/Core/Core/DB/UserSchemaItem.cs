@@ -124,24 +124,18 @@ namespace OnXap.Core.Db
                     FluentMigratorColumnExtensions.GetColumnName((User x) => x.about),
                 }.Select(x => $"[{x}]").ToList();
 
-            IfDatabase("sqlserver").Execute.Sql($@"
-                    IF EXISTS (SELECT * FROM sys.objects WHERE [type] = 'TR' AND [name] = 'UsersUpsertHistory') DROP TRIGGER [dbo].[UsersUpsertHistory];
-                    GO
+            var triggerBody = $@"
+CREATE TRIGGER [dbo].[UsersUpsertHistory] ON  [dbo].[{FluentMigratorTableExtensions.GetTableName<User>()}] AFTER INSERT, UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	INSERT INTO [dbo].[{FluentMigratorTableExtensions.GetTableName<UserHistory>()}] ({string.Join(", ", fieldsListUserHistory)})
+    SELECT {string.Join(", ", fieldsListUser)}, GETDATE()
+	FROM inserted
+END;
+            ";
 
-                    CREATE TRIGGER [dbo].[UsersUpsertHistory] ON  [dbo].[{FluentMigratorTableExtensions.GetTableName<User>()}] AFTER INSERT, UPDATE
-                    AS 
-                    BEGIN
-	                    SET NOCOUNT ON;
-	                    INSERT INTO [dbo].[{FluentMigratorTableExtensions.GetTableName<UserHistory>()}] ({string.Join(", ", fieldsListUserHistory)})
-                        SELECT {string.Join(", ", fieldsListUser)}, GETDATE()
-	                    FROM inserted
-                    END;
-                    GO
-
-                    ALTER TABLE [dbo].[{FluentMigratorTableExtensions.GetTableName<User>()}] ENABLE TRIGGER [UsersUpsertHistory];
-                    GO
-                ");
-
+            IfDatabase("sqlserver").Execute.Sql($@"IF NOT EXISTS (SELECT * FROM sys.objects WHERE [type] = 'TR' AND [name] = 'UsersUpsertHistory') EXEC (N'{triggerBody.Replace("'", "''")}')");
         }
     }
 }

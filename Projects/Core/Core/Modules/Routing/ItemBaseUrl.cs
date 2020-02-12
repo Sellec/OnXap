@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace OnXap.Core.Items
 {
     using OnUtils.Items;
-    using global::OnXap.Modules.Routing;
+    using OnXap.Modules.Routing;
 
     public abstract partial class ItemBase
     {

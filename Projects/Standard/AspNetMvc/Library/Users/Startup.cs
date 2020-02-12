@@ -1,14 +1,14 @@
 ﻿using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.AppCore.DI;
 
-namespace OnXap.Journaling
+namespace OnXap.Users
 {
     class Startup : IConfigureBindings
     {
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
-            bindingsCollection.SetTransient<DB.JournalSchemaItem>();
-            bindingsCollection.SetTransient<DB.JournalNameSchemaItem>();
+            bindingsCollection.SetSingleton<IEntitiesManager, EntitiesManager>();
+            bindingsCollection.SetTransient<Db.UserEntitySchemaItem>();
         }
     }
 }

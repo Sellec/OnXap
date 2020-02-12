@@ -1,131 +1,28 @@
-﻿using OnUtils;
-using OnUtils.Data;
+﻿using OnUtils.Data;
+using OnXap.Messaging;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Threading;
 using System.Transactions;
 
 namespace OnXap.Users
 {
     using Core;
-    using Core.Db;
-    using ExecutionPermissionsResult = ExecutionResult<UserPermissions>;
+    using CoreDB = Core.Db;
+    using Journaling;
+    using Core.Items;
 
     /// <summary>
     /// Менеджер, управляющий контекстами пользователей (см. <see cref="IUserContext"/>).
     /// Каждый поток приложения имеет ассоциированный контекст пользователя, от имени которого могут выполняться запросы и выполняться действия. 
-    /// Более подробно см. <see cref="GetCurrentUserContext"/> / <see cref="SetCurrentUserContext(IUserContext)"/> / <see cref="ClearCurrentUserContext"/>.
     /// </summary>
-    public class UserContextManagerBase : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<CoreContext>
+    /// <seealso cref="UserContextManagerBase.GetCurrentUserContext"/>
+    /// <seealso cref="UserContextManagerBase.SetCurrentUserContext(IUserContext)"/>
+    /// <seealso cref="UserContextManagerBase.ClearCurrentUserContext"/>
+    public class UserContextManager : UserContextManagerBase
     {
-        public const string RoleUserName = "RoleUser";
-        public const string RoleGuestName = "RoleGuest";
-
-        private static IUserContext _systemUserContext;
-        private ThreadLocal<IUserContext> _currentUserContext = new ThreadLocal<IUserContext>();
-
-        #region CoreComponentBase
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStart()
-        {
-            this.RegisterJournal("Менеджер контекстов пользователей");
-
-            User systemUser = null;
-            try
-            {
-                User systemUser2 = null;
-
-                using (var db = new CoreContext())
-                using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
-                {
-                    var userNew = new User() { IdUser = 1, DateChange = DateTime.Now.Timestamp(), IdUserChange = 1, Superuser = 1, name = "System", password = DateTime.Now.Ticks.ToString().GenerateGuid().ToString() };
-
-                    db.Users.InsertOrDuplicateUpdate(
-                        userNew.ToEnumerable(),
-                        new UpsertField(nameof(User.DateChange)),
-                        new UpsertField(nameof(User.IdUserChange)),
-                        new UpsertField(nameof(User.Superuser)),
-                        new UpsertField(nameof(User.name)),
-                        new UpsertField(nameof(User.password))
-                    );
-
-                    scope.Commit();
-
-                    systemUser2 = userNew;
-                }
-
-                systemUser = systemUser2;
-            }
-            catch (Exception ex)
-            {
-                this.RegisterEvent(Journaling.EventType.CriticalError, "Не удалось получить системного пользователя", null, ex);
-                throw new HandledException("Ошибка запуска менеджера контекстов пользователей. Не удалось получить системного пользователя.", ex);
-            }
-
-            var systemUserContext = new UserContext(systemUser, true);
-            ((IComponentStartable)systemUserContext).Start(AppCore);
-            _systemUserContext = systemUserContext;
-
-            // В момент запуска для запускающего потока устанавливается системный пользователь для выполнения инициализирующих действий с максимальными правами доступа.
-            _currentUserContext.Value = _systemUserContext;
-        }
-
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStop()
-        {
-        }
-        #endregion
-
         #region Методы
-        /// <summary>
-        /// Возвращает контекст системного пользователя.
-        /// </summary>
-        public virtual IUserContext GetSystemUserContext()
-        {
-            return _systemUserContext;
-        }
-
-        /// <summary>
-        /// Возвращает контекст пользователя, ассоциированный с текущим потоком выполнения. 
-        /// По-умолчанию возвращается контекст системного пользователя, если не задан иной контекст путем вызова <see cref="SetCurrentUserContext(IUserContext)"/>.
-        /// </summary>
-        public virtual IUserContext GetCurrentUserContext()
-        {
-            if (!_currentUserContext.IsValueCreated) ClearCurrentUserContext();
-            return _currentUserContext.Value;
-        }
-
-        /// <summary>
-        /// Устанавливает текущий контекст пользователя. Для замены текущего контекста достаточно заново вызвать этот метод, вызывать <see cref="ClearCurrentUserContext"/> для сброса контекста необязательно.
-        /// </summary>
-        /// <param name="context">Новый контекст пользователя. Не должен быть равен null.</param>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="context"/> равен null.</exception>
-        public virtual void SetCurrentUserContext(IUserContext context)
-        {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-            _currentUserContext.Value = context;
-        }
-
-        /// <summary>
-        /// Устанавливает контекст гостя в качестве текущего контекста, сбрасывая любой предыдущий установленный контекст.
-        /// </summary>
-        public virtual void ClearCurrentUserContext()
-        {
-            _currentUserContext.Value = CreateGuestUserContext();
-        }
-
-        #region Создать контекст
-        /// <summary>
-        /// Возвращает контекст гостя.
-        /// </summary>
-        public virtual IUserContext CreateGuestUserContext()
-        {
-            return new UserContext(new User() { IdUser = 0, Superuser = 0 }, false);
-        }
-
         /// <summary>
         /// Возвращает контекст пользователя с идентификатором <paramref name="idUser"/>.
         /// </summary>
@@ -133,35 +30,134 @@ namespace OnXap.Users
         /// <param name="userContext">Содержит контекст в случае успеха.</param>
         /// <returns>Возвращает результат создания контекста.</returns>
         [ApiIrreversible]
-        public UserContextCreateResult CreateUserContext(int idUser, out IUserContext userContext)
+        public eAuthResult CreateUserContext(int idUser, out IUserContext userContext)
         {
-            userContext = null;
+            return CreateUserContext(idUser, null, null, out userContext, out var resultReason);
+        }
 
-            using (var db = new CoreContext())
+        /// <summary>
+        /// Возвращает контекст пользователя с идентификатором <paramref name="idUser"/>.
+        /// </summary>
+        /// <param name="idUser">Идентификатор пользователя.</param>
+        /// <param name="userContext">Содержит контекст в случае успеха.</param>
+        /// <param name="resultReason">Содержит текстовое пояснение к ответу функции.</param>
+        /// <returns>Возвращает результат создания контекста.</returns>
+        [ApiIrreversible]
+        public eAuthResult CreateUserContext(int idUser, out IUserContext userContext, out string resultReason)
+        {
+            return CreateUserContext(idUser, null, null, out userContext, out resultReason);
+        }
+
+        /// <summary>
+        /// Возвращает контекст пользователя с указанными реквизитами <paramref name="login"/>/<paramref name="password"/>. 
+        /// </summary>
+        /// <param name="login">Логин для авторизации. В качестве логина может выступать Email-адрес или номер телефона (в зависимости от настроек системы).</param>
+        /// <param name="password">Пароль для авторизации. Должен передаваться в незашифрованном виде.</param>
+        /// <param name="userContext">Содержит контекст в случае успеха.</param>
+        /// <returns>Возвращает результат создания контекста.</returns>
+        [ApiIrreversible]
+        public eAuthResult CreateUserContext(string login, string password, out IUserContext userContext)
+        {
+            return CreateUserContext(0, login, password, out userContext, out var resultReason);
+        }
+
+        /// <summary>
+        /// Возвращает контекст пользователя с указанными реквизитами <paramref name="login"/>/<paramref name="password"/>. 
+        /// </summary>
+        /// <param name="login">Логин для авторизации. В качестве логина может выступать Email-адрес или номер телефона (в зависимости от настроек системы).</param>
+        /// <param name="password">Пароль для авторизации. Должен передаваться в незашифрованном виде.</param>
+        /// <param name="userContext">Содержит контекст в случае успеха.</param>
+        /// <param name="resultReason">Содержит текстовое пояснение к ответу функции.</param>
+        /// <returns>Возвращает результат создания контекста.</returns>
+        [ApiIrreversible]
+        public eAuthResult CreateUserContext(string login, string password, out IUserContext userContext, out string resultReason)
+        {
+            return CreateUserContext(0, login, password, out userContext, out resultReason);
+        }
+
+        private eAuthResult CreateUserContext(int IdUser, string user, string password, out IUserContext userContext, out string resultReason)
+        {
+            var authorizationAttemptsExceeded = false;
+            var id = 0;
+            userContext = null;
+            resultReason = null;
+            Modules.Auth.ModuleConfiguration authConfig = null;
+
+            using (var db = new CoreDB.CoreContext())
             using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
             {
+                var returnNewFailedResultWithAuthAttempt = new Func<string, string>(message =>
+                {
+                    RegisterLogHistoryEvent(id, EventType.Error, EventCodeAuthError, "Ошибка авторизации", message);
+
+                    if (id > 0)
+                    {
+                        db.DataContext.ExecuteQuery(
+                            $"UPDATE users SET AuthorizationAttempts = (AuthorizationAttempts + 1){(authorizationAttemptsExceeded ? ", BlockedUntil=@BlockedUntil, BlockedReason=@BlockedReason" : "")} WHERE id=@IdUser",
+                            new
+                            {
+                                IdUser = id,
+                                BlockedUntil = DateTime.Now.Timestamp() + authConfig.AuthorizationAttemptsBlock,
+                                BlockedReason = authConfig.AuthorizationAttemptsBlockMessage,
+                            }
+                        );
+                    }
+
+                    return message + (authorizationAttemptsExceeded ? " " + authConfig.AuthorizationAttemptsMessage : "");
+                });
+
                 try
                 {
-                    var res = db.Users.Where(x => x.IdUser == idUser).FirstOrDefault();
-                    if (res == null) return UserContextCreateResult.NotFound;
+                    authConfig = AppCore.Get<OnXap.Modules.Auth.ModuleAuth>()?.GetConfiguration<OnXap.Modules.Auth.ModuleConfiguration>();
+
+                    var checkLoginResult = CheckLogin(IdUser, user, password, db, out var res);
+                    if (!checkLoginResult.IsSuccess)
+                    {
+                        resultReason = returnNewFailedResultWithAuthAttempt(checkLoginResult.Message);
+                        return checkLoginResult.AuthResult;
+                    }
+
+                    id = res.IdUser;
+                    var attempts = authConfig.AuthorizationAttempts;
+                    authorizationAttemptsExceeded = attempts > 0 && (res.AuthorizationAttempts + 1) >= attempts;
+
+                    AppCore.Get<UsersManager>().getUsers(new Dictionary<int, CoreDB.User>() { { id, res } });
 
                     var context = new UserContext(res, true);
                     ((IComponentStartable)context).Start(AppCore);
 
-                    var permissionsResult = GetPermissions(context.IdUser);
+                    var permissionsResult = AppCore.GetUserContextManager().GetPermissions(context.IdUser);
                     if (!permissionsResult.IsSuccess)
                     {
-                        return UserContextCreateResult.ErrorReadingPermissions;
+                        resultReason = returnNewFailedResultWithAuthAttempt(permissionsResult.Message);
+                        return eAuthResult.UnknownError;
                     }
                     context.ApplyPermissions(permissionsResult.Result);
+
+                    RegisterLogHistoryEvent(id, EventType.Info, EventCodeAuthSuccess, "Успешный вход");
+
+                    res.AuthorizationAttempts = 0;
+                    db.SaveChanges();
+
                     userContext = context;
-                    return UserContextCreateResult.Success;
+
+                    var checkStateResult = CheckUserState(res, res.Comment);
+                    if (checkStateResult.IsSuccess)
+                    {
+                        return eAuthResult.Success;
+                    }
+                    else
+                    {
+                        resultReason = returnNewFailedResultWithAuthAttempt(checkStateResult.Message);
+                        return checkStateResult.AuthResult;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    this.RegisterEvent(Journaling.EventType.CriticalError, "Неизвестная ошибка во время создания контекста пользователя.", $"IdUser={idUser}'.", null, ex);
+                    this.RegisterEvent(EventType.CriticalError, "Неизвестная ошибка во время получения контекста пользователя.", $"IdUser={IdUser}, Login='{user}'.", null, ex);
                     userContext = null;
-                    return UserContextCreateResult.ErrorUnknown;
+                    resultReason = "Неизвестная ошибка во время получения контекста пользователя.";
+                    return eAuthResult.UnknownError;
                 }
                 finally
                 {
@@ -169,84 +165,179 @@ namespace OnXap.Users
                 }
             }
         }
-        #endregion
 
-        public void DestroyUserContext(IUserContext context)
+        private ExecutionAuthResult CheckLogin(int idUser, string login, string password, CoreDB.CoreContext db, out CoreDB.User outData)
         {
+            outData = null;
+            if (idUser == (int.MaxValue - 1))
+            {
+                return new ExecutionAuthResult(eAuthResult.NothingFound, $"Пользователь '{login}' не найден в базе данных.");
+            }
 
-        }
-        #endregion
-
-        #region Разрешения
-        /// <summary>
-        /// Возвращает список разрешений для пользователя <paramref name="idUser"/>.
-        /// </summary>
-        /// <returns>Возвращает объект <see cref="ExecutionPermissionsResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
-        [ApiIrreversible]
-        public ExecutionPermissionsResult GetPermissions(int idUser)
-        {
             try
             {
-                using (var db = this.CreateUnitOfWork())
-                using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
+                if (idUser <= 0 && string.IsNullOrEmpty(login)) return new ExecutionAuthResult(eAuthResult.WrongAuthData, "Не указаны реквизиты для авторизации!");
+
+                List<CoreDB.User> query = null;
+                bool directAuthorize = false;
+
+                // Если в $user передан id и $password не передан вообще.
+                if (idUser > 0)
                 {
-                    var idRoleUser = AppCore.AppConfig.RoleUser;
-                    var idRoleGuest = AppCore.AppConfig.RoleGuest;
+                    query = db.Users.Where(x => x.IdUser == idUser).ToList();
+                    directAuthorize = true;
+                }
 
-                    var perms2 = (from p in db.RolePermission
-                                  join ru in db.RoleUser on p.IdRole equals ru.IdRole into gj
-                                  from subru in gj.DefaultIfEmpty()
-                                  where (subru.IdUser == idUser) || (idUser > 0 && p.IdRole == idRoleUser) || (idUser == 0 && p.IdRole == idRoleGuest)
-                                  select new { p.IdModule, p.Permission });
-
-                    var perms = new Dictionary<Guid, List<Guid>>();
-                    foreach (var res in perms2)
+                // Если Email
+                if (query == null && login.isEmail())
+                {
+                    switch (AppCore.WebConfig.userAuthorizeAllowed)
                     {
-                        if (!string.IsNullOrEmpty(res.Permission))
+                        case eUserAuthorizeAllowed.Nothing:
+                            return new ExecutionAuthResult(eAuthResult.AuthDisabled, "Авторизация запрещена.");
+
+                        case eUserAuthorizeAllowed.OnlyPhone:
+                            return new ExecutionAuthResult(eAuthResult.AuthMethodNotAllowed, "Авторизация возможна только по номеру телефона.");
+
+                        case eUserAuthorizeAllowed.EmailAndPhone:
+                            query = (from p in db.Users where string.Compare(p.email, login, true) == 0 select p).ToList();
+                            break;
+
+                        case eUserAuthorizeAllowed.OnlyEmail:
+                            query = (from p in db.Users where string.Compare(p.email, login, true) == 0 select p).ToList();
+                            break;
+                    }
+                }
+
+                // Если номер телефона
+                if (query == null)
+                {
+                    var phone = PhoneBuilder.ParseString(login);
+                    if (phone.IsCorrect)
+                    {
+                        switch (AppCore.WebConfig.userAuthorizeAllowed)
                         {
-                            var guidModule = GuidIdentifierGenerator.GenerateGuid(GuidType.Module, res.IdModule);
-                            if (!perms.ContainsKey(guidModule)) perms.Add(guidModule, new List<Guid>());
+                            case eUserAuthorizeAllowed.Nothing:
+                                return new ExecutionAuthResult(eAuthResult.AuthDisabled, "Авторизация запрещена.");
 
-                            var guidPermission = res.Permission.GenerateGuid();
-                            if (!perms[guidModule].Contains(guidPermission)) perms[guidModule].Add(guidPermission);
+                            case eUserAuthorizeAllowed.OnlyEmail:
+                                return new ExecutionAuthResult(eAuthResult.AuthMethodNotAllowed, "Авторизация возможна только через электронную почту.");
 
-                            // Временное двойное распознавание разрешения через строку и потенциальный гуид.
-                            if (Guid.TryParse(res.Permission, out var guidPermissionTemp) && !perms[guidModule].Contains(guidPermissionTemp)) perms[guidModule].Add(guidPermissionTemp);
+                            case eUserAuthorizeAllowed.EmailAndPhone:
+                                query = (from p in db.Users where string.Compare(p.phone, phone.ParsedPhoneNumber, true) == 0 select p).ToList();
+                                break;
+
+                            case eUserAuthorizeAllowed.OnlyPhone:
+                                query = (from p in db.Users where string.Compare(p.phone, phone.ParsedPhoneNumber, true) == 0 select p).ToList();
+                                break;
                         }
                     }
+                    else
+                    {
+                        if (!login.isEmail())
+                        {
+                            return new ExecutionAuthResult(eAuthResult.WrongAuthData, "Переданные данные не являются ни номером телефона, ни адресом электронной почты.");
+                        }
+                    }
+                }
 
-                    return new ExecutionPermissionsResult(true, null, new UserPermissions(perms));
+                if (query == null)
+                {
+                    return new ExecutionAuthResult(eAuthResult.UnknownError, "Что-то пошло не так во время авторизации.");
+                }
+
+                if (query.Count == 1)
+                {
+                    var res = query.First();
+
+                    if (directAuthorize || res.password == UsersExtensions.hashPassword(password))
+                    {
+                        outData = res;
+                        return new ExecutionAuthResult(eAuthResult.Success);
+                    }
+                    else
+                    {
+                        return new ExecutionAuthResult(eAuthResult.WrongPassword, "Неверный пароль.");
+                    }
+                }
+                else if (query.Count > 1)
+                {
+                    AppCore.Get<MessagingManager>().GetCriticalMessagesReceivers().ForEach(x => x.SendToAdmin("Одинаковые реквизиты входа!", "Найдено несколько пользователей с логином '" + login + "'"));
+                    return new ExecutionAuthResult(eAuthResult.MultipleFound, "Найдено несколько пользователей с логином '" + login + "'. Обратитесь к администратору для решения проблемы.");
+                }
+                else
+                {
+                    return new ExecutionAuthResult(eAuthResult.NothingFound, $"Пользователь '{login}' не найден в базе данных.");
                 }
             }
             catch (Exception ex)
             {
-                this.RegisterEvent(Journaling.EventType.Error, "Ошибка при получении разрешений для пользователя.", $"IdUser={idUser}.", null, ex);
-                return new ExecutionPermissionsResult(false, "Ошибка при получении разрешений для пользователя.");
+                this.RegisterEvent(EventType.Error, "Ошибка во время поиска и проверки пользователя", $"IdUser={idUser}, Login='{login}'.", null, ex);
+                return new ExecutionAuthResult(eAuthResult.UnknownError, "Неизвестная ошибка во время проверки авторизации.");
             }
         }
 
-        /// <summary>
-        /// Пытается получить текущие разрешения для пользователя, ассоциированного с контекстом <paramref name="context"/>, и задать их контексту.
-        /// </summary>
-        /// <returns>Возвращает true, если удалось получить разрешения и установить их для переданного контекста.</returns>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="context"/> равен null.</exception>
-        [ApiIrreversible]
-        public virtual ExecutionResult TryRestorePermissions(IUserContext context)
+        private ExecutionAuthResult CheckUserState(CoreDB.User data, string comment = null)
         {
-            if (context == null) throw new ArgumentNullException(nameof(context));
-
-            if (context is UserContext userContext)
+            if (data.State == CoreDB.UserState.Active)
             {
-                var permissionsResult = GetPermissions(context.IdUser);
-                if (permissionsResult.IsSuccess)
+                if (data.BlockedUntil > DateTime.Now.Timestamp())
                 {
-                    userContext.ApplyPermissions(permissionsResult.Result);
-                    return new ExecutionResult(true);
+                    return new ExecutionAuthResult(eAuthResult.BlockedUntil, "Учетная запись заблокирована до " + (new DateTime()).FromUnixtime(data.BlockedUntil).ToString("yyyy-mm-dd HH:MM") +
+                        (!string.IsNullOrEmpty(data.BlockedReason) ? " по причине: " + data.BlockedReason : "."));
                 }
-                else return new ExecutionResult(false, permissionsResult.Message);
+
+                return new ExecutionAuthResult(eAuthResult.Success);
             }
-            else return new ExecutionResult(false, "Неподдерживаемый тип контекста.");
+            else if (data.State == CoreDB.UserState.RegisterNeedConfirmation)
+            {
+                return new ExecutionAuthResult(eAuthResult.RegisterNeedConfirmation, "Необходимо подтвердить регистрацию путем перехода по ссылке из письма, отправленного на указанный при регистрации Email-адрес.");
+            }
+            else if (data.State == CoreDB.UserState.RegisterWaitForModerate)
+            {
+                return new ExecutionAuthResult(eAuthResult.RegisterWaitForModerate, "Заявка на регистрацию еще не проверена администратором.");
+            }
+            else if (data.State == CoreDB.UserState.RegisterDecline)
+            {
+                var msg = "Заявка на регистрацию отклонена администратором.";
+                return new ExecutionAuthResult(eAuthResult.RegisterDecline, !string.IsNullOrEmpty(comment) ? $"{msg}\r\n\r\nПричина: {comment}" : msg);
+            }
+            else if (data.State == CoreDB.UserState.Disabled)
+            {
+                var msg = "Учетная запись отключена.";
+                return new ExecutionAuthResult(eAuthResult.Disabled, !string.IsNullOrEmpty(comment) ? $"{msg}\r\n\r\nПричина: {comment}" : msg);
+            }
+            else
+            {
+                return new ExecutionAuthResult(eAuthResult.UnknownError, "Ошибка при авторизации");
+            }
         }
         #endregion
+
+        private void RegisterLogHistoryEvent(int idUser, EventType eventType, int eventCode, string eventInfo, string Comment = null)
+        {
+            try
+            {
+                var idJournal = GetAuthJournalId();
+                if (idJournal.HasValue)
+                {
+                    AppCore.Get<JournalingManager>().RegisterEventForItem(
+                        idJournal.Value,
+                        new ItemKey(ItemTypeFactory.GetItemType<CoreDB.User>().IdItemType, idUser, ""),
+                        eventType,
+                        eventCode,
+                        eventInfo,
+                        Comment);
+                }
+            }
+            catch (Exception ex)
+            {
+                var idJournal = GetAuthJournalId();
+                if (idJournal.HasValue)
+                {
+                    AppCore.Get<JournalingManager>().RegisterEvent(idJournal.Value, EventType.CriticalError, 0, "Ошибка регистрации события в журнал", null, null, ex);
+                }
+            }
+        }
     }
 }

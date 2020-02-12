@@ -6,6 +6,7 @@ using System.Web.Mvc;
 namespace OnXap.Modules.Auth
 {
     using Core.Db;
+    using Db;
     using Core.Modules;
     using Users;
     using Exceptions;
@@ -62,7 +63,7 @@ namespace OnXap.Modules.Auth
                 message = "Неожиданная ошибка во время авторизации. Попробуйте еще раз или обратитесь в техническую поддержку.";
             }
 
-            if (!ModelState.IsValid || !string.IsNullOrEmpty(message)) this.RegisterEventInvalidModel("Форма авторизации", ignoreParamsKeys: new List<string>() { nameof(model.pass) });
+            if (!ModelState.IsValid || !string.IsNullOrEmpty(message)) RegisterEventInvalidModel("Форма авторизации", ignoreParamsKeys: new List<string>() { nameof(model.pass) });
 
             if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest)
             {
@@ -134,12 +135,12 @@ namespace OnXap.Modules.Auth
                 message = "Неожиданная ошибка во время авторизации. Попробуйте еще раз или обратитесь в техническую поддержку.";
             }
 
-            if (!ModelState.IsValid || !string.IsNullOrEmpty(message)) this.RegisterEventInvalidModel("Форма авторизации JSON", ignoreParamsKeys: new List<string>() { nameof(model.pass) });
+            if (!ModelState.IsValid || !string.IsNullOrEmpty(message)) RegisterEventInvalidModel("Форма авторизации JSON", ignoreParamsKeys: new List<string>() { nameof(model.pass) });
 
             return ReturnJson(success, message, new
             {
                 authorized = !AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest,
-                admin = this.Module.CheckPermission(ModulesConstants.PermissionManage)
+                admin = Module.CheckPermission(ModulesConstants.PermissionManage)
             });
         }
 
@@ -209,7 +210,7 @@ namespace OnXap.Modules.Auth
 
                 if (ModelState.IsValid)
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new Db.DataContext())
                     {
                         var sql = from p in db.Users
                                   where (!isPhone && p.email.Length > 0 && p.email.ToLower() == model.email.ToLower()) || (isPhone && p.phone.Length > 0 && p.phone.ToLower() == model.phone.ToLower())
@@ -233,20 +234,20 @@ namespace OnXap.Modules.Auth
                                 if (!isPhone)
                                 {
                                     var code = DateTime.Now.Microtime().MD5();
-                                    db.PasswordRemember.Add(new PasswordRemember() { user_id = user.IdUser, code = code });
+                                    db.UserPasswordRecovery.Add(new UserPasswordRecovery() { IdUser = user.IdUser, RecoveryKey = code });
 
                                     AppCore.Get<EmailService>().SendMailFromSite(
                                         user.Caption,
                                         user.email,
                                         "Восстановление пароля на сайте",
-                                        this.ViewString("PasswordRestoreNotificationEmail.cshtml", new Design.Model.PasswordRestoreSend() { User = user, Code = code, CodeType = codeType }),
+                                        ViewString("PasswordRestoreNotificationEmail.cshtml", new Design.Model.PasswordRestoreSend() { User = user, Code = code, CodeType = codeType }),
                                         ContentType.Html
                                     );
                                 }
                                 else
                                 {
                                     var code = OnUtils.Utils.StringsHelper.GenerateRandomString("0123456789", 4);
-                                    db.PasswordRemember.Add(new PasswordRemember() { user_id = user.IdUser, code = code });
+                                    db.UserPasswordRecovery.Add(new UserPasswordRecovery() { IdUser = user.IdUser, RecoveryKey = code });
 
                                     AppCore.Get<MessagingSMS.SMSService>().SendMessage(user.phone, "Код восстановления пароля: " + code);
                                 }
@@ -275,7 +276,7 @@ namespace OnXap.Modules.Auth
                 answer.FromFail("Возникла ошибка во время восстановления пароля");
             }
 
-            if (!ModelState.IsValid) this.RegisterEventInvalidModel("Форма восстановления пароля - шаг 1");
+            if (!ModelState.IsValid) RegisterEventInvalidModel("Форма восстановления пароля - шаг 1");
 
             return ReturnJson(answer);
         }
@@ -296,12 +297,12 @@ namespace OnXap.Modules.Auth
             {
                 if (ModelState.IsValid)
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new Db.DataContext())
                     {
-                        var res = (from p in db.PasswordRemember
-                                   join u in db.Users on p.user_id equals u.IdUser
-                                   where p.code == model.Code
-                                   select new { Password = p, User = u }).FirstOrDefault();
+                        var res = (from UserPasswordRecovery in db.UserPasswordRecovery
+                                   join User in db.Users on UserPasswordRecovery.IdUser equals User.IdUser
+                                   where UserPasswordRecovery.RecoveryKey == model.Code
+                                   select new { UserPasswordRecovery, User }).FirstOrDefault();
 
                         if (res == null) ModelState.AddModelError(nameof(model.Code), "Некорректный код подтверждения.");
                         else
@@ -318,7 +319,7 @@ namespace OnXap.Modules.Auth
 
                             using (var scope = new System.Transactions.TransactionScope())
                             {
-                                db.PasswordRemember.Delete(res.Password);
+                                db.UserPasswordRecovery.Delete(res.UserPasswordRecovery);
 
                                 res.User.password = UsersExtensions.hashPassword(model.Password);
                                 res.User.salt = salt;
@@ -344,7 +345,7 @@ namespace OnXap.Modules.Auth
                 answer.FromFail("Возникла ошибка во время сохранения пароля");
             }
 
-            if (!ModelState.IsValid) this.RegisterEventInvalidModel("Форма восстановления пароля - шаг 2");
+            if (!ModelState.IsValid) RegisterEventInvalidModel("Форма восстановления пароля - шаг 2");
 
             return ReturnJson(answer);
         }

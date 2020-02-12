@@ -40,30 +40,5 @@
             set => Set("AuthorizationAttemptsBlockMessage", value);
         }
 
-
-        public int EventLoginSuccess
-        {
-            get => Get("eventLoginSuccess", 0);
-            set => Set("eventLoginSuccess", value);
-        }
-
-        public int EventLoginError
-        {
-            get => Get("eventLoginError", 0);
-            set => Set("eventLoginError", value);
-        }
-
-        public int EventLoginUpdate
-        {
-            get => Get("eventLoginUpdate", 0);
-            set => Set("eventLoginUpdate", value);
-        }
-
-        public int EventLogout
-        {
-            get => Get("eventLogout", 0);
-            set => Set("eventLogout", value);
-        }
-
     }
 }

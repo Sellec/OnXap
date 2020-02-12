@@ -8,6 +8,7 @@ namespace OnXap.Journaling.DB
     public class JournalNameDAO
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int IdJournal { get; set; }
 
         public int IdJournalType { get; set; }

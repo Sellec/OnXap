@@ -66,7 +66,7 @@ namespace OnXap.Binding.Providers
                 {
                     var lang = string.Format("{0}", requestContext.RouteData.Values["language"]);
 
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Languages.DB.DataContext())
                     {
                         var query = from Language in db.Language
                                     where Language.IsDefault != 0 || Language.ShortAlias == lang
@@ -74,12 +74,6 @@ namespace OnXap.Binding.Providers
                                     select Language;
 
                         var data = query.ToList();
-                        //var sql = DB.DataContext.ExecuteQuery<DB.Language>(@"
-                        //    SELECT TOP(1) *
-                        //    FROM Language
-                        //    WHERE IsDefault <> 0 OR ShortAlias = '" + DataManager.prepare(lang) + @"'
-                        //    ORDER BY CASE WHEN ShortAlias = '" + DataManager.prepare(lang) + @"' THEN 1 ELSE 0 END DESC
-                        //");
                         if (data.Count > 0)
                         {
                             var res = data.First();

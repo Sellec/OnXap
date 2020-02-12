@@ -16,7 +16,7 @@ namespace OnXap.Modules.Customer
     {
         protected override void OnViewModule(object model)
         {
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new Users.Db.DataContext())
             {
                 var tags = (from p in db.UserEntity where p.IsTagged group p.Tag by p.Tag into gr orderby gr.Key select gr.Key).ToList();
 
