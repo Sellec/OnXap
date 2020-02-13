@@ -51,16 +51,7 @@ $(function(){
 			if (img.attr("align") == "right") img.addClass("iright");
 		}
 	})
-	
-	/*$(".pages a").each(function(){
-		var re = /(.*)\.(.*)/i;
-		if ($(this).attr("href")) var ext = $(this).attr("href").replace(re, "$2");
-		if (ext == 'jpg' || ext == 'jpeg' || ext == 'gif' || ext == 'png' ) $(this).fancybox();
-	})*/
-	
-	//$(".info_table tr:even").addClass("infoEven");                    //фигня полная.
-	//$(".info_table tr:even td").css({"background-color":"#e8ecf2"});  //фигня полная.
-	
+
 	$(".info_table td").hover(function(){$(this).parent().find("td").addClass("hovered")},function(){$(this).parent().find("td").removeClass("hovered")})
 	$(".both tr").each(function(){$(this).find("td:first").addClass("first_td");})
 	
@@ -102,19 +93,7 @@ $(function(){
 	
 	n_width = 166;
 	newsscroll = Math.round($("#center_frame ul:first li").length)*n_width-n_width*3;
-	/*$("#center_frame div").everyTime(3500,'news',function(){block_scroll('next',n_width,'#center_frame div',newsscroll);});
-	$("#center_frame ul").hover(function(){
-		$("#center_frame div").stopTime('news');
-	},function(){
-		$("#center_frame div").everyTime(3500,'news',function(){block_scroll('next',n_width,'#center_frame div',newsscroll);});
-	})*/
-	/*aj = new ajaxRequest();
-	aj.load_form('enter_login',null,'el_res');
-	aj.userOnLoad = function(){if ($("#el_res").text()==1) window.location='/'};
-	aj_fast = new ajaxRequest();
-	aj_fast.load_form('fast_login',null,'fs_res');
-	aj_fast.userOnLoad = function(){if ($("#fs_res").text()==1) window.location='/'};*/
-	
+
 	$('form.fast_login').submit(function(e){
 		$.requestJSON($(this).attr('action'), $(this).serializeArray(), function(result, message, data){
 			var str = message;
@@ -140,38 +119,11 @@ $(function(){
 		$(".reg_img").attr("src","/captch/gen/"+Math.random()).load(function(){$(".new_img").removeClass("dis")})
 		return false;
 	})
-	
-	/*$("#lot_descr.ld_big").attr("rel",$("#lot_descr div").height()).css({"height":"100px"});
-	$(".ld_action").click(function(){
-		if ($(this).attr("rel")=="open"){
-			$("#lot_descr").animate({"height":$("#lot_descr").attr("rel")+"px"}).clearQueue();
-			$(this).attr("rel","close").text("↑ Свернуть текст ↑");
-		} else {
-			$("#lot_descr").animate({"height":"100px"}).clearQueue();
-			$(this).attr("rel","open").text("Показать полностью");
-		}
-		return false;
-	});*/
-	
+
 	$(".reg_captcha").click(function(){
 		$(this).attr("src",'/captch/code/' + Math.random());
 		return false;
 	})
-	/*$('#commentForm').click('submit', function () {
-		tinyMCE.get("DescriptionFull").save();
-		$(this).ajaxSubmit({
-			success: function (result) {
-				if (result.success) {
-					$('#commentForm')[0].reset();
-					var newComment = { comment: result.comment };
-					// Append the new comment to the div
-					$('#commentTemplate').tmpl(result.comment).appendTo('#commentsTemplate');
-				}
-				$('#commentFormStatus').text(result.message);
-			}
-		});
-		return false;
-	});*/
 })
 
 function block_scroll(dir,wid,elem,stopScroll){

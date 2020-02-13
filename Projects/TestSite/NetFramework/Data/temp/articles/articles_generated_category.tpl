@@ -1,1 +1,0 @@
-<ul id="cats_more"><li>&rarr; <a href="/articles/cat/1" title="Сми о Максиме">Сми о Максиме</a></li></ul>
