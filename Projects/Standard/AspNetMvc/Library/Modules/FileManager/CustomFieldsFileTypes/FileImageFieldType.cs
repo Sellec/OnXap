@@ -9,6 +9,8 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 
     public class FileImageFieldType : FileFieldType
     {
+        internal const int IdFieldTypeImage = 12;
+
         public override ValuesValidationResult Validate(IEnumerable<object> values, IField field)
         {
             if (field.IsValueRequired && (values == null || values.Count() == 0)) return CreateResultForEmptyValue(field);
@@ -21,11 +23,11 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
             foreach (var value in values)
             {
                 if (value is int) valuesPrepared.Add((int)value);
-                else if (value is DB.File) valuesPrepared.Add((value as DB.File).IdFile);
+                else if (value is Db.File) valuesPrepared.Add((value as Db.File).IdFile);
                 else valuesInvalid.Add(value?.ToString()?.Truncate(0, 10, "..."));
             }
 
-            var filesFound = DataAccessManager.Get<DB.File>().Where(x => valuesPrepared.Contains(x.IdFile)).ToList();
+            var filesFound = DataAccessManager.Get<Db.File>().Where(x => valuesPrepared.Contains(x.IdFile)).ToList();
             if (field.IsValueRequired && filesFound.Count == 0) return CreateResultForEmptyValue(field);
 
             var filesFoundIds = filesFound.Select(x => x.IdFile).ToList();
@@ -47,7 +49,7 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 
         public override int IdType
         {
-            get => 12;
+            get => IdFieldTypeImage;
         }
 
         public override string TypeName

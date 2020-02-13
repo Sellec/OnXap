@@ -1,13 +1,14 @@
-namespace OnXap.Modules.ItemsCustomize.DB
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Modules.ItemsCustomize.DB
+{
     [Table("CustomFieldsData")]
     public class CustomFieldsData
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long IdFieldData { get; set; }
 
         public int IdField { get; set; }

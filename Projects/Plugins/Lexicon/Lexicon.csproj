@@ -3,30 +3,19 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>OnXap.Modules.Lexicon</AssemblyName>
-    <Version>0.1.6</Version>
+    <Version>0.1.7</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Authors>Sellec</Authors>
-    <Company>Sellec</Company>
-    <Copyright>Copyright © Петров Дмитрий 2019 (Sellec)</Copyright>
     <Description>Модуль, добавляющий возможность склонять слова.</Description>
-    <RootNamespace>OnXap.Modules.Lexicon</RootNamespace>
-    <PackageLicenseUrl>https://github.com/Sellec/OnXap/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/Sellec/OnXap</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Sellec/OnXap</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageIconUrl>http://tracestudio.ru/favicon.ico</PackageIconUrl>
+    <RootNamespace>OnXap</RootNamespace>
   </PropertyGroup>
 
-  <Target Name="CopyPackage" AfterTargets="Pack">
-    <Exec Command="copy /y &quot;$(TargetDir)..\$(PackageId).$(Version).symbols.nupkg&quot; &quot;$(SolutionDir)..\Build\$(PackageId).$(Version).nupkg&quot;" />
-  </Target>
+  <Import Project="..\..\Common\Common.props" />
 
   <ItemGroup>
     <PackageReference Include="OnUtils" Version="0.1.20" />
-    <PackageReference Include="OnXap.Core" Version="0.1.8.2" />
+    <PackageReference Include="OnXap.Core" Version="0.1.8.25" />
   </ItemGroup>
 
 </Project>

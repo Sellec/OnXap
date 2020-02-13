@@ -9,6 +9,7 @@ namespace OnXap.Modules.Routing
         {
             bindingsCollection.SetSingleton<ModuleRouting>();
             bindingsCollection.SetSingleton<UrlManager>();
+            bindingsCollection.SetTransient<DbSchema.Routing>();
         }
     }
 }

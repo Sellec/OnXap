@@ -1,9 +1,9 @@
-namespace OnXap.Modules.ItemsCustomize.DB
-{
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Modules.ItemsCustomize.DB
+{
     [Table("CustomFieldsValue")]
     public class CustomFieldsValue
     {
@@ -19,7 +19,5 @@ namespace OnXap.Modules.ItemsCustomize.DB
         public int Order { get; set; }
 
         public int DateChange { get; set; }
-
-        public int old_index { get; set; }
     }
 }

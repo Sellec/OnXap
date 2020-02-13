@@ -73,6 +73,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Fake", "..\Projects\Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceHelper", "..\Projects\Standard\AspNetMvc\SourceHelper\SourceHelper.csproj", "{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbMaintenance", "..\Projects\Plugins\DbMaintenance\DbMaintenance.csproj", "{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +145,10 @@ Global
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,6 +173,7 @@ Global
 		{491FB1E6-B355-4FF1-BC1F-A2A59AF26AF8} = {3ACC2628-7AFA-49A7-BA54-A89822448070}
 		{3A5C4713-8FF7-4CF6-BB1D-97CFC24D01C0} = {620AF6BB-950C-49F1-AA20-76FB9C95A3DF}
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
+		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}

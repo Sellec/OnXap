@@ -6,7 +6,7 @@ using System.Web;
 namespace OnXap.Modules.FileManager
 {
     /// <summary>
-    /// Перечисление, возвращаемое функцией <see cref="FileManager.Register(out DB.File, string, string, string, DateTime?)"/>.
+    /// Перечисление, возвращаемое функцией <see cref="FileManager.Register(out Db.File, string, string, string, DateTime?)"/>.
     /// </summary>
     public enum RegisterResult
     {

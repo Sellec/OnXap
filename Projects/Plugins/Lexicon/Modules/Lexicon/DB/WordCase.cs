@@ -1,14 +1,14 @@
-namespace OnXap.Modules.Lexicon.DB
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace OnXap.Modules.Lexicon.Db
+{
     /// <summary>
     /// Хранит информацию о падежах слова.
     /// </summary>
     [Table("WordCase")]
-    public partial class WordCase
+    public class WordCase
     {
         #region Формы слова
         #region Единственное число

@@ -20,7 +20,13 @@ namespace OnXap.Binding.Providers
 
     class CustomControllerFactory : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<Core.Db.CoreContext>, IControllerFactory
     {
+        internal static readonly Guid _routingModuleNotFound;
         private readonly IControllerFactory _controllerFactoryOld = null;
+
+        static CustomControllerFactory()
+        {
+            _routingModuleNotFound = Guid.NewGuid();
+        }
 
         public CustomControllerFactory(IControllerFactory controllerFactoryOld)
         {
@@ -82,17 +88,25 @@ namespace OnXap.Binding.Providers
                     }
                 }
 
-                /*
-                 * Ищем модуль, к которому обращаются запросом.
-                 * */
-                if (int.TryParse(moduleName, out int moduleId) && moduleId.ToString() == moduleName)
-                    module = (IModuleCore)AppCore.GetModulesManager().GetModule(moduleId);
-                else if (Guid.TryParse(moduleName, out Guid uniqueName) && uniqueName.ToString() == moduleName)
-                    module = (IModuleCore)AppCore.GetModulesManager().GetModule(uniqueName);
+                if (moduleName == _routingModuleNotFound.ToString())
+                {
+                    var error = requestContext.HttpContext.Items[_routingModuleNotFound.ToString() + "_RoutingError"] as string;
+                    throw new ErrorCodeException(HttpStatusCode.NotFound, error);
+                }
                 else
-                    module = (IModuleCore)AppCore.GetModulesManager().GetModule(moduleName);
+                {
+                    /*
+                     * Ищем модуль, к которому обращаются запросом.
+                     * */
+                    if (int.TryParse(moduleName, out int moduleId) && moduleId.ToString() == moduleName)
+                        module = (IModuleCore)AppCore.GetModulesManager().GetModule(moduleId);
+                    else if (Guid.TryParse(moduleName, out Guid uniqueName) && uniqueName.ToString() == moduleName)
+                        module = (IModuleCore)AppCore.GetModulesManager().GetModule(uniqueName);
+                    else
+                        module = (IModuleCore)AppCore.GetModulesManager().GetModule(moduleName);
 
-                if (module == null) throw new ErrorCodeException(HttpStatusCode.NotFound, $"Адрес '{moduleName}' не найден.");
+                    if (module == null) throw new ErrorCodeException(HttpStatusCode.NotFound, $"Адрес '{moduleName}' не найден.");
+                }
 
                 /*
                  * Ищем контроллер, который относится к модулю.

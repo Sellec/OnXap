@@ -153,7 +153,13 @@ namespace OnXap.Binding.Routing
                 }
 
                 var module = _core.GetModulesManager().GetModule(route.IdModule);
-                if (module != null)
+                if (module == null)
+                {
+                    requestContext.HttpContext.Items[CustomControllerFactory._routingModuleNotFound.ToString() + "_RoutingError"] = $"Для маршрута №{route.IdRoute} не найден модуль с №{route.IdModule}";
+                    requestContext.RouteData.Values["controller"] = CustomControllerFactory._routingModuleNotFound.ToString();
+                    requestContext.RouteData.Values["action"] = "empty";
+                }
+                else
                 {
                     var arguments = !string.IsNullOrEmpty(route.Arguments) ? 
                         JsonConvert.DeserializeObject<IEnumerable<ActionArgument>>(route.Arguments, new JsonSerializerSettings()

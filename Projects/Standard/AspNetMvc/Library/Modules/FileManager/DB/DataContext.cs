@@ -1,6 +1,6 @@
 ﻿using OnUtils.Data;
 
-namespace OnXap.Modules.FileManager.DB
+namespace OnXap.Modules.FileManager.Db
 {
     class DataContext : Core.Db.CoreContext
     {

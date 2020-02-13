@@ -17,8 +17,6 @@ namespace OnXap.Modules.ItemsCustomize.DB
 
         public IRepository<CustomFieldsValue> CustomFieldsValues { get; }
 
-        public IRepository<CustomFieldsValueType> CustomFieldsValueTypes { get; }
-
         public IRepository<ItemParent> ItemParent { get; }
 
     }

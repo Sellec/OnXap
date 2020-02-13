@@ -90,6 +90,24 @@ namespace OnXap.Core.DbSchema
         {
             if (!Schema.Table<TTable>().Column(columnAccessor).Exists()) columnFluentCallback(Alter.Table<TTable>().AddColumn(columnAccessor));
         }
+
+        /// <summary>
+        /// Возвращает имя столбца на основе свойства или поля, переданного в выражении <paramref name="columnAccessor"/>. 
+        /// </summary>
+        /// <seealso cref="FluentMigratorColumnExtensions.GetColumnName{TTable, TProperty}(Expression{Func{TTable, TProperty}})"/>
+        protected string GetColumnName<TTable, TProperty>(Expression<Func<TTable, TProperty>> columnAccessor)
+        {
+            return FluentMigratorColumnExtensions.GetColumnName(columnAccessor);
+        }
+
+        /// <summary>
+        /// Возвращает имя таблицы на основе типа <typeparamref name="TTable"/>. 
+        /// </summary>
+        /// <seealso cref="FluentMigratorTableExtensions.GetTableName{TTable}"/>
+        protected string GetTableName<TTable>()
+        {
+            return FluentMigratorTableExtensions.GetTableName<TTable>();
+        }
         #endregion
 
         /// <summary>

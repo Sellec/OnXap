@@ -5,7 +5,7 @@ using System.Web;
 
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
-    using DB;
+    using Db;
 
     public class RequiredAttributeForSingleValue : System.ComponentModel.DataAnnotations.RequiredAttribute
     {

@@ -16,6 +16,9 @@ namespace OnXap.Modules.FileManager
 
             bindingsCollection.SetTransient<ICustomFieldRender<FileImageFieldType>, FileImageFieldTypeRender>();
             bindingsCollection.SetTransient<ICustomFieldRender<FileFieldType>, FileFieldTypeRender>();
+
+            bindingsCollection.SetTransient<DbSchema.File>();
+            bindingsCollection.SetTransient<DbSchema.FileRemoveQueue>();
         }
     }
 }

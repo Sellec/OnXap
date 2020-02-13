@@ -1,4 +1,6 @@
-﻿namespace OnXap.Core.Db
+﻿using FluentMigrator.SqlServer;
+
+namespace OnXap.Core.Db
 {
     using DbSchema;
 
@@ -21,8 +23,6 @@
                     WithColumn((Role x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0).
                     WithColumn((Role x) => x.DateChange).AsInt32().NotNullable().WithDefaultValue(0).
                     WithColumn((Role x) => x.UniqueKey).AsString(100).Nullable();
-
-                IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey] ON [{FluentMigratorTableExtensions.GetTableName<Role>()}] ([{FluentMigratorColumnExtensions.GetColumnName((Role x) => x.UniqueKey)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((Role x) => x.UniqueKey)}] IS NOT NULL);");
             }
             else
             {
@@ -34,10 +34,12 @@
                 AddColumnIfNotExists(Schema, (Role x) => x.IdUserChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (Role x) => x.DateChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (Role x) => x.UniqueKey, x => x.AsString(100).Nullable());
-
-                if (!Schema.Table<Role>().Index("UniqueKey").Exists())
-                    IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey] ON [{FluentMigratorTableExtensions.GetTableName<Role>()}] ([{FluentMigratorColumnExtensions.GetColumnName((Role x) => x.UniqueKey)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((Role x) => x.UniqueKey)}] IS NOT NULL);");
             }
+
+            if (!Schema.Table<Role>().Exists() || !Schema.Table<Role>().Index("UniqueKey").Exists())
+                Create.Index("UniqueKey").OnTable(GetTableName<Role>()).
+                    OnColumn(GetColumnName((Role x) => x.UniqueKey)).Ascending().
+                    WithOptions().UniqueNullsNotDistinct();
         }
     }
 }

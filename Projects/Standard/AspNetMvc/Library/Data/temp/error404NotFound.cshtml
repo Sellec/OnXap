@@ -25,7 +25,7 @@
             <div class="enter-block" id="enter_reg">
                 <div class="result">
                     Уважаемый посетитель! Указанный адрес, который Вы пытаетесь открыть, не существует.
-                    @if (Model != null && !string.IsNullOrEmpty(Model.Message))
+                    @if (this.GetCurrentUserContext().IsSuperuser && Model != null && !string.IsNullOrEmpty(Model.Message))
                     {
                         <div style="font-style: italic;font-weight: bold;margin-top:10px;">
                             @Html.Raw(Model.Message)

@@ -8,6 +8,7 @@ namespace OnXap.Modules.Lexicon
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
             bindingsCollection.SetSingleton<LexiconManager>();
+            bindingsCollection.SetTransient<Db.WordCaseSchemeItem>();
         }
     }
 }

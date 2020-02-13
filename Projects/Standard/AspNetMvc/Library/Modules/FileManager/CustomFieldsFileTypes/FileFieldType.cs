@@ -8,10 +8,12 @@ using System.Reflection.Emit;
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
     using Modules.ItemsCustomize.Field;
-    using DB;
+    using Db;
 
     public class FileFieldType : FieldType
     {
+        internal const int IdFieldTypeFile = 10;
+
         class c : RequiredAttribute
         {
             public string GetErrorMessageString()
@@ -88,7 +90,7 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 
         public override int IdType
         {
-            get => 10;
+            get => IdFieldTypeFile;
         }
 
         public override string TypeName

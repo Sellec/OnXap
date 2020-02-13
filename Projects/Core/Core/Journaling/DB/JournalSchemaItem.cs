@@ -1,4 +1,6 @@
-﻿namespace OnXap.Journaling.DB
+﻿using FluentMigrator.SqlServer;
+
+namespace OnXap.Journaling.DB
 {
     using Core.DbSchema;
     using Core.Items.Db;
@@ -27,17 +29,19 @@
                     WithColumn((JournalDAO x) => x.EventType).AsByte().NotNullable().WithDefaultValue((byte)EventType.Info).
                     WithColumn((JournalDAO x) => x.EventInfo).AsString(300).NotNullable().
                     WithColumn((JournalDAO x) => x.EventInfoDetailed).AsString(int.MaxValue).Nullable().
-                    WithColumn((JournalDAO x) => x.EventCode).AsInt32().NotNullable().
+                    WithColumn((JournalDAO x) => x.EventCode).AsInt32().NotNullable().WithDefaultValue(0).
                     WithColumn((JournalDAO x) => x.ExceptionDetailed).AsString(int.MaxValue).Nullable().
                     WithColumn((JournalDAO x) => x.DateEvent).AsDateTime().NotNullable().
                     WithColumn((JournalDAO x) => x.IdUser).AsInt32().Nullable().
                     WithColumn((JournalDAO x) => x.ItemLinkId).AsGuid().Nullable();
 
-                IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [IX_ItemLinkId] ON [{FluentMigratorTableExtensions.GetTableName<JournalDAO>()}] ([{FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)}] IS NOT NULL);");
+                Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
+                    OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending().
+                    WithOptions().UniqueNullsNotDistinct();
 
                 Create.ForeignKey("FK_Journal_ItemLink").
-                    FromTable(FluentMigratorTableExtensions.GetTableName<JournalDAO>()).ForeignColumn(FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)).
-                    ToTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).PrimaryColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).
+                    FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
+                    ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
                     OnDelete(System.Data.Rule.Cascade);
             }
             else
@@ -47,13 +51,13 @@
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.EventType, x => x.AsByte().NotNullable().WithDefaultValue((byte)EventType.Info));
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.EventInfo, x => x.AsString(300).NotNullable());
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.EventInfoDetailed, x => x.AsString(int.MaxValue).Nullable());
-                AddColumnIfNotExists(Schema, (JournalDAO x) => x.EventCode, x => x.AsInt32().NotNullable());
+                AddColumnIfNotExists(Schema, (JournalDAO x) => x.EventCode, x => x.AsInt32().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.ExceptionDetailed, x => x.AsString(int.MaxValue).Nullable());
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.DateEvent, x => x.AsDateTime().NotNullable());
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.IdUser, x => x.AsInt32().Nullable());
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.ItemLinkId, x => x.AsGuid().Nullable());
 
-                var tableName = FluentMigratorTableExtensions.GetTableName<JournalDAO>();
+                var tableName = GetTableName<JournalDAO>();
 
                 if (Schema.Table<JournalDAO>().Index("IX_Journal_ItemLinkId").Exists())
                 {
@@ -61,17 +65,19 @@
                 }
                 else if (!Schema.Table<JournalDAO>().Index("IX_ItemLinkId").Exists())
                 {
-                    IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [IX_ItemLinkId] ON [{FluentMigratorTableExtensions.GetTableName<JournalDAO>()}] ([{FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)}] IS NOT NULL);");
+                    Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
+                        OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending().
+                        WithOptions().UniqueNullsNotDistinct();
                 }
 
                 if (!Schema.Table<JournalDAO>().Constraint("FK_Journal_ItemLink").Exists())
                     Create.ForeignKey("FK_Journal_ItemLink").
-                        FromTable(FluentMigratorTableExtensions.GetTableName<JournalDAO>()).ForeignColumn(FluentMigratorColumnExtensions.GetColumnName((JournalDAO x) => x.ItemLinkId)).
-                        ToTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).PrimaryColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).
+                        FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
+                        ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
                         OnDelete(System.Data.Rule.Cascade);
 
                 if (Schema.Table<JournalDAO>().Constraint("FK_Journal_UserBase").Exists())
-                    Delete.ForeignKey("FK_Journal_UserBase").OnTable(FluentMigratorTableExtensions.GetTableName<JournalDAO>());
+                    Delete.ForeignKey("FK_Journal_UserBase").OnTable(GetTableName<JournalDAO>());
             }
         }
     }

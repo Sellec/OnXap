@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>OnXap.Modules.DbMaintenance</AssemblyName>
+    <Version>0.1.1</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSource>True</IncludeSource>
+    <Description>Модуль, добавляющий возможности по обслуживанию базы данных.</Description>
+    <RootNamespace>OnXap</RootNamespace>
+  </PropertyGroup>
+
+  <Import Project="..\..\Common\Common.props" />
+
+  <ItemGroup>
+    <PackageReference Include="OnUtils" Version="0.1.20" />
+    <PackageReference Include="OnXap.Core" Version="0.1.8.25" />
+  </ItemGroup>
+  
+</Project>

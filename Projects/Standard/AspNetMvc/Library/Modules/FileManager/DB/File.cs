@@ -1,12 +1,12 @@
-namespace OnXap.Modules.FileManager.DB
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Modules.FileManager.Db
+{
     [Table("File")]
-    public partial class File
+    public class File
     {
         [Key]
         public int IdFile { get; set; }

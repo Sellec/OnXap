@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using FluentMigrator.SqlServer;
+using System.Linq;
 
 namespace OnXap.Core.Db
 {
@@ -40,10 +41,6 @@ namespace OnXap.Core.Db
                     WithColumn((User x) => x.Comment).AsString(int.MaxValue).Nullable().
                     WithColumn((User x) => x.CommentAdmin).AsString(int.MaxValue).Nullable().
                     WithColumn((User x) => x.about).AsString(int.MaxValue).Nullable();
-
-                IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey] ON [{FluentMigratorTableExtensions.GetTableName<User>()}] ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.UniqueKey)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.UniqueKey)}] IS NOT NULL);");
-                IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueEmail] ON [{FluentMigratorTableExtensions.GetTableName<User>()}] ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.email)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.email)}] IS NOT NULL);");
-
             }
             else
             {
@@ -67,10 +64,17 @@ namespace OnXap.Core.Db
                 AddColumnIfNotExists(Schema, (User x) => x.Comment, x => x.AsString(int.MaxValue).Nullable());
                 AddColumnIfNotExists(Schema, (User x) => x.CommentAdmin, x => x.AsString(int.MaxValue).Nullable());
                 AddColumnIfNotExists(Schema, (User x) => x.about, x => x.AsString(int.MaxValue).Nullable());
-
-                if (!Schema.Table<User>().Index("UniqueKey").Exists()) IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey] ON [{FluentMigratorTableExtensions.GetTableName<User>()}] ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.UniqueKey)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.UniqueKey)}] IS NOT NULL);");
-                if (!Schema.Table<User>().Index("UniqueEmail").Exists()) IfDatabase("sqlserver").Execute.Sql($"CREATE UNIQUE NONCLUSTERED INDEX [UniqueEmail] ON [{FluentMigratorTableExtensions.GetTableName<User>()}] ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.email)}] ASC) WHERE ([{FluentMigratorColumnExtensions.GetColumnName((User x) => x.email)}] IS NOT NULL);");
             }
+
+            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index("UniqueKey").Exists())
+                Create.Index("UniqueKey").OnTable(GetTableName<User>()).
+                    OnColumn(GetColumnName((User x) => x.UniqueKey)).Ascending().
+                    WithOptions().UniqueNullsNotDistinct();
+
+            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index("UniqueEmail").Exists())
+                Create.Index("UniqueEmail").OnTable(GetTableName<User>()).
+                    OnColumn(GetColumnName((User x) => x.email)).Ascending().
+                    WithOptions().UniqueNullsNotDistinct();
 
             Trigger_UsersUpsertHistory();
         }
@@ -78,58 +82,58 @@ namespace OnXap.Core.Db
         private void Trigger_UsersUpsertHistory()
         {
             var fieldsListUserHistory = new string[] {
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.IdUser),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.UniqueKey),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.email),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.phone),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.password),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.salt),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.name),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.IdPhoto),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.Superuser),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.State),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.StateConfirmation),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.AuthorizationAttempts),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.Block),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.BlockedUntil),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.BlockedReason),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.DateChange),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.IdUserChange),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.Comment),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.CommentAdmin),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.about),
-                    FluentMigratorColumnExtensions.GetColumnName((UserHistory x) => x.DateChangeHistory),
+                    GetColumnName((UserHistory x) => x.IdUser),
+                    GetColumnName((UserHistory x) => x.UniqueKey),
+                    GetColumnName((UserHistory x) => x.email),
+                    GetColumnName((UserHistory x) => x.phone),
+                    GetColumnName((UserHistory x) => x.password),
+                    GetColumnName((UserHistory x) => x.salt),
+                    GetColumnName((UserHistory x) => x.name),
+                    GetColumnName((UserHistory x) => x.IdPhoto),
+                    GetColumnName((UserHistory x) => x.Superuser),
+                    GetColumnName((UserHistory x) => x.State),
+                    GetColumnName((UserHistory x) => x.StateConfirmation),
+                    GetColumnName((UserHistory x) => x.AuthorizationAttempts),
+                    GetColumnName((UserHistory x) => x.Block),
+                    GetColumnName((UserHistory x) => x.BlockedUntil),
+                    GetColumnName((UserHistory x) => x.BlockedReason),
+                    GetColumnName((UserHistory x) => x.DateChange),
+                    GetColumnName((UserHistory x) => x.IdUserChange),
+                    GetColumnName((UserHistory x) => x.Comment),
+                    GetColumnName((UserHistory x) => x.CommentAdmin),
+                    GetColumnName((UserHistory x) => x.about),
+                    GetColumnName((UserHistory x) => x.DateChangeHistory),
                 }.Select(x => $"[{x}]").ToList();
 
             var fieldsListUser = new string[] {
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.IdUser),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.UniqueKey),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.email),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.phone),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.password),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.salt),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.name),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.IdPhoto),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.Superuser),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.State),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.StateConfirmation),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.AuthorizationAttempts),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.Block),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.BlockedUntil),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.BlockedReason),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.DateChange),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.IdUserChange),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.Comment),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.CommentAdmin),
-                    FluentMigratorColumnExtensions.GetColumnName((User x) => x.about),
+                    GetColumnName((User x) => x.IdUser),
+                    GetColumnName((User x) => x.UniqueKey),
+                    GetColumnName((User x) => x.email),
+                    GetColumnName((User x) => x.phone),
+                    GetColumnName((User x) => x.password),
+                    GetColumnName((User x) => x.salt),
+                    GetColumnName((User x) => x.name),
+                    GetColumnName((User x) => x.IdPhoto),
+                    GetColumnName((User x) => x.Superuser),
+                    GetColumnName((User x) => x.State),
+                    GetColumnName((User x) => x.StateConfirmation),
+                    GetColumnName((User x) => x.AuthorizationAttempts),
+                    GetColumnName((User x) => x.Block),
+                    GetColumnName((User x) => x.BlockedUntil),
+                    GetColumnName((User x) => x.BlockedReason),
+                    GetColumnName((User x) => x.DateChange),
+                    GetColumnName((User x) => x.IdUserChange),
+                    GetColumnName((User x) => x.Comment),
+                    GetColumnName((User x) => x.CommentAdmin),
+                    GetColumnName((User x) => x.about),
                 }.Select(x => $"[{x}]").ToList();
 
             var triggerBody = $@"
-CREATE TRIGGER [dbo].[UsersUpsertHistory] ON  [dbo].[{FluentMigratorTableExtensions.GetTableName<User>()}] AFTER INSERT, UPDATE
+CREATE TRIGGER [dbo].[UsersUpsertHistory] ON  [dbo].[{GetTableName<User>()}] AFTER INSERT, UPDATE
 AS 
 BEGIN
 	SET NOCOUNT ON;
-	INSERT INTO [dbo].[{FluentMigratorTableExtensions.GetTableName<UserHistory>()}] ({string.Join(", ", fieldsListUserHistory)})
+	INSERT INTO [dbo].[{GetTableName<UserHistory>()}] ({string.Join(", ", fieldsListUserHistory)})
     SELECT {string.Join(", ", fieldsListUser)}, GETDATE()
 	FROM inserted
 END;

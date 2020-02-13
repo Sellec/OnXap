@@ -1,6 +1,6 @@
 ﻿using OnUtils.Data;
 
-namespace OnXap.Modules.Lexicon.DB
+namespace OnXap.Modules.Lexicon.Db
 {
     class DataContext : Core.Db.CoreContext
     {

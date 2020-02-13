@@ -16,13 +16,13 @@ namespace OnXap.Modules.FileManager
     using Core.Modules;
     using Journaling;
     using Types;
-    using DictionaryFiles = Dictionary<int, DB.File>;
+    using DictionaryFiles = Dictionary<int, Db.File>;
 
     /// <summary>
     /// Менеджер, позволяющий управлять файлами в хранилище файлов (локально или cdn).
     /// </summary>
     [ModuleCore("Управление файлами")]
-    public class FileManager : ModuleCore<FileManager>, IUnitOfWorkAccessor<DB.DataContext>
+    public class FileManager : ModuleCore<FileManager>, IUnitOfWorkAccessor<Db.DataContext>
     {
         private static FileManager _thisModule = null;
         private static ConcurrentFlagLocker<string> _servicesFlags = new ConcurrentFlagLocker<string>();
@@ -33,12 +33,6 @@ namespace OnXap.Modules.FileManager
         protected override void OnModuleStart()
         {
             _thisModule = this;
-
-            /*
-             * Обслуживание индексов запускаем один раз при старте и раз в несколько часов
-             * */
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(MaintenanceIndexes), DateTime.Now.AddSeconds(30), () => MaintenanceIndexesStatic());
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(MaintenanceIndexes) + "_hourly6", Cron.HourInterval(6), () => MaintenanceIndexesStatic());
 
 #if DEBUG
             /*
@@ -72,11 +66,11 @@ namespace OnXap.Modules.FileManager
         /// <summary>
         /// Пытается получить файл с идентификатором <paramref name="idFile"/>.
         /// </summary>
-        /// <param name="idFile">Идентификатор файла, который необходимо получить  (см. <see cref="DB.File.IdFile"/>).</param>
+        /// <param name="idFile">Идентификатор файла, который необходимо получить  (см. <see cref="Db.File.IdFile"/>).</param>
         /// <param name="result">В случае успеха содержит данные о файле.</param>
         /// <returns>Возвращает результат поиска файла.</returns>
         [ApiReversible]
-        public NotFound TryGetFile(int idFile, out DB.File result)
+        public NotFound TryGetFile(int idFile, out Db.File result)
         {
             try
             {
@@ -103,7 +97,7 @@ namespace OnXap.Modules.FileManager
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="searchExpression"/> равен null.</exception>
         /// <exception cref="ArgumentException">Возникает, если <paramref name="searchExpression"/> содержит некорректное выражение.</exception>
         [ApiReversible]
-        public NotFound TryGetFile(Expression<Func<DB.File, bool>> searchExpression, out DB.File result)
+        public NotFound TryGetFile(Expression<Func<Db.File, bool>> searchExpression, out Db.File result)
         {
             if (searchExpression == null) throw new ArgumentNullException(nameof(searchExpression));
 
@@ -141,7 +135,7 @@ namespace OnXap.Modules.FileManager
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="searchExpression"/> равен null.</exception>
         /// <exception cref="ArgumentException">Возникает, если <paramref name="searchExpression"/> содержит некорректное выражение.</exception>
         [ApiReversible]
-        public NotFound TryGetFiles(Expression<Func<DB.File, bool>> searchExpression, out List<DB.File> result)
+        public NotFound TryGetFiles(Expression<Func<Db.File, bool>> searchExpression, out List<Db.File> result)
         {
             if (searchExpression == null) throw new ArgumentNullException(nameof(searchExpression));
 
@@ -171,7 +165,7 @@ namespace OnXap.Modules.FileManager
         }
 
         /// <summary>
-        /// Возвращает файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="DB.File.IdFile"/>).
+        /// Возвращает файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="Db.File.IdFile"/>).
         /// </summary>
         /// <returns>
         /// Возвращает коллекцию <see cref="DictionaryFiles"/>, к которой в качестве ключей выступают идентификаторы из списка <paramref name="fileList"/>. 
@@ -196,7 +190,7 @@ namespace OnXap.Modules.FileManager
                     }
                 }
 
-                return new Dictionary<int, DB.File>();
+                return new Dictionary<int, Db.File>();
             }
             catch (Exception ex)
             {
@@ -213,13 +207,13 @@ namespace OnXap.Modules.FileManager
         /// <param name="uniqueKey">Уникальный ключ файла, по которому его можно идентифицировать. Один и тот же ключ может быть указан сразу у многих файлов.</param>
         /// <param name="dateExpires">Дата окончения срока хранения файла, после которой он будет автоматически удален. Если равно null, то устанавливается безлимитный срок хранения.</param>
         /// <param name="result">В случае успешной регистрации содержит данные зарегистрированного файла.</param>
-        /// <returns>Возвращает объект <see cref="DB.File"/>, если файл был зарегистрирован, либо null, если произошла ошибка.</returns>
+        /// <returns>Возвращает объект <see cref="Db.File"/>, если файл был зарегистрирован, либо null, если произошла ошибка.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="nameFile"/> является пустой строкой или null.</exception>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="pathFile"/> является пустой строкой или null.</exception>
         /// <exception cref="ArgumentException">Возникает, если <paramref name="nameFile"/> содержит специальные символы, не разрешенные в именах файлов (см. <see cref="Path.GetInvalidFileNameChars"/>).</exception>
         /// <exception cref="FileNotFoundException">Возникает, если файл <paramref name="pathFile"/> не найден на диске.</exception>
         [ApiReversible]
-        public RegisterResult Register(out DB.File result, string nameFile, string pathFile, Guid? uniqueKey = null, DateTime? dateExpires = null)
+        public RegisterResult Register(out Db.File result, string nameFile, string pathFile, Guid? uniqueKey = null, DateTime? dateExpires = null)
         {
             if (string.IsNullOrEmpty(nameFile)) throw new ArgumentNullException(nameof(nameFile));
             if (string.IsNullOrEmpty(pathFile)) throw new ArgumentNullException(nameof(pathFile));
@@ -245,7 +239,7 @@ namespace OnXap.Modules.FileManager
                     if (data == null)
                     {
                         isNew = true;
-                        data = new DB.File();
+                        data = new Db.File();
                     }
 
                     data.IdModule = 0;
@@ -287,7 +281,7 @@ namespace OnXap.Modules.FileManager
         }
 
         /// <summary>
-        /// Устанавливает новый срок хранения для файла с идентификатором <paramref name="idFile"/> (см. <see cref="DB.File.IdFile"/>).
+        /// Устанавливает новый срок хранения для файла с идентификатором <paramref name="idFile"/> (см. <see cref="Db.File.IdFile"/>).
         /// Если <paramref name="dateExpires"/> равен null, то устанавливается безлимитный срок хранения.
         /// </summary>
         /// <returns>Возвращает true, если срок обновлен, либо false, если произошла ошибка.</returns>
@@ -321,7 +315,7 @@ namespace OnXap.Modules.FileManager
         }
 
         /// <summary>
-        /// Устанавливает новый срок хранения для файлов с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="DB.File.IdFile"/>).
+        /// Устанавливает новый срок хранения для файлов с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="Db.File.IdFile"/>).
         /// Если <paramref name="dateExpires"/> равен null, то устанавливается безлимитный срок хранения.
         /// </summary>
         /// <returns>Возвращает true, если срок обновлен, либо false, если произошла ошибка. Возвращает true, если <paramref name="fileList"/> пуст.</returns>
@@ -366,7 +360,7 @@ namespace OnXap.Modules.FileManager
         }
 
         /// <summary>
-        /// Окончательно удаляет из базы и с диска файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="DB.File.IdFile"/>). 
+        /// Окончательно удаляет из базы и с диска файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="Db.File.IdFile"/>). 
         /// Не подходит для транзакционных блоков, т.к. операцию невозможно отменить.
         /// </summary>
         /// <returns>Возвращает true, если файлы удалены, либо false, если произошла ошибка. Возвращает true, если <paramref name="fileList"/> пуст.</returns>
@@ -410,7 +404,7 @@ namespace OnXap.Modules.FileManager
         }
 
         /// <summary>
-        /// Помечает на удаление файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="DB.File.IdFile"/>). 
+        /// Помечает на удаление файлы с идентификаторами из списка <paramref name="fileList"/> (см. <see cref="Db.File.IdFile"/>). 
         /// Файлы удаляются фоновым заданием через какое-то время. Рекомендуется для транзакций.
         /// </summary>
         /// <returns>Возвращает true, если файлы помечены на удаление, либо false, если произошла ошибка. Возвращает true, если <paramref name="fileList"/> пуст.</returns>
@@ -450,7 +444,7 @@ namespace OnXap.Modules.FileManager
             {
                 using (var db = this.CreateUnitOfWork())
                 {
-                    var result = db.DataContext.StoredProcedure<object>("Job_FileCountUpdate");
+                    db.DataContext.StoredProcedure<object>("FileManager_FileCountUpdate");
                 }
             }
             catch (Exception ex)
@@ -467,7 +461,7 @@ namespace OnXap.Modules.FileManager
 
             try
             {
-                using (var db = new DB.DataContext())
+                using (var db = new Db.DataContext())
                 {
                     db.DataContext.StoredProcedure<object>("FileManager_PlaceFileIntoQueue");
                 }
@@ -497,7 +491,7 @@ namespace OnXap.Modules.FileManager
                 int idFileMax = 0;
                 var rootDirectory = _thisModule?.AppCore?.ApplicationWorkingFolder;
 
-                using (var db = new DB.DataContext())
+                using (var db = new Db.DataContext())
                 {
                     while ((DateTime.Now - dateStart) < executionTimeLimit)
                     {
@@ -511,7 +505,7 @@ namespace OnXap.Modules.FileManager
                         if (fileToRemoveList.Count == 0) break;
 
                         var removeList = new List<int>();
-                        var updateList = new List<DB.File>();
+                        var updateList = new List<Db.File>();
 
                         fileToRemoveList.ForEach(row =>
                         {
@@ -547,14 +541,14 @@ namespace OnXap.Modules.FileManager
                                 if (removeList.Count > 0)
                                 {
                                     db.FileRemoveQueue.Where(x => removeList.Contains(x.IdFile)).Delete();
-                                    db.SaveChanges<DB.FileRemoveQueue>();
+                                    db.SaveChanges<Db.FileRemoveQueue>();
                                 }
 
                                 if (updateList.Count > 0)
                                 {
                                     if (updateList.Any(x => x.IsRemoving || !x.IsRemoved)) throw new Exception("Флаги удаления сбросились!");
 
-                                    db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(DB.File.IsRemoved)), new UpsertField(nameof(DB.File.IsRemoving)));
+                                    db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(Db.File.IsRemoved)), new UpsertField(nameof(Db.File.IsRemoving)));
                                 }
 
                                 scope.Commit();
@@ -599,7 +593,7 @@ namespace OnXap.Modules.FileManager
                 int idFileMax = _checkRemovedFilesMax;
                 var rootDirectory = _thisModule?.AppCore?.ApplicationWorkingFolder;
 
-                using (var db = new DB.DataContext())
+                using (var db = new Db.DataContext())
                 {
                     while ((DateTime.Now - dateStart) < executionTimeLimit)
                     {
@@ -611,7 +605,7 @@ namespace OnXap.Modules.FileManager
                             break;
                         }
 
-                        var updateList = new List<DB.File>();
+                        var updateList = new List<Db.File>();
 
                         filesList.ForEach(file =>
                         {
@@ -634,7 +628,7 @@ namespace OnXap.Modules.FileManager
                         {
                             using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                             {
-                                db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(DB.File.IsRemoved)), new UpsertField(nameof(DB.File.IsRemoving)));
+                                db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(Db.File.IsRemoved)), new UpsertField(nameof(Db.File.IsRemoving)));
                                 scope.Commit();
                             }
                             countFiles += updateList.Count;
@@ -660,37 +654,6 @@ namespace OnXap.Modules.FileManager
             {
                 _servicesFlags.ReleaseLock("CheckRemovedFiles");
                 if (countFiles > 0) _thisModule?.RegisterEvent(EventType.Info, "Проверка удаленных файлов", $"На удаление помечено {countFiles} файлов.", null);
-            }
-        }
-        #endregion
-
-        #region Maintenance indexes tasks
-        [ApiIrreversible]
-        public static void MaintenanceIndexesStatic()
-        {
-            var module = _thisModule;
-            if (module == null) throw new Exception("Модуль не найден.");
-
-            module.MaintenanceIndexes();
-        }
-
-        private void MaintenanceIndexes()
-        {
-            if (AppCore.GetState() != CoreComponentState.Started) return;
-
-            try
-            {
-                using (var db = this.CreateUnitOfWork())
-                using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
-                {
-                    db.DataContext.QueryTimeout = (int)TimeSpan.FromMinutes(5).TotalMilliseconds;
-                    var result = db.DataContext.StoredProcedure<object>("Maintenance_RebuildIndexes", new { MinimumIndexFragmentstionToSearch = 5 });
-                }
-            }
-            catch (Exception ex)
-            {
-                this.RegisterEvent(EventType.CriticalError, $"Ошибка обслуживания индексов", null, ex);
-                Debug.WriteLine("FileManager.Module.MaintenanceIndexes: {0}", ex.Message);
             }
         }
         #endregion

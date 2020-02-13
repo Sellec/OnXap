@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard.Package", "..\Proj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceHelper", "..\Projects\Standard\AspNetMvc\SourceHelper\SourceHelper.csproj", "{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbMaintenance", "..\Projects\Plugins\DbMaintenance\DbMaintenance.csproj", "{7C0345B1-64F6-4860-B6AA-6522F05ED639}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +138,13 @@ Global
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.DebugBuildPart2|Any CPU.ActiveCfg = Debug|Any CPU
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.DebugBuildPart1|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.DebugBuildPart2|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.DebugBuildPart2|Any CPU.Build.0 = Debug|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +162,7 @@ Global
 		{C844D3BE-EC89-4A5F-B54E-B07D9DFCB4C9} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
 		{B63DB320-89EE-46F6-8020-3DCF71E21E9E} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
+		{7C0345B1-64F6-4860-B6AA-6522F05ED639} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}

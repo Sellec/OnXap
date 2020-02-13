@@ -6,7 +6,7 @@ using System.Linq;
 namespace OnXap.Modules.Lexicon
 {
     using Core;
-    using DB;
+    using Db;
     using Journaling;
 
     /// <summary>
@@ -305,7 +305,7 @@ namespace OnXap.Modules.Lexicon
             {
                 int cacheLimitAllowed = 50000;
                 var cache = new Dictionary<string, WordCase>();
-                using (var db = new DB.DataContext())
+                using (var db = new Db.DataContext())
                 {
                     for (int i = 0; i <= cacheLimitAllowed; i += 5000)
                     {

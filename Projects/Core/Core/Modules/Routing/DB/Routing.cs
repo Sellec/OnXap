@@ -1,12 +1,12 @@
-namespace OnXap.Modules.Routing.DB
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Modules.Routing.DB
+{
     [Table("UrlTranslation")]
-    public partial class Routing
+    public class Routing
     {
         [Key]
         [Column("IdTranslation")]

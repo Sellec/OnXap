@@ -45,7 +45,7 @@ namespace OnXap.Core.Db
                 AddColumnIfNotExists(Schema, (InsertOnDuplicate_MergeFiltersCache x) => x.FilterStr, x => x.AsString(int.MaxValue).NotNullable());
 
                 if (!Schema.Table<InsertOnDuplicate_MergeFiltersCache>().Index("TableName").Exists())
-                    Create.Index("TableName").OnTable(FluentMigratorTableExtensions.GetTableName<InsertOnDuplicate_MergeFiltersCache>()).OnColumn(FluentMigratorColumnExtensions.GetColumnName((InsertOnDuplicate_MergeFiltersCache x) => x.TableName));
+                    Create.Index("TableName").OnTable(GetTableName<InsertOnDuplicate_MergeFiltersCache>()).OnColumn(GetColumnName((InsertOnDuplicate_MergeFiltersCache x) => x.TableName));
             }
         }
 
@@ -54,7 +54,10 @@ namespace OnXap.Core.Db
             var functionName = "InsertOnDuplicate_TypesDefaultValues";
             var functionBody = $@"
 CREATE FUNCTION [dbo].[{functionName}]()
-RETURNS @TypesDefaultValues TABLE (TypeName nvarchar(128) NOT NULL, Value nvarchar(100))
+RETURNS @TypesDefaultValues TABLE (
+    TypeName nvarchar(128) NOT NULL, 
+    Value nvarchar(100)
+)
 AS BEGIN
 	INSERT INTO @TypesDefaultValues (TypeName, Value) VALUES
 	('bit', '0'), ('tinyint', '0'), ('smallint', '0'), ('int', '0'), ('bigint', '0'), ('numeric', '0'), ('decimal', '0'), ('smallmoney', '0'), ('money', '0'),
@@ -75,7 +78,10 @@ END
             var functionName = "InsertOnDuplicate_MergeFilters";
             var functionBody = $@"
 CREATE FUNCTION [dbo].[{functionName}]()
-RETURNS @Result TABLE (TableName nvarchar(128) NOT NULL, FilterStr nvarchar(MAX))
+RETURNS @Result TABLE (
+    TableName nvarchar(128) NOT NULL, 
+    FilterStr nvarchar(MAX)
+)
 AS BEGIN
 	DECLARE @Fields TABLE (TableName SYSNAME, IndexName SYSNAME, ColumnStr nvarchar(MAX))
 	DECLARE @Fields2 TABLE (TableName SYSNAME, FilterStr nvarchar(MAX))

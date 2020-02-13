@@ -10,8 +10,10 @@ namespace OnXap.Messaging
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
             bindingsCollection.SetSingleton<ISubscriptionsManager, SubscriptionsManager>();
-            bindingsCollection.SetTransient<DB.MessageSubscriptionRoleSchemaItem>();
-            bindingsCollection.SetTransient<DB.MessageSubscriptionSchemaItem>();
+            bindingsCollection.SetTransient<DbSchema.MessageSubscriptionRole>();
+            bindingsCollection.SetTransient<DbSchema.MessageSubscription>();
+            bindingsCollection.SetTransient<DbSchema.MessageQueue>();
+            bindingsCollection.SetTransient<DbSchema.MessageQueueHistory>();
         }
     }
 }

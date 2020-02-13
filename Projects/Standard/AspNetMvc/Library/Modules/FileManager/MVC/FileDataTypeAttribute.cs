@@ -2,7 +2,7 @@
 using System.Linq;
 
 using OnUtils.Data;
-using OnXap.Modules.FileManager.DB;
+using OnXap.Modules.FileManager.Db;
 
 namespace System.ComponentModel.DataAnnotations
 {

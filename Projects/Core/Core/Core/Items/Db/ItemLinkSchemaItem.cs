@@ -28,14 +28,14 @@
                     WithColumn((ItemLink x) => x.LinkId).AsGuid().NotNullable().
                     WithColumn((ItemLink x) => x.DateCreate).AsDateTime().NotNullable();
 
-                Create.PrimaryKey("ItemLinkKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).Columns(
-                    FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemIdType),
-                    FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemId),
-                    FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemKey)
+                Create.PrimaryKey("ItemLinkKey").OnTable(GetTableName<ItemLink>()).Columns(
+                    GetColumnName((ItemLink x) => x.ItemIdType),
+                    GetColumnName((ItemLink x) => x.ItemId),
+                    GetColumnName((ItemLink x) => x.ItemKey)
                 );
 
-                Create.Index("LinkIdKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).
-                    OnColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).Ascending().
+                Create.Index("LinkIdKey").OnTable(GetTableName<ItemLink>()).
+                    OnColumn(GetColumnName((ItemLink x) => x.LinkId)).Ascending().
                     WithOptions().Unique();
             }
             else
@@ -46,7 +46,7 @@
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.LinkId, x => x.AsGuid().NotNullable());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.DateCreate, x => x.AsDateTime().NotNullable());
 
-                var tableName = FluentMigratorTableExtensions.GetTableName<ItemLink>();
+                var tableName = GetTableName<ItemLink>();
 
                 if (!Schema.Table<ItemLink>().Index("ItemLinkKey").Exists())
                 {
@@ -56,10 +56,10 @@
                         IF LEN(@SQL) > 0 EXEC (@SQL)
                     ");
 
-                    Create.PrimaryKey("ItemLinkKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).Columns(
-                        FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemIdType),
-                        FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemId),
-                        FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.ItemKey)
+                    Create.PrimaryKey("ItemLinkKey").OnTable(GetTableName<ItemLink>()).Columns(
+                        GetColumnName((ItemLink x) => x.ItemIdType),
+                        GetColumnName((ItemLink x) => x.ItemId),
+                        GetColumnName((ItemLink x) => x.ItemKey)
                     );
                 }
 
@@ -69,16 +69,16 @@
                 }
                 else if (!Schema.Table<ItemLink>().Index("LinkIdKey").Exists())
                 {
-                    Create.Index("LinkIdKey").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>()).
-                            OnColumn(FluentMigratorColumnExtensions.GetColumnName((ItemLink x) => x.LinkId)).Ascending().
+                    Create.Index("LinkIdKey").OnTable(GetTableName<ItemLink>()).
+                            OnColumn(GetColumnName((ItemLink x) => x.LinkId)).Ascending().
                             WithOptions().Unique();
                 }
 
                 if (Schema.Table<ItemLink>().Constraint("FK_ItemLink_User").Exists())
-                    Delete.ForeignKey("FK_ItemLink_User").OnTable(FluentMigratorTableExtensions.GetTableName<ItemLink>());
+                    Delete.ForeignKey("FK_ItemLink_User").OnTable(GetTableName<ItemLink>());
 
                 if (Schema.Table<ItemLink>().Column("IdUser").Exists())
-                    Delete.Column("IdUser").FromTable(FluentMigratorTableExtensions.GetTableName<ItemLink>());
+                    Delete.Column("IdUser").FromTable(GetTableName<ItemLink>());
             }
         }
     }

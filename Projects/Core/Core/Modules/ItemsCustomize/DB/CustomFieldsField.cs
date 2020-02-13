@@ -1,10 +1,10 @@
-namespace OnXap.Modules.ItemsCustomize.DB
-{
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
+namespace OnXap.Modules.ItemsCustomize.DB
+{
     [Table("CustomFieldsField")]
     public class CustomFieldsField : Field.IField
     {
