@@ -208,6 +208,7 @@ END
 
         private void CheckProcedureCreateQuery()
         {
+            var versionLabel = "{version=13022020_01}";
             var procedureName = "InsertOnDuplicate_CreateQuery";
             var procedureBody = $@"
 CREATE PROCEDURE [dbo].[InsertOnDuplicate_CreateQuery] 
@@ -216,8 +217,7 @@ CREATE PROCEDURE [dbo].[InsertOnDuplicate_CreateQuery]
 	@UpdateData NVARCHAR(MAX)
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
+	-- {versionLabel}
 	SET NOCOUNT ON;
 	
 	DECLARE	@TableName_ sysname = @TableName;
@@ -306,9 +306,6 @@ BEGIN
 	DECLARE @FieldIdentityDefaultValue NVARCHAR(100) = NULL;
 	SELECT @FieldIdentity = ColumnStr, @FieldIdentityDefaultValue = DefaultValue FROM @Fields WHERE IsIdentity <> 0 AND TableName=@TableName_;
 
-	if @FilterStr is null print '0';
-	if @FilterStr is not null print '1';
-
 	print @TypeName;
 	print @InsertData_;
 	print @TableName_;
@@ -328,57 +325,59 @@ BEGIN
 									@InsertData_ + CHAR(13) + CHAR(10) + 
 									'SET NOCOUNT OFF;'  + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									CASE WHEN @FieldIdentity IS NULL THEN '' ELSE 
-										'SET IDENTITY_INSERT [' + @TableName_ + '] ON;' + CHAR(13) + CHAR(10) +
-										'BEGIN TRY' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+                                    ISNULL(
+									    CASE WHEN @FieldIdentity IS NULL THEN '' ELSE 
+										    'SET IDENTITY_INSERT [' + @TableName_ + '] ON;' + CHAR(13) + CHAR(10) +
+										    'BEGIN TRY' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 										
-										'	MERGE [' + @TableName_ + '] AS T' + CHAR(13) + CHAR(10) +
-										'	USING (SELECT DISTINCT * FROM @t WHERE NOT [' + @FieldIdentity + '] = (' + @FieldIdentityDefaultValue + ')) AS S' + CHAR(13) + CHAR(10) +
-										'		ON (' + @FilterStr + ')' + CHAR(13) + CHAR(10) +
-										'	WHEN NOT MATCHED BY TARGET THEN INSERT ' + ISNULL(@FieldsInsertWithIdentity, '') + ' VALUES ' + ISNULL(@FieldsUpdateWithIdentity, '') + CHAR(13) + CHAR(10) + 
-										'	WHEN MATCHED THEN UPDATE SET ' + @UpdateData_ + ';' + CHAR(13) + CHAR(10) +
-										'	SET @CountRows = @CountRows + @@ROWCOUNT;' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+										    '	MERGE [' + @TableName_ + '] AS T' + CHAR(13) + CHAR(10) +
+										    '	USING (SELECT DISTINCT * FROM @t WHERE NOT [' + @FieldIdentity + '] = (' + @FieldIdentityDefaultValue + ')) AS S' + CHAR(13) + CHAR(10) +
+										    '		ON (' + @FilterStr + ')' + CHAR(13) + CHAR(10) +
+										    '	WHEN NOT MATCHED BY TARGET THEN INSERT ' + ISNULL(@FieldsInsertWithIdentity, '') + ' VALUES ' + ISNULL(@FieldsUpdateWithIdentity, '') + CHAR(13) + CHAR(10) + 
+										    '	WHEN MATCHED THEN UPDATE SET ' + @UpdateData_ + ';' + CHAR(13) + CHAR(10) +
+										    '	SET @CountRows = @CountRows + @@ROWCOUNT;' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 										
-										'END TRY' + CHAR(13) + CHAR(10) +
-										'BEGIN CATCH' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+										    'END TRY' + CHAR(13) + CHAR(10) +
+										    'BEGIN CATCH' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 										
-										'	SET @ErrorMessage = ERROR_MESSAGE(); ' + CHAR(13) + CHAR(10) +
-										'	SET @ErrorSeverity = ERROR_SEVERITY();' + CHAR(13) + CHAR(10) +
-										'	SET @ErrorState = ERROR_STATE();' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+										    '	SET @ErrorMessage = ERROR_MESSAGE(); ' + CHAR(13) + CHAR(10) +
+										    '	SET @ErrorSeverity = ERROR_SEVERITY();' + CHAR(13) + CHAR(10) +
+										    '	SET @ErrorState = ERROR_STATE();' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 										
-										'	SET IDENTITY_INSERT [' + @TableName_ + '] OFF;' + CHAR(13) + CHAR(10) +
-										'	RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+										    '	SET IDENTITY_INSERT [' + @TableName_ + '] OFF;' + CHAR(13) + CHAR(10) +
+										    '	RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 										
-										'END CATCH' + CHAR(13) + CHAR(10) + 
-										'SET IDENTITY_INSERT [' + @TableName_ + '] OFF;' + CHAR(13) + CHAR(10)	+ CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) 
-									END +
+										    'END CATCH' + CHAR(13) + CHAR(10) + 
+										    'SET IDENTITY_INSERT [' + @TableName_ + '] OFF;' + CHAR(13) + CHAR(10)	+ CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) 
+									    END +
 									
-									--Теперь добавляем блок для вставки данных БЕЗ identity столбца.
-									'BEGIN TRY' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+									    --Теперь добавляем блок для вставки данных БЕЗ identity столбца.
+									    'BEGIN TRY' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									'	MERGE [' + @TableName_ + '] AS T' + CHAR(13) + CHAR(10) +
-									'	USING (SELECT DISTINCT * FROM @t ' + CASE WHEN @FieldIdentity IS NULL THEN '' ELSE ' WHERE [' + @FieldIdentity + '] = (' + @FieldIdentityDefaultValue + ')' END + ') AS S' + CHAR(13) + CHAR(10) +
-									'		ON (' + @FilterStr + ')' + CHAR(13) + CHAR(10) +
-									'	WHEN NOT MATCHED BY TARGET THEN INSERT ' + ISNULL(@FieldsInsertWithoutIdentity, '') + ' VALUES ' + ISNULL(@FieldsUpdateWithoutIdentity, '') + CHAR(13) + CHAR(10) + 
-									'	WHEN MATCHED THEN UPDATE SET ' + @UpdateData_ + ';' + CHAR(13) + CHAR(10) + 
-									'	SET @CountRows = @CountRows + @@ROWCOUNT;' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+									    '	MERGE [' + @TableName_ + '] AS T' + CHAR(13) + CHAR(10) +
+									    '	USING (SELECT DISTINCT * FROM @t ' + CASE WHEN @FieldIdentity IS NULL THEN '' ELSE ' WHERE [' + @FieldIdentity + '] = (' + @FieldIdentityDefaultValue + ')' END + ') AS S' + CHAR(13) + CHAR(10) +
+									    '		ON (' + @FilterStr + ')' + CHAR(13) + CHAR(10) +
+									    '	WHEN NOT MATCHED BY TARGET THEN INSERT ' + ISNULL(@FieldsInsertWithoutIdentity, '') + ' VALUES ' + ISNULL(@FieldsUpdateWithoutIdentity, '') + CHAR(13) + CHAR(10) + 
+									    '	WHEN MATCHED THEN UPDATE SET ' + @UpdateData_ + ';' + CHAR(13) + CHAR(10) + 
+									    '	SET @CountRows = @CountRows + @@ROWCOUNT;' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									'END TRY' + CHAR(13) + CHAR(10) +
-									'BEGIN CATCH' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+									    'END TRY' + CHAR(13) + CHAR(10) +
+									    'BEGIN CATCH' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									'	SET @ErrorMessage = ERROR_MESSAGE(); ' + CHAR(13) + CHAR(10) +
-									'	SET @ErrorSeverity = ERROR_SEVERITY();' + CHAR(13) + CHAR(10) +
-									'	SET @ErrorState = ERROR_STATE();' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+									    '	SET @ErrorMessage = ERROR_MESSAGE(); ' + CHAR(13) + CHAR(10) +
+									    '	SET @ErrorSeverity = ERROR_SEVERITY();' + CHAR(13) + CHAR(10) +
+									    '	SET @ErrorState = ERROR_STATE();' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									'	RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
+									    '	RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);' + CHAR(13) + CHAR(10) + CHAR(13) + CHAR(10) +
 									
-									'END CATCH' + CHAR(13) + CHAR(10) 
-									;
+									    'END CATCH' + CHAR(13) + CHAR(10) 
+									, '');
 				
 	SELECT @SQL AS Query;	
 END
             ";
 
+            IfDatabase("sqlserver").Execute.Sql($@"IF EXISTS (SELECT * FROM sys.objects WHERE name='{procedureName}') AND NOT EXISTS (SELECT * FROM sys.objects WHERE name='{procedureName}' AND NOT OBJECT_DEFINITION(object_id) LIKE '%{versionLabel}%') DROP PROCEDURE [dbo].[{procedureName}];");
             IfDatabase("sqlserver").Execute.Sql($@"IF NOT EXISTS (SELECT * FROM sys.objects WHERE name='{procedureName}') EXEC (N'{procedureBody.Replace("'", "''")}')");
         }
 
