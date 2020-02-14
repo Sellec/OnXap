@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnUtils.Architecture.AppCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace OnXap.Core.Modules
     /// <summary>
     /// Базовый класс для всех модулей. Обязателен при реализации любых модулей, т.к. при задании привязок в DI проверяется наследование именно от этого класса.
     /// </summary>
-    public abstract class ModuleCore : CoreComponentBase, IComponentSingleton
+    public abstract class ModuleCore : CoreComponentBase, IComponentSingleton, IAutoStart
     {
         private Dictionary<Guid, Permission> _permissions = new Dictionary<Guid, Permission>();
         private Guid _moduleBaseID = Guid.Empty;
