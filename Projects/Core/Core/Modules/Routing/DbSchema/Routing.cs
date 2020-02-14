@@ -81,6 +81,14 @@ namespace OnXap.Modules.Routing.DbSchema
                     Include(GetColumnName((DB.Routing x) => x.IdRoutingType)).
                     Include(GetColumnName((DB.Routing x) => x.DateChange));
 
+            if (!isTableExists || !Schema.Table<DB.Routing>().Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").Exists())
+                Create.Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").OnTable(GetTableName<DB.Routing>()).
+                    OnColumn(GetColumnName((DB.Routing x) => x.IdModule)).Ascending().
+                    OnColumn(GetColumnName((DB.Routing x) => x.IdItem)).Ascending().
+                    OnColumn(GetColumnName((DB.Routing x) => x.IdItemType)).Ascending().
+                    OnColumn(GetColumnName((DB.Routing x) => x.Action)).Ascending().
+                    OnColumn(GetColumnName((DB.Routing x) => x.IdRoutingType)).Ascending();
+
             if (!isTableExists || !Schema.Table<DB.Routing>().Index("UniqueKey_IdModule_IdItem_IdItemType_Action").Exists())
                 IfDatabase("sqlserver").Execute.Sql($@"
                     CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey_IdModule_IdItem_IdItemType_Action] ON [dbo].[{GetTableName<DB.Routing>()}]
