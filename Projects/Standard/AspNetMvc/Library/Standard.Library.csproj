@@ -489,9 +489,6 @@
     <None Include="Data\css\jquery.wysiwyg.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\css\jqueryslidemenu.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\css\main.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -1437,9 +1434,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\jquery.wysiwyg.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\jqueryslidemenu.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\work.js">
