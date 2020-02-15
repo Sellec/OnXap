@@ -574,9 +574,6 @@
     <None Include="Data\js\common.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\js\cuf.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\js\eckeditor\adapters\jquery.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -1255,39 +1252,6 @@
     <None Include="Data\js\jquery.mjs.nestedSortable.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\js\lang\lang.en.php">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lang\lang.ru.php">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\css\jQuery.Tree.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\css\jQuery.Tree1.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\img\checkbox-checked.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\img\checkbox-partial.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\img\checkbox-unchecked.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\jQuery.Tree.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\jQuery.Tree1.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\test.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\lib\jquery-tree\test1.html">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\js\plugins.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -1448,13 +1412,7 @@
     <None Include="Data\js\jquery.cookie.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\js\jquery.easing.1.3.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\js\jquery.fancybox.pack.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\jquery.floatThead.min.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\jquery.form.js">
@@ -1482,12 +1440,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\jqueryslidemenu.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\time.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\timepicker.min.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\work.js">

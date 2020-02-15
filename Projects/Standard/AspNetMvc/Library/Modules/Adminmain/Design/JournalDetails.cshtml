@@ -50,6 +50,7 @@
                 DataList: null,
                 LazyRequestOptions: new PrimeVueDataTableSourceRequest(),
                 paginatorRows: 10,
+                lazyRequestIdLatest: null
             },
             methods:
             {
@@ -70,7 +71,8 @@
                     var component = this;
                     component.IsLoading = true;
 
-                    $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", this.LazyRequestOptions, function (result, message, data) {
+                    component.lazyRequestIdLatest = $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", this.LazyRequestOptions, function (result, message, data) {
+                        if (component.lazyRequestIdLatest != requestId) return;
                         component.IsLoading = false;
                         if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
                         if (result == JsonResult.OK) {
