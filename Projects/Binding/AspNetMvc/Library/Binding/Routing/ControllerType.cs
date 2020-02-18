@@ -19,20 +19,6 @@ namespace OnXap.Binding.Routing
             ControllerTypeName = controllerTypeName;
         }
 
-        #region CoreComponentBase
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStart()
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStop()
-        {
-        }
-        #endregion
-
         /// <summary>
         /// Определяет, соответствует ли текущий запрос <paramref name="request"/> со строкой адреса <paramref name="relativeURL"/> данному типу контроллера.
         /// </summary>

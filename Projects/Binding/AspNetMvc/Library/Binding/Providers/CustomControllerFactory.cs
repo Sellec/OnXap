@@ -33,16 +33,6 @@ namespace OnXap.Binding.Providers
             _controllerFactoryOld = controllerFactoryOld;
         }
 
-        #region CoreComponentBase
-        protected sealed override void OnStart()
-        {
-        }
-
-        protected sealed override void OnStop()
-        {
-        }
-        #endregion
-
         #region IControllerFactory
         public IController CreateController(RequestContext requestContext, string moduleName)
         {

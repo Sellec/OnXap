@@ -29,9 +29,9 @@ namespace OnXap.Modules.Customer
         public const string PERM_VIEWHISTORY = "history";
 
         /// <summary>
-        /// См. <see cref="ModuleCore.OnModuleStart"/>.
+        /// См. <see cref="ModuleCore.OnModuleStarting"/>.
         /// </summary>
-        protected sealed override void OnModuleStart()
+        protected sealed override void OnModuleStarting()
         {
             RegisterPermission(PERM_MANAGEUSERS, "Управление пользователями");
             RegisterPermission(PERM_MANAGEROLES, "Управление ролями");

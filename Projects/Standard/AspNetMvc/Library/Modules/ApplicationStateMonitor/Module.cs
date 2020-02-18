@@ -12,7 +12,7 @@ namespace OnXap.Modules.ApplicationStateMonitor
     {
         private static Module _this = null;
 
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             _this = this;
             TasksManager.SetTask("WebMonitor", Cron.Minutely(), () => RunStatic());

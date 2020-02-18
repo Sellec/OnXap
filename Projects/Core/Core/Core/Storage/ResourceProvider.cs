@@ -19,7 +19,7 @@ namespace OnXap.Core.Storage
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             Start();
         }

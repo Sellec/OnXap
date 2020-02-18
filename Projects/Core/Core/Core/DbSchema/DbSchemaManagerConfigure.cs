@@ -8,7 +8,7 @@
         /// <summary>
         /// Может быть перегружен для переопределения настроек.
         /// </summary>
-        protected override void OnStart()
+        protected override void OnStarting()
         {
             IsSchemaControlEnabled = true;
         }

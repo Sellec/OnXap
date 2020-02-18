@@ -80,14 +80,6 @@
       <Link>ExternalSources\Design\UI\primevue\resources\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\*.js">
-      <Link>ExternalSources\Design\UI\primevue\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.vue">
-      <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.umd*.js">
       <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

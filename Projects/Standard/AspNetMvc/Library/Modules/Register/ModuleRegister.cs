@@ -18,7 +18,7 @@ namespace OnXap.Modules.Register
     [ModuleCore("Регистрация", DefaultUrlName = "Register")]
     public class ModuleRegister : ModuleCore<ModuleRegister>
     {
-        protected sealed override void OnModuleStart()
+        protected sealed override void OnModuleStarting()
         {
             try
             {

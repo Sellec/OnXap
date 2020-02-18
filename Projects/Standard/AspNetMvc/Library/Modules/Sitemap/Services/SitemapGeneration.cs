@@ -24,7 +24,7 @@ namespace OnXap.Modules.Sitemap.Services
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected override void OnStart()
+        protected override void OnStarting()
         {
             _instance = this;
         }

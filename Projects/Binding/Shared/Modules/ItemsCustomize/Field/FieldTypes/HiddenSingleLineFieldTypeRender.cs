@@ -29,7 +29,7 @@ namespace OnXap.Modules.ItemsCustomize.Field.FieldTypes
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

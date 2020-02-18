@@ -24,7 +24,7 @@ namespace OnXap.Core.DbSchema
                 _instance = instance;
             }
 
-            protected override void OnStart()
+            protected override void OnStarting()
             {
             }
 

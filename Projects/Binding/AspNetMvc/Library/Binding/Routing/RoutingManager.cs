@@ -24,7 +24,7 @@ namespace OnXap.Binding.Routing
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             var controllerTypes = new List<ControllerType>() { new ControllerTypeDefault(), new ControllerTypeAdmin() };
             controllerTypes.OfType<IComponentStartable>().ForEach(x => x.Start(AppCore));

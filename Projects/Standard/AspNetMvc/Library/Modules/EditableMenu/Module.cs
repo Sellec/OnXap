@@ -12,7 +12,7 @@ namespace OnXap.Modules.EditableMenu
     {
         public const string PERM_EDITABLEMENU = "editablemenu";
 
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             RegisterPermission(PERM_EDITABLEMENU, "Управление настраиваемыми меню");
         }

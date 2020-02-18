@@ -85,7 +85,7 @@ namespace OnXap.Modules.Routing
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             AppCore.Get<JournalingManager>().RegisterJournalTyped<UrlManager>("Журнал менеджера адресов");
         }

@@ -18,7 +18,7 @@ namespace OnXap.Modules.Sitemap
 
         /// <summary>
         /// </summary>
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             RegisterPermission(PERM_SITEMAP, "Управление картой сайта");
             _sitemapService = new SitemapGeneration();

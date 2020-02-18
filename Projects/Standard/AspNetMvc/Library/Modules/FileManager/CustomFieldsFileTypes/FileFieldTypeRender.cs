@@ -114,7 +114,7 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

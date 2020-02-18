@@ -17,13 +17,31 @@ namespace OnXap.Core.Modules
     /// Система разделена на модули с определенным функционалом, к модулям могут быть привязаны операции, доступные пользователю извне (для внешних запросов).
     /// Права доступа регистрируются на модуль.
     /// </summary>
-    public class ModulesManager : 
-        CoreComponentBase, 
-        IComponentSingleton, 
-        IAutoStart, 
+    public class ModulesManager :
+        CoreComponentBase,
+        IComponentSingleton,
+        IAutoStart,
         IUnitOfWorkAccessor<CoreContext>,
         ITypedJournalComponent<ModulesManager>
     {
+        class InstanceActivatingHandlerImpl : IInstanceActivatingHandler
+        {
+            private readonly ModulesManager _manager;
+
+            public InstanceActivatingHandlerImpl(ModulesManager manager)
+            {
+                _manager = manager;
+            }
+
+            void IInstanceActivatingHandler.OnInstanceActivating<TRequestedType>(object instance)
+            {
+                if (instance is ModuleCore moduleCandidate)
+                {
+                    _manager.GetType().GetMethod(nameof(LoadModule), BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(typeof(TRequestedType)).Invoke(_manager, new object[] { instance });
+                }
+            }
+        }
+
         class InstanceActivatedHandlerImpl : IInstanceActivatedHandler
         {
             private readonly ModulesManager _manager;
@@ -35,9 +53,9 @@ namespace OnXap.Core.Modules
 
             void IInstanceActivatedHandler.OnInstanceActivated<TRequestedType>(object instance)
             {
-                if (instance is ModuleCore moduleCandidate)
+                if (instance is ModuleCore moduleActivated)
                 {
-                    _manager.GetType().GetMethod(nameof(LoadModule), BindingFlags.NonPublic | BindingFlags.Instance).MakeGenericMethod(typeof(TRequestedType)).Invoke(_manager, new object[] { instance });
+                    moduleActivated.OnModuleStarted();
                 }
             }
         }
@@ -45,6 +63,7 @@ namespace OnXap.Core.Modules
         private readonly bool _isStartModulesOnManagerStart = true;
         private readonly object _syncRoot = new object();
         private List<Tuple<Type, ModuleCore>> _modules = new List<Tuple<Type, ModuleCore>>();
+        private readonly InstanceActivatingHandlerImpl _instanceActivatingHandler = null;
         private readonly InstanceActivatedHandlerImpl _instanceActivatedHandler = null;
 
         /// <summary>
@@ -54,16 +73,18 @@ namespace OnXap.Core.Modules
         {
             DeprecatedSingletonInstances.Set(this);
             _isStartModulesOnManagerStart = false;
+            _instanceActivatingHandler = new InstanceActivatingHandlerImpl(this);
             _instanceActivatedHandler = new InstanceActivatedHandlerImpl(this);
         }
 
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             this.RegisterJournal("Менеджер модулей");
 
+            AppCore.ObjectProvider.RegisterInstanceActivatingHandler(_instanceActivatingHandler);
             AppCore.ObjectProvider.RegisterInstanceActivatedHandler(_instanceActivatedHandler);
             if (_isStartModulesOnManagerStart) StartModules();
         }
@@ -134,7 +155,7 @@ namespace OnXap.Core.Modules
         protected bool FilterModuleTypes(Type typeFromDI)
         {
             var moduleCoreType = typeof(ModuleCore);
-            return moduleCoreType.IsAssignableFrom(typeFromDI) && typeFromDI.GetCustomAttribute< ModuleCoreAttribute>() != null;
+            return moduleCoreType.IsAssignableFrom(typeFromDI) && typeFromDI.GetCustomAttribute<ModuleCoreAttribute>() != null;
         }
 
         private void LoadModule<TModuleType>(TModuleType module)
@@ -194,10 +215,9 @@ namespace OnXap.Core.Modules
                     moduleRegisterHandlers.ForEach(x => x.OnModuleInitialized<TModuleType>(module));
 
                     _modules.RemoveAll(x => x.Item1 == typeof(TModuleType));
-                    LoadModuleCallModuleStart(module);
                     _modules.Add(new Tuple<Type, ModuleCore>(typeof(TModuleType), module));
 
-                    AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>("Журнал событий модуля '" + module.Caption + "'");
+                    AppCore.Get<JournalingManager>().RegisterJournalTyped<TModuleType>($"Журнал событий модуля '{module.Caption}'");
 
                     this.RegisterEvent(
                          EventType.Info,
@@ -223,18 +243,6 @@ namespace OnXap.Core.Modules
                     ex
                 );
                 throw;
-            }
-        }
-
-        /// <summary>
-        /// Может быть использован для вызова метода <see cref="ModuleCore.OnModuleStart"/> в других реализациях менеджера модулей. 
-        /// Метод <see cref="ModuleCore.OnModuleStart"/> будет вызван только для новых модулей, т.е. модулей, отсутствующих в списке уже инициализированных.
-        /// </summary>
-        protected void LoadModuleCallModuleStart(ModuleCore module)
-        {
-            if (!_modules.Any(x => x.Item2 == module))
-            {
-                //module.OnModuleStart();
             }
         }
 
@@ -386,4 +394,3 @@ namespace OnXap.Core.Modules
         #endregion
     }
 }
-

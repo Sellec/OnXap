@@ -32,7 +32,7 @@ namespace OnXap.Journaling
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             DatabaseAccessor = AppCore.Get<DB.JournalingManagerDatabaseAccessor>();
             RegisterJournalTyped<JournalingManager>("Менеджер журналов");

@@ -25,7 +25,7 @@ namespace OnXap.ServiceMonitor
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

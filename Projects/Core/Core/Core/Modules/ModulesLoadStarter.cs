@@ -10,7 +10,7 @@ namespace OnXap.Core.Modules
         {
         }
 
-        protected override void OnStart()
+        protected override void OnStarting()
         {
             AppCore.GetModulesManager().StartModules();
         }

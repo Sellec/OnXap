@@ -18,7 +18,7 @@ namespace OnXap.Modules.Adminmain
         public const string PERM_MANAGE_MESSAGING = "manage_messaging";
         public const string PERM_RESTART = "system_restart";
 
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             RegisterPermission(PERM_CONFIGMAIN, "Управление настройками");
             RegisterPermission(PERM_MODULES, "Управление модулями");

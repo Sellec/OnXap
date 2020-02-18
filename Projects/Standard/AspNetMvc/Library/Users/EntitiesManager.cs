@@ -52,7 +52,7 @@ namespace OnXap.Users
         }
 
         #region CoreComponentBase
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             // Получаем первичный список при инициализации. На всякий случай, чтобы отловить ошибку пораньше.
             var d = _entityTypesCache.Value;

@@ -33,7 +33,13 @@ namespace OnXap.Core.Modules
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
+        {
+        }
+
+        /// <summary>
+        /// </summary>
+        protected sealed override void OnStarted()
         {
         }
 
@@ -46,18 +52,29 @@ namespace OnXap.Core.Modules
         #endregion
 
         /// <summary>
-        /// Определение дополнительных ресурсов модуля. Вызывается во время инициализации.
+        /// Вызывается во время инициализации модуля. 
         /// </summary>
-        protected virtual void OnModuleStart()
+        /// <remarks>Ошибка во время инициализации приведет к остановке конвейера загрузки ядра.</remarks>
+        protected virtual void OnModuleStarting()
         {
-
         }
+
+        /// <summary>
+        /// Вызывается после инициализации модуля. 
+        /// </summary>
+        /// <remarks>
+        /// Ошибка во время инициализации приведет к выбросу исключения выше методов Get в ядре (<see cref="AppCore{TAppCore}.Get{TQuery}()"/>),
+        /// однако модуль будет считаться инициализированным и будет возвращаться методами Get без ошибки.
+        /// </remarks>
+        internal protected virtual void OnModuleStarted()
+        {
+        }
+
         /// <summary>
         /// Вызывается при остановке модуля.
         /// </summary>
         internal protected virtual void OnModuleStop()
         {
-
         }
 
         internal virtual void InitModule()
@@ -327,7 +344,7 @@ namespace OnXap.Core.Modules
             RegisterPermission(ModulesConstants.PermissionSaveConfiguration, "Сохранение настроек модуля");
             RegisterPermission(ModulesConstants.PermissionManage, "Управление модулем");
 
-            OnModuleStart();
+            OnModuleStarting();
             //RegisterAction("extensionsGetData");
         }
 

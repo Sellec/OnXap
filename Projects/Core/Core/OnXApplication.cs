@@ -147,14 +147,6 @@ namespace OnXap
             bindingsCollection.SetSingleton<UserContextManager>();
             bindingsCollection.SetSingleton<Languages.Manager>();
         }
-
-        /// <summary>
-        /// См. <see cref="AppCore{TAppCore}.OnInstanceActivated{TRequestedType}(IComponent{TAppCore})"/>.
-        /// </summary>
-        protected override void OnInstanceActivated<TRequestedType>(IComponent<OnXApplication> instance)
-        {
-         
-        }
         #endregion
 
         #region Упрощение доступа

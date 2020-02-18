@@ -8,7 +8,7 @@ namespace OnXap.Messaging.Subscriptions
     class SubscriptionsManager : CoreComponentBase, ISubscriptionsManager, IUnitOfWorkAccessor<CoreContext>
     {
         #region CoreComponentBase
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

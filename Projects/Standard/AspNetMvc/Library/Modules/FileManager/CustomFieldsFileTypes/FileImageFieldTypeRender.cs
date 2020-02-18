@@ -122,7 +122,7 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

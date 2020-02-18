@@ -12,7 +12,7 @@ namespace OnXap.Modules.Materials
     class MaterialsSitemapProvider : CoreComponentBase, ISitemapProvider
     {
         #region CoreComponentBase
-        protected override void OnStart()
+        protected override void OnStarting()
         {
         }
 

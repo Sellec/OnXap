@@ -67,7 +67,7 @@ namespace OnXap.Messaging
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             AppCore.Get<Journaling.JournalingManager>().RegisterJournalTyped(GetType(), ServiceName);
             this.RegisterServiceState(ServiceStatus.RunningIdeal, "Сервис запущен.");
@@ -83,7 +83,14 @@ namespace OnXap.Messaging
             _executingFlags.TryLock(nameof(RegisterIncomingMessage));
             TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type));
 
-            OnServiceStart();
+            OnServiceStarting();
+        }
+
+        /// <summary>
+        /// </summary>
+        protected sealed override void OnStarted()
+        {
+            OnServiceStarted();
         }
 
         /// <summary>
@@ -108,9 +115,15 @@ namespace OnXap.Messaging
         /// <summary>
         /// Вызывается при запуске сервиса.
         /// </summary>
-        protected virtual void OnServiceStart()
+        protected virtual void OnServiceStarting()
         {
+        }
 
+        /// <summary>
+        /// Вызывается после запуска сервиса.
+        /// </summary>
+        protected virtual void OnServiceStarted()
+        {
         }
 
         /// <summary>
@@ -118,7 +131,6 @@ namespace OnXap.Messaging
         /// </summary>
         protected virtual void OnServiceStop()
         {
-
         }
         #endregion
 

@@ -15,7 +15,7 @@ namespace OnXap.Binding.Providers
         /// <summary>
         /// См. <see cref="CoreComponentBase{TAppCore}.OnStart"/>.
         /// </summary>
-        protected override void OnStart()
+        protected override void OnStarting()
         {
         }
 

@@ -36,7 +36,7 @@ namespace OnXap.Languages
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
         }
 

@@ -7,7 +7,7 @@ namespace OnXap.Modules.WebCoreModule
     sealed class WebCoreConfigurationChecker : CoreComponentBase, IComponentSingleton, ICritical
     {
         #region CoreComponentBase
-        protected override void OnStart()
+        protected override void OnStarting()
         {
             AppCore.WebCoreModule.RunConfigurationCheck();
         }

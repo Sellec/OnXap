@@ -10,7 +10,7 @@ namespace OnXap
     /// </summary>
     class ApplicationLauncher : CoreComponentBase, IComponentSingleton, ICritical
     {
-        protected override void OnStart()
+        protected override void OnStarting()
         {
             var dbSchemaManager = AppCore.Get<Core.DbSchema.DbSchemaManager>();
             var modulesManager = AppCore.GetModulesManager();

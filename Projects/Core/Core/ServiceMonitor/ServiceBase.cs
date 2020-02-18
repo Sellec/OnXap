@@ -34,7 +34,7 @@ namespace OnXap.ServiceMonitor
         /// <summary>
         /// Вызывается при запуске сервиса.
         /// </summary>
-        protected override void OnStart()
+        protected override void OnStarting()
         {
         }
 

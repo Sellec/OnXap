@@ -14,7 +14,7 @@ namespace OnXap.Core.DbSchema
         private Exception[] _startErrors = null;
 
         #region CoreComponentBase
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             if (!AppCore.Get<DbSchemaManagerConfigure>().IsSchemaControlEnabled) return;
 

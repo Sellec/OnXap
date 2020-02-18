@@ -14,7 +14,7 @@ namespace OnXap.Core.Modules
     {
         private class CoreComponentImpl : CoreComponentBase
         {
-            protected override void OnStart()
+            protected override void OnStarting()
             {
             }
 

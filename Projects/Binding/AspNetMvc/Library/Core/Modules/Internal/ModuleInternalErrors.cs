@@ -4,7 +4,7 @@
 
     public class ModuleInternalErrors : ModuleCore<ModuleInternalErrors>
     {
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             // todo _moduleCaption = "Ошибка";
             //_moduleID = 0;

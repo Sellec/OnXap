@@ -30,7 +30,7 @@ namespace OnXap.Modules.FileManager
 
         /// <summary>
         /// </summary>
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             _thisModule = this;
 

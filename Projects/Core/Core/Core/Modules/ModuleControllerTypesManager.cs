@@ -13,7 +13,7 @@ namespace OnXap.Core.Modules
         private ConcurrentDictionary<Type, Dictionary<int, Type>> _moduleControllerTypesList = new ConcurrentDictionary<Type, Dictionary<int, Type>>();
 
         #region CoreComponentBase
-        protected override void OnStart()
+        protected override void OnStarting()
         {
         }
 

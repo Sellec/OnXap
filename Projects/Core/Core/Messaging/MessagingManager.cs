@@ -21,16 +21,16 @@ namespace OnXap.Messaging
         IAutoStart,
         ITypedJournalComponent<MessagingManager>
     {
-        class InstanceActivatedHandlerImpl : IInstanceActivatedHandler
+        class InstanceActivatingHandlerImpl : IInstanceActivatingHandler
         {
             private readonly MessagingManager _manager;
 
-            public InstanceActivatedHandlerImpl(MessagingManager manager)
+            public InstanceActivatingHandlerImpl(MessagingManager manager)
             {
                 _manager = manager;
             }
 
-            void IInstanceActivatedHandler.OnInstanceActivated<TRequestedType>(object instance)
+            void IInstanceActivatingHandler.OnInstanceActivating<TRequestedType>(object instance)
             {
                 if (instance is IMessageServiceInternal service)
                 {
@@ -41,7 +41,7 @@ namespace OnXap.Messaging
 
         private static OnXApplication _appCore = null;
 
-        private readonly InstanceActivatedHandlerImpl _instanceActivatedHandler = null;
+        private readonly InstanceActivatingHandlerImpl _instanceActivatingHandler = null;
         private List<IMessageServiceInternal> _services = new List<IMessageServiceInternal>();
 
         private object _activeComponentsSyncRoot = new object();
@@ -52,19 +52,19 @@ namespace OnXap.Messaging
         /// </summary>
         public MessagingManager()
         {
-            _instanceActivatedHandler = new InstanceActivatedHandlerImpl(this);
+            _instanceActivatingHandler = new InstanceActivatingHandlerImpl(this);
             _registeredComponents = new List<IComponentTransient>();
         }
 
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             this.RegisterJournal("Менеджер сообщений");
 
             _appCore = AppCore;
-            AppCore.ObjectProvider.RegisterInstanceActivatedHandler(_instanceActivatedHandler);
+            AppCore.ObjectProvider.RegisterInstanceActivatingHandler(_instanceActivatingHandler);
 
             // Попытка инициализировать все сервисы отправки сообщений, наследующиеся от IMessagingService.
             var types = AppCore.GetQueryTypes().Where(x => x.GetInterfaces().Contains(typeof(IMessageServiceInternal))).ToList();

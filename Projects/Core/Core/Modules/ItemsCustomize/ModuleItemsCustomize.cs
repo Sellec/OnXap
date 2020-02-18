@@ -79,7 +79,7 @@ namespace OnXap.Modules.ItemsCustomize
         {
         }
 
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             RegisterPermission(PERM_EXTFIELDS_ALLOWMANAGE, "Настройка схемы полей");
 

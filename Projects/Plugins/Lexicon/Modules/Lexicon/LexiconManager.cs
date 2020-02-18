@@ -36,7 +36,7 @@ namespace OnXap.Modules.Lexicon
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStart()
+        protected sealed override void OnStarting()
         {
             AppCore.Get<JournalingManager>().RegisterJournalTyped<LexiconManager>("Журнал лексического менеджера");
             UpdateCache();

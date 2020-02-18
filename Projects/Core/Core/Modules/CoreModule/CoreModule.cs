@@ -16,7 +16,7 @@ namespace OnXap.Modules.CoreModule
 
         /// <summary>
         /// </summary>
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             RegisterPermission(PermissionConfigurationSave, "Изменение настроек сайта.", "");
 
