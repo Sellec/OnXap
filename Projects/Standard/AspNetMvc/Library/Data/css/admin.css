@@ -174,10 +174,6 @@ div.flash {width:375px;margin:10px 5px;border-color:#D9E4FF;
 border: 1px solid #f0f !important;
 }
 
-.imgareaselect-border1, .imgareaselect-border2,.imgareaselect-border3, .imgareaselect-border4 {opacity:0.5;filter:alpha(opacity=50);}
-.imgareaselect-handle {background-color:#fff;border:solid 1px #000;opacity:0.5;filter:alpha(opacity=50);}
-.imgareaselect-outer {background-color:#000;opacity:0.5;filter:alpha(opacity=50);}
-
 #top_panel { height:25px; padding:5px 0; width:100%; background:#0089d7 url(/data/img/admin/top_panel.gif) repeat-x; }
 #top_panel ul {list-style:none;margin:0;width:100%;}
 #top_panel ul li {float:left;margin-right:10px;}

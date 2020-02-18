@@ -56,6 +56,14 @@
       <Link>ExternalSources\Design\UI\jquery\jquery.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\quill\dist\quill.min.js">
+      <Link>ExternalSources\Design\UI\quill\quill.min.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\BuildSolutions\node_modules\quill\dist\quill.snow.css">
+      <Link>ExternalSources\Design\UI\quill\quill.snow.css</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\vue\dist\vue.min.js">
       <Link>ExternalSources\Design\UI\vue\vue.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -78,14 +86,6 @@
     </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\themes\**\*">
       <Link>ExternalSources\Design\UI\primevue\resources\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\*.js">
-      <Link>ExternalSources\Design\UI\primevue\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.vue">
-      <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.umd*.js">

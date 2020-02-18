@@ -14,6 +14,7 @@
             before: function ()
             {
                 $("input[type=submit]", this).attr('disabled', true);
+                return true;
             },
             after: function(result, message)
             {

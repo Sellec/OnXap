@@ -98,6 +98,7 @@
 
                     $("#field_result").text('').hide();
                     $("#loading_img").show();
+                    return true;
                 },
                 after: function (result, message, data) {
                     if (message != undefined && message.length > 0) alert(message);// $("#field_result").text(message).show();

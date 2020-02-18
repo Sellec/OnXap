@@ -22,7 +22,10 @@
         { <text>changeTitle("Редактирование пользователя: @Model.User.email.java_string()");</text> } else { <text>changeTitle("Добавление пользователя");</text> }
 
         $('form#form_ae').requestJSON({
-            before: function(){ stAnim($("#action_result")); },
+            before: function () {
+                stAnim($("#action_result"));
+                return true;
+            },
             after: function(result, message, id){
                 if (id > 0 && id != @Model.User.IdUser) window.location = "/admin/mnadmin/@this.GetModule().UrlName/userEdit/" + id;
                 $("#action_result").html(message);

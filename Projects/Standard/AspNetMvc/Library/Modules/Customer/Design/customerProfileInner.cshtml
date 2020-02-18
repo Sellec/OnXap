@@ -5,7 +5,10 @@
     $(function ()
     {
         $('form#datachangeform').requestJSON({
-            before: function () { $("#result").text(''); },
+            before: function () {
+                $("#result").text('');
+                return true;
+            },
             after: function (result, message)
             {
                 if (message.length > 0) alert(message);
