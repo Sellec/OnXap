@@ -1081,32 +1081,6 @@ $(function () {
                 }
             }
         });
-
-        /*var thisObject = $(this);
-
-        $("div#popup-call").showDialog({
-            buttons: ShowDialogButtons.NOBUTTONS,
-            closeOnPressEscape: true,
-            closeOnClickOutOfForm: true,
-            show: function () {
-                var thisObject = $(this),
-                    thisForm = $("form", thisObject);
-
-                thisForm.requestJSON("destroy");
-                thisForm.requestJSON({
-                    before: function () {
-
-                    },
-                    after: function (result, message) {
-                        if (message.length > 0) alert(message);
-                        if (result == JsonResult.OK) {
-                            thisObject.showDialog("destroy");
-                        }
-                    }
-                });
-            }
-        });
-        */
     });
 
     //$("js-sort-apply")

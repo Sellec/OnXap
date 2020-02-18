@@ -281,10 +281,6 @@ $(function () {
                                 console.log("requestJSON submit", err);
                             }
 
-                            var c1 = config.before ? 1 : 0;
-                            var c2 = config.before && $.proxy(config.before, this)(dataToSend, requestId) ? 1 : 0;
-                            var c3 = !config.before ? 1 : 0;
-
                             if (config.before && $.proxy(config.before, this)(dataToSend, requestId) || !config.before) {
                                 $("input, button, textarea, select", this).each(function () {
                                     if (!$(this).is(":disabled")) {
@@ -375,7 +371,7 @@ $(function () {
 
         var defaults = {
             after: function () { },
-            before: function () { },
+            before: function () { return true; },
 
             uploadStr: "Загрузить",
             dragDropStr: "<span><b>Перетащите изображения сюда</b></span>",

@@ -13,14 +13,14 @@ namespace OnXap.Modules.Lexicon
     {
         private static ModuleLexicon _thisModule = null;
 
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             _thisModule = this;
 
             /*
              * Регулярная проверка новых слов в лексическом менеджере.
              * */
-            TasksManager.SetTask(typeof(Lexicon.LexiconManager).FullName + "_" + nameof(Lexicon.LexiconManager.PrepareNewWords) + "_minutely2", Cron.MinuteInterval(2), () => LexiconNewWordsStatic());
+            TasksManager.SetTask(typeof(LexiconManager).FullName + "_" + nameof(LexiconManager.PrepareNewWords) + "_minutely2", Cron.MinuteInterval(2), () => LexiconNewWordsStatic());
         }
 
         #region Lexicon new words

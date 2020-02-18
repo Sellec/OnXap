@@ -204,7 +204,7 @@
       <Version>0.2.4</Version>
     </PackageReference>
     <PackageReference Include="OnUtils.Data.EntityFramework">
-      <Version>0.1.15</Version>
+      <Version>0.1.16</Version>
     </PackageReference>
     <PackageReference Include="OnUtils.Tasks.MomentalThreading">
       <Version>0.1.1.5</Version>

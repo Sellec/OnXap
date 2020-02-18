@@ -21,7 +21,7 @@ namespace OnXap.Modules.DbMaintenance
 
         /// <summary>
         /// </summary>
-        protected override void OnModuleStart()
+        protected override void OnModuleStarting()
         {
             _thisModule = this;
 

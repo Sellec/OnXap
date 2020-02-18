@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>OnXap.Modules.Lexicon</AssemblyName>
-    <Version>0.1.8</Version>
+    <Version>0.2.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="OnUtils" Version="0.2.4" />
-    <PackageReference Include="OnXap.Core" Version="0.1.8.27" />
+    <PackageReference Include="OnXap.Core" Version="0.1.9.4" />
   </ItemGroup>
 
 </Project>
