@@ -15,7 +15,6 @@ $(document).ready(function(){
     $("#loading_img, #res").hide();
 
     $("form#config_form").requestJSON({
-        before: function () {  },
         after: function (result, message)
         {
             if (message.length > 0) alert(message);

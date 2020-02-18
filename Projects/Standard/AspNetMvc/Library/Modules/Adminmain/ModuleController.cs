@@ -56,7 +56,7 @@ namespace OnXap.Modules.Adminmain
         public virtual ActionResult MainSettings()
         {
             var handler = AppCore.Get<ModuleControllerTypesManager>();
-            var model = new Model.AdminMainModelInfoPage(AppCore.AppConfig, AppCore.WebConfig)
+            var model = new ViewModels.MainSettings(AppCore.AppConfig, AppCore.WebConfig)
             {
                 ModulesList = (from p in AppCore.GetModulesManager().GetModules()
                                where handler.GetModuleControllerTypes(p.QueryType) != null
@@ -75,11 +75,11 @@ namespace OnXap.Modules.Adminmain
                 model.Roles.Insert(0, new Role() { IdRole = 0, NameRole = "Не выбрано", IsHidden = false });
             }
 
-            return View("CoreSettings.tpl", model);
+            return View("MainSettings.tpl", model);
         }
 
         [ModuleAction("info_save", Module.PERM_CONFIGMAIN)]
-        public virtual JsonResult MainSettingsSave(Model.AdminMainModelInfoPage model)
+        public virtual JsonResult MainSettingsSave(Model.MainSettingsSave model)
         {
             var result = JsonAnswer();
             CoreConfiguration cfgAppOld = null;
@@ -337,7 +337,7 @@ namespace OnXap.Modules.Adminmain
 
                 var data = dbAccessor.
                     FetchQueryJournalData<Model.JournalQueries.QueryJournalData, Model.JournalQueries.JournalData>(query, (row, instance) => instance.Count = row.Count).
-                    Select(x => new Design.Model.JournalsList()
+                    Select(x => new ViewModels.JournalsList()
                     {
                         JournalName = x.JournalInfo,
                         EventsCount = x.Count,
@@ -366,7 +366,7 @@ namespace OnXap.Modules.Adminmain
                     {
                         var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal);
                         var count = query.Count();
-                        return View("JournalDetails.cshtml", new Design.Model.JournalDetails()
+                        return View("JournalDetails.cshtml", new ViewModels.JournalDetails()
                         {
                             JournalName = result.Result,
                             JournalDataCountAll = count
@@ -555,7 +555,7 @@ namespace OnXap.Modules.Adminmain
                         }
 
                         var data = dbAccessor.FetchQueryJournalData(query);
-                        return ReturnJson(true, null, new Design.Model.JournalDetails()
+                        return ReturnJson(true, null, new ViewModels.JournalDetails()
                         {
                             JournalDataCountAll = dataAllCount,
                             JournalData = data

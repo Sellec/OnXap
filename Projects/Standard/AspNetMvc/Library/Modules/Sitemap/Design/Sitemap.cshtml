@@ -11,7 +11,10 @@
             $(".i_adminmenu ul").show();
 
             $("form#form_ae").requestJSON({
-                before: function () { $("#loading_img").show(); },
+                before: function () {
+                    $("#loading_img").show();
+                    return true;
+                },
                 after: function (result, message, data) {
                     $("#loading_img").hide();
                     if (message.length) alert(message);

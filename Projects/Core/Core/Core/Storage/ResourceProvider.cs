@@ -49,38 +49,44 @@ namespace OnXap.Core.Storage
             /*
              * Пути поиска ресурсов. Каждый путь смешивается с каждым корневым путем при поиске.
              * */
-            this.AddResourceDir("Modules/Module{module}/DesignModified/");
-            this.AddResourceDir("Modules/Module{module}/Design/");
-            this.AddResourceDir("Modules/{module}/DesignModified/");
-            this.AddResourceDir("Modules/{module}/Design/");
-            this.AddResourceDir("Modules/Design/");
-            this.AddResourceDir("Modules/");
+            AddResourceDir("Modules/Module{module}/ViewsModified/");
+            AddResourceDir("Modules/Module{module}/Views/");
+            AddResourceDir("Modules/{module}/ViewsModified/");
+            AddResourceDir("Modules/{module}/Views/");
 
             /*
              * Устаревшие пути
              * */
-            this.AddResourceDir("Plugins/Module{module}/DesignModified/");
-            this.AddResourceDir("Plugins/Module{module}/Design/");
-            this.AddResourceDir("Plugins/{module}/DesignModified/");
-            this.AddResourceDir("Plugins/{module}/Design/");
-            this.AddResourceDir("Plugins/Design/");
-            this.AddResourceDir("Plugins/");
+            AddResourceDir("Modules/Module{module}/DesignModified/");
+            AddResourceDir("Modules/Module{module}/Design/");
+            AddResourceDir("Modules/{module}/DesignModified/");
+            AddResourceDir("Modules/{module}/Design/");
 
-            this.AddResourceDir("data/temp_modified/");
+            AddResourceDir("Modules/Design/");
+            AddResourceDir("Modules/");
 
-            this.AddResourceDir("data/{theme}/{resource}/{module}/{language}");
-            this.AddResourceDir("data/{theme}/{resource}/{module}");
+            AddResourceDir("Plugins/Module{module}/DesignModified/");
+            AddResourceDir("Plugins/Module{module}/Design/");
+            AddResourceDir("Plugins/{module}/DesignModified/");
+            AddResourceDir("Plugins/{module}/Design/");
+            AddResourceDir("Plugins/Design/");
+            AddResourceDir("Plugins/");
 
-            this.AddResourceDir("data/{theme}/{resource}/{language}");
-            this.AddResourceDir("data/{theme}/{resource}/");
+            AddResourceDir("data/temp_modified/");
 
-            this.AddResourceDir("data/{resource}/{module}/{language}");
-            this.AddResourceDir("data/{resource}/{module}");
+            AddResourceDir("data/{theme}/{resource}/{module}/{language}");
+            AddResourceDir("data/{theme}/{resource}/{module}");
 
-            this.AddResourceDir("data/{resource}/{language}");
-            this.AddResourceDir("data/{resource}/");
+            AddResourceDir("data/{theme}/{resource}/{language}");
+            AddResourceDir("data/{theme}/{resource}/");
 
-            this.AddResourceDir("");
+            AddResourceDir("data/{resource}/{module}/{language}");
+            AddResourceDir("data/{resource}/{module}");
+
+            AddResourceDir("data/{resource}/{language}");
+            AddResourceDir("data/{resource}/");
+
+            AddResourceDir("");
 
             OnStartProvider();
         }

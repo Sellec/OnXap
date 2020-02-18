@@ -1,0 +1,200 @@
+@using OnXap.Modules.Admin
+@using OnXap.Modules.Adminmain
+@using OnXap.Modules.Adminmain.ViewModels
+@model MainSettings
+@{
+    var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>();
+    var groupOpen = new SelectListGroup() { Name = "Открытая роль" };
+    var groupHidden = new SelectListGroup() { Name = "Скрытая роль" };
+    var roleList = Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole).Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole, Group = x.IsHidden ? groupHidden : groupOpen });
+}
+<script type='text/javascript'>
+    class MainSettingsSave {
+        constructor(source) {
+            this.AppCoreConfiguration = {
+                RoleGuest: Number(source.AppCoreConfiguration.RoleGuest),
+                RoleUser: Number(source.AppCoreConfiguration.RoleUser),
+            };
+            this.WebCoreConfiguration = {
+                SiteFullName: String(source.WebCoreConfiguration.SiteFullName),
+                IdModuleDefault: Number(source.WebCoreConfiguration.IdModuleDefault),
+                ContactEmail: String(source.WebCoreConfiguration.ContactEmail),
+                ReturnEmail: String(source.WebCoreConfiguration.ReturnEmail),
+                DeveloperEmail: String(source.WebCoreConfiguration.DeveloperEmail),
+                CriticalMessagesEmail: String(source.WebCoreConfiguration.CriticalMessagesEmail),
+                register_mode: Number(source.WebCoreConfiguration.register_mode),
+                userAuthorizeAllowed: Number(source.WebCoreConfiguration.userAuthorizeAllowed),
+                site_reginfo: String(source.WebCoreConfiguration.site_reginfo),
+                site_loginfo: String(source.WebCoreConfiguration.site_loginfo),
+                site_descr: String(source.WebCoreConfiguration.site_descr),
+                site_keys: String(source.WebCoreConfiguration.site_keys)
+            }
+        }
+    }
+    class MainSettings {
+        constructor(source) {
+            this.Model = new MainSettingsSave(source);
+          //  this.ModelLabels
+        }
+    }
+
+    $(document).ready(function ()
+    {
+        $("#block").hide();
+
+        $("form#form_info").requestJSON({
+            before: function ()
+            {
+                $("#item_result").hide();
+                $("#loading_img").show();
+                return true;
+            },
+            after: function (result, message)
+            {
+                $("#item_result").html(nl2br(message)).show();
+                $("#loading_img").hide()
+            }
+        });
+
+        changeTitle('Информация');
+
+        $("#loading_img, #info_save").hide();
+        getResultAnim($("#form_info"), $("#info_save"));
+
+        $("select[name=register_mode]").val('@this.GetConfig().register_mode');
+        $("select[name=userAuthorizeAllowed]").val('@this.GetConfig().userAuthorizeAllowed');
+
+        $("input#js-role-guest_checkbox, input#js-role-user_checkbox").change(function () {
+            if ($(this).prop("checked"))
+                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").show();
+            else
+                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").hide();
+        }).change();
+
+        new Vue({
+            el: "#js-core-settings",
+            components: {
+                "editor": editor,
+                "inputtext": inputtext
+            },
+            data: @Model.jsobject()
+        });
+    });
+</script>
+<style>
+    div.block-setting {
+        margin-bottom: 5px;
+        padding: 5px 0px 10px 0px;
+    }
+</style>
+
+<table width='100%'>
+    <tr>
+        <td>
+            <form action='@(Url.CreateRoute<OnXap.Modules.Adminmain.Module, ModuleController>(x => x.MainSettingsSave(null)))' method='post' id='form_info'>
+                <h2>Общие параметры:</h2>
+
+                <div id="js-core-settings">
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
+                        <inputtext v-model="WebCoreConfiguration.SiteFullName">
+                            @Html.EditorFor(x => x.WebCoreConfiguration.SiteFullName, new { htmlAttributes = new { size = 50 } })
+                        </inputtext>
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.SiteFullName)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.IdModuleDefault):<br>
+                        @Html.DropDownListFor(x => x.WebCoreConfiguration.IdModuleDefault, Model.ModulesList)<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.IdModuleDefault)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.ContactEmail):<br />
+                        @Html.EditorFor(x => x.WebCoreConfiguration.ContactEmail, new { htmlAttributes = new { size = 50 } })<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ContactEmail)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.ReturnEmail):<br />
+                        @Html.EditorFor(x => x.WebCoreConfiguration.ReturnEmail, new { htmlAttributes = new { size = 50 } })<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ReturnEmail)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.DeveloperEmail):<br>
+                        @Html.TextBoxFor(x => x.WebCoreConfiguration.DeveloperEmail)<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.DeveloperEmail)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.CriticalMessagesEmail):<br />
+                        @Html.EditorFor(x => x.WebCoreConfiguration.CriticalMessagesEmail, new { htmlAttributes = new { size = 50 } })<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.CriticalMessagesEmail)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.register_mode):<br>
+                        @Html.EnumDropDownListFor(x => x.WebCoreConfiguration.register_mode)<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.register_mode)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.userAuthorizeAllowed):<br>
+                        @Html.EnumDropDownListFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.site_reginfo):<br />
+                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_reginfo)"></editor>
+                        @Html.HiddenFor(x => x.WebCoreConfiguration.site_reginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_reginfo) })
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_reginfo)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.site_loginfo):<br />
+                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_loginfo)"></editor>
+                        @Html.HiddenFor(x => x.WebCoreConfiguration.site_loginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_loginfo) })
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_loginfo)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.help_info):<br />
+                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.help_info)"></editor>
+                        @Html.HiddenFor(x => x.WebCoreConfiguration.help_info, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.help_info) })
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.help_info)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.site_descr):<br />
+                        @Html.EditorFor(x => x.WebCoreConfiguration.site_descr, new { htmlAttributes = new { size = 50 } })<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_descr)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.WebCoreConfiguration.site_keys):<br />
+                        @Html.EditorFor(x => x.WebCoreConfiguration.site_keys, new { htmlAttributes = new { size = 50 } })<br />
+                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_keys)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.AppCoreConfiguration.RoleGuest) (<input type="checkbox" id="js-role-guest_checkbox" value="1" /> <label for="js-role-guest_checkbox">Показать скрытые роли</label>):<br />
+                        @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleGuest, roleList)
+                        @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleGuest)
+                    </div>
+
+                    <div class="block-setting">
+                        @Html.LabelFor(x => x.AppCoreConfiguration.RoleUser) (<input type="checkbox" id="js-role-user_checkbox" value="1" /> <label for="js-role-user_checkbox">Показать скрытые роли</label>):<br />
+                        @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleUser, roleList)
+                        @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleUser)
+                    </div>
+                </div>
+
+                <input type='submit' id='save_func' value='&nbsp;Сохранить&nbsp;'> <img src="/data/img/loading.gif" alt="" id="loading_img" style="display:none">
+            </form>
+            <div id='info_save' style="margin:5px 10px;padding:5px;"></div>
+
+        </td>
+    </tr>
+</table>

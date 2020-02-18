@@ -132,6 +132,7 @@
     <Folder Include="Modules\EditableMenu\Model\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\Adminmain\ViewModels\MainSettings.cs" />
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
@@ -234,9 +235,9 @@
     <Compile Include="Modules\FileManager\MVC\FileDataTypeAttribute.cs" />
     <Compile Include="Modules\FileManager\MVC\FileType.cs" />
     <Compile Include="Modules\Adminmain\DataContext.cs" />
-    <Compile Include="Modules\Adminmain\Design\Model\JournalDetails.cs" />
-    <Compile Include="Modules\Adminmain\Design\Model\JournalsList.cs" />
-    <Compile Include="Modules\Adminmain\Model\AdminMainModelInfoPage.cs" />
+    <Compile Include="Modules\Adminmain\ViewModels\JournalDetails.cs" />
+    <Compile Include="Modules\Adminmain\ViewModels\JournalsList.cs" />
+    <Compile Include="Modules\Adminmain\Model\MainSettingsSave.cs" />
     <Compile Include="Modules\EditableMenu\Design\Model\EditableMenu.cs" />
     <Compile Include="Modules\Adminmain\Model\Modules.cs" />
     <Compile Include="Modules\Adminmain\Model\RouteInfo.cs" />
@@ -487,9 +488,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\css\jquery.wysiwyg.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\css\jqueryslidemenu.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\css\main.css">
@@ -1403,12 +1401,6 @@
     <None Include="Data\js\admin.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\js\ajax.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\imgareaselect.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\js\jquery.cookie.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -1437,9 +1429,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\jquery.wysiwyg.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\jqueryslidemenu.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\work.js">
@@ -1517,7 +1506,7 @@
     <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Modules\Adminmain\Design\SystemState.cshtml" />
+    <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -1570,17 +1559,17 @@
     <Content Include="Modules\Admin\Design\errorHandled.cshtml" />
     <Content Include="Modules\EditableMenu\Design\EditableMenu.cshtml" />
     <Content Include="Modules\EditableMenu\Design\EditableMenuEdit.cshtml" />
-    <Content Include="Modules\Adminmain\Design\CoreSettings.cshtml" />
-    <Content Include="Modules\Adminmain\Design\Modules.cshtml" />
+    <Content Include="Modules\Adminmain\Views\MainSettings.cshtml" />
+    <Content Include="Modules\Adminmain\Views\Modules.cshtml" />
     <Content Include="Modules\Sitemap\Design\Sitemap.cshtml" />
-    <Content Include="Modules\Adminmain\Design\JournalDetails.cshtml" />
-    <Content Include="Modules\Adminmain\Design\Journals.cshtml" />
-    <Content Include="Modules\Adminmain\Design\Messaging.cshtml" />
-    <Content Include="Modules\Adminmain\Design\MessagingService.cshtml" />
-    <Content Include="Modules\Adminmain\Design\Monitor.cshtml" />
-    <Content Include="Modules\Adminmain\Design\MonitorJournal.cshtml" />
-    <Content Include="Modules\Adminmain\Design\routing.cshtml" />
-    <Content Include="Modules\Adminmain\Design\routing_module.cshtml" />
+    <Content Include="Modules\Adminmain\Views\JournalDetails.cshtml" />
+    <Content Include="Modules\Adminmain\Views\Journals.cshtml" />
+    <Content Include="Modules\Adminmain\Views\Messaging.cshtml" />
+    <Content Include="Modules\Adminmain\Views\MessagingService.cshtml" />
+    <Content Include="Modules\Adminmain\Views\Monitor.cshtml" />
+    <Content Include="Modules\Adminmain\Views\MonitorJournal.cshtml" />
+    <Content Include="Modules\Adminmain\Views\routing.cshtml" />
+    <Content Include="Modules\Adminmain\Views\routing_module.cshtml" />
     <Content Include="Modules\Universal\Design\PaginationBlock.cshtml" />
     <Content Include="Modules\Register\Design\Register.cshtml" />
     <Content Include="Modules\Register\Design\registerInner.cshtml" />
