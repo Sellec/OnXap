@@ -12,7 +12,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.9.4</Version>
+    <Version>0.1.9.5</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

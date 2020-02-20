@@ -11,7 +11,7 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.9.4</Version>
+	  <Version>0.1.9.5</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>

@@ -12,7 +12,7 @@ namespace OnXap.Modules.Materials
         {
             bindingsCollection.SetSingleton<ModuleMaterials>();
             bindingsCollection.AddTransient<IModuleController<ModuleMaterials>, ModuleController>();
-            bindingsCollection.AddTransient<IModuleController<ModuleMaterials>, ModuleAdminController>();
+            bindingsCollection.AddTransient<IModuleController<ModuleMaterials>, ModuleMaterialsAdminController>();
             bindingsCollection.SetTransient<MaterialsSitemapProvider>();
         }
 

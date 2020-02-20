@@ -66,6 +66,12 @@ namespace OnXap.Messaging
             _appCore = AppCore;
             AppCore.ObjectProvider.RegisterInstanceActivatingHandler(_instanceActivatingHandler);
 
+        }
+
+        /// <summary>
+        /// </summary>
+        protected sealed override void OnStarted()
+        {
             // Попытка инициализировать все сервисы отправки сообщений, наследующиеся от IMessagingService.
             var types = AppCore.GetQueryTypes().Where(x => x.GetInterfaces().Contains(typeof(IMessageServiceInternal))).ToList();
             foreach (var type in types)

@@ -1,10 +1,11 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OnXap.Modules.Materials.DB
 {
     using Core.Items;
     using Modules.Routing;
-    using System;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
 
     [Table("News")]
     public class News : ItemBase, IItemRouted

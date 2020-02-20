@@ -1,21 +1,25 @@
-﻿using OnUtils.Tasks;
+﻿using OnUtils.Architecture.AppCore;
+using OnUtils.Tasks;
 using System;
 using System.Net;
 
-namespace OnXap.Modules.ApplicationStateMonitor
+namespace OnXap.Modules.WebApplicationStateMonitor
 {
     using Core.Modules;
     using Journaling;
 
-    [ModuleCore("Монитор веб-сервера")]
-    public class Module : ModuleCore<Module>
+    /// <summary>
+    /// Менеджер для работы со словарными формами.
+    /// </summary>
+    [ModuleCore("Мониторинг веб-приложения")]
+    public class WebApplicationStateMonitor : ModuleCore<WebApplicationStateMonitor>
     {
-        private static Module _this = null;
+        private static WebApplicationStateMonitor _this = null;
 
         protected override void OnModuleStarting()
         {
             _this = this;
-            TasksManager.SetTask("WebMonitor", Cron.Minutely(), () => RunStatic());
+            if (!Debug.IsDeveloper) TasksManager.SetTask("WebMonitor", Cron.Minutely(), () => RunStatic());
         }
 
         protected override void OnModuleStop()
@@ -26,7 +30,7 @@ namespace OnXap.Modules.ApplicationStateMonitor
         private static void RunStatic()
         {
             var t = _this;
-            if (t?.GetAppCore()?.GetState() != OnUtils.Architecture.AppCore.CoreComponentState.Started) return;
+            if (t?.GetAppCore()?.GetState() != CoreComponentState.Started) return;
 
             try
             {
@@ -47,14 +51,15 @@ namespace OnXap.Modules.ApplicationStateMonitor
                 _this.RegisterEvent(EventType.Error, "Сетевая ошибка", null, ex);
                 if (ex.Response == null)
                 {
-                    Debug.WriteLine($"{typeof(Module).FullName}.{nameof(RunStatic)}.1: {ex.Message}");
+                    Debug.WriteLine($"{typeof(WebApplicationStateMonitor).FullName}.{nameof(RunStatic)}.1: {ex.Message}");
                 }
             }
             catch (Exception ex)
             {
                 _this.RegisterEvent(EventType.Error, "Ошибка", null);
-                Debug.WriteLine($"{typeof(Module).FullName}.{nameof(RunStatic)}.2: {ex.Message}");
+                Debug.WriteLine($"{typeof(WebApplicationStateMonitor).FullName}.{nameof(RunStatic)}.2: {ex.Message}");
             }
         }
+
     }
 }

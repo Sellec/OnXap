@@ -14,7 +14,7 @@ namespace OnXap.Modules.Materials
     /// <summary>
     /// Представляет контроллер для панели управления.
     /// </summary>
-    public class ModuleAdminController : ModuleControllerAdmin<ModuleMaterials>
+    public class ModuleMaterialsAdminController : ModuleControllerAdmin<ModuleMaterials>
     {
         [MenuAction("Новости")]
         public ActionResult News()
@@ -66,7 +66,7 @@ namespace OnXap.Modules.Materials
             return ReturnJson(success, result);
         }
 
-        public JsonResult NewsSave(DB.News model = null)
+        public JsonResult NewsSave(Models.NewsSave model = null)
         {
             var answer = JsonAnswer<int>();
 
@@ -75,17 +75,16 @@ namespace OnXap.Modules.Materials
                 if (ModelState.IsValid)
                 {
                     using (var db = Module.CreateUnitOfWork())
-                    using (var trans = db.CreateScope())
                     {
                         DB.News data = null;
-                        if (model.id <= 0)
+                        if (model.IdMaterial <= 0)
                         {
                             data = new DB.News() { date = DateTime.Now, user = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser, status = true, Block = false };
                             db.News.Add(data);
                         }
                         else
                         {
-                            data = db.News.Where(x => x.id == model.id).FirstOrDefault();
+                            data = db.News.Where(x => x.id == model.IdMaterial).FirstOrDefault();
                             if (data == null) throw new Exception("Указанная новость не найдена.");
 
                             if (data.Block)
@@ -95,9 +94,9 @@ namespace OnXap.Modules.Materials
                             }
                         }
 
-                        data.name = model.name;
-                        data.text = model.text;
-                        data.short_text = model.short_text;
+                        data.name = model.NameMaterial;
+                        data.text = model.BodyFull;
+                        data.short_text = model.BodyShort;
 
                         db.SaveChanges();
 
@@ -114,8 +113,7 @@ namespace OnXap.Modules.Materials
                         );
                         if (!result.IsSuccess) throw new Exception(result.Message);
 
-                        answer.FromSuccess(null);
-                        trans.Commit();
+                        answer.FromSuccess("Новость сохранена");
                     }
                 }
             }

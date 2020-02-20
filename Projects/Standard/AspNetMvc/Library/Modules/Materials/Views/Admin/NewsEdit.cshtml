@@ -1,0 +1,99 @@
+@using OnXap.Modules.Admin
+@using OnXap.Modules.Materials
+@using OnXap.Modules.Materials.DB
+@using OnXap.Modules.Materials.Models
+@model News
+@{
+    var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>();
+    var idEl = "material-" + DateTime.Now.Ticks.ToString();
+}
+
+<script type='text/javascript'>
+    class NewsEdit {
+        constructor(source) {
+            this.IdMaterial = Number(source.@Html.NameOf(x => x.id));
+            this.NameMaterial = source.@Html.NameOf(x => x.name) ? String(source.@Html.NameOf(x => x.name)) : "";
+            this.BodyShort = source.@Html.NameOf(x => x.short_text) ? String(source.@Html.NameOf(x => x.short_text)) : "";
+            this.BodyFull = source.@Html.NameOf(x => x.text) ? String(source.@Html.NameOf(x => x.text)) : "";
+        }
+    }
+
+    class NewsSave {
+        constructor(source) {
+            this.@nameof(NewsSave.IdMaterial) = source.IdMaterial;
+            this.@nameof(NewsSave.NameMaterial) = source.NameMaterial;
+            this.@nameof(NewsSave.BodyShort) = source.BodyShort;
+            this.@nameof(NewsSave.BodyFull) = source.BodyFull;
+        }
+    }
+
+    $(document).ready(function () {
+        $("#block").hide();
+
+        $(".i_adminmenu ul").show();
+
+        new Vue({
+            el: "#@idEl",
+            components: {
+                "p-button": button,
+                "p-inputtext": inputtext,
+                "p-editor": editor,
+            },
+            data: {
+                IsSaving: false,
+                LatestRequestId: null,
+                Data: new NewsEdit(@Model.jsobject()),
+            },
+            methods: {
+                GetCaption: function () {
+                    console.log(this.Data.BodyFull);
+                    return this.Data.IdMaterial == 0 ? "Добавление новости '" + this.Data.NameMaterial + "'" : "Редактирование новости №" + String(this.Data.IdMaterial) + " '" + this.Data.NameMaterial + "'";
+                },
+                OnSave: function () {
+                    var component = this;
+                    component.IsSaving = true;
+                    component.LatestRequestId = $.requestJSON('@(Url.CreateRoute<ModuleMaterials, ModuleMaterialsAdminController>(x => x.NewsSave(null)))', new NewsSave(component.Data), function (result, message, idMaterial, requestId) {
+                        if (component.LatestRequestId != requestId) return;
+                        component.IsSaving = false;
+                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
+                        if (result == JsonResult.OK) {
+                            component.Data.IdMaterial = Number(idMaterial);
+                        }
+                    });
+                },
+                BodyShortChanged: function (event) {
+                    this.Data.BodyShort = event.htmlValue;
+                },
+                BodyFullChanged: function (event) {
+                    this.Data.BodyFull = event.htmlValue;
+                },
+            }
+        });
+    });
+
+</script>
+<div id="@idEl">
+    <h4>{{ GetCaption() }}</h4>
+    <table id="items_results" width="600">
+        <tr></tr>
+        <tr>
+            <td width='400'>
+                <input type="text" v-model="Data.IdMaterial" disabled />
+                Заголовок:&nbsp;<p-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></p-inputtext>
+                / <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
+
+                <br><br>
+
+                Краткое содержимое (для списка): <p-editor @@text-change="BodyShortChanged($event)" value="@Model.short_text.Replace("\"", "\\\"")" editor-style="width:800px;height:200px;"></p-editor>
+
+                <br><br />
+
+                Основное содержимое: <p-editor @@text-change="BodyFullChanged($event)" value="@Model.text.Replace("\"", "\\\"")" editor-style="width:800px;height:500px;"></p-editor>
+
+                <br>
+
+                <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
+            </td>
+        </tr>
+    </table>
+</div>
