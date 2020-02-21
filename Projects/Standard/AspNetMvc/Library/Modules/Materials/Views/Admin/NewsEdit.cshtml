@@ -46,7 +46,6 @@
             },
             methods: {
                 GetCaption: function () {
-                    console.log(this.Data.BodyFull);
                     return this.Data.IdMaterial == 0 ? "Добавление новости '" + this.Data.NameMaterial + "'" : "Редактирование новости №" + String(this.Data.IdMaterial) + " '" + this.Data.NameMaterial + "'";
                 },
                 OnSave: function () {
@@ -73,22 +72,23 @@
 
 </script>
 <div id="@idEl">
-    <h4>{{ GetCaption() }}</h4>
+    <h4>
+        {{ GetCaption() }}
+        / <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
+    </h4>
     <table id="items_results" width="600">
         <tr></tr>
         <tr>
             <td width='400'>
-                <input type="text" v-model="Data.IdMaterial" disabled />
                 Заголовок:&nbsp;<p-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></p-inputtext>
-                / <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
 
                 <br><br>
 
-                Краткое содержимое (для списка): <p-editor @@text-change="BodyShortChanged($event)" value="@Model.short_text.Replace("\"", "\\\"")" editor-style="width:800px;height:200px;"></p-editor>
+                Краткое содержимое (для списка): <p-editor @@text-change="BodyShortChanged($event)" value="@(Model.short_text?.Replace("\"", "\\\""))" editor-style="width:800px;height:200px;"></p-editor>
 
                 <br><br />
 
-                Основное содержимое: <p-editor @@text-change="BodyFullChanged($event)" value="@Model.text.Replace("\"", "\\\"")" editor-style="width:800px;height:500px;"></p-editor>
+                Основное содержимое: <p-editor @@text-change="BodyFullChanged($event)" value="@(Model.text?.Replace("\"", "\\\""))" editor-style="width:800px;height:500px;"></p-editor>
 
                 <br>
 
