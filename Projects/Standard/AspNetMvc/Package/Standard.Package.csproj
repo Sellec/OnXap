@@ -36,6 +36,9 @@
     <FileContent Include="..\SourceHelper\bin\ExternalSources\**\*">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </FileContent>
+    <FileContent Include="..\JsUI\dist\**\*">
+      <Link>Design\UI\common\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </FileContent>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Linked\**" />

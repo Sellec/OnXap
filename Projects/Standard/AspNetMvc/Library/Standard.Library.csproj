@@ -294,6 +294,10 @@
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\JsUI\dist\**\*">
+      <Link>Design\UI\common\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Data\css\Auth\modules.auth.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

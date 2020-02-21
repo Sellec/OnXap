@@ -52,10 +52,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard.Library", "..\Projects\Standard\AspNetMvc\Library\Standard.Library.csproj", "{C844D3BE-EC89-4A5F-B54E-B07D9DFCB4C9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31A6CF03-2BF5-4ADB-9370-142647DE6BA2} = {31A6CF03-2BF5-4ADB-9370-142647DE6BA2}
+		{31B7E21D-3E98-40B7-B225-73658119566E} = {31B7E21D-3E98-40B7-B225-73658119566E}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Standard.Package", "..\Projects\Standard\AspNetMvc\Package\Standard.Package.csproj", "{B63DB320-89EE-46F6-8020-3DCF71E21E9E}"
 	ProjectSection(ProjectDependencies) = postProject
+		{31B7E21D-3E98-40B7-B225-73658119566E} = {31B7E21D-3E98-40B7-B225-73658119566E}
 		{C844D3BE-EC89-4A5F-B54E-B07D9DFCB4C9} = {C844D3BE-EC89-4A5F-B54E-B07D9DFCB4C9}
 	EndProjectSection
 EndProject
@@ -72,6 +74,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Materials", "Materials", "{4857B6E4-E03A-4502-8200-64197BE599DE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplicationStateMonitor", "..\Projects\Plugins\WebApplicationStateMonitor\WebApplicationStateMonitor.csproj", "{32041F7D-D597-4CA8-83B7-7184DA48C15F}"
+EndProject
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Standard.JsUI", "..\Projects\Standard\AspNetMvc\JsUI\Standard.JsUI.njsproj", "{31B7E21D-3E98-40B7-B225-73658119566E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -180,6 +184,12 @@ Global
 		{32041F7D-D597-4CA8-83B7-7184DA48C15F}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
 		{32041F7D-D597-4CA8-83B7-7184DA48C15F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32041F7D-D597-4CA8-83B7-7184DA48C15F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.DebugWithoutPackages|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31B7E21D-3E98-40B7-B225-73658119566E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,6 +216,7 @@ Global
 		{6DE9ECEC-65DE-453E-9CEC-6DFF8CB74450} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 		{4857B6E4-E03A-4502-8200-64197BE599DE} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 		{32041F7D-D597-4CA8-83B7-7184DA48C15F} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
+		{31B7E21D-3E98-40B7-B225-73658119566E} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}
