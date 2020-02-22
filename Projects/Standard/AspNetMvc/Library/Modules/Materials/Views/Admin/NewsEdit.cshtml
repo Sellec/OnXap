@@ -34,11 +34,6 @@
 
         new Vue({
             el: "#@idEl",
-            components: {
-                "p-button": button,
-                "p-inputtext": inputtext,
-                "p-editor": editor,
-            },
             data: {
                 IsSaving: false,
                 LatestRequestId: null,
@@ -74,25 +69,25 @@
 <div id="@idEl">
     <h4>
         {{ GetCaption() }}
-        / <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
+        / <pvl-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pvl-button>
     </h4>
     <table id="items_results" width="600">
         <tr></tr>
         <tr>
             <td width='400'>
-                Заголовок:&nbsp;<p-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></p-inputtext>
+                Заголовок:&nbsp;<pvl-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></pvl-inputtext>
 
                 <br><br>
 
-                Краткое содержимое (для списка): <p-editor @@text-change="BodyShortChanged($event)" value="@(Model.short_text?.Replace("\"", "\\\""))" editor-style="width:800px;height:200px;"></p-editor>
+                Краткое содержимое (для списка): <pvl-editor @@text-change="BodyShortChanged($event)" value="@(Model.short_text?.Replace("\"", "\\\""))" editor-style="width:800px;height:200px;"></pvl-editor>
 
                 <br><br />
 
-                Основное содержимое: <p-editor @@text-change="BodyFullChanged($event)" value="@(Model.text?.Replace("\"", "\\\""))" editor-style="width:800px;height:500px;"></p-editor>
+                Основное содержимое: <pvl-editor @@text-change="BodyFullChanged($event)" value="@(Model.text?.Replace("\"", "\\\""))" editor-style="width:800px;height:500px;"></pvl-editor>
 
                 <br>
 
-                <p-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></p-button>
+                <pvl-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pvl-button>
             </td>
         </tr>
     </table>

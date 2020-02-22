@@ -20,8 +20,8 @@ module.exports = {
         library: 'PrimeVueLibrary'
     },
     externals: {
-        vue: 'Vue'
-        //quill: 'Quill'
+        vue: 'Vue',
+        quill: 'Quill'
     },
     optimization: {
         minimize: isProduction,

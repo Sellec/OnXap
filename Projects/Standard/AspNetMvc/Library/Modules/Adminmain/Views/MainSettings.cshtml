@@ -73,10 +73,6 @@
 
         new Vue({
             el: "#js-core-settings",
-            components: {
-                "editor": editor,
-                "inputtext": inputtext
-            },
             data: @Model.jsobject()
         });
     });
@@ -97,9 +93,9 @@
                 <div id="js-core-settings">
                     <div class="block-setting">
                         @Html.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
-                        <inputtext v-model="WebCoreConfiguration.SiteFullName">
+                        <pvl-inputtext v-model="WebCoreConfiguration.SiteFullName">
                             @Html.EditorFor(x => x.WebCoreConfiguration.SiteFullName, new { htmlAttributes = new { size = 50 } })
-                        </inputtext>
+                        </pvl-inputtext>
                         @Html.ValidationMessageFor(x => x.WebCoreConfiguration.SiteFullName)
                     </div>
 
@@ -147,21 +143,21 @@
 
                     <div class="block-setting">
                         @Html.LabelFor(x => x.WebCoreConfiguration.site_reginfo):<br />
-                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_reginfo)"></editor>
+                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_reginfo)"></pvl-editor>
                         @Html.HiddenFor(x => x.WebCoreConfiguration.site_reginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_reginfo) })
                         @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_reginfo)
                     </div>
 
                     <div class="block-setting">
                         @Html.LabelFor(x => x.WebCoreConfiguration.site_loginfo):<br />
-                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_loginfo)"></editor>
+                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_loginfo)"></pvl-editor>
                         @Html.HiddenFor(x => x.WebCoreConfiguration.site_loginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_loginfo) })
                         @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_loginfo)
                     </div>
 
                     <div class="block-setting">
                         @Html.LabelFor(x => x.WebCoreConfiguration.help_info):<br />
-                        <editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.help_info)"></editor>
+                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.help_info)"></pvl-editor>
                         @Html.HiddenFor(x => x.WebCoreConfiguration.help_info, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.help_info) })
                         @Html.ValidationMessageFor(x => x.WebCoreConfiguration.help_info)
                     </div>
