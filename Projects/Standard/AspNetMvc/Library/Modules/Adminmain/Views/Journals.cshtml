@@ -36,11 +36,6 @@
 
         var d = new Vue({
             el: "#js-journals-list__table",
-            components: {
-                'datatable': datatable,
-                'column': column,
-                'inputtext': inputtext,
-            },
             data: {
                 filters: {},
                 dataList: model.DataList
@@ -63,29 +58,29 @@
     <tr>
         <td style='vertical-align:top;width:650px;min-width:650px;'>
             <div id="js-journals-list__table">
-                <datatable :value="dataList" :row-class="rowClass" 
-                            sort-field="NameJournal" sort-order="1"
+                <pvl-datatable :value="dataList" :row-class="rowClass" 
+                            sort-field="NameJournal" sort-order="true"
                            :filters="filters">
                     <template #header>
                         <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
                     </template>
-                    <column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
+                    <pvl-column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
                         <template #filter>
-                            <InputText type="text" v-model="filters['NameJournal']" class="p-column-filter" />
+                            <pvl-inputtext type="text" v-model="filters['NameJournal']" class="p-column-filter"></pvl-inputtext>
                         </template>
-                    </column>
-                    <column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></column>
-                    <column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
+                    </pvl-column>
+                    <pvl-column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
+                    <pvl-column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
                         <template #body="slotProps">
                             {{ slotProps.data.EventLastDate ? slotProps.data.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
                         </template>
-                    </column>
-                    <column column-key="Actions" header="Действия" header-style="width:100px;">
+                    </pvl-column>
+                    <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
                         <template #body="slotProps">
                             <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data.IdJournal)" value="Журнал">
                         </template>
-                    </column>
-                </datatable>
+                    </pvl-column>
+                </pvl-datatable>
             </div>
         </td>
         <td style='width:50px;'></td>

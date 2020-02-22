@@ -290,8 +290,16 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="..\SourceHelper\bin\ExternalSources\**\*">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jqueryui\jquery-ui.min.css">
+      <Link>Design\UI\jqueryui\jquery-ui.min.css</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jqueryui\jquery-ui.min.js">
+      <Link>Design\UI\jqueryui\jquery-ui.min.js</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jquery\jquery.min.js">
+      <Link>Design\UI\jquery\jquery.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="..\JsUI\dist\**\*">
