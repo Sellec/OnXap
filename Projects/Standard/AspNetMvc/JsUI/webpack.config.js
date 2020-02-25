@@ -7,24 +7,30 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
-const isMinimized = true;
+const isProduction = true;
 
 module.exports = {
-    mode: 'development',
-    entry: './src/main.js',
+    mode: isProduction ? 'production' : 'development',
+    entry: {
+        primevue: './src/main.js'
+    },
     output: {
-        filename: 'main.js',
+        filename: 'primevue.js',
         path: path.resolve(__dirname, 'dist'),
         library: 'PrimeVueLibrary'
     },
+    externals: {
+        vue: 'Vue',
+        quill: 'Quill'
+    },
     optimization: {
-        minimize: isMinimized,
+        minimize: isProduction,
         minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
         splitChunks: {
             cacheGroups: {
                 extractedCSS: {
                     test: (module, chunks) => module.constructor.name === 'CssModule',
-                    name: "main",
+                    name: "primevue",
                     chunks: "all",
                     enforce: true
                 }
@@ -82,11 +88,8 @@ module.exports = {
         new VueLoaderPlugin(),
         new CopyPlugin([
             'node_modules/vue/dist/vue.min.js',
-            'node_modules/vue/dist/vue.js',
-            {
-                from: 'node_modules/primevue/resources/themes/',
-                to: 'themes/'
-            }
+            { from: 'node_modules/primevue/resources/themes/', to: 'themes/' },
+            'node_modules/quill/dist/quill.min.js'
         ]),
         new MiniCssExtractPlugin({
             filename: '[name].css'

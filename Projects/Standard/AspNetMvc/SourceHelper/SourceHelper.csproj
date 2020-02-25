@@ -56,42 +56,6 @@
       <Link>ExternalSources\Design\UI\jquery\jquery.min.js</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\quill\dist\quill.min.js">
-      <Link>ExternalSources\Design\UI\quill\quill.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\quill\dist\quill.snow.css">
-      <Link>ExternalSources\Design\UI\quill\quill.snow.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\vue\dist\vue.min.js">
-      <Link>ExternalSources\Design\UI\vue\vue.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeicons\fonts\**\*">
-      <Link>ExternalSources\Design\UI\primeicons\fonts\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primeicons\primeicons.css">
-      <Link>ExternalSources\Design\UI\primeicons\primeicons.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\primevue.min.css">
-      <Link>ExternalSources\Design\UI\primevue\resources\primevue.min.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\images\**\*">
-      <Link>ExternalSources\Design\UI\primevue\resources\images\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\resources\themes\**\*">
-      <Link>ExternalSources\Design\UI\primevue\resources\themes\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\..\..\BuildSolutions\node_modules\primevue\components\**\*.umd*.js">
-      <Link>ExternalSources\Design\UI\primevue\components\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

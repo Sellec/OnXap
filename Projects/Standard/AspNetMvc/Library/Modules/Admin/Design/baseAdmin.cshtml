@@ -47,23 +47,12 @@ else
         </title>
         <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
-        <script src="~/Design/UI/quill/quill.min.js"></script>
-        <script src="~/Design/UI/vue/vue.min.js"></script>
+        <script src="~/Design/UI/common/vue.min.js"></script>
+        <script src="~/Design/UI/common/quill.min.js"></script>
+        <script src="~/Design/UI/common/primevue.js"></script>
 
-        <script src="~/Design/UI/primevue/components/inputtext/inputtext.umd.min.js"></script>
-        <script src="~/Design/UI/primevue/components/calendar/calendar.umd.min.js"></script>
-        <script src="~/Design/UI/primevue/components/datatable/datatable.umd.js"></script>
-        <script src="~/Design/UI/primevue/components/column/column.umd.min.js"></script>
-        <script src="~/Design/UI/primevue/components/toast/toastservice.umd.js"></script>
-        <script src="~/Design/UI/primevue/components/toast/toast.umd.js"></script>
-        <script src="~/Design/UI/primevue/components/editor/editor.umd.min.js"></script>
-        <script src="~/Design/UI/primevue/components/inputtext/inputtext.umd.min.js"></script>
-        <script src="~/Design/UI/primevue/components/button/button.umd.min.js"></script>
-
-        <link href="~/Design/UI/primevue/resources/themes/nova-dark/theme.css " rel="stylesheet">
-        <link href="~/Design/UI/primevue/resources/primevue.min.css " rel="stylesheet">
-
-        <link href="~/Design/UI/primeicons/primeicons.css " rel="stylesheet">
+        <link href="~/Design/UI/common/themes/nova-dark/theme.css " rel="stylesheet">
+        <link href="~/Design/UI/common/primevue.css " rel="stylesheet">
 
         <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
         <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
@@ -110,14 +99,9 @@ else
             }
 
             $(document).ready(function () {
-                Vue.use(toastservice);
+                PrimeVueLibrary.registerGlobalTags();
 
-                new Vue({
-                    el: "#js-notification",
-                    components: {
-                        "toast": toast
-                    }
-                });
+                new Vue({ el: "#js-notification" });
 
                 moment.locale('ru-RU');
 
@@ -164,7 +148,7 @@ else
     <body>
         <div id="item_result"></div>
         <div id='action_result'></div>
-        <div id="js-notification"><toast position="topright" /></div>
+        <div id="js-notification"><pvl-toast position="topright" /></div>
         <div id="block"><p><img src="/data/img/loading.gif" alt=""> Загрузка...</p></div>
 
         <div id="top_panel">

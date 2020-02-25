@@ -44,11 +44,6 @@
 
         new Vue({
             el: "#js-users-list__table",
-            components: {
-                'datatable': datatable,
-                'column': column,
-                'inputtext': inputtext,
-            },
             data: {
                 filters: {},
                 IsLoading: false,
@@ -126,32 +121,32 @@
 <div id='del_res'></div>
 
 <div id="js-users-list__table" style="width:1100px;">
-    <datatable :value="DataList" :paginator="true" :rows="paginatorRows"
+    <pvl-datatable :value="DataList" :paginator="true" :rows="paginatorRows"
                :lazy="true" :total-records="DataCountAll" :loading="IsLoading"
                @@page="OnPage($event)" @@sort="OnSort($event)" @@filter="OnFilter($event)"
                :filters="filters"
                sort-field="IdUser" sort-order="1">
-        <column field="IdUser" header="#" sortable="true" resizable="false" header-style="width:50px;" filter-match-mode="contains">
+        <pvl-column field="IdUser" header="#" sortable="true" resizable="false" header-style="width:50px;" filter-match-mode="contains">
             <template #filter>
-                <InputText type="text" v-model="filters['IdUser']" class="p-column-filter" />
+                <pvl-InputText type="text" v-model="filters['IdUser']" class="p-column-filter" />
             </template>
-        </column>
-        <column field="Requisites" header="Реквизиты" sortable="true" resizable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;">
+        </pvl-column>
+        <pvl-column field="Requisites" header="Реквизиты" sortable="true" resizable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;">
             <template #filter>
-                <InputText type="text" v-model="filters['Requisites']" class="p-column-filter" />
+                <pvl-InputText type="text" v-model="filters['Requisites']" class="p-column-filter" />
             </template>
-        </column>
-        <column field="Superuser" header="Права" sortable="true" resizable="false" header-style="width:130px;" filter-match-mode="contains">
+        </pvl-column>
+        <pvl-column field="Superuser" header="Права" sortable="true" resizable="false" header-style="width:130px;" filter-match-mode="contains">
             <template #body="slotProps">
                 {{ slotProps.data.Superuser > 0 ? 'Суперпользователь' : 'Пользователь' }}
             </template>
-        </column>
-        <column field="State" header="Состояние" sortable="true" resizable="false" header-style="width:250px;" filter-match-mode="contains">
+        </pvl-column>
+        <pvl-column field="State" header="Состояние" sortable="true" resizable="false" header-style="width:250px;" filter-match-mode="contains">
             <template #body="slotProps">
                 {{ userStateList[slotProps.data.State] }}
             </template>
-        </column>
-        <column column-key="Actions" header="Действия" resizable="false" header-style="width:200px;">
+        </pvl-column>
+        <pvl-column column-key="Actions" header="Действия" resizable="false" header-style="width:200px;">
             <template #body="slotProps">
                 <a :href="'/admin/mnadmin/@this.GetModule().UrlName/users_edit/' + slotProps.data.IdUser" target='_blank' class='user_link'>Редактировать</a> / 
                 <a :href="'/admin/mnadmin/@this.GetModule().UrlName/rolesDelegate/' + slotProps.data.IdUser" target='_blank' class='user_link'>Права доступа</a><br>
@@ -159,12 +154,12 @@
                 @if (this.GetCurrentUserContext().IsSuperuser == true)
                 {<a :href="'/admin/madmin/@this.GetModule().UrlName/userAs/' + slotProps.data.IdUser" class='user_link'>Зайти от имени</a><br>}
             </template>
-        </column>
-        <column field="CommentAdmin" header="Комментарий" sortable="true" resizable="true" header-style="width:200px;" filter-match-mode="contains">
+        </pvl-column>
+        <pvl-column field="CommentAdmin" header="Комментарий" sortable="true" resizable="true" header-style="width:200px;" filter-match-mode="contains">
             <template #filter>
-                <InputText type="text" v-model="filters['CommentAdmin']" class="p-column-filter" />
+                <pvl-InputText type="text" v-model="filters['CommentAdmin']" class="p-column-filter" />
             </template>
-        </column>
-    </datatable>
+        </pvl-column>
+    </pvl-datatable>
 </div>
 

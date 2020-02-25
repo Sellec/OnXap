@@ -6,32 +6,91 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="favicon.ico">
     <title>VuejsApp1</title>
-    <script src="vue.js"></script>
-    <script src="main.js"></script>
-    <link rel="stylesheet" href="main.css" />
-    <link rel="stylesheet" href="themes/luna-blue/theme.css" />
+    <script src="vue.min.js"></script>
+    <script src="primevue.js"></script>
+    <link rel="stylesheet" href="primevue.css" />
+    <link rel="stylesheet" href="themes/nova-light/theme.css" />
 </head>
 <body>
     <div id="app">
+        <pvl-toast position="topright"></pvl-toast>
         <input type="text" v-model="text" disabled /><br />
         1: <pvl-inputtext v-model="text"></pvl-inputtext><br />
         2: <pvl-InputText v-model="text"></pvl-InputText><br />
-        3: <pvl-button label="111" icon="pi pi-spin" /><br />
+        3: <pvl-button label="111" icon="pi pi-spin" @click="OnTest()"></pvl-button><br />
+        4: <pvl-editor v-model="text"></pvl-editor><br />
+        5:
+        <pvl-datatable :value="dataList" :row-class="rowClass"
+                   sort-field="NameJournal" sort-order="true"
+                   :filters="filters">
+            <template #header>
+                <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
+            </template>
+            <pvl-column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
+                <template #filter>
+                    <pvl-inputtext type="text" v-model="filters['NameJournal']" class="p-column-filter"></pvl-inputtext>
+                </template>
+            </pvl-column>
+            <pvl-column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
+            <pvl-column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;"></pvl-column>
+            <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
+                <template #body="slotProps">
+                    <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data.IdJournal)" value="Журнал">
+                </template>
+            </pvl-column>
+        </pvl-datatable>
     </div>
     asdadasdasd
     <!-- built files will be auto injected -->
     <script type="text/javascript">
         console.log(PrimeVueLibrary);
         PrimeVueLibrary.registerGlobalTags();
-        new Vue({
-            el: '#app',
-            components: {
-            },
+        //new Vue({
+        //    el: '#app',
+        //    components: {
+        //    },
+        //    data: {
+        //        text: "adasasd"
+        //    },
+        //    mounted() {
+        //        console.log(PrimeVueLibrary);
+        //    }
+        //});
+
+        class JournalsDataRow {
+            constructor(source) {
+                this.IdJournal = Number(source.IdJournal);
+                this.NameJournal = String(source.NameJournal);
+                this.EventLastType = Number(source.EventLastType);
+                this.EventLastDate = new Date();
+                this.EventsCount = Number(source.EventsCount);
+            }
+        }
+
+        class JournalsModel {
+            constructor(source) {
+                this.DataList = source.map(x => new JournalsDataRow(x));
+            }
+        }
+
+        var model = new JournalsModel([
+            { IdJournal: 1, NameJournal: 'test1', EventLastType: 1, EventsCount: 100 },
+            { IdJournal: 2, NameJournal: 'test2', EventLastType: 2, EventsCount: 200 }
+        ]);
+
+        var d = new Vue({
+            el: "#app",
             data: {
-                text: "adasasd"
+                text: "asdasd",
+                filters: {},
+                dataList: model.DataList
             },
-            mounted() {
-                console.log(PrimeVueLibrary);
+            methods: {
+                rowClass: row => "js-journal-events__" + row.EventLastType,
+                ShowJournal: function (idJournal) { },
+                OnTest: function () {
+                    this.$toast.add({ severity: 'success', summary: 'test1', life: 30000 });
+                }
             }
         });
     </script>
