@@ -1,5 +1,6 @@
 @using OnXap.Modules.Admin
 @using OnXap.Modules.Adminmain
+@using OnXap.Modules.Adminmain.Model
 @using OnXap.Modules.Adminmain.ViewModels
 @model MainSettings
 @{
@@ -7,6 +8,7 @@
     var groupOpen = new SelectListGroup() { Name = "Открытая роль" };
     var groupHidden = new SelectListGroup() { Name = "Скрытая роль" };
     var roleList = Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole).Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole, Group = x.IsHidden ? groupHidden : groupOpen });
+    var requestHtmlHelper = Html.CreatePrimeVueHelper<MainSettingsSave>();
 }
 <script type='text/javascript'>
     class MainSettingsSave {
@@ -77,7 +79,7 @@
                 "editor": editor,
                 "inputtext": inputtext
             },
-            data: @Model.jsobject()
+            data: @Model.jsobject(),
         });
     });
 </script>
@@ -97,6 +99,7 @@
                 <div id="js-core-settings">
                     <div class="block-setting">
                         @Html.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
+                        @requestHtmlHelper.InputTextFor(x => x.WebCoreConfiguration.SiteFullName, new { size = 50 })
                         <inputtext v-model="WebCoreConfiguration.SiteFullName">
                             @Html.EditorFor(x => x.WebCoreConfiguration.SiteFullName, new { htmlAttributes = new { size = 50 } })
                         </inputtext>

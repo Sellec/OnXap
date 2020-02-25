@@ -77,6 +77,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplicationStateMonitor"
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Standard.JsUI", "..\Projects\Standard\AspNetMvc\JsUI\Standard.JsUI.njsproj", "{31B7E21D-3E98-40B7-B225-73658119566E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "System.Web.Mvc.Html.PrimeVue", "..\Projects\Plugins\System.Web.Mvc.Html.PrimeVue\System.Web.Mvc.Html.PrimeVue.csproj", "{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -190,6 +192,12 @@ Global
 		{31B7E21D-3E98-40B7-B225-73658119566E}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
 		{31B7E21D-3E98-40B7-B225-73658119566E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31B7E21D-3E98-40B7-B225-73658119566E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.DebugWithoutPackages|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -217,6 +225,7 @@ Global
 		{4857B6E4-E03A-4502-8200-64197BE599DE} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 		{32041F7D-D597-4CA8-83B7-7184DA48C15F} = {DF70E181-C3DF-448E-9762-9BD0C27569CC}
 		{31B7E21D-3E98-40B7-B225-73658119566E} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
+		{A6FB78B3-AADD-4926-8084-FC07FB0D8C18} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}

@@ -1633,6 +1633,10 @@
       <Project>{f61ffcc5-3711-4d42-916a-ef83032f542a}</Project>
       <Name>Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Plugins\System.Web.Mvc.Html.PrimeVue\System.Web.Mvc.Html.PrimeVue.csproj">
+      <Project>{a6fb78b3-aadd-4926-8084-fc07fb0d8c18}</Project>
+      <Name>System.Web.Mvc.Html.PrimeVue</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Design\JS\RequestJSON.ts" />

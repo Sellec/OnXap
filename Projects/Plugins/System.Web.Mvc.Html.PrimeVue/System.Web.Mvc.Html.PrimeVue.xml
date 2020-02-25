@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Web.Mvc.Html.PrimeVue</name>
+    </assembly>
+    <members>
+        <member name="T:System.Web.Mvc.Html.PrimeVue.PrimeVueHtmlHelper`1">
+            <summary>
+            Html helper for a specific request model.
+            </summary>
+            <typeparam name="TRequestModel">The type of model waiting by specific <see cref="T:System.Web.Mvc.Controller"/> method.</typeparam>
+            <remarks>Using view's model is not the right way - controller's method may not wait such type like passed in view.</remarks>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PrimeVueHtmlHelperStatic">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PrimeVueHtmlHelperStatic.CreatePrimeVueHelper``1(System.Web.Mvc.HtmlHelper)">
+            <summary>
+            Creates a new html helper for a specific request model.
+            </summary>
+            <typeparam name="TRequestModel">The type of model waiting by specific <see cref="T:System.Web.Mvc.Controller"/> method.</typeparam>
+            <param name="htmlHelper"></param>
+            <returns>Returns helper instance.</returns>
+            <remarks>Using view's model is not the right way - controller's method may not wait such type like passed in view.</remarks>
+        </member>
+    </members>
+</doc>
