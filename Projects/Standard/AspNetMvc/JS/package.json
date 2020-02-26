@@ -4,9 +4,9 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "jquery": "^2.2.1",
+    "jquery": "^2.2.4",
     "jqueryui": "^1.11.1",
-    "primevuelibrary": "0.0.3",
+    "primevuelibrary": "0.0.4",
     "vue": "^2.6.11"
   },
   "devDependencies": {

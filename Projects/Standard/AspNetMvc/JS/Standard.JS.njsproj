@@ -35,7 +35,6 @@
     <Compile Include="dist\jquery\jquery.min.js" />
     <Compile Include="dist\primevuelibrary\primevuelibrary.min.js" />
     <Compile Include="dist\primevuelibrary\quill.min.js" />
-    <Compile Include="dist\primevuelibrary\vue.min.js" />
     <Compile Include="dist\vue\vue.min.js" />
     <Compile Include="server.js" />
     <Compile Include="src\main.js" />
