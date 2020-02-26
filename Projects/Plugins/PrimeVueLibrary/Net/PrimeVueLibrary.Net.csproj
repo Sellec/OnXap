@@ -13,9 +13,11 @@ It uses "pvl-" prefixed tags and provides HtmlHelper extension method for using 
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>signkey.snk</AssemblyOriginatorKeyFile>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <PackageReleaseNotes>This is the pre-alpha version for testing development process.</PackageReleaseNotes>
     <PackageTags>primevue, primevuelibrary, asp.net, mvc, vue</PackageTags>
+    <IncludeSymbols>True</IncludeSymbols>
+    <IncludeSource>True</IncludeSource>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -42,4 +44,7 @@ It uses "pvl-" prefixed tags and provides HtmlHelper extension method for using 
     <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Exec Command="copy /y &quot;$(TargetDir)..\$(PackageId).$(Version).symbols.nupkg&quot; &quot;$(SolutionDir)..\Build\$(PackageId).$(Version).nupkg&quot;" />
+  </Target>
 </Project>

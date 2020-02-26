@@ -11,7 +11,7 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.9.10</Version>
+	  <Version>0.1.9.11</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>
@@ -46,6 +46,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Binding\AspNetMvc\Package\Binding.Package.csproj" />
     <ProjectReference Include="..\..\..\Core\Core\Core.csproj" />
+    <ProjectReference Include="..\..\..\Plugins\PrimeVueLibrary\Net\PrimeVueLibrary.Net.csproj" />
     <PackageReference Include="Microsoft.AspNet.Mvc.ru">
       <Version>5.2.7</Version>
     </PackageReference>
