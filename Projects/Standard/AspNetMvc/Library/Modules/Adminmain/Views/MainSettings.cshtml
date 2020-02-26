@@ -1,3 +1,4 @@
+@using OnXap.Core.Db
 @using OnXap.Modules.Admin
 @using OnXap.Modules.Adminmain
 @using OnXap.Modules.Adminmain.Model
@@ -8,74 +9,90 @@
     var groupOpen = new SelectListGroup() { Name = "Открытая роль" };
     var groupHidden = new SelectListGroup() { Name = "Скрытая роль" };
     var roleList = Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole).Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole, Group = x.IsHidden ? groupHidden : groupOpen });
-    var requestHtmlHelper = Html.CreatePrimeVueHelper<MainSettingsSave>();
+    var htmlHelper = this.CreateHtmlHelper<MainSettingsSave>();
 }
 <script type='text/javascript'>
     class MainSettingsSave {
         constructor(source) {
             this.AppCoreConfiguration = {
-                RoleGuest: Number(source.AppCoreConfiguration.RoleGuest),
-                RoleUser: Number(source.AppCoreConfiguration.RoleUser),
+                RoleGuest: source.App.RoleGuest,
+                RoleUser: source.App.RoleUser
             };
             this.WebCoreConfiguration = {
-                SiteFullName: String(source.WebCoreConfiguration.SiteFullName),
-                IdModuleDefault: Number(source.WebCoreConfiguration.IdModuleDefault),
-                ContactEmail: String(source.WebCoreConfiguration.ContactEmail),
-                ReturnEmail: String(source.WebCoreConfiguration.ReturnEmail),
-                DeveloperEmail: String(source.WebCoreConfiguration.DeveloperEmail),
-                CriticalMessagesEmail: String(source.WebCoreConfiguration.CriticalMessagesEmail),
-                register_mode: Number(source.WebCoreConfiguration.register_mode),
-                userAuthorizeAllowed: Number(source.WebCoreConfiguration.userAuthorizeAllowed),
-                site_reginfo: String(source.WebCoreConfiguration.site_reginfo),
-                site_loginfo: String(source.WebCoreConfiguration.site_loginfo),
-                site_descr: String(source.WebCoreConfiguration.site_descr),
-                site_keys: String(source.WebCoreConfiguration.site_keys)
-            }
+                SiteFullName: source.Web.SiteFullName,
+                IdModuleDefault: source.Web.IdModuleDefault,
+                ContactEmail: source.Web.ContactEmail,
+                ReturnEmail: source.Web.ReturnEmail,
+                DeveloperEmail: source.Web.DeveloperEmail,
+                CriticalMessagesEmail: source.Web.CriticalMessagesEmail,
+                register_mode: source.Web.register_mode,
+                userAuthorizeAllowed: source.Web.userAuthorizeAllowed,
+                site_reginfo: source.Web.site_reginfo,
+                site_loginfo: source.Web.site_loginfo,
+                help_info: source.Web.help_info,
+                site_descr: source.Web.site_descr,
+                site_keys: source.Web.site_keys
+            };
         }
     }
     class MainSettings {
         constructor(source) {
-            this.Model = new MainSettingsSave(source);
-          //  this.ModelLabels
+            this.Model = {
+                App: {
+                    RoleGuest: Number(source.AppCoreConfiguration.RoleGuest),
+                    RoleUser: Number(source.AppCoreConfiguration.RoleUser),
+                },
+                Web: {
+                    SiteFullName: String(source.@Html.NameOf(x => x.WebCoreConfiguration.SiteFullName)),
+                    IdModuleDefault: Number(source.WebCoreConfiguration.IdModuleDefault),
+                    ContactEmail: String(source.WebCoreConfiguration.ContactEmail),
+                    ReturnEmail: String(source.WebCoreConfiguration.ReturnEmail),
+                    DeveloperEmail: String(source.WebCoreConfiguration.DeveloperEmail),
+                    CriticalMessagesEmail: String(source.WebCoreConfiguration.CriticalMessagesEmail),
+                    register_mode: Number(source.WebCoreConfiguration.register_mode),
+                    userAuthorizeAllowed: Number(source.WebCoreConfiguration.userAuthorizeAllowed),
+                    site_reginfo: String(source.WebCoreConfiguration.site_reginfo),
+                    site_loginfo: String(source.WebCoreConfiguration.site_loginfo),
+                    help_info: String(source.WebCoreConfiguration.help_info),
+                    site_descr: String(source.WebCoreConfiguration.site_descr),
+                    site_keys: String(source.WebCoreConfiguration.site_keys)
+                }
+            };
+
+            var modules = source.@Html.NameOf(x => x.Modules);
+            this.Modules = modules ? modules.map(x => ({ Id: x.@nameof(MainSettingsModule.Id), Caption: x.@nameof(MainSettingsModule.Caption) })) : new Array();
+
+            var roles = source.@Html.NameOf(x => x.Roles);
+            this.Roles = roles ? roles.map(x => ({ Id: x.@nameof(Role.IdRole), Name: x.@nameof(Role.NameRole) })) : new Array();
         }
     }
 
-    $(document).ready(function ()
-    {
+    $(document).ready(function () {
         $("#block").hide();
-
-        $("form#form_info").requestJSON({
-            before: function ()
-            {
-                $("#item_result").hide();
-                $("#loading_img").show();
-                return true;
-            },
-            after: function (result, message)
-            {
-                $("#item_result").html(nl2br(message)).show();
-                $("#loading_img").hide()
-            }
-        });
 
         changeTitle('Информация');
 
-        $("#loading_img, #info_save").hide();
-        getResultAnim($("#form_info"), $("#info_save"));
-
-        $("select[name=register_mode]").val('@this.GetConfig().register_mode');
-        $("select[name=userAuthorizeAllowed]").val('@this.GetConfig().userAuthorizeAllowed');
-
-        $("input#js-role-guest_checkbox, input#js-role-user_checkbox").change(function () {
-            if ($(this).prop("checked"))
-                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").show();
-            else
-                $(this).closest("div").find("optgroup[label='@groupHidden.Name']").hide();
-        }).change();
-
         new Vue({
             el: "#js-core-settings",
-            data: @Model.jsobject()
+            data: $.extend(
+                new MainSettings(@Model.jsobject()),
+                {
+                    IsSaving: false,
+                    LazyRequestIdLatest: null,
+                }
+            ),
+            methods: {
+                OnSave: function () {
+                    var component = this;
+                    component.IsSaving = true;
+                    component.LazyRequestIdLatest = $.requestJSON("@(Url.CreateRoute<OnXap.Modules.Adminmain.Module, ModuleController>(x => x.MainSettingsSave(null)))", new MainSettingsSave(this.Model), function (result, message, data, requestId) {
+                        if (component.LazyRequestIdLatest != requestId) return;
+                        component.IsSaving = false;
+                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
+                    });
+
+                }
+            }
         });
     });
 </script>
@@ -89,111 +106,128 @@
 <table width='100%'>
     <tr>
         <td>
-            <form action='@(Url.CreateRoute<OnXap.Modules.Adminmain.Module, ModuleController>(x => x.MainSettingsSave(null)))' method='post' id='form_info'>
-                <h2>Общие параметры:</h2>
+            <h2>Общие параметры:</h2>
 
-                <div id="js-core-settings">
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
-                        @requestHtmlHelper.InputTextFor(x => x.WebCoreConfiguration.SiteFullName, new { size = 50 })
-                        <pvl-inputtext v-model="WebCoreConfiguration.SiteFullName">
-                            @Html.EditorFor(x => x.WebCoreConfiguration.SiteFullName, new { htmlAttributes = new { size = 50 } })
-                        </pvl-inputtext>
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.SiteFullName)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.IdModuleDefault):<br>
-                        @Html.DropDownListFor(x => x.WebCoreConfiguration.IdModuleDefault, Model.ModulesList)<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.IdModuleDefault)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.ContactEmail):<br />
-                        @Html.EditorFor(x => x.WebCoreConfiguration.ContactEmail, new { htmlAttributes = new { size = 50 } })<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ContactEmail)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.ReturnEmail):<br />
-                        @Html.EditorFor(x => x.WebCoreConfiguration.ReturnEmail, new { htmlAttributes = new { size = 50 } })<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ReturnEmail)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.DeveloperEmail):<br>
-                        @Html.TextBoxFor(x => x.WebCoreConfiguration.DeveloperEmail)<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.DeveloperEmail)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.CriticalMessagesEmail):<br />
-                        @Html.EditorFor(x => x.WebCoreConfiguration.CriticalMessagesEmail, new { htmlAttributes = new { size = 50 } })<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.CriticalMessagesEmail)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.register_mode):<br>
-                        @Html.EnumDropDownListFor(x => x.WebCoreConfiguration.register_mode)<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.register_mode)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.userAuthorizeAllowed):<br>
-                        @Html.EnumDropDownListFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.site_reginfo):<br />
-                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_reginfo)"></pvl-editor>
-                        @Html.HiddenFor(x => x.WebCoreConfiguration.site_reginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_reginfo) })
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_reginfo)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.site_loginfo):<br />
-                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.site_loginfo)"></pvl-editor>
-                        @Html.HiddenFor(x => x.WebCoreConfiguration.site_loginfo, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.site_loginfo) })
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_loginfo)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.help_info):<br />
-                        <pvl-editor v-model="@Html.NameOf(x => x.WebCoreConfiguration.help_info)"></pvl-editor>
-                        @Html.HiddenFor(x => x.WebCoreConfiguration.help_info, new { v_model = Html.NameOf(x => x.WebCoreConfiguration.help_info) })
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.help_info)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.site_descr):<br />
-                        @Html.EditorFor(x => x.WebCoreConfiguration.site_descr, new { htmlAttributes = new { size = 50 } })<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_descr)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.WebCoreConfiguration.site_keys):<br />
-                        @Html.EditorFor(x => x.WebCoreConfiguration.site_keys, new { htmlAttributes = new { size = 50 } })<br />
-                        @Html.ValidationMessageFor(x => x.WebCoreConfiguration.site_keys)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.AppCoreConfiguration.RoleGuest) (<input type="checkbox" id="js-role-guest_checkbox" value="1" /> <label for="js-role-guest_checkbox">Показать скрытые роли</label>):<br />
-                        @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleGuest, roleList)
-                        @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleGuest)
-                    </div>
-
-                    <div class="block-setting">
-                        @Html.LabelFor(x => x.AppCoreConfiguration.RoleUser) (<input type="checkbox" id="js-role-user_checkbox" value="1" /> <label for="js-role-user_checkbox">Показать скрытые роли</label>):<br />
-                        @Html.DropDownListFor(x => x.AppCoreConfiguration.RoleUser, roleList)
-                        @Html.ValidationMessageFor(x => x.AppCoreConfiguration.RoleUser)
-                    </div>
+            <div id="js-core-settings">
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.SiteFullName, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.SiteFullName"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 150 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.SiteFullName)
                 </div>
 
-                <input type='submit' id='save_func' value='&nbsp;Сохранить&nbsp;'> <img src="/data/img/loading.gif" alt="" id="loading_img" style="display:none">
-            </form>
-            <div id='info_save' style="margin:5px 10px;padding:5px;"></div>
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.IdModuleDefault):<br>
+                    <pvl-dropdown v-model="Model.Web.IdModuleDefault" :options="Modules" option-label="Caption" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.IdModuleDefault)
+                </div>
 
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.ContactEmail):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.ContactEmail, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.ContactEmail"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 50 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.ContactEmail)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.ReturnEmail):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.ReturnEmail, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.ReturnEmail"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 50 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.ReturnEmail)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.DeveloperEmail):<br>
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.DeveloperEmail, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.DeveloperEmail"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 50 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.DeveloperEmail)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.CriticalMessagesEmail):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.CriticalMessagesEmail, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.CriticalMessagesEmail"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 50 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.CriticalMessagesEmail)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.register_mode):<br>
+                    @htmlHelper.PvlDropdownEnumFor(x => x.WebCoreConfiguration.register_mode, new PvlDropdownProperties() {
+                        Value = new VueBinding("Model.Web.register_mode"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { style="width:400px;" })<br />
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.register_mode)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.userAuthorizeAllowed):<br>
+                    @htmlHelper.PvlDropdownEnumFor(x => x.WebCoreConfiguration.userAuthorizeAllowed, new PvlDropdownProperties() {
+                        Value = new VueBinding("Model.Web.userAuthorizeAllowed"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { style="width:400px;" })<br />
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_reginfo):<br />
+                    <pvl-editor v-model="Model.Web.site_reginfo"></pvl-editor>
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_reginfo)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_loginfo):<br />
+                    <pvl-editor v-model="Model.Web.site_loginfo"></pvl-editor>
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_loginfo)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.help_info):<br />
+                    <pvl-editor v-model="Model.Web.help_info"></pvl-editor>
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.help_info)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_descr):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.site_descr, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.site_descr"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 250 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_descr)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_keys):<br />
+                    @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.site_keys, new PvlInputTextProperties() {
+                        Value = new VueBinding("Model.Web.site_keys"),
+                        Disabled = new VueBinding("IsSaving")
+                    }, new { size = 250 })
+                    @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_keys)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.AppCoreConfiguration.RoleGuest):<br />
+                    <pvl-dropdown v-model="Model.App.RoleGuest" :options="Roles" option-label="Name" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.RoleGuest)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.AppCoreConfiguration.RoleUser):<br />
+                    <pvl-dropdown v-model="Model.App.RoleUser" :options="Roles" option-label="Name" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.RoleUser)
+                </div>
+
+                <pvl-button label="Сохранить" :icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave" :disabled="IsSaving"></pvl-button>
+            </div>
         </td>
     </tr>
 </table>

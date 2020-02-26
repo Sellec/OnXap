@@ -1,0 +1,366 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Web.Mvc.Html.PrimeVue</name>
+    </assembly>
+    <members>
+        <member name="T:System.Web.Mvc.Html.PvlButtonIconPosition">
+            <summary>
+            Enumeration of button icon positions.
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonIconPosition.Left">
+            <summary>
+            Left icon position
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonIconPosition.Right">
+            <summary>
+            Right icon position
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlButtonClasses">
+            <summary>
+            Available button classes.
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.Raised">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.Rounded">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.SeveritySecondary">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.SeveritySuccess">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.SeverityInfo">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.SeverityWarning">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:System.Web.Mvc.Html.PvlButtonClasses.SeverityDanger">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlButtonProperties">
+            <summary>
+            Properties for button component.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.Label">
+            <summary>
+            Text of the button.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.Icon">
+            <summary>
+            Name of the icon.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.IconPositionBinding">
+            <summary>
+            Position of the icon, valid values are "left" and "right".
+            Required: no. Type: string. Default: "left".
+            </summary>
+            <remarks>This option can be used for binding icon position value to Vue's data property value.</remarks>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.IconPositionStatic">
+            <summary>
+            Position of the icon.
+            </summary>
+            <remarks>This option can be used if only needs static icon position without any binding.</remarks>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.OnClick">
+            <summary>
+            Click event bound signature.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.Disabled">
+            <summary>
+            When present, it specifies that the component should be disabled.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlButtonProperties.Classes">
+            <summary>
+            Different color options are available as severity levels.
+            A button can be raised by having <see cref="F:System.Web.Mvc.Html.PvlButtonClasses.Raised"/> style class and similarly borders can be made rounded using <see cref="F:System.Web.Mvc.Html.PvlButtonClasses.Rounded"/> class.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlButtonExtensions">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlButtonExtensions.PvlButton(System.Web.Mvc.HtmlHelper,System.Web.Mvc.Html.PvlButtonProperties)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/button" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlButtonExtensions.PvlButton(System.Web.Mvc.HtmlHelper,System.Object)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/button" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlButtonExtensions.PvlButton(System.Web.Mvc.HtmlHelper,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/button" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlButtonExtensions.PvlButton(System.Web.Mvc.HtmlHelper,System.Web.Mvc.Html.PvlButtonProperties,System.Object)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/button" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlButtonExtensions.PvlButton(System.Web.Mvc.HtmlHelper,System.Web.Mvc.Html.PvlButtonProperties,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/button" />.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlDropdownProperties">
+            <summary>
+            Properties for dropdown component.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Value">
+            <summary>
+            Value of the component. 
+            Required: yes. Type: any. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Options">
+            <summary>
+            An array of selectitems to display as the available options.
+            Required: yes. Type: array. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionLabel">
+            <summary>
+            Property name to use as the label of an option.
+            Required: yes. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionValue">
+            <summary>
+            Property name to use as the value of an option, defaults to the option itself when not defined.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionDisabled">
+            <summary>
+            Property name to use as the disabled flag of an option, defaults to false when not defined.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.ScrollHeight">
+            <summary>
+            Height of the viewport in pixels, a scrollbar is defined if height of list exceeds this value.
+            Required: no. Type: string. Default: "200px".
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Filter">
+            <summary>
+            When specified, displays an input field to filter the items on keyup.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.FilterPlaceholder">
+            <summary>
+            Placeholder text to show when filter input is empty.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Editable">
+            <summary>
+            When present, custom value instead of predefined options can be entered using the editable input field.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Placeholder">
+            <summary>
+            Default text to display when no option is selected.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.Disabled">
+            <summary>
+            When present, it specifies that the component should be disabled.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.DataKey">
+            <summary>
+            A property to uniquely match the value in options for better performance.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.ShowClear">
+            <summary>
+            When enabled, a clear icon is displayed to clear the value.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.TabIndex">
+            <summary>
+            Index of the element in tabbing order.
+            Required: no. Type: number. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.AriaLabelledBy">
+            <summary>
+            Establishes relationships between the component and label(s) where its value should be one or more element IDs.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlDropdownProperties.AppendTo">
+            <summary>
+            Id of the element or "body" for document where the overlay should be appended to.
+            Required: no. Type: string. Default: null.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlDropdownExtensions">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties,System.Object)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownEnumFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+            <remarks>
+            Options <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.Options"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionDisabled"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionLabel"/> and <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionValue"/> are 
+            ignored becouse this method generates static options source from property enum type.
+            </remarks>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownEnumFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties,System.Object)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+            <remarks>
+            Options <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.Options"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionDisabled"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionLabel"/> and <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionValue"/> are 
+            ignored becouse this method generates static options source from property enum type.
+            </remarks>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlDropdownExtensions.PvlDropdownEnumFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlDropdownProperties,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/dropdown" />.
+            </summary>
+            <remarks>
+            Options <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.Options"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionDisabled"/>, <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionLabel"/> and <see cref="P:System.Web.Mvc.Html.PvlDropdownProperties.OptionValue"/> are 
+            ignored becouse this method generates static options source from property enum type.
+            </remarks>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlInputTextProperties">
+            <summary>
+            Properties for button component.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlInputTextProperties.Value">
+            <summary>
+            Value of the component. 
+            Required: yes. Type: any. Default: null.
+            </summary>
+        </member>
+        <member name="P:System.Web.Mvc.Html.PvlInputTextProperties.Disabled">
+            <summary>
+            When present, it specifies that the component should be disabled.
+            Required: no. Type: boolean. Default: false.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.PvlInputTextExtensions">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlInputTextExtensions.PvlInputTextFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlInputTextProperties)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/inputtext" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlInputTextExtensions.PvlInputTextFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlInputTextProperties,System.Object)">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/inputtext" />.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.PvlInputTextExtensions.PvlInputTextFor``2(System.Web.Mvc.HtmlHelper{``0},System.Linq.Expressions.Expression{System.Func{``0,``1}},System.Web.Mvc.Html.PvlInputTextProperties,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            See <see href="https://primefaces.org/primevue/#/inputtext" />.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.TypedHtmlHelperStatic">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.TypedHtmlHelperStatic.CreateHtmlHelper``1(System.Web.Mvc.WebViewPage)">
+            <summary>
+            Creates a new html helper for a specific request model.
+            </summary>
+            <typeparam name="TModel">The type of model waiting by specific <see cref="T:System.Web.Mvc.Controller"/> method.</typeparam>
+            <param name="webViewPage"></param>
+            <returns>Returns helper instance.</returns>
+            <remarks>Using view's model is not the right way - controller's method may not wait such type like passed in view.</remarks>
+        </member>
+        <member name="M:System.Web.Mvc.Html.TypedHtmlHelperStatic.CreateHtmlHelper``1(System.Web.Mvc.WebViewPage,System.Func{``0})">
+            <summary>
+            Creates a new html helper for a specific request model.
+            </summary>
+            <typeparam name="TModel">The type of model waiting by specific <see cref="T:System.Web.Mvc.Controller"/> method.</typeparam>
+            <param name="webViewPage"></param>
+            <param name="modelFactory">Model instance factory for models that does not have opened parameterless constructor or needs to be created manually.</param>
+            <returns>Returns helper instance.</returns>
+            <remarks>Using view's model is not the right way - controller's method may not wait such type like passed in view.</remarks>
+        </member>
+        <member name="T:System.Web.Mvc.Html.VueAttribute">
+            <summary>
+            Abstract representation of Vue's component's tag attribute value or binding.
+            </summary>
+            <seealso cref="T:System.Web.Mvc.Html.VueValue"/>
+        </member>
+        <member name="T:System.Web.Mvc.Html.VueValue">
+            <summary>
+            Direct value of component's tag attribute.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.VueValue.#ctor(System.Object)">
+            <summary>
+            Creates a new instance.
+            </summary>
+        </member>
+        <member name="T:System.Web.Mvc.Html.VueBinding">
+            <summary>
+            One- or two-way binding of Vue's component's tag attribute with Vue's "data" object property.
+            </summary>
+        </member>
+        <member name="M:System.Web.Mvc.Html.VueBinding.#ctor(System.String)">
+            <summary>
+            Creates a new instance.
+            </summary>
+            <param name="dataPropertyName">The name of component's "data" object property path, delimited with dots.</param>
+        </member>
+    </members>
+</doc>

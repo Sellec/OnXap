@@ -15,8 +15,8 @@
             WebCoreConfiguration = webCoreConfiguration;
         }
 
-        public CoreConfiguration AppCoreConfiguration { get; }
-        public WebCoreConfiguration WebCoreConfiguration { get; }
+        public CoreConfiguration AppCoreConfiguration { get; set; }
+        public WebCoreConfiguration WebCoreConfiguration { get; set; }
     }
 }
 

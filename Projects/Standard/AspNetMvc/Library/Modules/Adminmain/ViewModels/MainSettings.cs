@@ -14,8 +14,13 @@ namespace OnXap.Modules.Adminmain.ViewModels
         }
 
         public List<Role> Roles { get; set; }
+        public List<MainSettingsModule> Modules { get; set; }
+    }
 
-        public List<SelectListItem> ModulesList { get; set; } = new List<SelectListItem>();
+    public class MainSettingsModule
+    {
+        public int Id { get; set; }
+        public string Caption { get; set; }
     }
 }
 

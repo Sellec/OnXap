@@ -54,9 +54,10 @@
     <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>3</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <DocumentationFile>bin\OnXap.Standard.AspNetMvc.xml</DocumentationFile>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -133,6 +134,7 @@
     <Folder Include="Modules\Materials\ViewModels\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Design\UI\primevuelibrary\Startup.cs" />
     <Compile Include="Modules\Adminmain\ViewModels\MainSettings.cs" />
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
@@ -290,20 +292,8 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jqueryui\jquery-ui.min.css">
-      <Link>Design\UI\jqueryui\jquery-ui.min.css</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jqueryui\jquery-ui.min.js">
-      <Link>Design\UI\jqueryui\jquery-ui.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\SourceHelper\bin\ExternalSources\Design\UI\jquery\jquery.min.js">
-      <Link>Design\UI\jquery\jquery.min.js</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\JsUI\dist\**\*">
-      <Link>Design\UI\common\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Content Include="..\JS\dist\**\*" Exclude="..\JS\dist\main.js">
+      <Link>Design\UI\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Data\css\Auth\modules.auth.css">
@@ -1641,9 +1631,9 @@
       <Project>{f61ffcc5-3711-4d42-916a-ef83032f542a}</Project>
       <Name>Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\Plugins\System.Web.Mvc.Html.PrimeVue\System.Web.Mvc.Html.PrimeVue.csproj">
-      <Project>{a6fb78b3-aadd-4926-8084-fc07fb0d8c18}</Project>
-      <Name>System.Web.Mvc.Html.PrimeVue</Name>
+    <ProjectReference Include="..\..\..\Plugins\PrimeVueLibrary\Net\PrimeVueLibrary.Net.csproj">
+      <Project>{b3813c49-f5f1-4d9f-b45e-82357912e7e6}</Project>
+      <Name>PrimeVueLibrary.Net</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

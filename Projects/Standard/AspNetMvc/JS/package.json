@@ -1,0 +1,25 @@
+{
+  "name": "standardjs",
+  "version": "0.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "jquery": "^2.2.1",
+    "jqueryui": "^1.11.1",
+    "primevuelibrary": "0.0.3",
+    "vue": "^2.6.11"
+  },
+  "devDependencies": {
+    "clean-webpack-plugin": "^3.0.0",
+    "compression": "^1.7.4",
+    "copy-webpack-plugin": "^5.1.1",
+    "express": "^4.17.1",
+    "on-build-webpack": "^0.1.0",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  },
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch"
+  }
+}

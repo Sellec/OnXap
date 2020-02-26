@@ -1,0 +1,271 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">14.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <Name>Standard.JS</Name>
+    <RootNamespace>JS</RootNamespace>
+    <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>706bda8b-76b2-47d5-be9d-cdf83c0bbd6e</ProjectGuid>
+    <ProjectHome>
+    </ProjectHome>
+    <StartupFile>server.js</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
+    <NodejsPort>1337</NodejsPort>
+    <StartWebBrowser>true</StartWebBrowser>
+    <PostBuildEvent>npm run build</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="dist\jqueryui\jquery-ui.min.js" />
+    <Compile Include="dist\jquery\jquery.min.js" />
+    <Compile Include="dist\primevuelibrary\primevuelibrary.min.js" />
+    <Compile Include="dist\primevuelibrary\quill.min.js" />
+    <Compile Include="dist\primevuelibrary\vue.min.js" />
+    <Compile Include="dist\vue\vue.min.js" />
+    <Compile Include="server.js" />
+    <Compile Include="src\main.js" />
+    <Compile Include="webpack.config.js" />
+    <Content Include="dist\jqueryui\jquery-ui.min.css" />
+    <Content Include="dist\primevuelibrary\fonts\primeicons.eot" />
+    <Content Include="dist\primevuelibrary\fonts\primeicons.svg" />
+    <Content Include="dist\primevuelibrary\fonts\primeicons.ttf" />
+    <Content Include="dist\primevuelibrary\fonts\primeicons.woff" />
+    <Content Include="dist\primevuelibrary\images\color.png" />
+    <Content Include="dist\primevuelibrary\images\hue.png" />
+    <Content Include="dist\primevuelibrary\images\password-meter.png" />
+    <Content Include="dist\primevuelibrary\primevuelibrary.min.css" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-amber\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-blue\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-green\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\luna-pink\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-colored\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-dark\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-light\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\nova-vue\theme.css" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-300.eot" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-300.svg" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-300.ttf" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-300.woff" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-300.woff2" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-700.eot" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-700.svg" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-700.ttf" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-700.woff" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-700.woff2" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-regular.eot" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-regular.svg" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-regular.ttf" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-regular.woff" />
+    <Content Include="dist\primevuelibrary\themes\rhea\fonts\open-sans-v15-latin-regular.woff2" />
+    <Content Include="dist\primevuelibrary\themes\rhea\theme.css" />
+    <Content Include="package.json" />
+    <Content Include="public\favicon.ico" />
+    <Content Include="public\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
+    <Folder Include="dist\jqueryui\" />
+    <Folder Include="dist\jquery\" />
+    <Folder Include="dist\primevuelibrary\" />
+    <Folder Include="dist\primevuelibrary\fonts\" />
+    <Folder Include="dist\primevuelibrary\images\" />
+    <Folder Include="dist\primevuelibrary\themes\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-amber\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-amber\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-blue\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-blue\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-green\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-green\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-pink\" />
+    <Folder Include="dist\primevuelibrary\themes\luna-pink\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-colored\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-colored\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-dark\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-dark\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-light\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-light\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-vue\" />
+    <Folder Include="dist\primevuelibrary\themes\nova-vue\fonts\" />
+    <Folder Include="dist\primevuelibrary\themes\rhea\" />
+    <Folder Include="dist\primevuelibrary\themes\rhea\fonts\" />
+    <Folder Include="dist\vue\" />
+    <Folder Include="public\" />
+    <Folder Include="src\" />
+  </ItemGroup>
+  <!-- Do not delete the following Import Project.  While this appears to do nothing it is a marker for setting TypeScript properties before our import that depends on them. -->
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="False" />
+  <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:48022/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost:1337</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

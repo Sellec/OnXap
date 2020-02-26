@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <RootNamespace>System.Web.Mvc.Html</RootNamespace>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Dmitry "Sellec" Petrov</Authors>
+    <Company />
+    <Copyright></Copyright>
+    <RepositoryType>git</RepositoryType>
+    <Description>It is an package related to PrimeVueLibrary.JS project, built from PrimeVue project.
+It uses "pvl-" prefixed tags and provides HtmlHelper extension method for using DataAnnotation attributes for generating valid pvl html tags.</Description>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>signkey.snk</AssemblyOriginatorKeyFile>
+    <Version>0.0.1</Version>
+    <PackageReleaseNotes>This is the pre-alpha version for testing development process.</PackageReleaseNotes>
+    <PackageTags>primevue, primevuelibrary, asp.net, mvc, vue</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\PrimeVueLibrary.Net.xml</DocumentationFile>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\PrimeVueLibrary.Net.xml</DocumentationFile>
+    <OutputPath>bin\Release</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
+
+</Project>

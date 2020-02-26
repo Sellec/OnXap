@@ -56,22 +56,16 @@ namespace OnXap.Modules.Adminmain
         public virtual ActionResult MainSettings()
         {
             var handler = AppCore.Get<ModuleControllerTypesManager>();
-            var model = new ViewModels.MainSettings(AppCore.AppConfig, AppCore.WebConfig)
-            {
-                ModulesList = (from p in AppCore.GetModulesManager().GetModules()
-                               where handler.GetModuleControllerTypes(p.QueryType) != null
-                               orderby p.Caption
-                               select new SelectListItem()
-                               {
-                                   Value = p.ID.ToString(),
-                                   Text = p.Caption,
-                                   Selected = AppCore.WebConfig.IdModuleDefault == p.ID
-                               }).ToList()
-            };
+            var model = new ViewModels.MainSettings(AppCore.AppConfig, AppCore.WebConfig);
+
+            model.Modules = AppCore.GetModulesManager().GetModules().
+                Where(x => handler.GetModuleControllerTypes(x.QueryType) != null).
+                Select(x => new ViewModels.MainSettingsModule() { Id = x.IdModule, Caption = x.Caption }).
+                ToList();
 
             using (var db = Module.CreateUnitOfWork())
             {
-                model.Roles = (from p in db.Role select p).ToList();
+                model.Roles = db.Role.Where(x => !x.IsHidden || x.IdRole == AppCore.AppConfig.RoleGuest || x.IdRole == AppCore.AppConfig.RoleUser).ToList();
                 model.Roles.Insert(0, new Role() { IdRole = 0, NameRole = "Не выбрано", IsHidden = false });
             }
 
@@ -81,6 +75,7 @@ namespace OnXap.Modules.Adminmain
         [ModuleAction("info_save", Module.PERM_CONFIGMAIN)]
         public virtual JsonResult MainSettingsSave(Model.MainSettingsSave model)
         {
+            System.Threading.Thread.Sleep(5000);
             var result = JsonAnswer();
             CoreConfiguration cfgAppOld = null;
             WebCoreConfiguration cfgWebOld = null;

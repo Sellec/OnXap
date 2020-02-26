@@ -11,7 +11,7 @@
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
 	  <LinkedFolder>$(BaseIntermediateOutputPath)$(Configuration)\Linked\</LinkedFolder>
-	  <Version>0.1.9.8</Version>
+	  <Version>0.1.9.9</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>
@@ -33,11 +33,9 @@
     <FileContent Include="..\Library\Modules\**\*" Exclude="..\Library\**\*.cs">
       <Link>Modules\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </FileContent>
-    <FileContent Include="..\SourceHelper\bin\ExternalSources\**\*">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-    </FileContent>
-    <FileContent Include="..\JsUI\dist\**\*">
-      <Link>Design\UI\common\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <FileContent Include="..\JS\dist\**\*" Exclude="..\JS\dist\main.js">
+      <Link>Design\UI\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </FileContent>
   </ItemGroup>
   <ItemGroup>
