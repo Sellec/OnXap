@@ -6,12 +6,12 @@
     <IncludeSymbols>False</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
     <MinClientVersion>3.3.0</MinClientVersion>
-	  <!-- <NoDefaultExcludes>true</NoDefaultExcludes> -->
+	  <NoDefaultExcludes>true</NoDefaultExcludes>
     <Description>Базовые модули для ядра на ASP.NET MVC.</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
-	  <Version>0.1.9.11</Version>
+	  <Version>0.1.9.12</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>
