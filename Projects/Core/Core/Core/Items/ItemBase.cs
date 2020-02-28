@@ -63,7 +63,7 @@ namespace OnXap.Core.Items
         /// Модуль, к которому относится объект. Может быть пустым.
         /// Привязка к модулю важна для работы некоторых методов и некоторого функционала движка.
         /// </summary>
-        /// <seealso cref="ItemsManager.RegisterModuleItemType{TItemBase, TModule}"/>
+        /// <seealso cref="ItemsManager.RegisterModuleItemType{TItemBase, TModule}()"/>
         [NotMapped]
         [Newtonsoft.Json.JsonIgnore]
         public virtual ModuleCore OwnerModule

@@ -75,7 +75,6 @@ namespace OnXap.Modules.Adminmain
         [ModuleAction("info_save", Module.PERM_CONFIGMAIN)]
         public virtual JsonResult MainSettingsSave(Model.MainSettingsSave model)
         {
-            System.Threading.Thread.Sleep(5000);
             var result = JsonAnswer();
             CoreConfiguration cfgAppOld = null;
             WebCoreConfiguration cfgWebOld = null;

@@ -177,10 +177,10 @@
     <Compile Include="Modules\Sitemap\Design\Model\Sitemap.cs" />
     <Compile Include="Modules\Sitemap\ISitemapProvider.cs" />
     <Compile Include="Modules\Sitemap\Services\SitemapGeneration.cs" />
-    <Compile Include="Modules\Auth\Design\Model\Login.cs" />
-    <Compile Include="Modules\Auth\Design\Model\ModuleSettings.cs" />
-    <Compile Include="Modules\Auth\Design\Model\PasswordRestoreSend.cs" />
-    <Compile Include="Modules\Auth\Design\Model\PasswordRestoreVerify.cs" />
+    <Compile Include="Modules\Auth\ViewModels\Login.cs" />
+    <Compile Include="Modules\Auth\ViewModels\ModuleSettings.cs" />
+    <Compile Include="Modules\Auth\ViewModels\PasswordRestoreSend.cs" />
+    <Compile Include="Modules\Auth\ViewModels\PasswordRestoreVerify.cs" />
     <Compile Include="Modules\Auth\Model\AuthLoginData.cs" />
     <Compile Include="Modules\Auth\Model\Configuration.cs" />
     <Compile Include="Modules\Auth\Model\PasswordRestore.cs" />
@@ -296,9 +296,6 @@
       <Link>Design\UI\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Data\css\Auth\modules.auth.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <Compile Include="Design\Model\Message.cs" />
     <None Include="Data\css\admin.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -423,12 +420,6 @@
     <None Include="Data\css\images\ui-icons_ffffff_256x240.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\css\jquery-ui-clear.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\css\jquery-ui.custom.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\css\jquery.fancybox.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -439,15 +430,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\css\main.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\css\plugins.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\css\print.css">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\css\style.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\img\admin\gear_wheel.png" />
@@ -467,12 +449,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\jquery.mjs.nestedSortable.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\plugins.js">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\js\script.js">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\libs\jquery.tablesorter\jquery.tablesorter.widgets.js">
@@ -504,9 +480,6 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\temp\errorHandled.cshtml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Include="Data\temp\scripts.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Include="Data\js\admin.js">
@@ -567,6 +540,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
+    <Content Include="Modules\Default\Views\Index.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -646,17 +620,16 @@
     <Content Include="Modules\Materials\Views\baseMaterial.cshtml" />
     <Content Include="Modules\Materials\Views\News.cshtml" />
     <Content Include="Modules\Materials\Views\NewsList.cshtml" />
-    <Content Include="Modules\Default\Design\Index.cshtml" />
-    <Content Include="Modules\Auth\Design\baseAuth.cshtml" />
-    <Content Include="Modules\Auth\Design\login.cshtml">
+    <Content Include="Modules\Auth\Views\baseAuth.cshtml" />
+    <Content Include="Modules\Auth\Views\Login.cshtml">
       <Generator>RazorGenerator</Generator>
     </Content>
-    <Content Include="Modules\Auth\Design\LoginFormInner.cshtml" />
-    <Content Include="Modules\Auth\Design\ModuleSettings.cshtml" />
-    <Content Include="Modules\Auth\Design\PasswordRestore.cshtml" />
-    <Content Include="Modules\Auth\Design\PasswordRestoreNotificationEmail.cshtml" />
-    <Content Include="Modules\Auth\Design\PasswordRestoreVerify.cshtml" />
-    <Content Include="Modules\Auth\Design\unauthorizedAccess.cshtml" />
+    <Content Include="Modules\Auth\Views\LoginFormInner.cshtml" />
+    <Content Include="Modules\Auth\Views\ModuleSettings.cshtml" />
+    <Content Include="Modules\Auth\Views\PasswordRestore.cshtml" />
+    <Content Include="Modules\Auth\Views\PasswordRestoreNotificationEmail.cshtml" />
+    <Content Include="Modules\Auth\Views\PasswordRestoreVerify.cshtml" />
+    <Content Include="Modules\Auth\Views\unauthorizedAccess.cshtml" />
     <Content Include="Modules\Customer\Design\admin\admin_customer_modules.cshtml" />
     <Content Include="Modules\Customer\Design\admin\admin_customer_rolesDelegate.cshtml" />
     <Content Include="Modules\Customer\Design\admin\admin_customer_rolesManage.cshtml" />

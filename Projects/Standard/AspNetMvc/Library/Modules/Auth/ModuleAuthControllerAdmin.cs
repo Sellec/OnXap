@@ -6,9 +6,9 @@ namespace OnXap.Modules.Auth
     using Core.Modules;
     using Model;
 
-    public class ModuleAuthControllerAdmin : ModuleControllerAdmin<ModuleAuth, Design.Model.ModuleSettings, Configuration>
+    public class ModuleAuthControllerAdmin : ModuleControllerAdmin<ModuleAuth, ViewModels.ModuleSettings, Configuration>
     {
-        protected override void ConfigurationViewFill(Design.Model.ModuleSettings viewModelForFill, out string viewName)
+        protected override void ConfigurationViewFill(ViewModels.ModuleSettings viewModelForFill, out string viewName)
         {
             using (var db = Module.CreateUnitOfWork())
             {

@@ -1,4 +1,4 @@
-@charset "UTF-8";
+﻿@charset "UTF-8";
 /* open-sans-300 - latin */
 @font-face {
   font-family: "Open Sans";
@@ -29,7 +29,7 @@
   src: local("Open Sans Bold"), local("OpenSans-Bold"), url("./fonts/open-sans-v15-latin-700.eot?#iefix") format("embedded-opentype"), url("./fonts/open-sans-v15-latin-700.woff2") format("woff2"), url("./fonts/open-sans-v15-latin-700.woff") format("woff"), url("./fonts/open-sans-v15-latin-700.ttf") format("truetype"), url("./fonts/open-sans-v15-latin-700.svg#OpenSans") format("svg");
   /* Legacy iOS */
 }
-* {
+body .p-component {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -40,14 +40,14 @@ body .p-component {
   font-size: 14px;
   text-decoration: none;
 }
-body a {
+body .p-component a {
   color: #007ad9;
   text-decoration: none;
 }
-body a:hover {
+body .p-component a:hover {
   color: #116fbf;
 }
-body a:active {
+body .p-component a:active {
   color: #005b9f;
 }
 body .p-disabled, body .p-component:disabled {
@@ -72,9 +72,6 @@ body .p-link:focus {
   box-shadow: 0 0 0 0.2em #8dcdff;
 }
 
-body {
-  /* Validations */
-}
 body .p-inputtext {
   font-size: 14px;
   color: #333333;

@@ -18,7 +18,7 @@ namespace OnXap.Modules.Auth
         public override ActionResult Index()
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
-            return View("login.cshtml", new Design.Model.Login());
+            return View("login.cshtml", new ViewModels.Login());
         }
 
         [ModuleAction("unauthorized")]
@@ -73,7 +73,7 @@ namespace OnXap.Modules.Auth
                 if (redirect != null) return new RedirectResult(redirect.ToString(), false);
             }
 
-            return View("login.cshtml", new Design.Model.Login() { Result = message });
+            return View("Login.cshtml", new ViewModels.Login() { Result = message });
         }
 
         [HttpPost]
@@ -240,7 +240,7 @@ namespace OnXap.Modules.Auth
                                         user.Caption,
                                         user.email,
                                         "Восстановление пароля на сайте",
-                                        ViewString("PasswordRestoreNotificationEmail.cshtml", new Design.Model.PasswordRestoreSend() { User = user, Code = code, CodeType = codeType }),
+                                        ViewString("PasswordRestoreNotificationEmail.cshtml", new ViewModels.PasswordRestoreSend() { User = user, Code = code, CodeType = codeType }),
                                         ContentType.Html
                                     );
                                 }
@@ -286,7 +286,7 @@ namespace OnXap.Modules.Auth
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
 
-            return View("PasswordRestoreVerify.cshtml", new Design.Model.PasswordRestoreVerify() { Code = Code?.Truncate(0, 32), CodeType = CodeType?.Truncate(0, 6) });
+            return View("PasswordRestoreVerify.cshtml", new ViewModels.PasswordRestoreVerify() { Code = Code?.Truncate(0, 32), CodeType = CodeType?.Truncate(0, 6) });
         }
 
         [ModuleAction("restore4")]

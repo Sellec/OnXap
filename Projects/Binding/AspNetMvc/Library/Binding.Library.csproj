@@ -112,6 +112,7 @@
     <Compile Include="Binding\Providers\TraceSessionStateProvider.cs" />
     <Compile Include="Core\Db\UserSessionSchemaItem.cs" />
     <Compile Include="Core\Db\UserSession.cs" />
+    <Compile Include="Core\Modules\CustomReflectedActionParameter.cs" />
     <Compile Include="_Initialize\WebStartup.cs" />
     <Compile Include="Binding\Routing\AreaConstants.cs" />
     <Compile Include="Binding\Routing\ControllerRouteConstraint.cs" />
@@ -127,7 +128,6 @@
     <Compile Include="Binding\Routing\RoutingManager.cs" />
     <Compile Include="Core\Modules\Configuration\SaveModel.cs" />
     <Compile Include="Core\Modules\Configuration\ViewModel.cs" />
-    <Compile Include="Core\Modules\CustomReflectedActionDescriptor.cs" />
     <Compile Include="Core\Modules\Internal\ModuleControllerInternalErrors.cs" />
     <Compile Include="Core\Modules\Internal\ModuleInternalErrors.cs" />
     <Compile Include="Core\Modules\ModuleActionAttribute.cs" />

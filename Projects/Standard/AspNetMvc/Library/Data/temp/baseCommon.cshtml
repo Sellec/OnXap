@@ -38,48 +38,37 @@
     <meta name="description" content="@this.GetDescription()" />
     <meta name="keywords" content="@this.GetKeywords()" />
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:300,300i,400,400i,500,500i,700,700i&amp;subset=cyrillic">
-    <link rel="stylesheet" href="/data/css/plugins.css">
-    <link rel="stylesheet" href="/data/css/style.css">
+    <script src="~/Design/UI/vue/vue.min.js"></script>
+    <script src="~/Design/UI/primevuelibrary/quill.min.js"></script>
+    <script src="~/Design/UI/primevuelibrary/primevuelibrary.min.js"></script>
+
+    <link href="~/Design/UI/primevuelibrary/primevuelibrary.min.css " rel="stylesheet">
+    <link href="~/Design/UI/primevuelibrary/themes/nova-light/theme.css " rel="stylesheet">
+
+    <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
+    <script type="text/javascript" src="~/Design/UI/jqueryui/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" href="/data/css/main.css">
     <link rel="stylesheet" href="/data/css/font-awesome.min.css">
 
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src='https://code.jquery.com/jquery-migrate-1.2.1.min.js'></script>
-    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
 
-    <script type="text/javascript" src="/data/js/work.js"></script>
     <script type="text/javascript" src="/data/js/common.js"></script>
+    <script type="text/javascript" src="/data/js/work.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+    <script type="text/javascript" src="/data/js/arcticmodal/jquery.arcticmodal-0.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/jquery.arcticmodal-0.3.css" />
+    <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/themes/simple.css" />
+
     @RenderSection("head", false)
 
 </head>
 <body @RenderSection("bodyTagAttributes", false)>
 
     @RenderSection("bodyTagAfter", false)
-
-    <script type='text/javascript'>
-        $(function () {
-            try {
-            } catch (err) { console.log(err); }
-        });
-
-    </script>
-
-
-    @if (Request.Cookies["LogonSuperuserAs"] != null)
-    {
-        <script type='text/javascript'>
-            $(function () {
-                $("input#LogonSuperuserAsDisable").click(function () {
-                    window.location = window.location + '?&LogonSuperuserAsDisable=1';
-                });
-            });
-        </script>
-        <div style='position:fixed;top:10px;left:50%;margin-left:-300px;'>
-            <input type='button' id="LogonSuperuserAsDisable" value='Отменить заход от имени другого пользователя'>
-        </div>
-    }
 
     <!-- (wrapper) -->
     <div class="wrapper">
@@ -161,9 +150,6 @@
         </div>
     </div>
     <!-- End (popup-dialog) -->
-
-    <script src="/data/js/plugins.js"></script>
-    <script src="/data/js/script.js"></script>
 
     @RenderSection("scripts", false)
     @RenderSection("stats", false)
