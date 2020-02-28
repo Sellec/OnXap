@@ -174,13 +174,13 @@ div.flash {width:375px;margin:10px 5px;border-color:#D9E4FF;
 border: 1px solid #f0f !important;
 }
 
-#top_panel { height:25px; padding:5px 0; width:100%; background:#0089d7 url(/data/img/admin/top_panel.gif) repeat-x; }
+#top_panel { height:25px; padding:5px 0 0; width:100%; background:#0089d7 url(/data/img/admin/top_panel.gif) repeat-x; }
 #top_panel ul {list-style:none;margin:0;width:100%;}
 #top_panel ul li {float:left;margin-right:10px;}
 #top_panel ul li a {color:#fff;}
 #top_panel ul li.padd {padding-left:10px;}
 #top_panel ul li.admin_login {float:right;}
-#left_panel { width:200px; height:100%; vertical-align:top; z-index:100; float:left; margin-left:-200px; padding:5px 5px; background:#e9f6ff url(/data/img/admin/left_panel.gif); }
+#left_panel { width:200px; vertical-align:top; padding:5px 5px; background:#e9f6ff url(/data/img/admin/left_panel.gif); }
 #left_panel ul {margin:0;list-style:none;}
 #left_panel ul li {padding:0;margin-bottom:4px;}
 #left_panel ul li .lmain {color:#fff;text-decoration:none;padding:2px 0 4px 5px;display:block;background:#3d93d9 url(/data/img/admin/left_bg.gif) repeat-x;background-size: auto 100%;}
@@ -197,7 +197,7 @@ border: 1px solid #f0f !important;
 #left_panel ul li ul li a:hover {color:#235589;}
 #left_panel ul li a.inmenu:hover {color:#fff;}
 #right_panel {
-    padding-left: 200px;
+    display: flex;
     height: 100%;
 }
 
