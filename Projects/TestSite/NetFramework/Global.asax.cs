@@ -25,6 +25,9 @@ namespace OnXap.Site
                     paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Binding/AspNetMvc/Library")));
 
                 if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
+                    paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/JS/dist")));
+
+                if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)
                     paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/Library")));
 
                 if (AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("OnXap.Standard.AspNetMvc,")).Count() > 0)

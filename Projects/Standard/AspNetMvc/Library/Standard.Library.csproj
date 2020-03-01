@@ -292,7 +292,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="..\JS\dist\**\*" Exclude="..\JS\dist\main.js">
+    <Content Include="..\JS\dist\**\*" Exclude="..\JS\dist\main.js;..\JS\dist\primevuelibrary\primevuelibrary.css;..\JS\dist\primevuelibrary\primevuelibrary.js;">
       <Link>Design\UI\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -38,14 +38,32 @@
             el: "#js-journals-list__table",
             data: {
                 filters: {},
-                dataList: model.DataList
+                dataList: model.DataList,
+                JournalCurrent: {
+                    Data: null,
+                    Loading: false,
+                    TabActive: false,
+                    RequestId: null,
+                }
             },
             methods: {
                 rowClass: row => "js-journal-events__" + row.EventLastType,
-                ShowJournal: function (idJournal) {
-                    $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad("/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + idJournal, null, function (result, message) {
-                        if (message.length > 0) alert(message);
-                    });
+                ShowJournal: function (journalData) {
+                    var component = this;
+                    component.JournalCurrent.Loading = true;
+                    component.JournalCurrent.TabActive = true;
+                    component.JournalCurrent.RequestId = $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad(
+                        "/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + journalData.IdJournal,
+                        null,
+                        function (result, message, data, requestId) {
+                            if (component.JournalCurrent.RequestId != requestId) return;
+                            component.JournalCurrent.Loading = false;
+                            if (message.length > 0) alert(message);
+                            if (result == JsonResult.OK) {
+                                component.JournalCurrent.Data = journalData;
+                            }
+                        }
+                    );
                 }
             }
         });
@@ -54,37 +72,41 @@
 
 <h2>Журналы системы</h2>
 
-<table width='100%'>
-    <tr>
-        <td style='vertical-align:top;width:650px;min-width:650px;'>
-            <div id="js-journals-list__table">
-                <pvl-datatable :value="dataList" :row-class="rowClass" 
-                            sort-field="NameJournal" sort-order="true"
-                           :filters="filters">
-                    <template #header>
-                        <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
+<div id="js-journals-list__table">
+    <pvl-tabview>
+        <pvl-tabpanel header="Список журналов">
+            <pvl-datatable :value="dataList" :row-class="rowClass"
+                           sort-field="NameJournal" sort-order="true"
+                           :filters="filters"
+                           style="width:800px;">
+                <template #header>
+                    <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
+                </template>
+                <pvl-column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['NameJournal']" class="p-column-filter"></pvl-inputtext>
                     </template>
-                    <pvl-column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
-                        <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['NameJournal']" class="p-column-filter"></pvl-inputtext>
-                        </template>
-                    </pvl-column>
-                    <pvl-column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
-                    <pvl-column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
-                        <template #body="slotProps">
-                            {{ slotProps.data.EventLastDate ? slotProps.data.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
-                        </template>
-                    </pvl-column>
-                    <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
-                        <template #body="slotProps">
-                            <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data.IdJournal)" value="Журнал">
-                        </template>
-                    </pvl-column>
-                </pvl-datatable>
-            </div>
-        </td>
-        <td style='width:50px;'></td>
-        <td style='width:100%;vertical-align:top;align:left;' id="containerForLoading"></td>
-    </tr>
-</table>
-
+                </pvl-column>
+                <pvl-column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
+                <pvl-column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
+                    <template #body="slotProps">
+                        {{ slotProps.data.EventLastDate ? slotProps.data.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
+                    </template>
+                </pvl-column>
+                <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
+                    <template #body="slotProps">
+                        <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data)" value="Журнал">
+                    </template>
+                </pvl-column>
+            </pvl-datatable>
+        </pvl-tabpanel>
+        <pvl-tabpanel :active.sync="JournalCurrent.TabActive" :disabled="!JournalCurrent.Data || JournalCurrent.Loading">
+            <template slot="header">
+                @*<i :class="['pi', 'pi-spinner', {'pi-spin' : JournalCurrent.Loading}]"></i>*@
+                <span>Подробности журнала</span>
+            </template>
+            <pvl-progressspinner :class="[{'hidden' : !JournalCurrent.Loading}]"></pvl-progressspinner>
+            <div id="containerForLoading" :class="[{'hidden' : JournalCurrent.Loading}]"></div>
+        </pvl-tabpanel>
+    </pvl-tabview>
+</div>

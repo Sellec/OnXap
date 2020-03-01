@@ -33,6 +33,7 @@
   <ItemGroup>
     <Compile Include="dist\jqueryui\jquery-ui.min.js" />
     <Compile Include="dist\jquery\jquery.min.js" />
+    <Compile Include="dist\primevuelibrary\primevuelibrary.js" />
     <Compile Include="dist\primevuelibrary\primevuelibrary.min.js" />
     <Compile Include="dist\primevuelibrary\quill.min.js" />
     <Compile Include="dist\vue\vue.min.js" />
@@ -47,6 +48,7 @@
     <Content Include="dist\primevuelibrary\images\color.png" />
     <Content Include="dist\primevuelibrary\images\hue.png" />
     <Content Include="dist\primevuelibrary\images\password-meter.png" />
+    <Content Include="dist\primevuelibrary\primevuelibrary.css" />
     <Content Include="dist\primevuelibrary\primevuelibrary.min.css" />
     <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.eot" />
     <Content Include="dist\primevuelibrary\themes\nova-light\fonts\open-sans-v15-latin-300.svg" />

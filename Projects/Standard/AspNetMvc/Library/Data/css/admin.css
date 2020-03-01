@@ -29,6 +29,7 @@ h2 {font-family:'Georgia',serif;font-weight:normal;color:#950C8A;margin-bottom:1
 h3 {font-family:'Verdana';font-weight:normal;color:#950C8A;margin-left:15px;margin-bottom:15px;}
 h4 {margin:5px 0;}
 .wrapper {width:100%;clear:both;height:1px;overflow:hidden;}
+.hidden {display: none;}
 .h10 {height:10px;}
 .h35 {height:35px;}
 .h40 {height:40px;}
