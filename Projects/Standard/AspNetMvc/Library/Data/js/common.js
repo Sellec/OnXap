@@ -776,20 +776,14 @@ class PrimeVueDataTableFieldFilter {
 }
 
 class PrimeVueDataTableSourceRequest {
-    constructor() {
+    constructor(fieldNameMapper) {
         this.FirstRow = 0;
         this.RowsLimit = 0;
         this.SortByFieldName = null;
         this.SortByAcsending = true;
         this.FilterFields = [];
 
-        //if (source.filters) {
-        //    for (var i in source.filters) {
-        //        if (source.filters[i].value) {
-        //            this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter(source.filters[i]);
-        //        }
-        //    }
-        //}
+        this.fieldNameMapper = typeof fieldNameMapper === 'function' ? fieldNameMapper : (val) => val;
     }
 
     ApplyPagination(source) {
@@ -798,8 +792,8 @@ class PrimeVueDataTableSourceRequest {
     }
 
     ApplySort(source) {
-        this.SortByFieldName = source && source.sortField ? String(source.sortField) : null;
-        this.SortByAcsending = source ? (source.sortOrder == 1 ? true : false) : true;
+        this.SortByFieldName = source && source.sortField ? this.fieldNameMapper(String(source.sortField)) : null;
+        this.SortByAcsending = !source ? true : source.sortOrder == 1 ? true : false;
     }
 
     ApplyFilter(source) {
@@ -807,7 +801,7 @@ class PrimeVueDataTableSourceRequest {
         for (var field in source) {
             if (source[field]) {
                 this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter({
-                    field: field,
+                    field: this.fieldNameMapper(field),
                     value: source[field],
                     filterMatchMode: 'contains'
                 });

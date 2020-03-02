@@ -13,17 +13,17 @@
 <script type='text/javascript'>
     class JournalsDataRow {
         constructor(source) {
-            this.IdJournal = Number(source.@Html.NameOf(x => x.First().JournalName.IdJournal));
-            this.NameJournal = String(source.@Html.NameOf(x => x.First().JournalName.Name));
-            this.EventLastType = Number(source.@Html.NameOf(x => x.First().EventLastType));
-            this.EventLastDate = new moment(source.@Html.NameOf(x => x.First().EventLastDate));
-            this.EventsCount = Number(source.@Html.NameOf(x => x.First().EventsCount));
+            this.idJournal = Number(source.@Html.NameOf(x => x.First().JournalName.IdJournal));
+            this.nameJournal = String(source.@Html.NameOf(x => x.First().JournalName.Name));
+            this.eventLastType = Number(source.@Html.NameOf(x => x.First().EventLastType));
+            this.eventLastDate = new moment(source.@Html.NameOf(x => x.First().EventLastDate));
+            this.eventsCount = Number(source.@Html.NameOf(x => x.First().EventsCount));
         }
     }
 
     class JournalsModel {
         constructor(source) {
-            this.DataList = source.map(x => new JournalsDataRow(x));
+            this.dataList = source.map(x => new JournalsDataRow(x));
         }
     }
 
@@ -34,33 +34,33 @@
 
         var model = new JournalsModel(@Model.ToArray().jsobject());
 
-        var d = new Vue({
-            el: "#js-journals-list__table",
+        new Vue({
+            el: "#js-journals",
             data: {
                 filters: {},
-                dataList: model.DataList,
-                JournalCurrent: {
-                    Data: null,
-                    Loading: false,
-                    TabActive: false,
-                    RequestId: null,
+                dataList: model.dataList,
+                journalCurrent: {
+                    data: null,
+                    loading: false,
+                    tabActive: false,
+                    requestId: null,
                 }
             },
             methods: {
-                rowClass: row => "js-journal-events__" + row.EventLastType,
-                ShowJournal: function (journalData) {
+                rowClass: row => "js-journal-events__" + row.eventLastType,
+                onShow: function (journalData) {
                     var component = this;
-                    component.JournalCurrent.Loading = true;
-                    component.JournalCurrent.TabActive = true;
-                    component.JournalCurrent.RequestId = $("#containerForLoading").html("<img src='/data/img/loading.gif'>").requestLoad(
-                        "/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + journalData.IdJournal,
+                    component.journalCurrent.loading = true;
+                    component.journalCurrent.tabActive = true;
+                    component.journalCurrent.requestId = $("#containerForLoading").requestLoad(
+                        "/@moduleAdmin.UrlName/madmin/@this.GetModule().UrlName/JournalDetails/" + journalData.idJournal,
                         null,
                         function (result, message, data, requestId) {
-                            if (component.JournalCurrent.RequestId != requestId) return;
-                            component.JournalCurrent.Loading = false;
+                            if (component.journalCurrent.requestId != requestId) return;
+                            component.journalCurrent.loading = false;
                             if (message.length > 0) alert(message);
                             if (result == JsonResult.OK) {
-                                component.JournalCurrent.Data = journalData;
+                                component.journalCurrent.data = journalData;
                             }
                         }
                     );
@@ -72,41 +72,41 @@
 
 <h2>Журналы системы</h2>
 
-<div id="js-journals-list__table">
+<div id="js-journals">
     <pvl-tabview>
         <pvl-tabpanel header="Список журналов">
             <pvl-datatable :value="dataList" :row-class="rowClass"
-                           sort-field="NameJournal" sort-order="true"
+                           sort-field="nameJournal" sort-order="true"
                            :filters="filters"
-                           style="width:800px;">
+                           style="width:1000px;">
                 <template #header>
                     <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
                 </template>
-                <pvl-column field="NameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
+                <pvl-column field="nameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
                     <template #filter>
-                        <pvl-inputtext type="text" v-model="filters['NameJournal']" class="p-column-filter"></pvl-inputtext>
+                        <pvl-inputtext type="text" v-model="filters['nameJournal']" class="p-column-filter"></pvl-inputtext>
                     </template>
                 </pvl-column>
-                <pvl-column field="EventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
-                <pvl-column field="EventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
+                <pvl-column field="eventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>
+                <pvl-column field="eventLastDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
                     <template #body="slotProps">
-                        {{ slotProps.data.EventLastDate ? slotProps.data.EventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
+                        {{ slotProps.data.eventLastDate ? slotProps.data.eventLastDate.format("YYYY-MM-DD HH:mm:ss") : null }}
                     </template>
                 </pvl-column>
-                <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
+                <pvl-column column-key="Actions" header="Действия" header-style="width:150px;">
                     <template #body="slotProps">
-                        <input type="button" class="js-journal-events__button" :data-id="slotProps.data.IdJournal" @@click.stop="ShowJournal(slotProps.data)" value="Журнал">
+                        <pvl-button label="Подробности" @@click.stop="onShow(slotProps.data)"></pvl-button>
                     </template>
                 </pvl-column>
             </pvl-datatable>
         </pvl-tabpanel>
-        <pvl-tabpanel :active.sync="JournalCurrent.TabActive" :disabled="!JournalCurrent.Data || JournalCurrent.Loading">
+        <pvl-tabpanel :active.sync="journalCurrent.tabActive" :disabled="!journalCurrent.data || journalCurrent.loading">
             <template slot="header">
-                @*<i :class="['pi', 'pi-spinner', {'pi-spin' : JournalCurrent.Loading}]"></i>*@
+                @*<i :class="['pi', 'pi-spinner', {'pi-spin' : journalCurrent.loading}]"></i>*@
                 <span>Подробности журнала</span>
             </template>
-            <pvl-progressspinner :class="[{'hidden' : !JournalCurrent.Loading}]"></pvl-progressspinner>
-            <div id="containerForLoading" :class="[{'hidden' : JournalCurrent.Loading}]"></div>
+            <pvl-progressspinner :class="[{'hidden' : !journalCurrent.loading}]"></pvl-progressspinner>
+            <div id="containerForLoading" :class="[{'hidden' : journalCurrent.loading}]"></div>
         </pvl-tabpanel>
     </pvl-tabview>
 </div>

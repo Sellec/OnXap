@@ -430,6 +430,17 @@ namespace OnXap.Modules.Adminmain
                                             }
                                             break;
 
+                                        case nameof(JournalingDB.QueryJournalData.JournalData.EventType):
+                                            if (!Enum.TryParse<EventType>(filter.Value, out var eventType)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalData.EventType == eventType);
+                                                    break;
+                                            }
+                                            break;
+
                                         case nameof(JournalingDB.QueryJournalData.JournalData.EventInfo):
                                             switch (filter.MatchType)
                                             {
@@ -501,6 +512,11 @@ namespace OnXap.Modules.Adminmain
                                     case nameof(JournalingDB.QueryJournalData.JournalData.DateEvent):
                                         sorted = true;
                                         query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.DateEvent) : query.OrderByDescending(x => x.JournalData.DateEvent);
+                                        break;
+
+                                    case nameof(JournalingDB.QueryJournalData.JournalData.EventType):
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ? query.OrderBy(x => x.JournalData.EventType) : query.OrderByDescending(x => x.JournalData.EventType);
                                         break;
 
                                     case nameof(JournalingDB.QueryJournalData.JournalData.EventCode):

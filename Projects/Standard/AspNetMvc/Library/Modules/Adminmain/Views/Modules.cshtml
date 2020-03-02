@@ -4,105 +4,119 @@
 @{ var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>(); }
 
 <script type='text/javascript'>
+    class ModulesModel {
+        constructor(source) {
+            var modules = source.@Html.NameOf(x => x.Registered);
+            this.modules = modules.map(x => new ModulesRow(x));
+        }
+    }
+
+    class ModulesRow {
+        constructor(source) {
+            this.id = source.@Html.NameOf(x => x.Registered.First().Id) ? Number(source.@Html.NameOf(x => x.Registered.First().Id)) : 0;
+            this.caption = source.@Html.NameOf(x => x.Registered.First().Caption) ? String(source.@Html.NameOf(x => x.Registered.First().Caption)) : null;
+            this.configAllowed = source.@Html.NameOf(x => x.Registered.First().IsConfigAllowed) ? Boolean(source.@Html.NameOf(x => x.Registered.First().IsConfigAllowed)) : false;
+            this.type = source.@Html.NameOf(x => x.Registered.First().Type) ? String(source.@Html.NameOf(x => x.Registered.First().Type)) : null;
+            this.uniqueName = source.@Html.NameOf(x => x.Registered.First().UniqueName) ? String(source.@Html.NameOf(x => x.Registered.First().UniqueName)) : null;
+            this.urlName = source.@Html.NameOf(x => x.Registered.First().UrlName) ? String(source.@Html.NameOf(x => x.Registered.First().UrlName)) : null;
+        }
+    }
+
     var registered = @Model.Registered.jsobject();
 
     $(document).ready(function(){
         $("#block").hide();
 
-        changeTitle('Управление модулями  ');
+        var model = new ModulesModel(@Model.jsobject());
 
-        $('#table_results_reged').tablefill(registered, function(tr_elem, data){
-            $(tr_elem).addClass('TrElem').children().each(function(ichild){
-                if ( ichild == 0 ) $(this)[0].innerHTML = data.@nameof(Module.Id);
-                else if ( ichild == 1 ) $(this)[0].innerHTML = data.@nameof(Module.Caption);
-                else if ( ichild == 2 ) $(this)[0].innerHTML = data.@nameof(Module.Type);
-                else if ( ichild == 3 ) $(this)[0].innerHTML = data.@nameof(Module.UniqueName);
-                else if ( ichild == 4 ) $(this)[0].innerHTML = data.@nameof(Module.UrlName);
-            });
-
-            $("a", tr_elem).each(function(){
-                $(this).attr('href', $(this).attr('href') + data.@nameof(Module.UrlName));
-            });
-            if (!data.IsConfigAllowed) $("a.js-link__settings", tr_elem).remove();
-            $("a.js-link__ext", tr_elem).attr('href', '/@moduleAdmin.UrlName/mnadmin/' + data.@nameof(Module.Id) + '/config');
-        }, null, function(){
-            $('a.link_delete', this).click(function(e){
-                e.preventDefault();
-
-                var data = $(this).closest('tr').data('BoundedItem');
-                if (confirm("Вы действительно хотите очистить настройки модуля '" + data.@nameof(Module.UrlName)+ "'?"))
-                {
-                    $.requestJSON($(this).attr('href'), null, function(result, message){
-                        if (message.length > 0) alert(message);
-                    });
+        new Vue({
+            el: "#js-modules",
+            data: {
+                filters: {},
+                dataList: model.modules,
+                moduleCurrent: {
+                    data: null,
+                    loading: false,
+                    tabActive: false,
+                    requestId: null,
                 }
-            });
-
-            $("a.js-link__ext", this).click(function (e) {
-                e.preventDefault();
-                var url = $(this).attr('href').replace("/mnadmin/", "/madmin/");
-                $("#containerForLoading").html("<img src='/data/img/loading.gif' />").requestLoad(url, null, function (result, message) {
-                    if (result != JsonResult.OK)
-                        $(this).html("");
-
-                    if (message.length > 0) {
-                        if (result != JsonResult.OK)
-                            $(this).html(message);
-                        else 
-                            alert(message);
-                    }
-                });
-            })
-
-            $("span#countRegistered").text($("tr.TrElem", this).length);
+            },
+            methods: {
+                rowClass: row => "js-journal-events__" + row.eventLastType,
+                onConfigure: function (moduleData) {
+                    var component = this;
+                    component.moduleCurrent.loading = true;
+                    component.moduleCurrent.tabActive = true;
+                    component.moduleCurrent.requestId = $("#containerForLoading").requestLoad(
+                        "/@moduleAdmin.UrlName/madmin/" + moduleData.id + "/config",
+                        null,
+                        function (result, message, data, requestId) {
+                            if (component.moduleCurrent.requestId != requestId) return;
+                            component.moduleCurrent.loading = false;
+                            if (message.length > 0) alert(message);
+                            if (result == JsonResult.OK) {
+                                component.moduleCurrent.data = moduleData;
+                            }
+                        }
+                    );
+                }
+            }
         });
 
+        changeTitle('Управление модулями');
     });
 </script>
 <h2>Модули</h2>
-<div id='mcontainer' style='display:none'>
-    <span id='m_id'></span>: <span id='m_name'></span>
+
+<div id="js-modules">
+    <pvl-tabview>
+        <pvl-tabpanel header="Список модулей">
+            <pvl-datatable :value="dataList" :row-class="rowClass"
+                           sort-field="caption" sort-order="true"
+                           :filters="filters"
+                           style="width:1200px;">
+                <template #header>
+                    <div style='height:20px'>Всего модулей: {{ dataList ? dataList.length : 0 }}</div>
+                </template>
+                <pvl-column field="id" header="№" sortable="true" header-style="width:50px;" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['id']" class="p-column-filter"></pvl-inputtext>
+                    </template>
+                </pvl-column>
+                <pvl-column field="caption" header="Название" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['caption']" class="p-column-filter"></pvl-inputtext>
+                    </template>
+                </pvl-column>
+                <pvl-column field="type" header="Query-тип модуля" sortable="true" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['type']" class="p-column-filter"></pvl-inputtext>
+                    </template>
+                </pvl-column>
+                <pvl-column field="uniqueName" header="Уникальное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['uniqueName']" class="p-column-filter"></pvl-inputtext>
+                    </template>
+                </pvl-column>
+                <pvl-column field="urlName" header="URL-доступное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    <template #filter>
+                        <pvl-inputtext type="text" v-model="filters['urlName']" class="p-column-filter"></pvl-inputtext>
+                    </template>
+                </pvl-column>
+                <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
+                    <template #body="slotProps">
+                        <pvl-button label="Настройки" @@click.stop="onConfigure(slotProps.data)" v-show="slotProps.data.configAllowed"></pvl-button>
+                    </template>
+                </pvl-column>
+            </pvl-datatable>
+        </pvl-tabpanel>
+        <pvl-tabpanel :active.sync="moduleCurrent.tabActive" :disabled="!moduleCurrent.data || moduleCurrent.loading">
+            <template slot="header">
+                @*<i :class="['pi', 'pi-spinner', {'pi-spin' : moduleCurrent.loading}]"></i>*@
+                <span>Настройки модуля</span>
+            </template>
+            <pvl-progressspinner :class="[{'hidden' : !moduleCurrent.loading}]"></pvl-progressspinner>
+            <div id="containerForLoading" :class="[{'hidden' : moduleCurrent.loading}]"></div>
+        </pvl-tabpanel>
+    </pvl-tabview>
 </div>
-
-<table style="width:970px;">
-    <tr>
-        <td style='vertical-align:top;'>
-            <h4>Зарегистрированных модулей: <span id="countRegistered">0</span></h4>
-            <table id='table_results_reged' class='tablesorter' style="width:900px;">
-                <thead>
-                    <tr>
-                        <th style="width:15px">№</th>
-                        <th style="width:150px" class="tablesorter-headerAsc">Название</th>
-                        <th>Query-тип модуля</th>
-                        <th style="width:220px">Уникальное имя модуля</th>
-                        <th style="width:220px">URL-доступное имя модуля</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-                <tr id='not_founded' style='display:none;'>
-                    <td class="center" colspan='10'>
-                        Ничего не найдено.
-                    </td>
-                </tr>
-                <tr id='obraz' style='display:none;'>
-                    <td class="center"></td>
-                    <td class="left"></td>
-                    <td class="left"></td>
-                    <td class="left"></td>
-                    <td class="left"></td>
-                    <td>
-                        <a href='/@moduleAdmin.UrlName/mnadmin/@this.GetModule().UrlName/modedit/' class='js-link__ext js-link__settings' target="_blank">Редактировать</a><br />
-                    </td>
-                </tr>
-            </table>
-        </td>
-        <td style='width:100%;vertical-align:top;align:left;padding-top:21px;padding-left:15px;' id="containerForLoading">
-
-            <h4> </h4>
-            <div id='moduleData'></div>
-
-        </td>
-    </tr>
-</table>
-
