@@ -11,7 +11,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
-	  <Version>0.1.9.19</Version>
+	  <Version>0.1.9.20</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
   </PropertyGroup>

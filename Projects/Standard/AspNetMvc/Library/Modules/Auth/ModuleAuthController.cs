@@ -42,7 +42,7 @@ namespace OnXap.Modules.Auth
 
                 if (ModelState.IsValid)
                 {
-                    var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login, model.pass, out var userContext, out var resultReason);
+                    var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login.Trim(), model.pass, out var userContext, out var resultReason);
                     if (result == eAuthResult.Success)
                     {
                         AppCore.Get<Binding.Providers.SessionBinder>().BindUserContextToRequest(userContext);
@@ -91,7 +91,7 @@ namespace OnXap.Modules.Auth
 
                 if (ModelState.IsValid)
                 {
-                    var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login, model.pass, out var userContext, out var resultReason);
+                    var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login.Trim(), model.pass, out var userContext, out var resultReason);
                     switch (result)
                     {
                         case eAuthResult.Success:
