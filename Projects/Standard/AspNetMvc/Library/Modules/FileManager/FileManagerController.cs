@@ -247,6 +247,16 @@ namespace OnXap.Modules.FileManager
                 if (System.IO.File.Exists(Path.Combine(rootDirectory, filePath))) path = Path.Combine(rootDirectory, filePath);
                 if (System.IO.File.Exists(Path.Combine(rootDirectory, "bin", filePath))) path = Path.Combine(rootDirectory, "bin", filePath);
 
+                if (path == null && Debug.IsDeveloper)
+                {
+                    var filePathVirtual = AppCore.Get<Core.Storage.ResourceProvider>().GetFilePath(null, filePath, true, out var searchLocations);
+                    if (filePathVirtual != null)
+                    {
+                        var filePathFull = Server.MapPath(filePathVirtual);
+                        if (System.IO.File.Exists(filePathFull)) path = filePathFull;
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(path))
                 {
                     var isNeedResize = MaxWidth.HasValue || MaxHeight.HasValue;

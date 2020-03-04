@@ -44,6 +44,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. Common", "1. Common", "{8172D6AB-E731-41E8-93E5-4073570EAFE6}"
 	ProjectSection(SolutionItems) = preProject
 		..\Projects\Common\Common.props = ..\Projects\Common\Common.props
+		..\Projects\Common\Logo\iconpackage.png = ..\Projects\Common\Logo\iconpackage.png
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AspNetMvc", "AspNetMvc", "{62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}"

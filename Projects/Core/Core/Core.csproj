@@ -12,7 +12,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.9.5</Version>
+    <Version>1.0.3</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -34,6 +34,9 @@
     <EmbeddedResource Remove="Modules\ModuleRegister\**" />
     <None Remove="Core\Modules\Extensions\**" />
     <None Remove="Modules\ModuleRegister\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Common\Logo\iconpackage.png" Link="iconpackage.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Costura.Fody">

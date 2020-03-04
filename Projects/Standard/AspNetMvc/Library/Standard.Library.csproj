@@ -177,11 +177,11 @@
     <Compile Include="Modules\Sitemap\Design\Model\Sitemap.cs" />
     <Compile Include="Modules\Sitemap\ISitemapProvider.cs" />
     <Compile Include="Modules\Sitemap\Services\SitemapGeneration.cs" />
-    <Compile Include="Modules\Auth\ViewModels\Login.cs" />
+    <Compile Include="Modules\Auth\ViewModels\SignIn.cs" />
     <Compile Include="Modules\Auth\ViewModels\ModuleSettings.cs" />
     <Compile Include="Modules\Auth\ViewModels\PasswordRestoreSend.cs" />
     <Compile Include="Modules\Auth\ViewModels\PasswordRestoreVerify.cs" />
-    <Compile Include="Modules\Auth\Model\AuthLoginData.cs" />
+    <Compile Include="Modules\Auth\Model\SignInRequest.cs" />
     <Compile Include="Modules\Auth\Model\Configuration.cs" />
     <Compile Include="Modules\Auth\Model\PasswordRestore.cs" />
     <Compile Include="Modules\Auth\Model\PasswordRestoreVerify.cs" />
@@ -476,9 +476,6 @@
     <None Include="Data\temp\Message.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Include="Data\temp\header.cshtml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
     <None Include="Data\temp\errorHandled.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
@@ -536,9 +533,30 @@
     <None Include="Data\temp\editablemenu.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="Data\img\files\user_noimage.jpg" />
+    <Content Include="Data\img\arrow-breadcrumbs.svg" />
+    <Content Include="Data\img\gray-arrow.svg" />
+    <Content Include="Data\img\left-arrow-pagination.svg" />
+    <Content Include="Data\img\load-icon.svg" />
+    <Content Include="Data\img\logo\favicon.ico" />
+    <Content Include="Data\img\logo\logo-rounded.png" />
+    <Content Include="Data\img\logo\logo.png" />
+    <Content Include="Data\img\right-arrow-pagination.svg" />
+    <Content Include="Data\img\share-icon-1.svg" />
+    <Content Include="Data\img\share-icon-2.svg" />
+    <Content Include="Data\img\share-icon-3.svg" />
+    <Content Include="Data\img\share-icon-big-1.svg" />
+    <Content Include="Data\img\share-icon-big-2.svg" />
+    <Content Include="Data\img\share-icon-big-3.svg" />
+    <Content Include="Data\img\share-icon-big-4.svg" />
+    <Content Include="Data\img\share-signature-1.svg" />
+    <Content Include="Data\img\share-signature-2.svg" />
+    <Content Include="Data\img\share-signature-3.svg" />
+    <Content Include="Data\img\white-load-icon.svg" />
     <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Design\UI\standard.js" />
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
     <Content Include="Modules\Default\Views\Index.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
@@ -577,11 +595,6 @@
     <Content Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Modules\Customer\Design\customer_external.tpl" />
-    <Content Include="Modules\Customer\Design\customer_finduser_results.tpl" />
-    <Content Include="Modules\Customer\Design\customer_subscriptions.tpl" />
-    <Content Include="Modules\Customer\Design\customer_tags_show.tpl" />
-    <Content Include="Modules\Customer\Design\customer_tags_show_unregistered.tpl" />
     <Content Include="web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -621,10 +634,10 @@
     <Content Include="Modules\Materials\Views\News.cshtml" />
     <Content Include="Modules\Materials\Views\NewsList.cshtml" />
     <Content Include="Modules\Auth\Views\baseAuth.cshtml" />
-    <Content Include="Modules\Auth\Views\Login.cshtml">
+    <Content Include="Modules\Auth\Views\SignIn.cshtml">
       <Generator>RazorGenerator</Generator>
     </Content>
-    <Content Include="Modules\Auth\Views\LoginFormInner.cshtml" />
+    <Content Include="Modules\Auth\Views\SignInFormInner.cshtml" />
     <Content Include="Modules\Auth\Views\ModuleSettings.cshtml" />
     <Content Include="Modules\Auth\Views\PasswordRestore.cshtml" />
     <Content Include="Modules\Auth\Views\PasswordRestoreNotificationEmail.cshtml" />

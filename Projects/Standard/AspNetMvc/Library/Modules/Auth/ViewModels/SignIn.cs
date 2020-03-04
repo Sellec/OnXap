@@ -5,7 +5,7 @@ using System.Web;
 
 namespace OnXap.Modules.Auth.ViewModels
 {
-    public class Login
+    public class SignIn
     {
         public string Result { get; set; }
     }

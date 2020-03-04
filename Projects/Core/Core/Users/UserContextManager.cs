@@ -108,13 +108,13 @@ namespace OnXap.Users
 
                 try
                 {
-                    authConfig = AppCore.Get<OnXap.Modules.Auth.ModuleAuth>()?.GetConfiguration<OnXap.Modules.Auth.ModuleConfiguration>();
+                    authConfig = AppCore.Get<Modules.Auth.ModuleAuth>()?.GetConfiguration<Modules.Auth.ModuleConfiguration>();
 
-                    var checkLoginResult = CheckLogin(IdUser, user, password, db, out var res);
-                    if (!checkLoginResult.IsSuccess)
+                    var checkCredentialsResult = CheckCredentials(IdUser, user, password, db, out var res);
+                    if (!checkCredentialsResult.IsSuccess)
                     {
-                        resultReason = returnNewFailedResultWithAuthAttempt(checkLoginResult.Message);
-                        return checkLoginResult.AuthResult;
+                        resultReason = returnNewFailedResultWithAuthAttempt(checkCredentialsResult.Message);
+                        return checkCredentialsResult.AuthResult;
                     }
 
                     id = res.IdUser;
@@ -166,7 +166,7 @@ namespace OnXap.Users
             }
         }
 
-        private ExecutionAuthResult CheckLogin(int idUser, string login, string password, CoreDB.CoreContext db, out CoreDB.User outData)
+        private ExecutionAuthResult CheckCredentials(int idUser, string login, string password, CoreDB.CoreContext db, out CoreDB.User outData)
         {
             outData = null;
             if (idUser == (int.MaxValue - 1))

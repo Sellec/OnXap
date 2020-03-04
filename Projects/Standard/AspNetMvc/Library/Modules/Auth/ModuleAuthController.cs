@@ -18,7 +18,7 @@ namespace OnXap.Modules.Auth
         public override ActionResult Index()
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
-            return View("login.cshtml", new ViewModels.Login());
+            return View("SignIn.cshtml", new ViewModels.SignIn());
         }
 
         [ModuleAction("unauthorized")]
@@ -28,8 +28,7 @@ namespace OnXap.Modules.Auth
             return View("unauthorizedAccess.cshtml");
         }
 
-        [ModuleAction("login")]
-        public virtual ActionResult Login(Model.AuthLoginData model)
+        public virtual ActionResult SignIn(Model.SignInRequest model)
         {
             var message = "";
 
@@ -73,54 +72,59 @@ namespace OnXap.Modules.Auth
                 if (redirect != null) return new RedirectResult(redirect.ToString(), false);
             }
 
-            return View("Login.cshtml", new ViewModels.Login() { Result = message });
+            return View("SignIn.cshtml", new ViewModels.SignIn() { Result = message });
         }
 
         [HttpPost]
-        public ActionResult LoginJson(Model.AuthLoginData model)
+        public ActionResult SignInJson(Model.SignInRequest model)
         {
             var success = false;
             var message = "";
 
             try
             {
-                if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest) throw new BehaviourException("Вы уже авторизованы!");
-
-                if (string.IsNullOrEmpty(model.login)) throw new BehaviourException("Некорректно введен логин!");
-                if (string.IsNullOrEmpty(model.pass)) throw new BehaviourException("Некорректно введен пароль!");
-
-                if (ModelState.IsValid)
+                if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest)
                 {
-                    var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login.Trim(), model.pass, out var userContext, out var resultReason);
-                    switch (result)
+                    success = true;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(model.login)) throw new BehaviourException("Некорректно введен логин!");
+                    if (string.IsNullOrEmpty(model.pass)) throw new BehaviourException("Некорректно введен пароль!");
+
+                    if (ModelState.IsValid)
                     {
-                        case eAuthResult.Success:
-                            AppCore.Get<Binding.Providers.SessionBinder>().BindUserContextToRequest(userContext);
-                            AppCore.GetUserContextManager().SetCurrentUserContext(userContext);
-                            message = "Авторизация прошла успешно!";
-                            success = true;
-                            break;
+                        var result = AppCore.Get<UserContextManager>().CreateUserContext(model.login.Trim(), model.pass, out var userContext, out var resultReason);
+                        switch (result)
+                        {
+                            case eAuthResult.Success:
+                                AppCore.Get<Binding.Providers.SessionBinder>().BindUserContextToRequest(userContext);
+                                AppCore.GetUserContextManager().SetCurrentUserContext(userContext);
+                                message = "Авторизация прошла успешно!";
+                                success = true;
+                                break;
 
-                        case eAuthResult.AuthDisabled:
-                        case eAuthResult.AuthMethodNotAllowed:
-                        case eAuthResult.BlockedUntil:
-                        case eAuthResult.MultipleFound:
-                        case eAuthResult.NothingFound:
-                        case eAuthResult.RegisterDecline:
-                        case eAuthResult.RegisterNeedConfirmation:
-                        case eAuthResult.RegisterWaitForModerate:
-                        case eAuthResult.WrongAuthData:
-                        case eAuthResult.Disabled:
-                        case eAuthResult.YetAuthorized:
-                            ModelState.AddModelError(nameof(model.login), resultReason);
-                            break;
+                            case eAuthResult.AuthDisabled:
+                            case eAuthResult.AuthMethodNotAllowed:
+                            case eAuthResult.BlockedUntil:
+                            case eAuthResult.MultipleFound:
+                            case eAuthResult.NothingFound:
+                            case eAuthResult.RegisterDecline:
+                            case eAuthResult.RegisterNeedConfirmation:
+                            case eAuthResult.RegisterWaitForModerate:
+                            case eAuthResult.WrongAuthData:
+                            case eAuthResult.Disabled:
+                            case eAuthResult.YetAuthorized:
+                                ModelState.AddModelError(nameof(model.login), resultReason);
+                                break;
 
-                        case eAuthResult.WrongPassword:
-                            ModelState.AddModelError(nameof(model.pass), resultReason);
-                            break;
+                            case eAuthResult.WrongPassword:
+                                ModelState.AddModelError(nameof(model.pass), resultReason);
+                                break;
 
-                        default:
-                            throw new BehaviourException(resultReason);
+                            default:
+                                throw new BehaviourException(resultReason);
+                        }
                     }
                 }
             }
@@ -144,7 +148,7 @@ namespace OnXap.Modules.Auth
             });
         }
 
-        public ActionResult logout()
+        public ActionResult SignOut()
         {
             AppCore.GetUserContextManager().DestroyUserContext(AppCore.GetUserContextManager().GetCurrentUserContext());
             AppCore.Get<Binding.Providers.SessionBinder>().ClearUserContextFromRequest();
@@ -152,7 +156,7 @@ namespace OnXap.Modules.Auth
             return Redirect("/");
         }
 
-        public ActionResult logoutJson()
+        public ActionResult SignOutJson()
         {
             var success = false;
             var message = "";
@@ -179,7 +183,7 @@ namespace OnXap.Modules.Auth
         {
             if (Module.IsNeededAnyUserToRegister()) return Redirect<Register.ModuleRegister, Register.ModuleRegisterController>(x => x.Register());
 
-            if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest) return RedirectToAction(nameof(Login));
+            if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsGuest) return RedirectToAction(nameof(SignIn));
             return View("PasswordRestore.cshtml", new Model.PasswordRestore());
         }
 

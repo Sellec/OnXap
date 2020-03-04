@@ -7,24 +7,6 @@
     this.SetTitle("Личный кабинет | Общая информация");
 }
 
-@section breadcrumbs {
-    <!-- (breadcrumbs) -->
-    <div class="breadcrumbs inner-breadcrumbs">
-        <div class="breadcrumbs__cover cover">
-            <div class="breadcrumbs__links">
-                <a href="/" class="breadcrumbs__link">Главная</a>
-                <span class="breadcrumbs__arrow"></span>
-                <p class="breadcrumbs__last">Личный кабинет</p>
-            </div>
-        </div>
-        <!-- End (breadcrumbs) -->
-}
-
-@section topbar
-{
-    <a href="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())" title="">Личный кабинет</a>
-}
-
 <h1>Данные аккаунта</h1>
 <div class="row">
     <label for="email" class="column col3of16">Эл. почта: </label>

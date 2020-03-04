@@ -21,9 +21,13 @@ namespace OnXap.Modules.Auth
         /// <returns></returns>
         public bool IsSuperuserNeeded()
         {
+            var getSystemUser = AppCore.GetUserContextManager().GetSystemUserContext();
+
             using (var db = this.CreateUnitOfWork())
             {
-                return db.Users.Where(x => x.Superuser != 0 && x.Block == 0 && x.State == UserState.Active).Count() == 0;
+                var query = db.Users.AsNoTracking().Where(x => x.Superuser != 0 && x.Block == 0 && x.State == UserState.Active);
+                if (getSystemUser != null) query = query.Where(x => x.IdUser != getSystemUser.IdUser);
+                return query.Count() == 0;
             }
         }
 
@@ -33,9 +37,14 @@ namespace OnXap.Modules.Auth
         /// <returns></returns>
         public bool IsNeededAnyUserToRegister()
         {
+            var getSystemUser = AppCore.GetUserContextManager().GetSystemUserContext();
+
             using (var db = this.CreateUnitOfWork())
             {
-                return db.Users.Count() == 0;
+                var query = db.Users.AsNoTracking().AsQueryable();
+                if (getSystemUser != null) query = query.Where(x => x.IdUser != getSystemUser.IdUser);
+
+                return query.Count() == 0;
             }
         }
 

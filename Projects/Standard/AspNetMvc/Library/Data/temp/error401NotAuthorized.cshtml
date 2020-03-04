@@ -37,7 +37,7 @@
 
                 @if (this.GetCurrentUserContext().IsGuest)
                 {
-                    <form action='@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.Login(null)))' method='post' id="enter_login">
+                    <form action='@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.SignIn(null)))' method='post' id="enter_login">
                         @Html.Hidden("urlFrom", Url.RequestContext.HttpContext.Request.Url.PathAndQuery)
 
                         <div class="nopadding"><p>@Html.Raw(this.GetConfig().site_loginfo)</p></div>

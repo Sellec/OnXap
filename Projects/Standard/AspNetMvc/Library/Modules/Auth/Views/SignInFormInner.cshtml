@@ -1,7 +1,7 @@
 @using OnXap.Modules.Auth
 @using OnXap.Modules.Register
 @using OnXap.Users
-@model OnXap.Modules.Auth.ViewModels.Login
+@model OnXap.Modules.Auth.ViewModels.SignIn
 @{
     var moduleAuth = this.GetAppCore().Get<ModuleAuth>();
     var moduleReg = this.GetAppCore().Get<ModuleRegister>();
@@ -24,7 +24,7 @@
     <div class="login-block-inner">
         <h1>Вход на сайт</h1>
         <div class="enter-block" id="enter_reg">
-            <form action='@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.LoginJson(null)))' method='post' id="enter_login">
+            <form action='@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.SignInJson(null)))' method='post' id="enter_login">
                 @if (moduleAuth.IsSuperuserNeeded())
                 {
                     <div class="login-result nopadding" style="background-color: salmon;"><p>Внимание, на сайте отсутствует суперпользователь. Пожалуйста, перейдите на страницу регистрации и зарегистрируйте новую учетную запись, которая будет оформлена как суперпользователь и немедленно активирована.</p></div>

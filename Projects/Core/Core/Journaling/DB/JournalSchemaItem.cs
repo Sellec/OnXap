@@ -36,8 +36,7 @@ namespace OnXap.Journaling.DB
                     WithColumn((JournalDAO x) => x.ItemLinkId).AsGuid().Nullable();
 
                 Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
-                    OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending().
-                    WithOptions().UniqueNullsNotDistinct();
+                    OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending();
 
                 Create.ForeignKey("FK_Journal_ItemLink").
                     FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
@@ -66,8 +65,7 @@ namespace OnXap.Journaling.DB
                 else if (!Schema.Table<JournalDAO>().Index("IX_ItemLinkId").Exists())
                 {
                     Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
-                        OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending().
-                        WithOptions().UniqueNullsNotDistinct();
+                        OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending();
                 }
 
                 if (!Schema.Table<JournalDAO>().Constraint("FK_Journal_ItemLink").Exists())

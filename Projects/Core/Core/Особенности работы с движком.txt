@@ -13,7 +13,7 @@
 		OnXap.Design.Additionals
 		OnXap.Modules
 
-	При наличии других проектов, которые переопределяют стандартные ресурсы (например, OnXap.Modules.Tender переопределяет ресурс Data/Temp/Auth/login.cshtml из OnXap.Modules),
+	При наличии других проектов, которые переопределяют стандартные ресурсы (например, OnXap.Modules.Tender переопределяет ресурс Data/Temp/Auth/SignIn.cshtml из OnXap.Modules),
 	переопределяющие проекты должны прописаться в основном проекте ПОСЛЕ базовых. То есть в SiteEKGF.csproj цепочка проектов должна выглядеть так:
 
     <ProjectReference Include="..\..\TraceEngine\OnXap.Modules\OnXap.Modules.csproj">

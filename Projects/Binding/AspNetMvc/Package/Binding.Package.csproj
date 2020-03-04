@@ -6,7 +6,7 @@
     <RootNamespace>OnXap</RootNamespace>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>0.1.9.20</Version>
+    <Version>1.0.3</Version>
     <NoDefaultExcludes>true</NoDefaultExcludes>
     <Description>Ядро веб-движка для работы с ASP.NET MVC.</Description>
     <PackageId>OnXap.Binding.AspNetMvc</PackageId>
@@ -24,6 +24,9 @@
       <Link>src\Library\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <PackagePath>src\Library\%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Common\Logo\iconpackage.png" Link="iconpackage.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\Core\Core.csproj" />

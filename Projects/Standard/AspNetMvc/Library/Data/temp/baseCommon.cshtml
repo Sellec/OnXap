@@ -3,6 +3,7 @@
 @using OnXap.Modules.Admin
 @using OnXap.Modules.Auth
 @using OnXap.Modules.Customer
+@using OnXap.Modules.FileManager
 @{
     var g = this;
 
@@ -22,6 +23,16 @@
     }
 
     var moduleAdmin = this.GetAppCore().GetModulesManager().GetModule<ModuleAdmin>();
+    var currentUserContext = this.GetCurrentUserContext();
+    var userUpdate = new
+    {
+        isGuest = currentUserContext.IsGuest,
+        access = new
+        {
+            controlPanel = moduleAdmin.CheckPermission(currentUserContext, ModulesConstants.PermissionManage) == CheckPermissionResult.Allowed
+        },
+        idImage = currentUserContext.GetData().IdPhoto
+    };
 }
 
 <!DOCTYPE html>
@@ -38,8 +49,11 @@
     <meta name="description" content="@this.GetDescription()" />
     <meta name="keywords" content="@this.GetKeywords()" />
 
+    <link rel="shortcut icon" href="~/Data/img/logo/favicon.ico" type="image/x-icon">
+
     <script src="~/Design/UI/vue/vue.min.js"></script>
     <script src="~/Design/UI/primevuelibrary/quill.min.js"></script>
+    <!--<script src="~/primevuelibrary/primevuelibrary.js"></script>-->
     <script src="~/Design/UI/primevuelibrary/primevuelibrary.min.js"></script>
 
     <link href="~/Design/UI/primevuelibrary/primevuelibrary.min.css " rel="stylesheet">
@@ -66,78 +80,49 @@
     @RenderSection("head", false)
 
 </head>
-<body @RenderSection("bodyTagAttributes", false)>
-
-    @RenderSection("bodyTagAfter", false)
+<body>
 
     <!-- (wrapper) -->
     <div class="wrapper">
         <!-- (main-header) -->
         <div class="main-header">
-            <!-- (top-block) -->
-            <div class="top-block">
-                <div class="top-block__cover cover clearfix">
-                    @RenderSection("logoTop", false)
-                    <!-- (info-top-block) -->
-                    <div class="info-top-block clearfix">
-                        <div class="info-top-list clearfix">
-                            <div class="info-top-list__item">
-                                @if (!this.GetCurrentUserContext().IsGuest)
-                                {
-                                    <a href="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())">
-                                        <div>
-                                            <img src="@(this.GetCurrentUserContext().GetData().IdPhoto.HasValue ? "/fm/imageCrop/" + this.GetCurrentUserContext().GetData().IdPhoto + "?MaxHeight=100&MaxWidth=100" : "/data/images/nophoto_user.jpg")" alt="">
-                                            <div class="top-user__name">Личный кабинет</div>
-                                        </div>
-                                    </a>
-
-                                }
-                                else
-                                {
-                                    <a href="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>())" title="">
-                                        <div>
-                                            Войти<span class="top-login__text-hidden"> в кабинет</span>
-                                        </div>
-                                    </a>
-                                }
+            <img src="~/Data/img/logo/logo-rounded.png" class="main-header-logo p-menubar" />
+            <div>
+                <div id="js-main-header"
+                     data-user-signin-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>())"
+                     data-user-signout-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.SignOut()))"
+                     data-user-profile-url="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())"
+                     data-user-image-template-url="@(Url.CreateRoute<FileManager, FileManagerController>(x => x.FileImageCrop(1234567890, 100, 100)))"
+                     data-controlpanel-url="@(Url.CreateRoute<ModuleAdmin, ModuleAdminController>())">
+                    <pvl-menubar>
+                        <pvl-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pvl-button>
+                        <img :src="userImageUrl" v-show="user.logged" class="user-image-header p-button" @@click="OnToggleUserMenu" />
+                        <pvl-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
+                    </pvl-menubar>
+                </div>
+                <!-- (breadcrumbs) -->
+                @RenderSection("breadcrumbs", false)
+                @if (!IsSectionDefined("breadcrumbs"))
+                {
+                    <div class="breadcrumbs inner-breadcrumbs">
+                        <div class="breadcrumbs__cover cover">
+                            <div class="breadcrumbs__links">
+                                <p class="breadcrumbs__last">Главная</p>
                             </div>
-                            @if (moduleAdmin != null && moduleAdmin.CheckPermission(this.GetCurrentUserContext(), ModulesConstants.PermissionManage) == CheckPermissionResult.Allowed)
-                            {
-                                <div class="info-top-list__item list-admin">
-                                    <a href="/@moduleAdmin.UrlName" class="top-user" target="_blank">
-                                        <div class="top-user__content">
-                                            <div class="top-user__name">Управление сайтом</div>
-                                        </div>
-                                    </a>
-                                </div>
-                            }
-                            @RenderSection("breadcrumbs", false)
                         </div>
                     </div>
-                    <!-- End (info-top-block) -->
-                </div>
+                }
             </div>
-            <!-- End (top-block) -->
-
-            @RenderSection("headerAfter", false)
-
+            <!-- End (breadcrumbs) -->
         </div>
         <!-- End (main-header) -->
-
-        @RenderSection("mainBefore", false)
-
         <!-- (main-content) -->
-        @RenderBody()
+        <div class="page-body">
+            @RenderBody()
+        </div>
         <!-- End (main-content) -->
-
-        @RenderSection("mainAfter", false)
-
     </div>
-
     <!-- End (wrapper) -->
-
-    @RenderSection("wrapperAfter", false)
-
     <!-- (popup-dialog) -->
     <div class="none">
         <div class="popup popup-dialog" id="popup-dialog">
@@ -152,6 +137,9 @@
     <!-- End (popup-dialog) -->
 
     @RenderSection("scripts", false)
-    @RenderSection("stats", false)
+    <script type="text/javascript" src="~/Design/UI/standard.js"></script>
+    <script type="text/javascript">
+        vueMainHeader.userUpdate(@userUpdate.jsobject());
+    </script>
 </body>
 </html>
