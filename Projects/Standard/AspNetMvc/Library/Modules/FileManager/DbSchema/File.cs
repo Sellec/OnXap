@@ -36,7 +36,7 @@ namespace OnXap.Modules.FileManager.DbSchema
                     WithColumn((Db.File x) => x.UniqueKey).AsGuid().Nullable().
                     WithColumn((Db.FileCountUsage x) => x.CountUsage).AsInt32().NotNullable().WithDefaultValue(0).
                     WithColumn((Db.File x) => x.TypeCommon).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((Db.File x) => x.TypeConcrete).AsString(50).Nullable().
+                    WithColumn((Db.File x) => x.TypeConcrete).AsString(100).Nullable().
                     WithColumn((Db.File x) => x.DateChange).AsInt32().NotNullable().WithDefaultValue(0).
                     WithColumn((Db.File x) => x.DateExpire).AsDateTime().Nullable().
                     WithColumn((Db.File x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0).
@@ -52,7 +52,7 @@ namespace OnXap.Modules.FileManager.DbSchema
                 AddColumnIfNotExists(Schema, (Db.File x) => x.UniqueKey, x => x.AsGuid().Nullable());
                 AddColumnIfNotExists(Schema, (Db.FileCountUsage x) => x.CountUsage, x => x.AsInt32().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (Db.File x) => x.TypeCommon, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (Db.File x) => x.TypeConcrete, x => x.AsString(50).Nullable());
+                AddColumnIfNotExists(Schema, (Db.File x) => x.TypeConcrete, x => x.AsString(100).Nullable());
                 AddColumnIfNotExists(Schema, (Db.File x) => x.DateChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (Db.File x) => x.DateExpire, x => x.AsDateTime().Nullable());
                 AddColumnIfNotExists(Schema, (Db.File x) => x.IdUserChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));

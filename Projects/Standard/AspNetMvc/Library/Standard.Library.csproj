@@ -139,6 +139,7 @@
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
+    <Compile Include="Modules\FileManager\DbSchema\File20200306.cs" />
     <Compile Include="Modules\FileManager\DbSchema\FileRemoveQueue.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File.cs" />
     <Compile Include="Modules\FileManager\Db\FileCountUsage.cs" />

@@ -19,6 +19,7 @@ namespace OnXap.Modules.FileManager
 
             bindingsCollection.SetTransient<DbSchema.File>();
             bindingsCollection.SetTransient<DbSchema.FileRemoveQueue>();
+            bindingsCollection.SetTransient<DbSchema.File20200306>();
         }
     }
 }
