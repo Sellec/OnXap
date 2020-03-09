@@ -74,6 +74,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeVueLibrary.Net", "..\P
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Standard.JS", "..\Projects\Standard\AspNetMvc\JS\Standard.JS.njsproj", "{706BDA8B-76B2-47D5-BE9D-CDF83C0BBD6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp", "..\Projects\Applications\ConsoleApp\ConsoleApp.csproj", "{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,6 +189,12 @@ Global
 		{706BDA8B-76B2-47D5-BE9D-CDF83C0BBD6E}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
 		{706BDA8B-76B2-47D5-BE9D-CDF83C0BBD6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{706BDA8B-76B2-47D5-BE9D-CDF83C0BBD6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.DebugWithoutPackages|Any CPU.ActiveCfg = Debug|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.DebugWithoutPackages|Any CPU.Build.0 = Debug|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -215,6 +223,7 @@ Global
 		{F20FE26D-5189-404B-9D5C-C548AD70FA7E} = {0C37AE99-684B-4140-A416-65B1E44D64EA}
 		{B3813C49-F5F1-4D9F-B45E-82357912E7E6} = {F20FE26D-5189-404B-9D5C-C548AD70FA7E}
 		{706BDA8B-76B2-47D5-BE9D-CDF83C0BBD6E} = {62F63B21-F55A-4F1E-91DF-7ECA6D37BC99}
+		{59334B74-C2A7-4A28-BE18-CFF560D1DC1C} = {3ACC2628-7AFA-49A7-BA54-A89822448070}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EED38A6B-FD8B-4735-9632-1F78301B6F9F}

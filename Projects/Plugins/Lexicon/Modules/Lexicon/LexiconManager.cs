@@ -12,7 +12,7 @@ namespace OnXap.Modules.Lexicon
     /// <summary>
     /// Менеджер для работы со словарными формами.
     /// </summary>
-    public class LexiconManager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<UnitOfWork<WordCase>>
+    public class LexiconManager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<DataContext>
     {
         /// <summary>
         /// Структура для запроса числительной и падежной формы слова.
@@ -169,7 +169,7 @@ namespace OnXap.Modules.Lexicon
                             }
                         }
 
-                        var result = db.Repo1.Where(x => x.NominativeSingle == request.Word).FirstOrDefault();
+                        var result = db.WordCase.Where(x => x.NominativeSingle == request.Word).FirstOrDefault();
                         if (result != null)
                         {
                             if (cache != null) cache[result.NominativeSingle] = result;
@@ -276,7 +276,7 @@ namespace OnXap.Modules.Lexicon
 
                             if (canBeUpdated)
                             {
-                                db.Repo1.InsertOrDuplicateUpdate(request.Result.ToEnumerable(), upsertFields.ToArray());
+                                db.WordCase.InsertOrDuplicateUpdate(request.Result.ToEnumerable(), upsertFields.ToArray());
                             }
                         }
                     }
@@ -333,7 +333,7 @@ namespace OnXap.Modules.Lexicon
             {
                 using (var db = this.CreateUnitOfWork())
                 {
-                    var queryWords = db.Repo1.Where(x => x.IsNewSingle || x.IsNewTwo || x.IsNewMultiple).ToList();
+                    var queryWords = db.WordCase.Where(x => x.IsNewSingle || x.IsNewTwo || x.IsNewMultiple).ToList();
                     foreach (var word in queryWords)
                     {
                         try
@@ -416,7 +416,7 @@ namespace OnXap.Modules.Lexicon
 
                             if (canBeUpdated)
                             {
-                                db.Repo1.InsertOrDuplicateUpdate(word.ToEnumerable(), upsertFields.ToArray());
+                                db.WordCase.InsertOrDuplicateUpdate(word.ToEnumerable(), upsertFields.ToArray());
                             }
                         }
                         catch (Exception ex)

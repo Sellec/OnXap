@@ -52,9 +52,9 @@ namespace System.ComponentModel.DataAnnotations
             {
                 var filesGrouped = files.GroupBy(x => x).Select(x => x.Key).Where(x => x != 0);
 
-                using (var db = new UnitOfWork<File>())
+                using (var db = new DataContext())
                 {
-                    var filesFromDB = db.Repo1.Where(x => filesGrouped.Contains(x.IdFile)).ToDictionary(x => x.IdFile, x => x);
+                    var filesFromDB = db.File.Where(x => filesGrouped.Contains(x.IdFile)).ToDictionary(x => x.IdFile, x => x);
 
                     var filesNotFound = filesGrouped.Where(x => !filesFromDB.ContainsKey(x)).ToList();
                     if (filesNotFound.Count > 0) return new ValidationResult($"Для поля '{validationContext.DisplayName}' следующие файлы не найдены: {string.Join(", ", filesNotFound)}");

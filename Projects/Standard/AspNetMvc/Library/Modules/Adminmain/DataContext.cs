@@ -1,25 +1,26 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils.Data;
 
 namespace OnXap.Modules.Adminmain
 {
     using Core.Db;
-    using Routing.DB;
+    using Routing.Db;
 
     /// <summary>
     /// Контекст для доступа к данным.
     /// </summary>
-    public class DataContext : UnitOfWorkBase
+    public class DataContext : CoreContextBase
     {
         /// <summary>
         /// </summary>
-        public IRepository<ModuleConfig> ConfigModules { get; }
+        public DbSet<ModuleConfig> ConfigModules { get; set; }
 
         /// <summary>
         /// </summary>
-        public IRepository<Role> Role { get; }
+        public DbSet<Role> Role { get; set; }
 
         /// <summary>
         /// </summary>
-        public IRepository<Routing> Routes { get; }
+        public DbSet<Routing> Routes { get; set; }
     }
 }

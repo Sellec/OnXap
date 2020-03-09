@@ -25,6 +25,7 @@ namespace OnXap.Core.DbSchema
                     AddFluentMigratorCore().
                     ConfigureRunner(rb => rb.
                         AddSqlServer().
+                        //AddSQLite().
                         WithGlobalConnectionString(AppCore.ConnectionStringFactory())).
                     Configure<RunnerOptions>(cfg => cfg.Profile = DbSchemaDefaultProfile.ProfileName).
                     AddSingleton<IMigrationSource>(sp => this).

@@ -17,7 +17,7 @@ namespace OnXap.Modules.ItemsCustomize
     /// С точки зрения функционала модуля из OnUtils ничего не меняется - веб-версия ничего не переопределяет.
     /// </summary>
     [ModuleCore("Настройка объектов (веб-версия)")]
-    class ModuleItemsCustomize2 : ModuleCore<ModuleItemsCustomize2>, IMenuProvider, IUnitOfWorkAccessor<Context>
+    class ModuleItemsCustomize2 : ModuleCore<ModuleItemsCustomize2>, IMenuProvider
     {
         NestedLinkCollection IMenuProvider.GetModuleAdminMenuLinks()
         {
@@ -52,7 +52,7 @@ namespace OnXap.Modules.ItemsCustomize
         {
             var schemes = new Dictionary<uint, string>() { { 0, "По-умолчанию" } };
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new Context())
             {
                 foreach (var res in (from p in db.CustomFieldsSchemes where p.IdModule == idModule && p.IdScheme > 0 orderby p.NameScheme select p))
                     schemes[(uint)res.IdScheme] = res.NameScheme;

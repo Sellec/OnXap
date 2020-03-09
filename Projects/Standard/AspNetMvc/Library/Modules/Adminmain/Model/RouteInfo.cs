@@ -2,7 +2,7 @@
 {
     public class RouteInfo
     {
-        public OnXap.Modules.Routing.DB.Routing Route;
+        public OnXap.Modules.Routing.Db.Routing Route;
         public string ItemName;
     }
 }

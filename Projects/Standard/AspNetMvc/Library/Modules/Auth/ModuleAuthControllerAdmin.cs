@@ -10,11 +10,8 @@ namespace OnXap.Modules.Auth
     {
         protected override void ConfigurationViewFill(ViewModels.ModuleSettings viewModelForFill, out string viewName)
         {
-            using (var db = Module.CreateUnitOfWork())
-            {
-                viewModelForFill.ApplyConfiguration(Module.GetConfiguration<ModuleConfiguration>());
-                viewName = "ModuleSettings.cshtml";
-            }
+            viewModelForFill.ApplyConfiguration(Module.GetConfiguration<ModuleConfiguration>());
+            viewName = "ModuleSettings.cshtml";
         }
 
         protected override ModuleConfiguration<ModuleAuth> ConfigurationSaveCustom(Configuration formData, out string outputMessage)

@@ -1,11 +1,10 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Transactions;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Transactions;
 
 namespace OnXap.Core.Items
 {
@@ -30,9 +29,9 @@ namespace OnXap.Core.Items
             {
                 var types = new ConcurrentDictionary<string, ItemType>();
 
-                using (var db = new UnitOfWork<ItemType>())
+                using (var db = new Db.DataContext())
                 {
-                    db.Repo1.Where(x => !string.IsNullOrEmpty(x.UniqueKey)).ForEach(x => types[x.UniqueKey] = x);
+                    db.ItemType.Where(x => !string.IsNullOrEmpty(x.UniqueKey)).ForEach(x => types[x.UniqueKey] = x);
                 }
 
                 var expires = DateTime.Now.AddMinutes(2);
@@ -57,9 +56,9 @@ namespace OnXap.Core.Items
 
             var _r = ItemTypes.Where(x => x.Value.IdItemType == type).Select(x => x.Value).FirstOrDefault();
             if (_r == null)
-                using (var db = new UnitOfWork<ItemType>())
+                using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
-                    _r = db.Repo1.Where(x => x.IdItemType == type).FirstOrDefault();
+                    _r = db.ItemType.Where(x => x.IdItemType == type).FirstOrDefault();
 
             if (_r != null) return _r;
 
@@ -155,27 +154,23 @@ namespace OnXap.Core.Items
             var r = ItemTypes.Where(x => x.Value.UniqueKey == uniqueKey).Select(x => x.Value).FirstOrDefault();
             if (r == null)
             {
-                using (var db = new UnitOfWork<ItemType>())
+                using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
-                    r = db.Repo1.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
+                    r = db.ItemType.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                     if (r == null && registerIfNoFound)
                     {
                         var r_ = new ItemType() { NameItemType = caption, UniqueKey = uniqueKey };
-                        db.Repo1.AddOrUpdate(x => x.UniqueKey, r_);
+                        db.ItemType.Add(r_);
                         db.SaveChanges();
-
                         r = r_;
                     }
+                    if (r != null && r.NameItemType != caption)
+                    {
+                        r.NameItemType = caption;
+                        db.SaveChanges();
+                    }
                     ItemTypes[uniqueKey] = r;
-                }
-            }
-            else if (r.NameItemType != caption)
-            {
-                r.NameItemType = caption;
-                using (var db = new UnitOfWork<ItemType>())
-                {
-                    db.Repo1.InsertOrDuplicateUpdate(r.ToEnumerable(), new UpsertField(nameof(r.NameItemType)));
                 }
             }
 

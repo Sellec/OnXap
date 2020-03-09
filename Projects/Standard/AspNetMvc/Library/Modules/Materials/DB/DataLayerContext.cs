@@ -2,7 +2,9 @@
 
 namespace OnXap.Modules.Materials.DB
 {
-    public partial class DataLayerContext : UnitOfWorkBase
+    using Core.Db;
+
+    public class DataLayerContext : CoreContextBase
     {
         public virtual IRepository<Page> Pages { get; set; }
         public virtual IRepository<PageCategory> PageCategories { get; set; }

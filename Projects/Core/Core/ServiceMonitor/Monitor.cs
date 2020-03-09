@@ -16,7 +16,6 @@ namespace OnXap.ServiceMonitor
     public class Monitor :
         CoreComponentBase,
         IComponentSingleton,
-        IUnitOfWorkAccessor<UnitOfWork<JournalData>>,
         ITypedJournalComponent<Monitor>
     {
         private static ConcurrentDictionary<Guid, JournalInfo> _servicesJournalsList = new ConcurrentDictionary<Guid, JournalInfo>();

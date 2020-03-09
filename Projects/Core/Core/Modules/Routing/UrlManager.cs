@@ -1,6 +1,6 @@
-﻿using OnUtils;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils;
 using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace OnXap.Modules.Routing
 {
     using Core;
     using Core.Modules;
-    using DB;
+    using Db;
     using Journaling;
     using ExecutionResultUrl = ExecutionResult<string>;
     using ExecutionResultUrlList = ExecutionResult<Dictionary<int, string>>;
@@ -18,7 +18,7 @@ namespace OnXap.Modules.Routing
     /// Менеджер маршрутизации. Позволяет получать и управлять адресами сущностей.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Compiler", "CS0618")]
-    public class UrlManager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<UnitOfWork<Routing>>, IAutoStart
+    public class UrlManager : CoreComponentBase, IComponentSingleton, IAutoStart
     {
         private static Dictionary<string, string> TRANSLATETABLE = new Dictionary<string, string>() {
             { "а", "a" }, { "б", "b" }, { "в", "v" }, { "г", "g" }, { "д", "d" }, { "е", "e" }, { "ж", "g" }, { "з", "z" },
@@ -166,7 +166,7 @@ namespace OnXap.Modules.Routing
 
                 var idUser = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser;
 
-                var itemsToRegister = items.Select(x => new DB.Routing
+                var itemsToRegister = items.Select(x => new Db.Routing
                 {
                     IdModule = module.ID,
                     IdItem = x.IdItem,
@@ -177,27 +177,37 @@ namespace OnXap.Modules.Routing
                     UniqueKey = string.IsNullOrEmpty(x.UniqueKey) ? null : x.UniqueKey,
                     DateChange = DateTime.Now.Timestamp(),
                     IdUserChange = idUser,
-                    IdRoutingType = DB.RoutingType.Main,
+                    IdRoutingType = Db.RoutingType.Main,
                     IsFixedLength = true,
                 }).ToList();
 
                 int sql = 0;
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 using (var scope = db.CreateScope())
                 {
-                    db.DataContext.QueryTimeout = 2 * 60 * 1000;
+                    db.QueryTimeout = 2 * 60 * 1000;
 
                     try
                     {
-                        sql = db.Repo1.InsertOrDuplicateUpdate(itemsToRegister,
-                            new UpsertField(nameof(DB.Routing.UrlFull)),
-                            new UpsertField(nameof(DB.Routing.Arguments)),
-                            new UpsertField(nameof(DB.Routing.DateChange)),
-                            new UpsertField(nameof(DB.Routing.IdRoutingType)),
-                            new UpsertField(nameof(DB.Routing.IsFixedLength))
-                        );
-                        scope.Commit();
+                        sql = db.Routing.
+                            UpsertRange(itemsToRegister).
+                            On(x => new
+                            {
+                                x.UniqueKey,
+                                x.IdModule,
+                                x.IdItem,
+                                x.IdItemType,
+                                x.Action
+                            }).WhenMatched((xDb, xIns) => new Routing()
+                            {
+                                UrlFull = xIns.UrlFull,
+                                Arguments = xIns.Arguments,
+                                DateChange = xIns.DateChange,
+                                IdRoutingType = xIns.IdRoutingType,
+                                IsFixedLength = xIns.IsFixedLength
+                            }).Run();
+                        scope.Complete();
                     }
                     catch (Exception ex)
                     {
@@ -251,15 +261,15 @@ namespace OnXap.Modules.Routing
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 using (var scope = db.CreateScope())
                 {
                     if (string.IsNullOrEmpty(uniqueKey))
-                        db.Repo1.Where(x => x.IdItem == idItem && x.IdItemType == idItemType && x.Action == action).Delete();
+                        db.Routing.RemoveRange(db.Routing.Where(x => x.IdItem == idItem && x.IdItemType == idItemType && x.Action == action));
                     else
-                        db.Repo1.Where(x => x.IdItem == idItem && x.IdItemType == idItemType && x.Action == action && x.UniqueKey == uniqueKey).Delete();
+                        db.Routing.RemoveRange(db.Routing.Where(x => x.IdItem == idItem && x.IdItemType == idItemType && x.Action == action && x.UniqueKey == uniqueKey));
 
-                    scope.Commit();
+                    scope.Complete();
                 }
 
                 return new ExecutionResult(true);
@@ -296,13 +306,13 @@ namespace OnXap.Modules.Routing
             {
                 if (idItemList == null) throw new ArgumentNullException(nameof(idItemList));
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 {
-                    db.DataContext.QueryTimeout = 60 * 1000;
+                    db.QueryTimeout = 60 * 1000;
 
                     var coll = idItemList.GroupBy(x => x).Select(x => x.Key).ToDictionary(x => x, x => string.Empty);
 
-                    var queryResults = db.Repo1.
+                    var queryResults = db.Routing.
                         Where(x => coll.Keys.ToList().Contains(x.IdItem) && x.IdItemType == idItemType && x.UniqueKey == uniqueKey).
                         Select(x => new { x.IdItem, x.UrlFull });
 

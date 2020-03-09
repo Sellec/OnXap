@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,7 +13,7 @@ namespace OnXap.Languages
     /// <summary>
     /// Менеджер языков системы.
     /// </summary>
-    public class Manager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<DB.DataContext>
+    public class Manager : CoreComponentBase, IComponentSingleton
     {
         /// <summary>
         /// </summary>
@@ -56,7 +55,7 @@ namespace OnXap.Languages
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     return db.Language.ToList().Select(x => CreateFromDB(x)).ToList();
                 }
@@ -76,7 +75,7 @@ namespace OnXap.Languages
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     var id = AppCore.AppConfig.IdSystemLanguage;
                     var query = from Language in db.Language
@@ -131,7 +130,7 @@ namespace OnXap.Languages
         }
 
         /// <summary>
-        /// Возвращает языковой пакет, активный для пользователя, ассоциированного с текущим контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>).
+        /// Возвращает языковой пакет, активный для пользователя, ассоциированного с текущим контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>).
         /// </summary>
         /// <returns>Возвращает объект типа <see cref="Language"/> или null в случае ошибки.</returns>
         public Language GetUserLanguage()
@@ -150,7 +149,7 @@ namespace OnXap.Languages
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     var id = AppCore.AppConfig.IdSystemLanguage;
                     var query = from Language in db.Language
@@ -171,7 +170,7 @@ namespace OnXap.Languages
         }
 
         /// <summary>
-        /// Устанавливает в качестве активного для пользователя, ассоциированного с текущим контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>), языковой пакет <paramref name="language"/>.
+        /// Устанавливает в качестве активного для пользователя, ассоциированного с текущим контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>), языковой пакет <paramref name="language"/>.
         /// </summary>
         /// <returns>Возвращает true, если языковой пакет был успешно указан в качестве активного, либо false в случае ошибки.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="language"/> равен null.</exception>

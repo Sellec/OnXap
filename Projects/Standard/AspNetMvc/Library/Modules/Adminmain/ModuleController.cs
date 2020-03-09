@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using System.Net;
-using System.Data.Entity.SqlServer;
+using System.Web.Mvc;
 
 namespace OnXap.Modules.Adminmain
 {
@@ -15,7 +14,7 @@ namespace OnXap.Modules.Adminmain
     using Core.Modules;
     using Journaling;
     using Modules.CoreModule;
-    using Routing.DB;
+    using Routing.Db;
     using WebCoreModule;
     using JournalingDB = Journaling.DB;
 
@@ -36,18 +35,18 @@ namespace OnXap.Modules.Adminmain
             {
                 if (Module.CheckPermission(Module.PERM_RESTART) != CheckPermissionResult.Allowed)
                 {
-                    RegisterEventWithCode(System.Net.HttpStatusCode.Forbidden, "Попытка перезагрузки.", "Недостаточно прав");
+                    RegisterEventWithCode(HttpStatusCode.Forbidden, "Попытка перезагрузки.", "Недостаточно прав");
                     return ReturnJson(false, "Недостаточно прав для перезагрузки системы.");
                 }
 
-                RegisterEventWithCode(System.Net.HttpStatusCode.Accepted, "Попытка перезагрузки.", null);
+                RegisterEventWithCode(HttpStatusCode.Accepted, "Попытка перезагрузки.", null);
                 System.Web.HttpRuntime.UnloadAppDomain();
 
                 return ReturnJson(true, "Перезагрузка запущена.");
             }
             catch (Exception ex)
             {
-                RegisterEventWithCode(System.Net.HttpStatusCode.InternalServerError, "Неожиданная ошибка при попытке перезагрузки", null, ex);
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неожиданная ошибка при попытке перезагрузки", null, ex);
                 return ReturnJson(false, "Неожиднная ошибка во время перезагрузки системы.", ex.Message);
             }
         }
@@ -63,7 +62,7 @@ namespace OnXap.Modules.Adminmain
                 Select(x => new ViewModels.MainSettingsModule() { Id = x.IdModule, Caption = x.Caption }).
                 ToList();
 
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new DataContext())
             {
                 model.Roles = db.Role.Where(x => !x.IsHidden || x.IdRole == AppCore.AppConfig.RoleGuest || x.IdRole == AppCore.AppConfig.RoleUser).ToList();
                 model.Roles.Insert(0, new Role() { IdRole = 0, NameRole = "Не выбрано", IsHidden = false });
@@ -195,10 +194,10 @@ namespace OnXap.Modules.Adminmain
         {
             var model = new Model.Routing() { Modules = AppCore.GetModulesManager().GetModules().OfType<IModuleCore>().OrderBy(x => x.Caption).ToList() };
 
-            using (var db = new UnitOfWork<Routing>())// Module.CreateUnitOfWork())
+            using (var db = new Modules.Routing.Db.DataContext())
             {
                 var modulesIdList = model.Modules.Select(x => x.IdModule).ToArray();
-                var query = db.Repo1
+                var query = db.Routing
                                 .Where(x => modulesIdList.Contains(x.IdModule))
                                 .GroupBy(x => new { x.IdModule, x.IdRoutingType })
                                 .Select(x => new { x.Key.IdModule, x.Key.IdRoutingType, Count = x.Count() })
@@ -229,36 +228,33 @@ namespace OnXap.Modules.Adminmain
 
             var model = new Model.RoutingModule() { Module = (IModuleCore)module };
 
-            using (var db = new UnitOfWork<Routing>())// Module.CreateUnitOfWork())
+            var moduleActionAttributeType = typeof(ModuleActionAttribute);
+            var moduleActionGetDisplayName = new Func<ActionDescriptor, string>(action =>
             {
-                var moduleActionAttributeType = typeof(ModuleActionAttribute);
-                var moduleActionGetDisplayName = new Func<ActionDescriptor, string>(action =>
+                var attr = action.GetCustomAttributes(moduleActionAttributeType, true).OfType<ModuleActionAttribute>().FirstOrDefault();
+                if (attr != null)
                 {
-                    var attr = action.GetCustomAttributes(moduleActionAttributeType, true).OfType<ModuleActionAttribute>().FirstOrDefault();
-                    if (attr != null)
-                    {
-                        if (!string.IsNullOrEmpty(attr.Caption)) return attr.Caption;
-                    }
+                    if (!string.IsNullOrEmpty(attr.Caption)) return attr.Caption;
+                }
 
-                    return action.ActionName;
-                });
+                return action.ActionName;
+            });
 
-                var modulesActions = AppCore.GetModulesManager().GetModules().OfType<IModuleCore>().Select(x => new
-                {
-                    Module = x,
-                    UserDescriptor = x.ControllerUser() != null ? new ReflectedControllerDescriptor(x.ControllerUser()) : null,
-                    AdminDescriptor = x.ControllerAdmin() != null ? new ReflectedControllerDescriptor(x.ControllerAdmin()) : null,
-                }).Select(x => new
-                {
-                    x.Module,
-                    UserActions = x.UserDescriptor != null ? x.UserDescriptor.GetCanonicalActions().Where(y => y.IsDefined(moduleActionAttributeType, true)).ToDictionary(y => y.ActionName, y => "Общее: " + moduleActionGetDisplayName(y)) : new Dictionary<string, string>(),
-                    AdminActions = x.AdminDescriptor != null ? x.AdminDescriptor.GetCanonicalActions().Where(y => y.IsDefined(moduleActionAttributeType, true)).ToDictionary(y => y.ActionName, y => "Администрирование: " + moduleActionGetDisplayName(y)) : new Dictionary<string, string>(),
-                }).ToDictionary(x => x.Module, x => x.UserActions.Union(x.AdminActions).OrderBy(y => y.Value).ToDictionary(y => y.Key, y => y.Value));
+            var modulesActions = AppCore.GetModulesManager().GetModules().OfType<IModuleCore>().Select(x => new
+            {
+                Module = x,
+                UserDescriptor = x.ControllerUser() != null ? new ReflectedControllerDescriptor(x.ControllerUser()) : null,
+                AdminDescriptor = x.ControllerAdmin() != null ? new ReflectedControllerDescriptor(x.ControllerAdmin()) : null,
+            }).Select(x => new
+            {
+                x.Module,
+                UserActions = x.UserDescriptor != null ? x.UserDescriptor.GetCanonicalActions().Where(y => y.IsDefined(moduleActionAttributeType, true)).ToDictionary(y => y.ActionName, y => "Общее: " + moduleActionGetDisplayName(y)) : new Dictionary<string, string>(),
+                AdminActions = x.AdminDescriptor != null ? x.AdminDescriptor.GetCanonicalActions().Where(y => y.IsDefined(moduleActionAttributeType, true)).ToDictionary(y => y.ActionName, y => "Администрирование: " + moduleActionGetDisplayName(y)) : new Dictionary<string, string>(),
+            }).ToDictionary(x => x.Module, x => x.UserActions.Union(x.AdminActions).OrderBy(y => y.Value).ToDictionary(y => y.Key, y => y.Value));
 
-                model.ModulesActions = modulesActions.
-                    Select(x => new { Group = new SelectListGroup() { Name = x.Key.Caption }, Items = x.Value, Module = x.Key }).
-                    SelectMany(x => x.Items.Select(y => new SelectListItem() { Text = y.Value, Value = $"{x.Module.IdModule}_{y.Key}", Group = x.Group })).ToList();
-            }
+            model.ModulesActions = modulesActions.
+                Select(x => new { Group = new SelectListGroup() { Name = x.Key.Caption }, Items = x.Value, Module = x.Key }).
+                SelectMany(x => x.Items.Select(y => new SelectListItem() { Text = y.Value, Value = $"{x.Module.IdModule}_{y.Key}", Group = x.Group })).ToList();
 
             return View("routing_module.cshtml", model);
         }
@@ -407,11 +403,11 @@ namespace OnXap.Modules.Adminmain
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.IdJournalData).TrimStart().Contains(idJournalData.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).Contains(idJournalData.ToString()));
                                                     break;
 
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.IdJournalData).TrimStart().StartsWith(idJournalData.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).StartsWith(idJournalData.ToString()));
                                                     break;
                                             }
                                             break;
@@ -421,11 +417,11 @@ namespace OnXap.Modules.Adminmain
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.EventCode).TrimStart().Contains(eventCode.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.JournalData.EventCode).Contains(eventCode.ToString()));
                                                     break;
 
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.JournalData.EventCode).TrimStart().StartsWith(eventCode.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.JournalData.EventCode).StartsWith(eventCode.ToString()));
                                                     break;
                                             }
                                             break;
@@ -599,8 +595,8 @@ namespace OnXap.Modules.Adminmain
                 using (var db = new JournalingDB.DataContext())
                 using (var scope = db.CreateScope())
                 {
-                    db.DataContext.ExecuteQuery("DELETE FROM Journal WHERE IdJournal=@IdJournal", new { IdJournal = result.Result.IdJournal });
-                    scope.Commit();
+                    db.ExecuteQuery("DELETE FROM Journal WHERE IdJournal=@IdJournal", new { IdJournal = result.Result.IdJournal });
+                    scope.Complete();
                 }
                 answer.FromSuccess(null);
             }

@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,10 +14,9 @@ namespace OnXap.Binding.Providers
     using Core.Modules;
     using Core.Modules.Internal;
     using Exceptions;
-    using Journaling;
     using Routing;
 
-    class CustomControllerFactory : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<Core.Db.CoreContext>, IControllerFactory
+    class CustomControllerFactory : CoreComponentBase, IComponentSingleton, IControllerFactory
     {
         internal static readonly Guid _routingModuleNotFound;
         private readonly IControllerFactory _controllerFactoryOld = null;

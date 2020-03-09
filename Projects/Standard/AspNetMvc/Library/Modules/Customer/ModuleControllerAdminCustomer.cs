@@ -1,11 +1,11 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Transactions;
 using System.Web.Mvc;
-using System.Data.Entity.SqlServer;
-using System.Net;
 
 namespace OnXap.Modules.Customer
 {
@@ -14,7 +14,7 @@ namespace OnXap.Modules.Customer
     using Journaling;
     using MessagingEmail;
 
-    public class ModuleControllerAdminCustomer : ModuleControllerAdmin<ModuleCustomer>, IUnitOfWorkAccessor<CoreContext>
+    public class ModuleControllerAdminCustomer : ModuleControllerAdmin<ModuleCustomer>
     {
         private const int JournalEventBase = 20000;
 
@@ -41,7 +41,7 @@ namespace OnXap.Modules.Customer
         [ModuleAction("users", ModuleCustomer.PERM_MANAGEUSERS)]
         public virtual ActionResult Users(UserState? state = null)
         {
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             {
                 var usersQuery = state.HasValue ?
                                 db.Users.Where(x => x.State == state.Value).OrderBy(x => x.name) :
@@ -73,7 +73,7 @@ namespace OnXap.Modules.Customer
             {
                 using (var scope = TransactionsHelper.ReadUncommited())
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new CoreContext())
                     {
                         var query = state.HasValue ?
                                         db.Users.Where(x => x.State == state.Value) :
@@ -93,11 +93,11 @@ namespace OnXap.Modules.Customer
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.IdUser).TrimStart().Contains(idUser.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.IdUser).Contains(idUser.ToString()));
                                                     break;
 
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => SqlFunctions.StringConvert((double)x.IdUser).TrimStart().StartsWith(idUser.ToString()));
+                                                    query = query.Where(x => Convert.ToString(x.IdUser).StartsWith(idUser.ToString()));
                                                     break;
                                             }
                                             break;
@@ -269,7 +269,7 @@ namespace OnXap.Modules.Customer
         [ModuleAction("users_edit", ModuleCustomer.PERM_MANAGEUSERS)]
         public virtual ActionResult UserEdit(int IdUser = 0)
         {
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             {
                 var data = IdUser != 0 ? db.Users.Where(x => x.IdUser == IdUser).FirstOrDefault() : new User();
                 if (data == null) throw new KeyNotFoundException("Неправильно указан пользователь!");
@@ -308,7 +308,7 @@ namespace OnXap.Modules.Customer
                 if (IdUser < 0) throw new Exception("Не указан пользователь!");
                 else
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new CoreContext())
                     {
                         int id = 0;
 
@@ -418,7 +418,7 @@ namespace OnXap.Modules.Customer
                                     {
                                         {
                                             var rolesMustHave = new List<int>(model.UserRoles ?? new List<int>());
-                                            db.RoleUser.Where(x => x.IdUser == data.IdUser).Delete();
+                                            db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdUser == data.IdUser));
                                             rolesMustHave.ForEach(x => db.RoleUser.Add(new RoleUser()
                                             {
                                                 IdRole = x,
@@ -530,13 +530,13 @@ namespace OnXap.Modules.Customer
                 else if (IdUser == AppCore.GetUserContextManager().GetCurrentUserContext().IdUser) result.Message = "Нельзя удалять себя самого!";
                 else
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new CoreContext())
                     {
                         var data = db.Users.Where(x => x.IdUser == IdUser).FirstOrDefault();
                         if (data == null) result.Message = "Неправильно указан пользователь!";
                         else
                         {
-                            db.DeleteEntity(data);
+                            db.Users.Remove(data);
                             if (db.SaveChanges(data.GetType()) > 0)
                             {
                                 result.Message = "Удаление прошло успешно!";
@@ -566,7 +566,7 @@ namespace OnXap.Modules.Customer
             else if (!AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser) result = "Нельзя делать это без прав суперпользователя!";
             else
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     var data = db.Users.Where(u => u.IdUser == IdUser).FirstOrDefault();
                     if (data == null) throw new Exception("Неправильно указан пользователь!");
@@ -583,7 +583,7 @@ namespace OnXap.Modules.Customer
         public virtual ActionResult RolesManage()
         {
             var model = new Model.AdminRolesManage();
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             {
                 var perms = (from p in db.RolePermission
                              group p by p.IdRole into gr
@@ -625,7 +625,7 @@ namespace OnXap.Modules.Customer
             {
                 if (model == null) throw new Exception("Из формы не были отправлены данные.");
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     Role data = null;
                     if (model.IdRole > 0)
@@ -669,7 +669,7 @@ namespace OnXap.Modules.Customer
                             {
                                 model.IdRole = data.IdRole;
 
-                                db.RolePermission.Where(x => x.IdRole == data.IdRole).Delete();
+                                db.RolePermission.RemoveRange(db.RolePermission.Where(x => x.IdRole == data.IdRole));
 
                                 if (ModelState.ContainsKeyCorrect(nameof(model.Permissions)))
                                 {
@@ -727,17 +727,17 @@ namespace OnXap.Modules.Customer
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     var data = db.Role.Where(x => x.IdRole == IdRole).FirstOrDefault();
                     if (data == null) ModelState.AddModelError(nameof(IdRole), "Роль с номером {0} не найдена", IdRole);
 
                     if (ModelState.IsValid)
                     {
-                        using (var trans = new TransactionScope())
+                        using (var scope = new TransactionScope())
                         {
-                            db.DeleteEntity(data);
-                            db.RolePermission.Where(x => x.IdRole == IdRole).Delete();
+                            db.Role.Remove(data);
+                            db.RolePermission.RemoveRange(db.RolePermission.Where(x => x.IdRole == IdRole));
 
                             if (db.SaveChanges() > 0)
                             {
@@ -746,7 +746,7 @@ namespace OnXap.Modules.Customer
 
                                 Module.RegisterEventForItem(data, EventType.Info, 0, "Роль удалена", $"Роль №{data.IdRole} '{data.NameRole}'");
 
-                                trans.Complete();
+                                scope.Complete();
                             }
                             else result.Message = "Не удалось удалить роль.";
                         }
@@ -786,8 +786,8 @@ namespace OnXap.Modules.Customer
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
-                using (var trans = db.CreateScope())
+                using (var db = new CoreContext())
+                using (var scope = db.CreateScope())
                 {
                     var hiddenRoleList = db.Role.Where(x => x.IsHidden).Select(x => x.IdRole).ToList();
                     var hiddenRoleUserQuery = from role in db.Role
@@ -796,7 +796,7 @@ namespace OnXap.Modules.Customer
                                            select roleUser;
                     var hiddenRoleUserList = hiddenRoleUserQuery.ToList();
 
-                    db.RoleUser.Delete();
+                    db.RoleUser.RemoveRange(db.RoleUser);
 
                     var saveList = hiddenRoleUserList.Select(x => new RoleUser()
                     {
@@ -822,10 +822,10 @@ namespace OnXap.Modules.Customer
                         }
                     }
 
-                    db.RoleUser.Add(saveList.ToArray());
+                    db.RoleUser.AddRange(saveList.ToArray());
                     db.SaveChanges();
 
-                    trans.Commit();
+                    scope.Complete();
                     result.Success = true;
                     result.Message = "Права сохранены";
                 }

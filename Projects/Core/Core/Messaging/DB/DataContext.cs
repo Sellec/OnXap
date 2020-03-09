@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Messaging.DB
 {
@@ -6,15 +6,15 @@ namespace OnXap.Messaging.DB
 
     class DataContext : CoreContextBase
     {
-        public IRepository<MessageQueue> MessageQueue { get; set; }
-        public IRepository<MessageQueueHistory> MessageQueueHistory { get; set; }
+        public DbSet<MessageQueue> MessageQueue { get; set; }
+        public DbSet<MessageQueueHistory> MessageQueueHistory { get; set; }
 
-        public IRepository<MessageSubscription> MessageSubscription { get; set; }
-        public IRepository<MessageSubscriptionRole> MessageSubscriptionRole { get; set; }
+        public DbSet<MessageSubscription> MessageSubscription { get; set; }
+        public DbSet<MessageSubscriptionRole> MessageSubscriptionRole { get; set; }
 
-        public IRepository<Role> Role { get; set; }
-        public IRepository<RoleUser> RoleUser { get; set; }
-        public IRepository<User> User { get; set; }
+        public DbSet<Role> Role { get; set; }
+        public DbSet<RoleUser> RoleUser { get; set; }
+        public DbSet<User> User { get; set; }
 
     }
 }

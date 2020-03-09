@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Net;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Mime;
 using System.Web;
 using System.Web.Mvc;
@@ -72,7 +72,7 @@ namespace OnXap.Modules.FileManager
             {
                 if (!IdFile.HasValue) throw new ArgumentNullException(nameof(IdFile), "Не указан номер файла.");
 
-                using (var db = Module.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     var file = db.File.
                         Where(x => x.IdFile == IdFile.Value && !x.IsRemoved && !x.IsRemoving).
@@ -111,7 +111,7 @@ namespace OnXap.Modules.FileManager
                 if (!IdFile.HasValue) filePath = "data/img/files/argumentzero.jpg"; //Не указан номер файла.
                 else
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new Db.DataContext())
                     {
                         var file = db.File.
                             Where(x => x.IdFile == IdFile.Value && !x.IsRemoved && !x.IsRemoving).
@@ -205,7 +205,7 @@ namespace OnXap.Modules.FileManager
                 if (!IdFile.HasValue) filePath = "data/img/files/argumentzero.jpg"; //Не указан номер файла.
                 else
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new Db.DataContext())
                     {
                         var file = db.File.
                             Where(x => x.IdFile == IdFile.Value && !x.IsRemoved && !x.IsRemoving).

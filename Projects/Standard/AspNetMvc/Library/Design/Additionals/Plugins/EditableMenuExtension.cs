@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
-
-using OnUtils.Data;
-using OnXap.Modules.EditableMenu.DB;
+﻿using OnUtils.Data;
 using OnXap.Core.Modules;
 using OnXap.Design.Additionals.Plugins.Model;
+using OnXap.Modules.EditableMenu.Db;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace System.Web.Mvc
 {
@@ -23,9 +22,9 @@ namespace System.Web.Mvc
             var data = _dbCache.GetValueOrDefault(IdMenu);
 
             if (data == null)
-                using (var db = new UnitOfWork<Menu>())
+                using (var db = new DataContext())
                 {
-                    data = db.Repo1.Where(x => x.id == IdMenu).FirstOrDefault();
+                    data = db.Menu.Where(x => x.id == IdMenu).FirstOrDefault();
                     if (data != null) _dbCache.SetWithExpiration(IdMenu, data, TimeSpan.FromMinutes(5));
                 }
 

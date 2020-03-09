@@ -27,7 +27,7 @@ namespace OnXap.Core.Db
                     WithColumn((User x) => x.phone).AsString(100).Nullable().
                     WithColumn((User x) => x.password).AsString(64).Nullable().
                     WithColumn((User x) => x.salt).AsString(5).Nullable().
-                    WithColumn((User x) => x.name).AsString(200).Nullable().
+                    WithColumn((User x) => x.name).AsString(200).NotNullable().
                     WithColumn((User x) => x.IdPhoto).AsInt32().Nullable().
                     WithColumn((User x) => x.Superuser).AsByte().NotNullable().WithDefaultValue(0).
                     WithColumn((User x) => x.State).AsInt16().NotNullable().WithDefaultValue(0).
@@ -50,7 +50,7 @@ namespace OnXap.Core.Db
                 AddColumnIfNotExists(Schema, (User x) => x.phone, x => x.AsString(100).Nullable());
                 AddColumnIfNotExists(Schema, (User x) => x.password, x => x.AsString(64).Nullable());
                 AddColumnIfNotExists(Schema, (User x) => x.salt, x => x.AsString(5).Nullable());
-                AddColumnIfNotExists(Schema, (User x) => x.name, x => x.AsString(200).Nullable());
+                AddColumnIfNotExists(Schema, (User x) => x.name, x => x.AsString(200).NotNullable());
                 AddColumnIfNotExists(Schema, (User x) => x.IdPhoto, x => x.AsInt32().Nullable());
                 AddColumnIfNotExists(Schema, (User x) => x.Superuser, x => x.AsByte().NotNullable().WithDefaultValue(0));
                 AddColumnIfNotExists(Schema, (User x) => x.State, x => x.AsInt16().NotNullable().WithDefaultValue(0));

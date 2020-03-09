@@ -18,6 +18,7 @@ namespace OnXap.Core.Db
         [Display(Name = "Телефон"), DataType(DataType.PhoneNumber), PhoneFormat]
         public string phone { get; set; }
 
+        [DefaultValue("")]
         [StringLength(100)]
         [Display(Name = "Имя"), Required]
         public string name { get; set; }

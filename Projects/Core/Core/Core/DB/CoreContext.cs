@@ -1,22 +1,20 @@
+using Microsoft.EntityFrameworkCore;
 using OnUtils.Data;
 using OnUtils.Data.UnitOfWork;
 
 namespace OnXap.Core.Db
 {
-    using Languages.DB;
+    using Data;
 
     /// <summary>
     /// Ѕазовый контекст веб-приложени€, корректно определ€ющий строку подключени€.
     /// </summary>
-    public class CoreContextBase : UnitOfWorkBase
+    public class CoreContextBase : DbContextBase
     {
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnModelCreating(IModelAccessor modelAccessor)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            modelAccessor.ConnectionString = ConnectionString;
-            OnModelCreatingCustom(modelAccessor);
-            modelAccessor.ConnectionString = ConnectionString;
+            var connectionString = DataAccessManager.GetConnectionStringResolver().ResolveConnectionStringForDataContext(null);
+            optionsBuilder.UseSqlServer(connectionString);
         }
 
         /// <summary>
@@ -36,14 +34,14 @@ namespace OnXap.Core.Db
     public class CoreContext : CoreContextBase
     {
 #pragma warning disable CS1591 // todo внести комментарии.
-        public IRepository<ModuleConfig> Module { get; }
+        public DbSet<ModuleConfig> Module { get; set; }
 
-        public IRepository<ItemType> ItemType { get; }
+        public DbSet<ItemType> ItemType { get; set; }
 
-        public IRepository<User> Users { get; }
+        public DbSet<User> Users { get; set; }
 
-        public IRepository<Role> Role { get; }
-        public IRepository<RoleUser> RoleUser { get; }
-        public IRepository<RolePermission> RolePermission { get; }
+        public DbSet<Role> Role { get; set; }
+        public DbSet<RoleUser> RoleUser { get; set; }
+        public DbSet<RolePermission> RolePermission { get; set; }
     }
 }

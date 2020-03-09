@@ -1,21 +1,19 @@
-﻿using OnUtils.Architecture.ObjectPool;
+﻿using OnUtils.Architecture.AppCore;
+using OnUtils.Architecture.ObjectPool;
 using OnUtils.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
-using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
-using OnUtils.Items;
 
 #pragma warning disable CS0618
 
 namespace OnXap.Messaging
 {
-    using Core;
     using Components;
-    using Messages;
+    using Core;
     using Core.Items;
+    using Messages;
     using ServiceMonitor;
 
     /// <summary>
@@ -26,7 +24,6 @@ namespace OnXap.Messaging
         CoreComponentBase,
         IMessageService,
         IMessageServiceInternal,
-        IUnitOfWorkAccessor<DB.DataContext>,
         IAutoStart
         where TMessage : MessageBase, new()
     {
@@ -147,7 +144,7 @@ namespace OnXap.Messaging
                 var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
                 resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     var mess = new DB.MessageQueue()
                     {
@@ -190,7 +187,7 @@ namespace OnXap.Messaging
                 var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
                 resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     var mess = new DB.MessageQueue()
                     {
@@ -318,9 +315,9 @@ namespace OnXap.Messaging
         [ApiReversible]
         public virtual int GetOutcomingQueueLength()
         {
-            using (var db = new UnitOfWork<DB.MessageQueue>())
+            using (var db = new DB.DataContext())
             {
-                return db.Repo1.Where(x => x.IdMessageType == IdMessageType && (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat)).Count();
+                return db.MessageQueue.Where(x => x.IdMessageType == IdMessageType && (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat)).Count();
             }
         }
         #endregion
@@ -341,7 +338,7 @@ namespace OnXap.Messaging
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                 {
                     var messages = GetMessages(db, false);
@@ -441,7 +438,7 @@ namespace OnXap.Messaging
                     }
 
                     db.SaveChanges();
-                    scope.Commit();
+                    scope.Complete();
                 }
             }
             catch (Exception ex)
@@ -466,7 +463,7 @@ namespace OnXap.Messaging
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                 {
                     var components = GetComponents().
@@ -579,7 +576,7 @@ namespace OnXap.Messaging
                                     }
                                     else
                                     {
-                                        db.MessageQueue.Delete(queueMessage);
+                                        db.MessageQueue.Remove(queueMessage);
                                     }
                                     db.SaveChanges();
                                 }
@@ -597,7 +594,7 @@ namespace OnXap.Messaging
                     }
 
                     db.SaveChanges();
-                    scope.Commit();
+                    scope.Complete();
                 }
 
                 if (messagesReceived > 0)
@@ -636,7 +633,7 @@ namespace OnXap.Messaging
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var messages = GetMessages(db, true);

@@ -1,7 +1,6 @@
-﻿using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils.Architecture.AppCore;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace OnXap.Modules.ItemsCustomize
 
 #pragma warning disable CS1591 // todo внести комментарии.
     [ModuleCore("Настройка объектов")]
-    public class ModuleItemsCustomize : ModuleCore<ModuleItemsCustomize>, IUnitOfWorkAccessor<Context>, ICritical
+    public class ModuleItemsCustomize : ModuleCore<ModuleItemsCustomize>, ICritical
     {
         public class CacheCollection
         {
@@ -26,7 +25,7 @@ namespace OnXap.Modules.ItemsCustomize
 
             internal CacheCollection(ModuleItemsCustomize module)
             {
-                using (var db = module.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     _module = module;
                     _schemes = db.CustomFieldsSchemes.Where(x => x.IdScheme > 0).ToList();
@@ -124,7 +123,7 @@ namespace OnXap.Modules.ItemsCustomize
                 {
                     _cache = null;
 
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Context())
                     {
                         var q_items = (from ip in db.ItemParent
                                        group ip by new { ip.IdItem, ip.IdItemType } into grp
@@ -403,7 +402,7 @@ namespace OnXap.Modules.ItemsCustomize
 
                 if (collection.Count > 0)
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Context())
                     {
                         var _ids = ids.ToArray();
                         var values = (from p in db.CustomFieldsDatas.AsNoTracking()
@@ -462,13 +461,13 @@ namespace OnXap.Modules.ItemsCustomize
                 var IdItemType = ItemTypeAttribute.GetValueFromObject(item);
 
                 //using (var scope = DB.CreateScope())
-                using (var db = new UnitOfWork<CustomFieldsData, CustomFieldsField>())
+                using (var db = new Context())
                 using (var scope = db.CreateScope())
                 {
-                    (from d in db.Repo1
-                     join f in db.Repo2 on d.IdField equals f.IdField
+                    db.CustomFieldsDatas.RemoveRange(from d in db.CustomFieldsDatas
+                     join f in db.CustomFieldsFields on d.IdField equals f.IdField
                      where d.IdItem == item.ID && d.IdItemType == IdItemType
-                     select d).Delete();
+                     select d);
 
                     foreach (var field in item._fields.Values)
                     {
@@ -478,7 +477,7 @@ namespace OnXap.Modules.ItemsCustomize
                                 int IdFieldValue = 0;
                                 if (!int.TryParse(value.ToString(), out IdFieldValue)) IdFieldValue = 0;
 
-                                db.Repo1.Add(new CustomFieldsData()
+                                db.CustomFieldsDatas.Add(new CustomFieldsData()
                                 {
                                     IdField = field.IdField,
                                     IdFieldValue = field.IdValueType == Field.FieldValueType.KeyFromSource ? IdFieldValue : 0,
@@ -492,7 +491,7 @@ namespace OnXap.Modules.ItemsCustomize
 
                     db.SaveChanges<CustomFieldsData>();
 
-                    scope.Commit();
+                    scope.Complete();
                 }
             }
         }
@@ -507,7 +506,7 @@ namespace OnXap.Modules.ItemsCustomize
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     var q_fields = db.CustomFieldsFields.Where(x => x.alias == alias && x.Block == 0).Include(x => x.data);
                     return q_fields.FirstOrDefault();
@@ -528,7 +527,7 @@ namespace OnXap.Modules.ItemsCustomize
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     var q_fields = db.CustomFieldsFields.Where(x => x.IdField == idField && x.Block == 0).Include(x => x.data);
                     return q_fields.FirstOrDefault();

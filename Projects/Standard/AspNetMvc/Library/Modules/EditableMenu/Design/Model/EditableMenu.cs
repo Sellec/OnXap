@@ -6,7 +6,7 @@ namespace OnXap.Modules.EditableMenu.Design.Model
 
     public class EditableMenu
     {
-        public DB.Menu Menu;
+        public Db.Menu Menu;
         public List<IModuleCore> Modules;
     }
 }

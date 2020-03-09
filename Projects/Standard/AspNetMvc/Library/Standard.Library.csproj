@@ -108,7 +108,7 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>0.2.4</Version>
+      <Version>1.3.0</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
       <Version>0.0.8</Version>
@@ -139,6 +139,7 @@
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
+    <Compile Include="Modules\EditableMenu\Db\DataContext.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File20200306.cs" />
     <Compile Include="Modules\FileManager\DbSchema\FileRemoveQueue.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File.cs" />
@@ -204,7 +205,7 @@
     <Compile Include="Modules\Default\Startup.cs" />
     <Compile Include="Modules\Developing\ModuleDevelopingController.cs" />
     <Compile Include="Modules\Developing\ModuleDeveloping.cs" />
-    <Compile Include="Modules\EditableMenu\DB\Menu.cs" />
+    <Compile Include="Modules\EditableMenu\Db\Menu.cs" />
     <Compile Include="Modules\EditableMenu\Module.cs" />
     <Compile Include="Modules\EditableMenu\ModuleController.cs" />
     <Compile Include="Modules\EditableMenu\Startup.cs" />

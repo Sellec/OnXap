@@ -1,5 +1,4 @@
 ﻿using OnUtils;
-using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +17,7 @@ namespace OnXap.Users
     /// Каждый поток приложения имеет ассоциированный контекст пользователя, от имени которого могут выполняться запросы и выполняться действия. 
     /// Более подробно см. <see cref="GetCurrentUserContext"/> / <see cref="SetCurrentUserContext(IUserContext)"/> / <see cref="ClearCurrentUserContext"/>.
     /// </summary>
-    public class UserContextManagerBase : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<CoreContext>
+    public class UserContextManagerBase : CoreComponentBase, IComponentSingleton
     {
         /// <summary>
         /// Код ошибки авторизации пользователя.
@@ -60,29 +59,37 @@ namespace OnXap.Users
                 User systemUser2 = null;
 
                 using (var db = new CoreContext())
-                using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                 {
-                    var userNew = new User() { IdUser = 1, DateChange = DateTime.Now.Timestamp(), IdUserChange = 1, Superuser = 1, name = "System", password = DateTime.Now.Ticks.ToString().GenerateGuid().ToString() };
+                    var systemUserKey = "System";
+                    var user = db.Users.Where(x => x.UniqueKey == systemUserKey).FirstOrDefault();
+                    if (user == null)
+                    {
+                        user = new User()
+                        {
+                            DateChange = DateTime.Now.Timestamp(),
+                            IdUserChange = 1,
+                            Superuser = 1,
+                            name = "System",
+                            password = DateTime.Now.Ticks.ToString().GenerateGuid().ToString(),
+                            UniqueKey = systemUserKey
+                        };
+                        db.Users.Add(user);
+                    }
+                    else
+                    {
+                        user.Superuser = 1;
+                        user.name = "System";
+                        db.SaveChanges();
+                    }
 
-                    db.Users.InsertOrDuplicateUpdate(
-                        userNew.ToEnumerable(),
-                        new UpsertField(nameof(User.DateChange)),
-                        new UpsertField(nameof(User.IdUserChange)),
-                        new UpsertField(nameof(User.Superuser)),
-                        new UpsertField(nameof(User.name)),
-                        new UpsertField(nameof(User.password))
-                    );
-
-                    scope.Commit();
-
-                    systemUser2 = userNew;
+                    systemUser2 = user;
                 }
 
                 systemUser = systemUser2;
             }
             catch (Exception ex)
             {
-                this.RegisterEvent(Journaling.EventType.CriticalError, "Не удалось получить системного пользователя", null, ex);
+                this.RegisterEvent(EventType.CriticalError, "Не удалось получить системного пользователя", null, ex);
                 throw new HandledException("Ошибка запуска менеджера контекстов пользователей. Не удалось получить системного пользователя.", ex);
             }
 
@@ -158,6 +165,7 @@ namespace OnXap.Users
         public UserContextCreateResult CreateUserContext(int idUser, out IUserContext userContext)
         {
             userContext = null;
+            if (idUser == GetSystemUserContext().IdUser) return UserContextCreateResult.NotFound;
 
             using (var db = new CoreContext())
             using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
@@ -181,13 +189,13 @@ namespace OnXap.Users
                 }
                 catch (Exception ex)
                 {
-                    this.RegisterEvent(Journaling.EventType.CriticalError, "Неизвестная ошибка во время создания контекста пользователя.", $"IdUser={idUser}'.", null, ex);
+                    this.RegisterEvent(EventType.CriticalError, "Неизвестная ошибка во время создания контекста пользователя.", $"IdUser={idUser}'.", null, ex);
                     userContext = null;
                     return UserContextCreateResult.ErrorUnknown;
                 }
                 finally
                 {
-                    scope.Commit();
+                    scope.Complete();
                 }
             }
         }
@@ -218,7 +226,7 @@ namespace OnXap.Users
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var idRoleUser = AppCore.AppConfig.RoleUser;
@@ -251,7 +259,7 @@ namespace OnXap.Users
             }
             catch (Exception ex)
             {
-                this.RegisterEvent(Journaling.EventType.Error, "Ошибка при получении разрешений для пользователя.", $"IdUser={idUser}.", null, ex);
+                this.RegisterEvent(EventType.Error, "Ошибка при получении разрешений для пользователя.", $"IdUser={idUser}.", null, ex);
                 return new ExecutionPermissionsResult(false, "Ошибка при получении разрешений для пользователя.");
             }
         }

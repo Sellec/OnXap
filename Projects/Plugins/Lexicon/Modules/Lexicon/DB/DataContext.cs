@@ -1,9 +1,9 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Modules.Lexicon.Db
 {
     class DataContext : Core.Db.CoreContext
     {
-        public IRepository<WordCase> WordCase { get; set; }
+        public DbSet<WordCase> WordCase { get; set; }
     }
 }

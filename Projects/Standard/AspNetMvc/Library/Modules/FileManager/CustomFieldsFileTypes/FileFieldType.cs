@@ -22,15 +22,6 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
             }
         }
 
-        [ThreadStatic]
-        private static UnitOfWork<File> DB;
-
-        private static UnitOfWork<File> GetDB()
-        {
-            if (DB == null) DB = new UnitOfWork<File>();
-            return DB;
-        }
-
         public override ValuesValidationResult Validate(IEnumerable<object> values, IField field)
         {
             if (field.IsValueRequired && (values == null || values.Count() == 0)) return CreateResultForEmptyValue(field);

@@ -1,4 +1,5 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace OnXap.Modules.ItemsCustomize
     /// <summary>
     /// Админский класс расширения пользовательских полей. 
     /// </summary>
-    class ModuleController : ModuleControllerAdmin<ModuleItemsCustomize2>, IUnitOfWorkAccessor<Context>
+    class ModuleController : ModuleControllerAdmin<ModuleItemsCustomize2>
     {
         [ModuleAction("fields")]
         public ActionResult FieldsList(int? idModule = null)
@@ -32,7 +33,7 @@ namespace OnXap.Modules.ItemsCustomize
 
             var id = idModule.Value;
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new Context())
             {
                 var fields = (from p in db.CustomFieldsFields
                               where p.Block == 0 && p.IdModule == id
@@ -60,7 +61,7 @@ namespace OnXap.Modules.ItemsCustomize
 
             var schemeItem = new SchemeItem(idSchemeItem, idSchemeItemType);
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new Context())
             {
                 var fields = db.CustomFieldsFields.Where(x => x.IdModule == idModule.Value && x.Block == 0).ToDictionary(x => x.IdField, x => x);
 
@@ -119,10 +120,10 @@ namespace OnXap.Modules.ItemsCustomize
 
                 var schemeItem = new SchemeItem(idSchemeItem, idSchemeItemType);
 
-                using (var db = Module.CreateUnitOfWork())
+                using (var db = new Context())
                 using (var scope = db.CreateScope())
                 {
-                    db.CustomFieldsSchemeDatas.Where(x => x.IdModule == idModule.Value && x.IdSchemeItem == schemeItem.IdItem && x.IdItemType == schemeItem.IdItemType).Delete();
+                    db.CustomFieldsSchemeDatas.RemoveRange(db.CustomFieldsSchemeDatas.Where(x => x.IdModule == idModule.Value && x.IdSchemeItem == schemeItem.IdItem && x.IdItemType == schemeItem.IdItemType));
 
                     int k = 0;
                     var modelPrepared = model != null ? model.Where(x => int.TryParse(x.Key, out k)).ToDictionary(x => uint.Parse(x.Key), x => new List<int>(x.Value)) : null;
@@ -154,7 +155,7 @@ namespace OnXap.Modules.ItemsCustomize
                         db.SaveChanges();
                     }
 
-                    scope.Commit();
+                    scope.Complete();
 
                     result.Message = "Сохранение расположения полей прошло успешно.";
                     result.Success = true;
@@ -184,7 +185,7 @@ namespace OnXap.Modules.ItemsCustomize
                 else if (!schemeName.isOneStringTextOnly()) result.Message = "Некорректно указано название схемы!";
                 else
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Context())
                     {
                         var data = new CustomFieldsScheme()
                         {
@@ -219,20 +220,20 @@ namespace OnXap.Modules.ItemsCustomize
                 if (IdScheme == 0) result.Message = "Схема \"По-умолчанию\" не удаляется.";
                 else
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Context())
                     using (var scope = db.CreateScope())
                     {
                         var data = db.CustomFieldsSchemes.Where(x => x.IdScheme == IdScheme).FirstOrDefault();
                         if (data == null) throw new Exception(string.Format("Схема с номером '{0}' не найдена.", IdScheme));
 
-                        db.CustomFieldsSchemeDatas.Where(x => x.IdScheme == IdScheme).Delete();
-                        db.CustomFieldsSchemes.Where(x => x.IdScheme == IdScheme).Delete();
+                        db.CustomFieldsSchemeDatas.RemoveRange(db.CustomFieldsSchemeDatas.Where(x => x.IdScheme == IdScheme));
+                        db.CustomFieldsSchemes.RemoveRange(db.CustomFieldsSchemes.Where(x => x.IdScheme == IdScheme));
 
                         if (db.SaveChanges() > 0)
                         {
                             result.Message = "Схема удалена.";
                             result.Success = true;
-                            scope.Commit();
+                            scope.Complete();
                             AppCore.Get<ModuleItemsCustomize>().UpdateCache();
                         }
                         else result.Message = "По неизвестной причине схему не получилось удалить.";
@@ -255,7 +256,7 @@ namespace OnXap.Modules.ItemsCustomize
             CustomFieldsField data = null;
             if (idField > 0)
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     data = db.CustomFieldsFields.Where(x => x.IdField == idField).Include(x => x.data).FirstOrDefault();
                     if (data == null) throw new Exception("Такое поле не найдено в базе данных!");
@@ -282,7 +283,7 @@ namespace OnXap.Modules.ItemsCustomize
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     if (model.IdModule <= 0) throw new Exception("Не указан идентификатор модуля.");
 
@@ -319,9 +320,9 @@ namespace OnXap.Modules.ItemsCustomize
 
                     using (var scope = db.CreateScope())
                     {
-                        var entry = db.GetState(data);
-                        if (entry == ItemState.Detached) throw new Exception("Невозможно найти поле для сохранения.");
-                        else if (entry.In(ItemState.Modified, ItemState.Added))
+                        var entryState = db.Entry(data).State;
+                        if (entryState ==EntityState.Detached) throw new Exception("Невозможно найти поле для сохранения.");
+                        else if (entryState.In(EntityState.Modified, EntityState.Added))
                         {
                             data.DateChange = DateTime.Now.Timestamp();
                             data.Block = 0;
@@ -331,6 +332,9 @@ namespace OnXap.Modules.ItemsCustomize
 
                         if (Request.Form.HasKey("values"))
                         {
+                            //test upsert
+                            System.Diagnostics.Debugger.Break();
+
                             var t = DateTime.Now.Timestamp();
                             var vals = Request.Form.TryGetValue<CustomFieldsValue[]>("values");
 
@@ -343,7 +347,7 @@ namespace OnXap.Modules.ItemsCustomize
                                     d.DateChange = t;
                                 }
 
-                                db.CustomFieldsValues.AddOrUpdate(vals);
+                                //todo db.CustomFieldsValues.AddOrUpdate(vals);
                             }
                             else vals = new CustomFieldsValue[0];
 
@@ -390,7 +394,7 @@ namespace OnXap.Modules.ItemsCustomize
                         result.Success = true;
                         result.Data = data;
 
-                        scope.Commit();
+                        scope.Complete();
                     }
 
                     result.Success = true;
@@ -409,23 +413,23 @@ namespace OnXap.Modules.ItemsCustomize
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Context())
                 {
                     var data = db.CustomFieldsFields.Where(x => x.IdField == idField).Include(x => x.data).FirstOrDefault();
                     if (data == null) throw new Exception("Такое поле не найдено в базе данных!");
 
                     using (var scope = db.CreateScope())
                     {
-                        db.DeleteEntity(data);
+                        db.CustomFieldsFields.Remove(data);
                         if (db.SaveChanges<CustomFieldsField>() > 0)
                         {
-                            db.CustomFieldsValues.Where(x => x.IdField == data.IdField).Delete();
-                            db.CustomFieldsDatas.Where(x => x.IdField == data.IdField).Delete();
+                            db.CustomFieldsValues.RemoveRange(db.CustomFieldsValues.Where(x => x.IdField == data.IdField));
+                            db.CustomFieldsDatas.RemoveRange(db.CustomFieldsDatas.Where(x => x.IdField == data.IdField));
 
                             result.Message = "Удаление поля прошло успешно.";
                             result.Success = true;
 
-                            scope.Commit();
+                            scope.Complete();
                         }
                         else throw new Exception("Не получилось удалить поле.");
                     }

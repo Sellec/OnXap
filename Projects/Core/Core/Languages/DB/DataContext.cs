@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Languages.DB
 {
     public class DataContext : Core.Db.CoreContextBase
     {
-        public IRepository<Language> Language { get; set; }
+        public DbSet<Language> Language { get; set; }
     }
 }

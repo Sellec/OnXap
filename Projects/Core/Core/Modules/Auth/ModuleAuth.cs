@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 
@@ -12,7 +12,7 @@ namespace OnXap.Modules.Auth
     /// Модуль авторизации.
     /// </summary>
     [ModuleCore("Авторизация", DefaultUrlName = "Auth")]
-    public abstract class ModuleAuth : ModuleCore<ModuleAuth>, IUnitOfWorkAccessor<CoreContext>
+    public abstract class ModuleAuth : ModuleCore<ModuleAuth>
     {
         /// <summary>
         /// Указывает, требуется ли на сайте суперпользователь. Если на данный момент активного суперпользователя нет (нет учетки с пометкой суперпользователя или все суперпользователи заблокированы), то 
@@ -23,7 +23,7 @@ namespace OnXap.Modules.Auth
         {
             var getSystemUser = AppCore.GetUserContextManager().GetSystemUserContext();
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             {
                 var query = db.Users.AsNoTracking().Where(x => x.Superuser != 0 && x.Block == 0 && x.State == UserState.Active);
                 if (getSystemUser != null) query = query.Where(x => x.IdUser != getSystemUser.IdUser);
@@ -39,7 +39,7 @@ namespace OnXap.Modules.Auth
         {
             var getSystemUser = AppCore.GetUserContextManager().GetSystemUserContext();
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             {
                 var query = db.Users.AsNoTracking().AsQueryable();
                 if (getSystemUser != null) query = query.Where(x => x.IdUser != getSystemUser.IdUser);

@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using OnXap.Messaging;
+﻿using OnXap.Messaging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,9 +8,9 @@ using System.Transactions;
 namespace OnXap.Users
 {
     using Core;
-    using CoreDB = Core.Db;
-    using Journaling;
     using Core.Items;
+    using Journaling;
+    using CoreDB = Core.Db;
 
     /// <summary>
     /// Менеджер, управляющий контекстами пользователей (см. <see cref="IUserContext"/>).
@@ -30,7 +29,7 @@ namespace OnXap.Users
         /// <param name="userContext">Содержит контекст в случае успеха.</param>
         /// <returns>Возвращает результат создания контекста.</returns>
         [ApiIrreversible]
-        public eAuthResult CreateUserContext(int idUser, out IUserContext userContext)
+        public new eAuthResult CreateUserContext(int idUser, out IUserContext userContext)
         {
             return CreateUserContext(idUser, null, null, out userContext, out var resultReason);
         }
@@ -92,7 +91,7 @@ namespace OnXap.Users
 
                     if (id > 0)
                     {
-                        db.DataContext.ExecuteQuery(
+                        db.ExecuteQuery(
                             $"UPDATE users SET AuthorizationAttempts = (AuthorizationAttempts + 1){(authorizationAttemptsExceeded ? ", BlockedUntil=@BlockedUntil, BlockedReason=@BlockedReason" : "")} WHERE id=@IdUser",
                             new
                             {
@@ -161,7 +160,7 @@ namespace OnXap.Users
                 }
                 finally
                 {
-                    scope.Commit();
+                    scope.Complete();
                 }
             }
         }
@@ -200,11 +199,8 @@ namespace OnXap.Users
                             return new ExecutionAuthResult(eAuthResult.AuthMethodNotAllowed, "Авторизация возможна только по номеру телефона.");
 
                         case eUserAuthorizeAllowed.EmailAndPhone:
-                            query = (from p in db.Users where string.Compare(p.email, login, true) == 0 select p).ToList();
-                            break;
-
                         case eUserAuthorizeAllowed.OnlyEmail:
-                            query = (from p in db.Users where string.Compare(p.email, login, true) == 0 select p).ToList();
+                            query = (from p in db.Users where p.email.ToLower() == login.ToLower() select p).ToList();
                             break;
                     }
                 }
@@ -224,11 +220,8 @@ namespace OnXap.Users
                                 return new ExecutionAuthResult(eAuthResult.AuthMethodNotAllowed, "Авторизация возможна только через электронную почту.");
 
                             case eUserAuthorizeAllowed.EmailAndPhone:
-                                query = (from p in db.Users where string.Compare(p.phone, phone.ParsedPhoneNumber, true) == 0 select p).ToList();
-                                break;
-
                             case eUserAuthorizeAllowed.OnlyPhone:
-                                query = (from p in db.Users where string.Compare(p.phone, phone.ParsedPhoneNumber, true) == 0 select p).ToList();
+                                query = (from p in db.Users where p.phone.ToLower() == phone.ParsedPhoneNumber.ToLower() select p).ToList();
                                 break;
                         }
                     }

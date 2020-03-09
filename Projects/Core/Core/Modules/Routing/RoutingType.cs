@@ -1,4 +1,4 @@
-namespace OnXap.Modules.Routing.DB
+namespace OnXap.Modules.Routing.Db
 {
     /// <summary>
     /// Типы маршрутов

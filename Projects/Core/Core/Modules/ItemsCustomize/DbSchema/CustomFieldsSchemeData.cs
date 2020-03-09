@@ -1,6 +1,4 @@
-﻿using FluentMigrator.SqlServer;
-
-namespace OnXap.Modules.ItemsCustomize.DbSchema
+﻿namespace OnXap.Modules.ItemsCustomize.DbSchema
 {
     using Core.DbSchema;
 
@@ -13,6 +11,7 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
         public override void Up()
         {
             var isTableExists = Schema.Table<DB.CustomFieldsSchemeData>().Exists();
+            var tableName = GetTableName<DB.CustomFieldsSchemeData>();
 
             if (!isTableExists)
             {
@@ -34,14 +33,15 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
                 AddColumnIfNotExists(Schema, (DB.CustomFieldsSchemeData x) => x.Order, x => x.AsInt32().NotNullable());
             }
 
-            if (!Schema.Table<DB.CustomFieldsSchemeData>().Exists() || !Schema.Table<DB.CustomFieldsSchemeData>().Index("PK_CustomFieldsSchemeData").Exists())
-                Create.PrimaryKey("PK_CustomFieldsSchemeData").OnTable(GetTableName<DB.CustomFieldsSchemeData>()).Columns(
-                    GetColumnName((DB.CustomFieldsSchemeData x) => x.IdModule),
-                    GetColumnName((DB.CustomFieldsSchemeData x) => x.IdItemType),
-                    GetColumnName((DB.CustomFieldsSchemeData x) => x.IdScheme),
-                    GetColumnName((DB.CustomFieldsSchemeData x) => x.IdSchemeItem),
-                    GetColumnName((DB.CustomFieldsSchemeData x) => x.IdField)
-                );
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsSchemeData>().Index($"{tableName}_PK_CustomFieldsSchemeData").Exists())
+                if (!Schema.Table<DB.CustomFieldsSchemeData>().Index($"PK_CustomFieldsSchemeData").Exists())
+                    Create.PrimaryKey($"{tableName}_PK_CustomFieldsSchemeData").OnTable(GetTableName<DB.CustomFieldsSchemeData>()).Columns(
+                        GetColumnName((DB.CustomFieldsSchemeData x) => x.IdModule),
+                        GetColumnName((DB.CustomFieldsSchemeData x) => x.IdItemType),
+                        GetColumnName((DB.CustomFieldsSchemeData x) => x.IdScheme),
+                        GetColumnName((DB.CustomFieldsSchemeData x) => x.IdSchemeItem),
+                        GetColumnName((DB.CustomFieldsSchemeData x) => x.IdField)
+                    );
         }
     }
 }

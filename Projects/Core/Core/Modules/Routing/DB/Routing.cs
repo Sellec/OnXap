@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 #pragma warning disable CS1591 // todo внести комментарии.
-namespace OnXap.Modules.Routing.DB
+namespace OnXap.Modules.Routing.Db
 {
     [Table("UrlTranslation")]
     public class Routing

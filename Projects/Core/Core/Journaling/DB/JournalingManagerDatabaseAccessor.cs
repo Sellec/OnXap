@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,8 +12,7 @@ namespace OnXap.Journaling.DB
     /// </summary>
     public class JournalingManagerDatabaseAccessor :
         CoreComponentBase,
-        IComponentSingleton,
-        IUnitOfWorkAccessor<DataContext>
+        IComponentSingleton
     {
         #region CoreComponentBase
         /// <summary>
