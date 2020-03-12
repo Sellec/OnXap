@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +70,7 @@ namespace OnXap.Modules.Customer
 
             try
             {
-                using (var scope = TransactionsHelper.ReadUncommited())
+                using (var scope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
                     using (var db = new CoreContext())
                     {
@@ -585,11 +584,15 @@ namespace OnXap.Modules.Customer
             var model = new Model.AdminRolesManage();
             using (var db = new CoreContext())
             {
-                var perms = (from p in db.RolePermission
-                             group p by p.IdRole into gr
-                             select new { gr.Key, gr })
-                            .ToDictionary(x => x.Key,
-                                          x => x.gr.Select(p => string.Format("{0};{1}", p.IdModule, p.Permission)).ToList());
+                var permsQuery = (from p in db.RolePermission
+                                  select new { p.IdRole, p.IdModule, p.Permission }
+                                  ).Distinct();
+
+                var perms = permsQuery.
+                             ToList().
+                             GroupBy(x => x.IdRole).
+                             ToDictionary(x => x.Key,
+                                          x => x.Select(p => string.Format("{0};{1}", p.IdModule, p.Permission)).ToList());
 
 
                 model.Roles = db.Role
@@ -765,15 +768,14 @@ namespace OnXap.Modules.Customer
             using (var db = new CoreContext())
             {
                 model.Roles = db.Role.OrderBy(x => x.NameRole).ToList();
+                model.Users = db.Users.ToList().OrderBy(x => x.ToString()).ToList();
 
-                var q = (from u in db.Users
-                         join r in db.RoleUser on u.IdUser equals r.IdUser into r_j
-                         from r in r_j.DefaultIfEmpty()
-                         group new { u, r } by u.IdUser into gr
-                         select new { User = gr.FirstOrDefault().u, Roles = gr.Where(x => x.r != null).Select(x => x.r.IdRole).ToList() }).ToList();
+                var queryRoleUsers = (from user in db.Users
+                         join roleUser in db.RoleUser on user.IdUser equals roleUser.IdUser
+                         join role in db.Role on roleUser.IdRole equals role.IdRole
+                         select new { roleUser.IdRole, roleUser.IdUser }).Distinct();
 
-                model.Users = q.Select(x => x.User).OrderBy(x => x.ToString()).ToList();
-                model.RolesUser = q.ToDictionary(x => x.User.IdUser, x => x.Roles);
+                model.RolesUser = queryRoleUsers.ToList().GroupBy(x => x.IdUser, x => x.IdRole).ToDictionary(x => x.Key, x => x.ToList());
 
             }
             return View("admin/admin_customer_rolesDelegate.cshtml", model);

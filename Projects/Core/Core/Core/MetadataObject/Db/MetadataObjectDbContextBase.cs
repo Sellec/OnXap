@@ -28,6 +28,10 @@ namespace OnXap.Core.MetadataObject.Db
     /// Базовый контекст приложения для работы с объектами метаданных.
     /// Для корректной работы с метаданными все контексты, наследующие данный тип, должны создаваться через ядро.
     /// </summary>
+    /// <remarks>
+    /// Для контекстов-наследников необязательна регистрация через привязку типов, если контекст-наследник является неабстрактным и имеет беспараметрический конструктор.
+    /// Такие типы обрабатываются в <see cref="MetadataObjectDbContextResolver"/>.
+    /// </remarks>
     public abstract class MetadataObjectDbContextBase : CoreContextBase, IComponent, IComponentStartable, IComponentTransient
     {
         class InternalCoreComponent : CoreComponentBase

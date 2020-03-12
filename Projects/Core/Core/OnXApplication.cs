@@ -40,6 +40,7 @@ namespace OnXap
             try
             {
                 LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
+                LibraryEnumeratorFactory.GlobalAssemblyFilter = (name) => !name.ToLower().Contains("sni.dll");
                 ApplicationWorkingFolder = physicalApplicationPath;
 
                 ConnectionStringFactory = applicationConnectionStringFactory;

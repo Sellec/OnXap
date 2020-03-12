@@ -105,6 +105,7 @@ namespace OnXap.Users
 
                 using (var db = new CoreContext())
                 {
+                    //test group
                     var query = from roleJoin in db.RoleUser
                                 join role in db.Role on roleJoin.IdRole equals role.IdRole
                                 where userIdList.Contains(roleJoin.IdUser)

@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 #pragma warning disable CS1591
 namespace OnXap.Journaling.DB

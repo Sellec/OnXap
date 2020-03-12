@@ -1,6 +1,4 @@
-﻿using OnUtils.Data;
-
-namespace OnXap.Modules.Adminmain
+﻿namespace OnXap.Modules.Adminmain
 {
     using Core.Modules;
 

@@ -285,8 +285,6 @@ namespace OnXap.Core.Items
                             var data = query.FirstOrDefault();
                             if (data != null) return data.LinkId;
 
-                            //test upsert
-                            System.Diagnostics.Debugger.Break();
                             db.ItemLink.
                                 Upsert(new ItemLink()
                                 {

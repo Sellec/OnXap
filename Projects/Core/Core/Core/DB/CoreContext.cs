@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace OnXap.Core.Db
 {
@@ -14,7 +15,9 @@ namespace OnXap.Core.Db
         #region OnConfiguring
         internal override void OnConfiguringInternal(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ConnectionStringFactory());
+            optionsBuilder.
+                UseSqlServer(ConnectionStringFactory()).
+                ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning, RelationalEventId.QueryPossibleExceptionWithAggregateOperatorWarning, RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning));
             OnContextConfiguring(optionsBuilder);
         }
 

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Data;
 
 namespace OnXap.Modules.Auth.Db
 {

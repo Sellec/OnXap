@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Modules.Materials.DB
 {
@@ -6,10 +6,9 @@ namespace OnXap.Modules.Materials.DB
 
     public class DataLayerContext : CoreContextBase
     {
-        public virtual IRepository<Page> Pages { get; set; }
-        public virtual IRepository<PageCategory> PageCategories { get; set; }
-
-        public virtual IRepository<News> News { get; set; }
+        public virtual DbSet<Page> Pages { get; set; }
+        public virtual DbSet<PageCategory> PageCategories { get; set; }
+        public virtual DbSet<News> News { get; set; }
     }
 
 }

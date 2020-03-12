@@ -34,48 +34,6 @@ namespace OnXap.Utils
         /// </summary>
         public static Guid GetUnique()
         {
-            //todo рассмотреть следующий алгоритм:
-            /*
-            private static object tickCounterSyncRoot = new object();
-            private static long tickStart = 0;
-            private static volatile int tickCounter = 0;
-
-            static void Main(string[] args)
-            {
-                tickStart = DateTime.Now.Ticks;
-
-                var t = DateTime.Now;
-                var list = new System.Collections.Concurrent.ConcurrentQueue<Guid>();
-                var list2 = new System.Collections.Concurrent.ConcurrentQueue<long>();
-                var tasks = new List<Task>();
-
-                for (int i = 0; i < 50; i++)
-                {
-                    tasks.Add(Task.Factory.StartNew(() =>
-                    {
-                        for (int k = 0; k < 200000; k++)
-                        {
-                            var c = tickStart;
-                            lock (tickCounterSyncRoot)
-                            {
-                                c += tickCounter;
-                                tickCounter++;
-                            }
-                            //var guid = c.ToString().GenerateGuid();list.Enqueue(guid);
-                            list2.Enqueue(c);
-                        }
-                    }));
-                }
-
-                Task.WaitAll(tasks.ToArray());
-                var t2 = DateTime.Now - t;
-                var dd = list.GroupBy(x => x).Where(x => x.Count() > 1).Select(x => new { x.Key, count = x.Count() }).ToList();
-                var dd2 = list2.GroupBy(x => x).Where(x => x.Count() > 1).Select(x => new { x.Key, count = x.Count() }).ToList();
-
-                Console.ReadKey();
-            }
-            */
-
             for (int a = 0; a < 100; a++)
             {
                 if (_queue.IsEmpty)

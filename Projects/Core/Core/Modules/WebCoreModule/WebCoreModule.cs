@@ -1,5 +1,4 @@
 ﻿using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
 using System;
 
 namespace OnXap.Modules.WebCoreModule

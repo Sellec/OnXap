@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Data;
-using OnUtils.Data.Validation;
 using OnUtils.Utils;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 namespace OnXap.Modules.Register
 {
+    using Core.Data;
     using Core.Db;
     using Core.Modules;
     using Journaling;
@@ -247,7 +247,7 @@ namespace OnXap.Modules.Register
                     }
                 }
             }
-            catch (EntityValidationException ex)
+            catch (ValidationException ex)
             {
                 Debug.Logs("RegisterUser1: {0}", ex.CreateComplexMessage());
                 answer.FromFail(ex.CreateComplexMessage());

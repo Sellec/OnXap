@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Data;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
 
 namespace OnXap.Modules.ItemsCustomize
 {
+    using Core.Data;
     using Core.Modules;
     using DB;
     using Field;
@@ -72,13 +73,17 @@ namespace OnXap.Modules.ItemsCustomize
 
                 schemes[0] = new SchemeContainerItem.Scheme() { Name = "По-умолчанию", Fields = new Dictionary<int, IField>() };
 
-                var sql = (from datas in db.CustomFieldsSchemeDatas
-                           where datas.IdModule == idModule.Value && datas.IdItemType == schemeItem.IdItemType && datas.IdSchemeItem == schemeItem.IdItem
-                           group new { datas.IdField, datas.Order } by datas.IdScheme into gr
-                           select new { IdScheme = gr.Key, Fields = gr.OrderBy(x => x.Order).Select(x => x.IdField).ToList() });
+                var schemeQuery = (from c in db.CustomFieldsSchemeDatas
+                           where c.IdModule == idModule.Value && c.IdItemType == schemeItem.IdItemType && c.IdSchemeItem == schemeItem.IdItem
+                           select new { c.IdScheme, c.IdField, c.Order }).Distinct();
 
-                var fieldsWithSchemes = sql.
-                                         ToList().
+                var schemeData = schemeQuery.
+                    ToList().
+                    GroupBy(x => x.IdScheme).
+                    Select(x => new { IdScheme = x.Key, Fields = x.OrderBy(y => y.Order).Select(y => y.IdField).ToList() }).
+                    ToList();
+
+                var fieldsWithSchemes = schemeData.
                                          ToDictionary(x => (uint)x.IdScheme,
                                                       x => x.Fields.GroupBy(IdField => IdField).
                                                                 Select(group => fields.GetValueOrDefault(group.Key)).
@@ -400,7 +405,7 @@ namespace OnXap.Modules.ItemsCustomize
                     result.Success = true;
                 }
             }
-            catch (OnUtils.Data.Validation.EntityValidationException ex) { result.Message = ex.CreateComplexMessage(); }
+            catch (ValidationException ex) { result.Message = ex.CreateComplexMessage(); }
             catch (Exception ex) { result.Message = ex.Message; }
 
             return ReturnJson(result);

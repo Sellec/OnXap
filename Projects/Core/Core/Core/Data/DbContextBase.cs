@@ -271,7 +271,6 @@ namespace OnXap.Core.Data
         /// <summary>
         /// Возвращает список всех измененных объектов.
         /// </summary>
-        /// <returns></returns>
         private Dictionary<EntityEntry, EntityState> GetChangedEntities()
         {
             var entities = ChangeTracker.Entries()
@@ -285,7 +284,6 @@ namespace OnXap.Core.Data
         /// Для каждого объекта, состояние которого было изменено в результате применения изменений, вызываются методы, помеченные 
         /// атрибутом <see cref="SavedInContextEventAttribute"/> для выполнения дополнительных действий после сохранения. 
         /// </summary>
-        /// <param name="entities"></param>
         private void DetectSavedEntities(Dictionary<EntityEntry, EntityState> entities)
         {
             // Core.Items.MethodMarkCallerAttribute.CallMethodsInObjects<Core.Items.SavedInContextEventAttribute>(entities.Where(x => x.Value != x.Key.State));

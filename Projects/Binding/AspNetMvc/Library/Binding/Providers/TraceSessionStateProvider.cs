@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Data.Errors;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
@@ -163,16 +162,6 @@ namespace OnXap.Binding.Providers
                                     }).
                                     Run();
                             }
-                        }
-                        catch (UpdateConcurrencyException ex)
-                        {
-                            Debug.WriteLine("SessionStateProvider: Update error2: {0}", ex.Message);
-                            //foreach (var entry in ex.Entries)
-                            //{
-                            //    Sessions item = entry.Entity as Sessions;
-                            //    _dbContext.Sessions.Delete(entry.Entity as Sessions);
-                            //    _cache.TryRemove(item.SessionId, out item);
-                            //}
                         }
                         catch (Exception ex)
                         {

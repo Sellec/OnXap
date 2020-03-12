@@ -1,6 +1,4 @@
-﻿using OnUtils.Data;
-
-namespace OnXap.Modules.EditableMenu
+﻿namespace OnXap.Modules.EditableMenu
 {
     using Core.Modules;
 

@@ -1,8 +1,8 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Transactions;
 using System.Web.Mvc;
 
 namespace OnXap.Modules.Adminmain
@@ -196,6 +196,7 @@ namespace OnXap.Modules.Adminmain
 
             using (var db = new Modules.Routing.Db.DataContext())
             {
+                //test group
                 var modulesIdList = model.Modules.Select(x => x.IdModule).ToArray();
                 var query = db.Routing
                                 .Where(x => modulesIdList.Contains(x.IdModule))
@@ -310,11 +311,13 @@ namespace OnXap.Modules.Adminmain
             {
                 var dbAccessor = AppCore.Get<JournalingDB.JournalingManagerDatabaseAccessor>();
 
+                //test group
                 var queryDataBase = dbAccessor.CreateQueryJournalData(db);
                 var queryDataGrouped = from row in queryDataBase
                                        group row.JournalData by row.JournalName.IdJournal into gr
                                        select new { Count = gr.Count(), IdJournalDataLast = gr.Max(x => x.IdJournalData) };
 
+                //test group
                 var query = from row in queryDataBase
                             join sq2 in queryDataGrouped on row.JournalData.IdJournalData equals sq2.IdJournalDataLast
                             select new Model.JournalQueries.QueryJournalData
@@ -345,7 +348,7 @@ namespace OnXap.Modules.Adminmain
 
             try
             {
-                using (var scope = TransactionsHelper.ReadUncommited())
+                using (var scope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
                     var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
                     if (!result.IsSuccess) throw new Exception(result.Message);
@@ -379,7 +382,7 @@ namespace OnXap.Modules.Adminmain
 
             try
             {
-                using (var scope = TransactionsHelper.ReadUncommited())
+                using (var scope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
                     var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
                     if (!result.IsSuccess) throw new Exception(result.Message);
