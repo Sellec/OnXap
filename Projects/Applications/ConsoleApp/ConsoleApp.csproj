@@ -45,6 +45,9 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestData\Class1.cs" />
+    <Compile Include="TestData\ModuleTest.cs" />
+    <Compile Include="TestData\Startup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -56,8 +59,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite">
-      <Version>1.0.112</Version>
+    <PackageReference Include="Microsoft.Data.SqlClient">
+      <Version>1.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console">
+      <Version>3.1.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

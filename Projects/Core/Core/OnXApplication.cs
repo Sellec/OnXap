@@ -1,7 +1,6 @@
 ﻿using OnUtils;
 using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.AppCore.DI;
-using OnUtils.Data;
 using System;
 
 namespace OnXap
@@ -17,16 +16,6 @@ namespace OnXap
     /// </summary>
     public abstract class OnXApplication : AppCore<OnXApplication> 
     {
-        class ConnectionStringResolver : IConnectionStringResolver
-        {
-            internal OnXApplication _core = null;
-
-            string IConnectionStringResolver.ResolveConnectionStringForDataContext(Type[] entityTypes)
-            {
-                return _core.ConnectionStringFactory();
-            }
-        }
-
         private CoreConfiguration _appConfigurationAccessor = null;
         private WebCoreConfiguration _webConfigurationAccessor = null;
 
@@ -54,7 +43,7 @@ namespace OnXap
                 ApplicationWorkingFolder = physicalApplicationPath;
 
                 ConnectionStringFactory = applicationConnectionStringFactory;
-                DataAccessManager.SetConnectionStringResolver(new ConnectionStringResolver() { _core = this });
+                Core.Db.CoreContextBase.ConnectionStringFactory = applicationConnectionStringFactory;
             }
             catch (Exception ex)
             {
@@ -146,6 +135,13 @@ namespace OnXap
             bindingsCollection.SetSingleton<ServiceMonitor.Monitor>();
             bindingsCollection.SetSingleton<UserContextManager>();
             bindingsCollection.SetSingleton<Languages.Manager>();
+        }
+
+        /// <summary>
+        /// </summary>
+        protected sealed override IBindingsResolver<OnXApplication> GetBindingsResolver()
+        {
+            return new Core.MetadataObject.MetadataObjectDbContextResolver();
         }
         #endregion
 

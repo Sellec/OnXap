@@ -242,7 +242,6 @@ namespace OnXap
                 }
             }
 
-            WebUtils.QueryLogHelper.QueryLogEnabled = true;
             Context.Items["TimeRequestStart"] = DateTime.Now;
 
             HttpContext.Current.SetAppCore(_applicationCore);
@@ -314,14 +313,9 @@ namespace OnXap
         {
             Context.Items["TimeRequestEnd"] = DateTime.Now;
 
-            var queries = WebUtils.QueryLogHelper.GetQueries();
-            if (queries.Count > 0)
-            {
-            }
-
             try
             {
-                this.OnEndRequest();
+                OnEndRequest();
             }
             catch (ThreadAbortException) { throw; }
             catch (Exception ex) { Debug.WriteLine("OnBeginRequest: " + ex.Message); }
@@ -347,23 +341,10 @@ namespace OnXap
             {
                 _applicationCore.GetUserContextManager().ClearCurrentUserContext();
             }
-
-            var queries2 = WebUtils.QueryLogHelper.GetQueries();
-            if (queries2.Count > 0)
-            {
-            }
-            if (queries.Count > 0 && queries.Count != queries2.Count)
-            {
-            }
-
-            WebUtils.QueryLogHelper.QueryLogEnabled = false;
-            WebUtils.QueryLogHelper.ClearQueries();
         }
 
         internal void Application_PreSendRequestHeaders()
         {
-            // ensure that if GZip/Deflate Encoding is applied that headers are set
-            // also works when error occurs if filters are still active
             HttpResponse response = HttpContext.Current.Response;
             if (response.Filter is GZipStream && response.Headers["Content-encoding"] != "gzip")
                 response.AppendHeader("Content-encoding", "gzip");
@@ -378,14 +359,6 @@ namespace OnXap
 
         internal void Application_Disposed(Object sender, EventArgs e)
         {
-            //try
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName})");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName}): {ex.ToString()}");
-            //}
         }
 
         internal void Application_End(Object sender, EventArgs e)

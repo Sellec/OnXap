@@ -1,12 +1,11 @@
 ﻿using OnXap;
 using System;
-using System.Configuration;
 
 namespace ConsoleApp
 {
     class app : OnXApplication
     {
-        public app(): base(Environment.CurrentDirectory, () => ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString)
+        public app(): base(Environment.CurrentDirectory, () => "Data Source=localhost;Initial Catalog=TestWeb;Integrated Security=true;")// ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString)
         {
 
         }
