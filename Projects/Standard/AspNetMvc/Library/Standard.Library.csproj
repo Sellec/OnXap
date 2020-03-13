@@ -655,7 +655,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Binding\AspNetMvc\Library\Binding.AspNetMvc.csproj">
-      <Project>{4819a652-4f35-4b7e-bdd4-15e713e9aa80}</Project>
+      <Project>{643a1be6-4f9b-473d-8b8d-143d1dee91d2}</Project>
       <Name>Binding.AspNetMvc</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\Core\Core.csproj">
