@@ -1,16 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using FluentMigrator.Runner;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 using System.Linq;
 
 namespace OnXap.Site
 {
+    using Core.Data;
+
     public class MvcApplication : HttpApplicationBase
     {
-        public MvcApplication() : base()//ApplicationRuntimeOptions.DebugLevelDetailed)
+        class c : IDbConfigurationBuilder
         {
-            
+            void IDbConfigurationBuilder.OnConfigureEntityFrameworkCore(DbContextOptionsBuilder optionsBuilder)
+            {
+                optionsBuilder.UseSqlServer(ConnectionString);
+            }
+
+            bool IDbConfigurationBuilder.OnConfigureFluentMigrator(IMigrationRunnerBuilder runnerBuilder)
+            {
+                runnerBuilder.AddSqlServer().WithGlobalConnectionString(ConnectionString);
+                return true;
+            }
+
+            private string ConnectionString
+            {
+                get
+                {
+                    try
+                    {
+                        var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+                        if (!Debug.IsDeveloper)
+                            connectionString = ConfigurationManager.ConnectionStrings["ServerConnection"].ConnectionString;
+
+                        return connectionString;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("MvcApplication.ConnectionString: " + ex.ToString());
+                    }
+
+                    return "";
+                }
+            }
         }
 
         protected override void OnAfterApplicationStart()
@@ -49,72 +83,9 @@ namespace OnXap.Site
            // AppCore.GetUserContextManager().SetCurrentUserContext(AppCore.GetUserContextManager().GetSystemUserContext());
         }
 
-        public interface testinterface
+        protected override IDbConfigurationBuilder GetDbConfigurationBuilder()
         {
-            int tttt { get; set; }
-
-            object test { get; }
-
-            void methodTest();
-        }
-
-        //public class mapper : OnUtils.Architecture.InterfaceMapper.MapperBase
-        //{
-        //    protected override object OnPrepareMethodCall(MethodInfo method, object[] arguments)
-        //    {
-        //        return null;
-        //    }
-
-        //    protected override object OnPreparePropertyGet(PropertyInfo property)
-        //    {
-        //        if (property.Name == nameof(testinterface.test)) return new List<int>();
-        //        else if (property.Name == nameof(testinterface.tttt)) return 111;
-        //        return null;
-        //    }
-
-        //    protected override void OnPreparePropertySet(PropertyInfo property, object value)
-        //    {
-                
-        //    }
-        //}
-
-        protected override void OnBeforeApplicationStart()
-        {
-            //base.OnBeforeApplicationStart();
-
-            //var ins = OnUtils.Architecture.InterfaceMapper.Mapper.CreateObjectFromInterface<mapper, testinterface>();
-            //try
-            //{
-            //    //ins.methodTest();
-            //    //var d = ins.tttt;
-            //    ins.tttt = 10;
-            //    var dd = ins.test;
-            //}
-            //catch (Exception ex)
-            //{
-            //    var d = ex.Message;
-            //}
-        }
-
-        protected override string ConnectionString
-        {
-            get
-            {
-                try
-                {
-                    var connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-                    if (!Debug.IsDeveloper)
-                        connectionString = ConfigurationManager.ConnectionStrings["ServerConnection"].ConnectionString;
-
-                    return connectionString;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("MvcApplication.ConnectionString: " + ex.ToString());
-                }
-
-                return "";
-            }
+            return new c();
         }
     }
 }

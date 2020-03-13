@@ -10,6 +10,7 @@ namespace OnXap
     using Binding.Providers;
     using Binding.Routing;
     using Core;
+    using Core.Data;
     using Languages;
 
     /// <summary>
@@ -17,9 +18,7 @@ namespace OnXap
     /// </summary>
     sealed class OnXApplicationAspNetMvc : OnXApplication
     {
-        /// <summary>
-        /// </summary>
-        public OnXApplicationAspNetMvc(string physicalApplicationPath, Func<string> applicationConnectionStringFactory) : base(physicalApplicationPath, applicationConnectionStringFactory)
+        public OnXApplicationAspNetMvc(string physicalApplicationPath, IDbConfigurationBuilder dbConfigurationBuilder) : base(physicalApplicationPath, dbConfigurationBuilder)
         {
             OnUtils.Tasks.TasksManager.SetDefaultService(new OnUtils.Tasks.MomentalThreading.TasksService());
         }

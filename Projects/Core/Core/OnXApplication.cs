@@ -6,6 +6,8 @@ using System;
 namespace OnXap
 {
     using Core.Configuration;
+    using Core.Data;
+    using Core.Db;
     using Core.Modules;
     using Modules.CoreModule;
     using Modules.WebCoreModule;
@@ -16,35 +18,37 @@ namespace OnXap
     /// </summary>
     public abstract class OnXApplication : AppCore<OnXApplication> 
     {
+        private readonly IDbConfigurationBuilder _dbConfigurationBuilder;
         private CoreConfiguration _appConfigurationAccessor = null;
         private WebCoreConfiguration _webConfigurationAccessor = null;
 
         /// <summary>
         /// Создает новый экземпляр приложения.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Возникает, если передана пустая строка подключения к базе данных приложения (<paramref name="connectionString"/>).</exception>
-        public OnXApplication(string physicalApplicationPath, string connectionString) : this(physicalApplicationPath, () => connectionString)
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="dbConfigurationBuilder"/> равен null.</exception>
+        public OnXApplication(IDbConfigurationBuilder dbConfigurationBuilder) : this(Environment.CurrentDirectory, dbConfigurationBuilder)
         {
-            if (string.IsNullOrEmpty(connectionString)) throw new ArgumentNullException(nameof(connectionString));
         }
 
         /// <summary>
         /// Создает новый экземпляр приложения.
         /// </summary>
-        /// <exception cref="ArgumentNullException">Возникает, если передана пустая фабрика строк подключения к базе данных приложения (<paramref name="applicationConnectionStringFactory"/>).</exception>
-        public OnXApplication(string physicalApplicationPath, Func<string> applicationConnectionStringFactory)
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="dbConfigurationBuilder"/> равен null.</exception>
+        public OnXApplication(string physicalApplicationPath, IDbConfigurationBuilder dbConfigurationBuilder)
         {
-            if (!GetType().Assembly.FullName.EndsWith("")) throw new InvalidProgramException("");
-            if (applicationConnectionStringFactory == null) throw new ArgumentNullException(nameof(applicationConnectionStringFactory));
+            if (dbConfigurationBuilder == null) throw new ArgumentNullException(nameof(dbConfigurationBuilder));
 
             try
             {
-                LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
+                if (string.IsNullOrEmpty(physicalApplicationPath)) physicalApplicationPath = Environment.CurrentDirectory;
+
                 LibraryEnumeratorFactory.GlobalAssemblyFilter = (name) => !name.ToLower().Contains("sni.dll");
+
+                LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
                 ApplicationWorkingFolder = physicalApplicationPath;
 
-                ConnectionStringFactory = applicationConnectionStringFactory;
-                Core.Db.CoreContextBase.ConnectionStringFactory = applicationConnectionStringFactory;
+                _dbConfigurationBuilder = dbConfigurationBuilder;
+                CoreContextBase.OptionsBuilderStaticForCoreContexts = (optionsBuilder) => dbConfigurationBuilder.OnConfigureEntityFrameworkCore(optionsBuilder);
             }
             catch (Exception ex)
             {
@@ -229,6 +233,11 @@ namespace OnXap
             get;
             set;
         } = new Uri("http://localhost");
+
+        internal IDbConfigurationBuilder DbConfigurationBuilder
+        {
+            get => _dbConfigurationBuilder;
+        }
         #endregion
     }
 }

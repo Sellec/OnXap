@@ -11,13 +11,14 @@ using System.Web.Mvc;
 
 namespace OnXap
 {
+    using Core.Data;
     using Binding.Binders;
     using Binding.Providers;
 
     /// <summary>
     /// Представляет приложение ASP.NET, умеющее инициализировать OnXap.
     /// </summary>
-    public abstract class HttpApplicationBase : System.Web.HttpApplication
+    public abstract class HttpApplicationBase : HttpApplication
     {
         private static object SyncRootStart = new object();
         private static volatile int _instancesCount = 0;
@@ -98,12 +99,9 @@ namespace OnXap
         }
 
         /// <summary>
-        /// Возвращает строку подключения для приложения.
+        /// Возвращает настройки подключения к базе.
         /// </summary>
-        protected abstract string ConnectionString
-        {
-            get;
-        }
+        protected abstract IDbConfigurationBuilder GetDbConfigurationBuilder();
 
         #endregion
 
@@ -137,7 +135,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, GetDbConfigurationBuilder());
                     switch (_runtimeOptions)
                     {
                         case ApplicationRuntimeOptions.DebugLevelDetailed:
@@ -206,7 +204,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, GetDbConfigurationBuilder());
                     switch (_runtimeOptions)
                     {
                         case ApplicationRuntimeOptions.DebugLevelDetailed:

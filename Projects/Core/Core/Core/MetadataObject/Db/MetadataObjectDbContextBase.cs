@@ -58,7 +58,9 @@ namespace OnXap.Core.MetadataObject.Db
         internal override void OnConfiguringInternal(DbContextOptionsBuilder optionsBuilder)
         {
             CheckAsComponent();
-            base.OnConfiguringInternal(optionsBuilder);
+
+            _internalCoreComponent.AppCore.DbConfigurationBuilder.OnConfigureEntityFrameworkCore(optionsBuilder);
+            OnContextConfiguring(optionsBuilder);
         }
         #endregion
 
