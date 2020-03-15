@@ -290,7 +290,7 @@ namespace OnXap.Modules.Routing
         /// </returns>
         /// <exception cref="ArgumentNullException">Возникает, если параметр <paramref name="idItemList"/> равен null.</exception>
         [ApiReversible]
-        public ExecutionResultUrlList GetUrl(IEnumerable<int> idItemList, int idItemType, string uniqueKey = null)
+        public ExecutionResultUrlList GetUrl(int[] idItemList, int idItemType, string uniqueKey = null)
         {
             try
             {
@@ -300,13 +300,16 @@ namespace OnXap.Modules.Routing
                 {
                     db.DataContext.QueryTimeout = 60 * 1000;
 
-                    var coll = idItemList.GroupBy(x => x).Select(x => x.Key).ToDictionary(x => x, x => string.Empty);
+                    var idItemListGrouped = idItemList.GroupBy(x => x).Select(x => x.Key).ToList();
+                    var coll = idItemListGrouped.ToDictionary(x => x, x => string.Empty);
 
-                    var queryResults = db.Repo1.
-                        Where(x => coll.Keys.ToList().Contains(x.IdItem) && x.IdItemType == idItemType && x.UniqueKey == uniqueKey).
+                    var queryBase = db.Repo1.
+                        Where(x => x.IdItemType == idItemType && x.UniqueKey == uniqueKey).
                         Select(x => new { x.IdItem, x.UrlFull });
 
-                    var results = queryResults.ToList();
+                    var idItemListChunks = SplitList(idItemListGrouped, 1000);
+                    var results = idItemListChunks.SelectMany(chunk => queryBase.Where(x => chunk.Contains(x.IdItem)).ToList()).ToList();
+
                     results.ForEach(x => coll[x.IdItem] = x.UrlFull);
 
                     return new ExecutionResultUrlList(true, null, coll);
@@ -343,6 +346,13 @@ namespace OnXap.Modules.Routing
             return new ExecutionResultUrl(result.IsSuccess, result.Message, result.IsSuccess ? result.Result[idItem] : null);
         }
 
+        private IEnumerable<List<T>> SplitList<T>(List<T> items, int nSize)
+        {
+            for (int i = 0; i < items.Count; i += nSize)
+            {
+                yield return items.GetRange(i, Math.Min(nSize, items.Count - i));
+            }
+        }
     }
 }
 
