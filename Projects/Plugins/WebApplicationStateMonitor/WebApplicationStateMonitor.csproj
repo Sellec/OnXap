@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <AssemblyName>OnXap.Modules.WebApplicationStateMonitor</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.0.20</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
@@ -14,8 +14,8 @@
   <Import Project="..\..\Common\Common.props" />
 
   <ItemGroup>
-    <PackageReference Include="OnUtils" Version="0.2.4" />
-    <PackageReference Include="OnXap.Core" Version="1.0.0" />
+    <PackageReference Include="OnUtils" Version="1.5.4-beta1" />
+    <PackageReference Include="OnXap.Core" Version="1.0.20" />
   </ItemGroup>
 
   <ItemGroup>

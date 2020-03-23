@@ -1,6 +1,9 @@
-﻿using OnUtils;
+﻿using EFExtensions;
+using OnUtils;
 using OnUtils.Architecture.AppCore;
 using OnUtils.Data;
+using OnUtils.Data.EntityFramework;
+using OnUtils.Data.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -137,7 +140,7 @@ namespace OnXap.Modules.Routing
         /// <exception cref="ArgumentNullException">Возникает, если в одном из элементов последовательности <paramref name="items"/> свойство <see cref="RegisterItem.Url"/> содержит пустое значение (пустая строка или null).</exception>
         /// <exception cref="ArgumentException">Возникает, если комбинация {IdItem/IdItemType/action/UniqueKey} в последовательности повторяется несколько раз.</exception>
         [ApiReversible]
-        public ExecutionResult Register<TModuleType>(ModuleCore<TModuleType> module, IEnumerable<RegisterItem> items)
+        public virtual ExecutionResult Register<TModuleType>(ModuleCore<TModuleType> module, IEnumerable<RegisterItem> items)
             where TModuleType : ModuleCore<TModuleType>
         {
             try
@@ -190,13 +193,21 @@ namespace OnXap.Modules.Routing
 
                     try
                     {
-                        sql = db.Repo1.InsertOrDuplicateUpdate(itemsToRegister,
-                            new UpsertField(nameof(DB.Routing.UrlFull)),
-                            new UpsertField(nameof(DB.Routing.Arguments)),
-                            new UpsertField(nameof(DB.Routing.DateChange)),
-                            new UpsertField(nameof(DB.Routing.IdRoutingType)),
-                            new UpsertField(nameof(DB.Routing.IsFixedLength))
-                        );
+                        var ups = db.DataContext.GetDbContext().Upsert(itemsToRegister);
+                        ups.Key(x => x.UniqueKey);
+                        ups.Key(x => x.IdModule);
+                        ups.Key(x => x.IdItem);
+                        ups.Key(x => x.IdItemType);
+                        ups.Key(x => x.Action);
+                        sql += ups.Execute();
+
+                        //sql = db.Repo1.InsertOrDuplicateUpdate(itemsToRegister,
+                        //    new UpsertField(nameof(DB.Routing.UrlFull)),
+                        //    new UpsertField(nameof(DB.Routing.Arguments)),
+                        //    new UpsertField(nameof(DB.Routing.DateChange)),
+                        //    new UpsertField(nameof(DB.Routing.IdRoutingType)),
+                        //    new UpsertField(nameof(DB.Routing.IsFixedLength))
+                        //);
                         scope.Commit();
                     }
                     catch (Exception ex)

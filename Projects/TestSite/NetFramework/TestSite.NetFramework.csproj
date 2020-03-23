@@ -54,10 +54,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="OnUtils">
-      <Version>0.2.4</Version>
-    </PackageReference>
-    <PackageReference Include="OnUtils.Data.EntityFramework">
-      <Version>0.1.16</Version>
+      <Version>1.5.4-beta1</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations">
       <Version>4.5.0</Version>

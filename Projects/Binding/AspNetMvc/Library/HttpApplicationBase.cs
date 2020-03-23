@@ -303,7 +303,7 @@ namespace OnXap
         internal void Application_AcquireRequestState(object sender, EventArgs e)
         {
             Context.Items["TimeRequestState"] = DateTime.Now;
-            if (_applicationCore.GetState() == CoreComponentState.Started)
+            if (_applicationCore?.GetState() == CoreComponentState.Started)
             {
                 var context = _applicationCore.Get<SessionBinder>().RestoreUserContextFromRequest();
                 if (context != null) _applicationCore.GetUserContextManager().SetCurrentUserContext(context);
@@ -343,7 +343,7 @@ namespace OnXap
 
             TraceSessionStateProvider.SaveUnsavedSessionItem();
 
-            if (_applicationCore.GetState() == CoreComponentState.Started)
+            if (_applicationCore?.GetState() == CoreComponentState.Started)
             {
                 _applicationCore.GetUserContextManager().ClearCurrentUserContext();
             }
@@ -374,18 +374,6 @@ namespace OnXap
         internal void Application_PostRequestHandlerExecute(object sender, EventArgs e)
         {
             UpdateSessionCookieExpiration();
-        }
-
-        internal void Application_Disposed(Object sender, EventArgs e)
-        {
-            //try
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName})");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName}): {ex.ToString()}");
-            //}
         }
 
         internal void Application_End(Object sender, EventArgs e)
