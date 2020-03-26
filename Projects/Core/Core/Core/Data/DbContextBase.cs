@@ -352,7 +352,7 @@ namespace OnXap.Core.Data
                 GroupBy(x => x.Entity.State).
                 ToList();
 
-            foreach (var entry in ChangeTracker.Entries().Where(x => !entityType.IsAssignableFrom(x.Entity.GetType())))
+            foreach (var entry in ChangeTracker.Entries().Where(x => !entityType.IsAssignableFrom(x.Entity.GetType())).ToList())
             {
                 entry.State = EntityState.Unchanged;
             }

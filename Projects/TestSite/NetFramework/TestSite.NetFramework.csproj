@@ -60,7 +60,7 @@
       <Version>3.1.2</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>1.5.1-beta1</Version>
+      <Version>1.5.6-beta1</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations">
       <Version>4.7.0</Version>

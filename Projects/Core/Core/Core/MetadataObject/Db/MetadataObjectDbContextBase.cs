@@ -1,24 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Dapper;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using OnUtils.Items;
-using OnUtils.Utils;
+using OnUtils.Architecture.AppCore;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Transactions;
-using OnUtils.Architecture.AppCore;
 
 namespace OnXap.Core.MetadataObject.Db
 {

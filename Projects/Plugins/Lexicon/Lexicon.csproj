@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>OnXap.Modules.Lexicon</AssemblyName>
-    <Version>1.5.1-beta1</Version>
+    <Version>1.5.2-beta1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
-    <PackageReference Include="OnUtils" Version="1.5.1-beta1" />
+    <PackageReference Include="OnUtils" Version="1.5.6-beta1" />
     <PackageReference Include="OnXap.Core" Version="1.5.0-beta1" />
   </ItemGroup>
 
