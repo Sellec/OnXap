@@ -92,12 +92,23 @@ namespace OnXap.Users
         }
 
         /// <summary>
+        /// Возвращает список ролей указанного пользователя.
+        /// </summary>
+        /// <param name="idUser">Идентификатор пользователя.</param>
+        [ApiReversible]
+        public List<Role> RolesByUser(int idUser)
+        {
+            return RolesByUsers(new int[] { idUser }).Select(x => x.Value).FirstOrDefault() ?? new List<Role>();
+        }
+
+
+        /// <summary>
         /// Возвращает списки ролей указанных пользователей.
         /// </summary>
-        /// <param name="userIdList">Список ролей для поиска пользователей.</param>
+        /// <param name="userIdList">Список пользователей.</param>
         /// <returns></returns>
         [ApiReversible]
-        public Dictionary<int, List<Role>> RolesByUser(int[] userIdList)
+        public Dictionary<int, List<Role>> RolesByUsers(int[] userIdList)
         {
             try
             {
@@ -105,14 +116,20 @@ namespace OnXap.Users
 
                 using (var db = new CoreContext())
                 {
-                    //test group
                     var query = from roleJoin in db.RoleUser
                                 join role in db.Role on roleJoin.IdRole equals role.IdRole
-                                where userIdList.Contains(roleJoin.IdUser)
-                                group role by roleJoin.IdUser into gr
-                                select new { IdUser = gr.Key, Roles = gr.ToList() };
+                                select new { roleJoin.IdUser, role };
 
-                    return query.ToDictionary(x => x.IdUser, x => x.Roles);
+                    if (userIdList.Length == 1)
+                    {
+                        query = query.Where(x => x.IdUser == userIdList[0]);
+                    }
+                    else
+                    {
+                        query = query.Where(x => userIdList.Contains(x.IdUser));
+                    }
+
+                    return query.ToList().GroupBy(x => x.IdUser).ToDictionary(x => x.Key, x => x.Select(y => y.role).ToList());
                 }
             }
             catch (Exception ex)
