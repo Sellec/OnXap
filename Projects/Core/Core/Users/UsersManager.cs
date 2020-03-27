@@ -246,9 +246,6 @@ namespace OnXap.Users
 
                     var userIdList2 = userIdList.Distinct().ToArray();
 
-                    //test upsert
-                    System.Diagnostics.Debugger.Break();
-
                     var usersToRole = db.Users.Where(x => userIdList2.Contains(x.IdUser)).ToList().Select(x => new RoleUser()
                     {
                         IdRole = idRole,
