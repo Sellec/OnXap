@@ -183,13 +183,13 @@ namespace OnXap.Modules.Routing
 
                 int sql = 0;
 
-                using (var db = new DataContext())
-                using (var scope = db.CreateScope())
+                try
                 {
-                    db.QueryTimeout = 2 * 60 * 1000;
-
-                    try
+                    using (var db = new DataContext())
+                    using (var scope = db.CreateScope())
                     {
+                        db.QueryTimeout = 2 * 60 * 1000;
+
                         sql = db.Routing.
                             UpsertRange(itemsToRegister).
                             On(x => new
@@ -209,30 +209,17 @@ namespace OnXap.Modules.Routing
                             }).Run();
                         scope.Complete();
                     }
-                    catch (Exception ex)
-                    {
-                        if (ex.GetType().FullName == "System.Data.SqlClient.SqlException")
-                            Debug.WriteLineNoLog($"UrlManager.register({System.Threading.Thread.CurrentThread.ManagedThreadId}) !! with {itemsToRegister.Count} at {DateTime.Now.ToString()} with {ex.Message}");
-
-                        throw;
-                    }
-                }
-
-                if (sql == itemsToRegister.Count)
-                {
                     return new ExecutionResult(true);
                 }
-                else
+                catch (Exception ex)
                 {
-                    this.RegisterEvent(
-                        EventType.Error,
-                        "register: ошибка при регистрации адресов.",
-                        $"Модуль: {(module == null ? "не указан" : module.ID.ToString())}\r\n" +
-                        (itemsToRegister.Count() > 1 ? "Часть адресов не была зарегистрирована. Операция отменена." : $"Не удалось зарегистрировать адрес '{items.First().Url}'")
-                    );
-                    return new ExecutionResult(false, itemsToRegister.Count() > 1 ? "Часть адресов не была зарегистрирована. Операция отменена." : $"Не удалось зарегистрировать адрес '{items.First().Url}'");
+                    if (ex.GetType().FullName == "System.Data.SqlClient.SqlException")
+                        Debug.WriteLineNoLog($"UrlManager.register({System.Threading.Thread.CurrentThread.ManagedThreadId}) !! with {itemsToRegister.Count} at {DateTime.Now.ToString()} with {ex.Message}");
+
+                    throw;
                 }
             }
+
             catch (ArgumentNullException) { throw; }
             catch (ArgumentOutOfRangeException) { throw; }
             catch (ArgumentException) { throw; }
