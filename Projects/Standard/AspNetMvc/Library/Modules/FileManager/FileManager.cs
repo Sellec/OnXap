@@ -550,6 +550,7 @@ namespace OnXap.Modules.FileManager
 
                                     db.File.
                                         UpsertRange(updateList).
+                                        AllowIdentityMatch().
                                         On(x => x.IdFile).
                                         WhenMatched((xDb, xIns) => new Db.File()
                                         {
