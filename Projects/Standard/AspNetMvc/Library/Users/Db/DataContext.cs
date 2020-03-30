@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Users.Db
 {
@@ -6,7 +6,7 @@ namespace OnXap.Users.Db
 
     class DataContext : CoreContext
     {
-        public IRepository<UserEntity> UserEntity { get; }
+        public DbSet<UserEntity> UserEntity { get; set; }
 
     }
 }

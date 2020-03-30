@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace OnXap.Modules.Lexicon
     /// <summary>
     /// Менеджер для работы со словарными формами.
     /// </summary>
-    public class LexiconManager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<UnitOfWork<WordCase>>
+    public class LexiconManager : CoreComponentBase, IComponentSingleton
     {
         /// <summary>
         /// Структура для запроса числительной и падежной формы слова.
@@ -152,7 +152,7 @@ namespace OnXap.Modules.Lexicon
             {
                 // todo setError(null);
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 {
                     var results = new List<WordCase>();
 
@@ -169,7 +169,7 @@ namespace OnXap.Modules.Lexicon
                             }
                         }
 
-                        var result = db.Repo1.Where(x => x.NominativeSingle == request.Word).FirstOrDefault();
+                        var result = db.WordCase.Where(x => x.NominativeSingle == request.Word).FirstOrDefault();
                         if (result != null)
                         {
                             if (cache != null) cache[result.NominativeSingle] = result;
@@ -183,8 +183,6 @@ namespace OnXap.Modules.Lexicon
                         var requests = requestList.Where(x => x.Word == res.NominativeSingle);
                         requests.ForEach(x => x.Result = res);
                     }
-
-                    var upsertFields = new List<UpsertField>();
 
                     foreach (var request in requestList)
                     {
@@ -206,18 +204,8 @@ namespace OnXap.Modules.Lexicon
                                     IsNewMultiple = true
                                 };
 
-                            var canBeUpdated = false;
                             if (list.ContainsKey(eNumeralType.SingleType) && list[eNumeralType.SingleType] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.GenitiveSingle)),
-                                    new UpsertField(nameof(WordCase.DativeSingle)),
-                                    new UpsertField(nameof(WordCase.AccusativeSingle)),
-                                    new UpsertField(nameof(WordCase.InstrumentalSingle)),
-                                    new UpsertField(nameof(WordCase.PrepositionalSingle)),
-                                    new UpsertField(nameof(WordCase.IsNewSingle))
-                                );
-
                                 request.Result.GenitiveSingle = list[eNumeralType.SingleType].Р ?? "";
                                 request.Result.DativeSingle = list[eNumeralType.SingleType].Д ?? "";
                                 request.Result.AccusativeSingle = list[eNumeralType.SingleType].В ?? "";
@@ -225,21 +213,23 @@ namespace OnXap.Modules.Lexicon
                                 request.Result.PrepositionalSingle = list[eNumeralType.SingleType].П ?? "";
                                 request.Result.IsNewSingle = false;
 
-                                canBeUpdated = true;
+                                db.WordCase.
+                                    UpsertRange(request.Result).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        GenitiveSingle = xIns.GenitiveSingle,
+                                        DativeSingle = xIns.DativeSingle,
+                                        AccusativeSingle = xIns.AccusativeSingle,
+                                        InstrumentalSingle = xIns.InstrumentalSingle,
+                                        PrepositionalSingle = xIns.PrepositionalSingle,
+                                        IsNewSingle = xIns.IsNewSingle
+                                    }).
+                                    Run();
                             }
 
                             if (list.ContainsKey(eNumeralType.TwoThreeFour) && list[eNumeralType.TwoThreeFour] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.NominativeTwo)),
-                                    new UpsertField(nameof(WordCase.GenitiveTwo)),
-                                    new UpsertField(nameof(WordCase.DativeTwo)),
-                                    new UpsertField(nameof(WordCase.AccusativeTwo)),
-                                    new UpsertField(nameof(WordCase.InstrumentalTwo)),
-                                    new UpsertField(nameof(WordCase.PrepositionalTwo)),
-                                    new UpsertField(nameof(WordCase.IsNewTwo))
-                                );
-
                                 request.Result.NominativeTwo = list[eNumeralType.TwoThreeFour].И ?? "";
                                 request.Result.GenitiveTwo = list[eNumeralType.TwoThreeFour].Р ?? "";
                                 request.Result.DativeTwo = list[eNumeralType.TwoThreeFour].Д ?? "";
@@ -248,21 +238,24 @@ namespace OnXap.Modules.Lexicon
                                 request.Result.PrepositionalTwo = list[eNumeralType.TwoThreeFour].П ?? "";
                                 request.Result.IsNewTwo = false;
 
-                                canBeUpdated = true;
+                                db.WordCase.
+                                    UpsertRange(request.Result).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        NominativeTwo = xIns.NominativeTwo,
+                                        GenitiveTwo = xIns.GenitiveTwo,
+                                        DativeTwo = xIns.DativeTwo,
+                                        AccusativeTwo = xIns.AccusativeTwo,
+                                        InstrumentalTwo = xIns.InstrumentalTwo,
+                                        PrepositionalTwo = xIns.PrepositionalTwo,
+                                        IsNewTwo = xIns.IsNewTwo
+                                    }).
+                                    Run();
                             }
 
                             if (list.ContainsKey(eNumeralType.Multiple) && list[eNumeralType.Multiple] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.NominativeMultiple)),
-                                    new UpsertField(nameof(WordCase.GenitiveMultiple)),
-                                    new UpsertField(nameof(WordCase.DativeMultiple)),
-                                    new UpsertField(nameof(WordCase.AccusativeMultiple)),
-                                    new UpsertField(nameof(WordCase.InstrumentalMultiple)),
-                                    new UpsertField(nameof(WordCase.PrepositionalMultiple)),
-                                    new UpsertField(nameof(WordCase.IsNewMultiple))
-                                );
-
                                 request.Result.NominativeMultiple = list[eNumeralType.Multiple].И ?? "";
                                 request.Result.GenitiveMultiple = list[eNumeralType.Multiple].Р ?? "";
                                 request.Result.DativeMultiple = list[eNumeralType.Multiple].Д ?? "";
@@ -271,12 +264,20 @@ namespace OnXap.Modules.Lexicon
                                 request.Result.PrepositionalMultiple = list[eNumeralType.Multiple].П ?? "";
                                 request.Result.IsNewMultiple = false;
 
-                                canBeUpdated = true;
-                            }
-
-                            if (canBeUpdated)
-                            {
-                                db.Repo1.InsertOrDuplicateUpdate(request.Result.ToEnumerable(), upsertFields.ToArray());
+                                db.WordCase.
+                                    UpsertRange(request.Result).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        NominativeMultiple = xIns.NominativeMultiple,
+                                        GenitiveMultiple = xIns.GenitiveMultiple,
+                                        DativeMultiple = xIns.DativeMultiple,
+                                        AccusativeMultiple = xIns.AccusativeMultiple,
+                                        InstrumentalMultiple = xIns.InstrumentalMultiple,
+                                        PrepositionalMultiple = xIns.PrepositionalMultiple,
+                                        IsNewMultiple = xIns.IsNewMultiple
+                                    }).
+                                    Run();
                             }
                         }
                     }
@@ -331,15 +332,13 @@ namespace OnXap.Modules.Lexicon
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 {
-                    var queryWords = db.Repo1.Where(x => x.IsNewSingle || x.IsNewTwo || x.IsNewMultiple).ToList();
+                    var queryWords = db.WordCase.Where(x => x.IsNewSingle || x.IsNewTwo || x.IsNewMultiple).ToList();
                     foreach (var word in queryWords)
                     {
                         try
                         {
-                            var upsertFields = new List<UpsertField>();
-
                             var numeralTypesList = new List<eNumeralType>();
                             if (word.IsNewSingle) numeralTypesList.Add(eNumeralType.SingleType);
                             if (word.IsNewTwo) numeralTypesList.Add(eNumeralType.TwoThreeFour);
@@ -347,18 +346,8 @@ namespace OnXap.Modules.Lexicon
 
                             var list = numeralTypesList.ToDictionary(x => x, x => _morpher.Value.GetNumeralResult(word.NominativeSingle, x));
 
-                            var canBeUpdated = false;
                             if (list.ContainsKey(eNumeralType.SingleType) && list[eNumeralType.SingleType] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.GenitiveSingle)),
-                                    new UpsertField(nameof(WordCase.DativeSingle)),
-                                    new UpsertField(nameof(WordCase.AccusativeSingle)),
-                                    new UpsertField(nameof(WordCase.InstrumentalSingle)),
-                                    new UpsertField(nameof(WordCase.PrepositionalSingle)),
-                                    new UpsertField(nameof(WordCase.IsNewSingle))
-                                );
-
                                 word.GenitiveSingle = list[eNumeralType.SingleType].Р;
                                 word.DativeSingle = list[eNumeralType.SingleType].Д;
                                 word.AccusativeSingle = list[eNumeralType.SingleType].В;
@@ -366,21 +355,23 @@ namespace OnXap.Modules.Lexicon
                                 word.PrepositionalSingle = list[eNumeralType.SingleType].П;
                                 word.IsNewSingle = false;
 
-                                canBeUpdated = true;
+                                db.WordCase.
+                                    UpsertRange(word).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        GenitiveSingle = xIns.GenitiveSingle,
+                                        DativeSingle = xIns.DativeSingle,
+                                        AccusativeSingle = xIns.AccusativeSingle,
+                                        InstrumentalSingle = xIns.InstrumentalSingle,
+                                        PrepositionalSingle = xIns.PrepositionalSingle,
+                                        IsNewSingle = xIns.IsNewSingle
+                                    }).
+                                    Run();
                             }
 
                             if (list.ContainsKey(eNumeralType.TwoThreeFour) && list[eNumeralType.TwoThreeFour] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.NominativeTwo)),
-                                    new UpsertField(nameof(WordCase.GenitiveTwo)),
-                                    new UpsertField(nameof(WordCase.DativeTwo)),
-                                    new UpsertField(nameof(WordCase.AccusativeTwo)),
-                                    new UpsertField(nameof(WordCase.InstrumentalTwo)),
-                                    new UpsertField(nameof(WordCase.PrepositionalTwo)),
-                                    new UpsertField(nameof(WordCase.IsNewTwo))
-                                );
-
                                 word.NominativeTwo = list[eNumeralType.TwoThreeFour].И;
                                 word.GenitiveTwo = list[eNumeralType.TwoThreeFour].Р;
                                 word.DativeTwo = list[eNumeralType.TwoThreeFour].Д;
@@ -389,20 +380,24 @@ namespace OnXap.Modules.Lexicon
                                 word.PrepositionalTwo = list[eNumeralType.TwoThreeFour].П;
                                 word.IsNewTwo = false;
 
-                                canBeUpdated = true;
+                                db.WordCase.
+                                    UpsertRange(word).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        NominativeTwo = xIns.NominativeTwo,
+                                        GenitiveTwo = xIns.GenitiveTwo,
+                                        DativeTwo = xIns.DativeTwo,
+                                        AccusativeTwo = xIns.AccusativeTwo,
+                                        InstrumentalTwo = xIns.InstrumentalTwo,
+                                        PrepositionalTwo = xIns.PrepositionalTwo,
+                                        IsNewTwo = xIns.IsNewTwo
+                                    }).
+                                    Run();
                             }
 
                             if (list.ContainsKey(eNumeralType.Multiple) && list[eNumeralType.Multiple] != null)
                             {
-                                upsertFields.AddRange(
-                                    new UpsertField(nameof(WordCase.NominativeMultiple)),
-                                    new UpsertField(nameof(WordCase.GenitiveMultiple)),
-                                    new UpsertField(nameof(WordCase.DativeMultiple)),
-                                    new UpsertField(nameof(WordCase.AccusativeMultiple)),
-                                    new UpsertField(nameof(WordCase.InstrumentalMultiple)),
-                                    new UpsertField(nameof(WordCase.IsNewMultiple))
-                                );
-
                                 word.NominativeMultiple = list[eNumeralType.Multiple].И;
                                 word.GenitiveMultiple = list[eNumeralType.Multiple].Р;
                                 word.DativeMultiple = list[eNumeralType.Multiple].Д;
@@ -411,12 +406,20 @@ namespace OnXap.Modules.Lexicon
                                 word.PrepositionalMultiple = list[eNumeralType.Multiple].П;
                                 word.IsNewMultiple = false;
 
-                                canBeUpdated = true;
-                            }
-
-                            if (canBeUpdated)
-                            {
-                                db.Repo1.InsertOrDuplicateUpdate(word.ToEnumerable(), upsertFields.ToArray());
+                                db.WordCase.
+                                    UpsertRange(word).
+                                    On(x => x.NominativeSingle).
+                                    WhenMatched((xDb, xIns) => new WordCase()
+                                    {
+                                        NominativeMultiple = xIns.NominativeMultiple,
+                                        GenitiveMultiple = xIns.GenitiveMultiple,
+                                        DativeMultiple = xIns.DativeMultiple,
+                                        AccusativeMultiple = xIns.AccusativeMultiple,
+                                        InstrumentalMultiple = xIns.InstrumentalMultiple,
+                                        PrepositionalMultiple = xIns.PrepositionalMultiple,
+                                        IsNewMultiple = xIns.IsNewMultiple
+                                    }).
+                                    Run();
                             }
                         }
                         catch (Exception ex)

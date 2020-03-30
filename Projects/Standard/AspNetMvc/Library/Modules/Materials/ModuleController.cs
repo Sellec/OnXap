@@ -19,7 +19,7 @@ namespace OnXap.Modules.Materials
         [ModuleAction("newsAll")]
         public ActionResult ViewNewsAll()
         {
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new DB.DataLayerContext())
             {
                 var data = db.News.Where(x => !x.Block).OrderByDescending(x => x.date).ToList();
                 return View("NewsList.cshtml", data);
@@ -31,7 +31,7 @@ namespace OnXap.Modules.Materials
         {
             if (!IdNews.HasValue || IdNews.Value <= 0) throw new Exception("Не указан номер новости.");
 
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new DB.DataLayerContext())
             {
                 var data = db.News.Where(x => x.id == IdNews.Value).FirstOrDefault();
                 if (data == null) throw new Exception("Указанная новость не найдена.");

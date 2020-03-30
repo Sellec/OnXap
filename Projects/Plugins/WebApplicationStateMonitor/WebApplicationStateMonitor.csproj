@@ -1,25 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
     <AssemblyName>OnXap.Modules.WebApplicationStateMonitor</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.5.2-beta1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
     <Description>Поддерживает веб-сайт в рабочем состоянии, запрещая IIS выгружать приложение.</Description>
     <RootNamespace>OnXap</RootNamespace>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <Import Project="..\..\Common\Common.props" />
 
   <ItemGroup>
-    <PackageReference Include="OnUtils" Version="0.2.4" />
-    <PackageReference Include="OnXap.Core" Version="1.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\Binding\AspNetMvc\Package\Binding.Package.csproj" />
+    <PackageReference Include="OnUtils" Version="1.5.6-beta1" />
+    <PackageReference Include="OnXap.Binding.AspNetMvc" Version="1.5.0-beta1" />
+    <PackageReference Include="OnXap.Core" Version="1.5.2-beta1" />
   </ItemGroup>
   
 </Project>

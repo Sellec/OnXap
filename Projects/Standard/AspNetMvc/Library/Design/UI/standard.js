@@ -46,7 +46,7 @@ var vueMainHeader = new Vue({
             if (this.user.logged) {
                 items[items.length] = { label: 'Личный кабинет', icon: 'pi pi-user', url: this.ui.urls.userProfileUrl };
                 if (this.user.access.controlPanel) items[items.length] = { label: 'Панель управления', icon: 'pi pi-cog', url: this.ui.urls.controlPanelUrl, target: '_blank' };
-                items[items.length] = { label: 'Выход', icon: 'pi pi-power-off', url: this.ui.urls.userProfileUrl };
+                items[items.length] = { label: 'Выход', icon: 'pi pi-power-off', url: this.ui.urls.userSignoutUrl };
             }
             return items;
         }

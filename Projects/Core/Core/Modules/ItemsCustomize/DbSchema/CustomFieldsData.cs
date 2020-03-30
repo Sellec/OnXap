@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentMigrator.Runner.Extensions;
-using FluentMigrator.Runner;
-using FluentMigrator.SqlServer;
+﻿using FluentMigrator.SqlServer;
+using System;
 
 namespace OnXap.Modules.ItemsCustomize.DbSchema
 {
@@ -18,6 +14,7 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
         public override void Up()
         {
             var isTableExists = Schema.Table<DB.CustomFieldsData>().Exists();
+            var tableName = GetTableName<DB.CustomFieldsData>();
 
             if (!isTableExists)
             {
@@ -41,29 +38,33 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
                 AddColumnIfNotExists(Schema, (DB.CustomFieldsData x) => x.DateChange, x => x.AsInt32().NotNullable());
             }
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index("IdField_IdItem_IdItemType_with_FieldValue").Exists())
-                Create.Index("IdField_IdItem_IdItemType_with_FieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItemType)).Ascending().
-                    Include(GetColumnName((DB.CustomFieldsData x) => x.FieldValue));
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index($"{tableName}_IdField_IdItem_IdItemType_with_FieldValue").Exists())
+                if (!Schema.Table<DB.CustomFieldsData>().Index($"IdField_IdItem_IdItemType_with_FieldValue").Exists())
+                    Create.Index("IdField_IdItem_IdItemType_with_FieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItemType)).Ascending().
+                        Include(GetColumnName((DB.CustomFieldsData x) => x.FieldValue));
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index("IdField_IdItem_with_FieldValue").Exists())
-                Create.Index("IdField_IdItem_with_FieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
-                    Include(GetColumnName((DB.CustomFieldsData x) => x.FieldValue));
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index($"{tableName}_IdField_IdItem_with_FieldValue").Exists())
+                if (!Schema.Table<DB.CustomFieldsData>().Index($"IdField_IdItem_with_FieldValue").Exists())
+                    Create.Index($"{tableName}_IdField_IdItem_with_FieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
+                        Include(GetColumnName((DB.CustomFieldsData x) => x.FieldValue));
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index("IdField_with_IdItem_IdFieldValue").Exists())
-                Create.Index("IdField_with_IdItem_IdFieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
-                    Include(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).
-                    Include(GetColumnName((DB.CustomFieldsData x) => x.IdFieldValue));
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index($"{tableName}_IdField_with_IdItem_IdFieldValue").Exists())
+                if (!Schema.Table<DB.CustomFieldsData>().Index($"IdField_with_IdItem_IdFieldValue").Exists())
+                    Create.Index($"{tableName}_IdField_with_IdItem_IdFieldValue").OnTable(GetTableName<DB.CustomFieldsData>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdField)).Ascending().
+                        Include(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).
+                        Include(GetColumnName((DB.CustomFieldsData x) => x.IdFieldValue));
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index("IdItem_IdItemType").Exists())
-                Create.Index("IdItem_IdItemType").OnTable(GetTableName<DB.CustomFieldsData>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItemType)).Ascending();
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsData>().Index($"{tableName}_IdItem_IdItemType").Exists())
+                if (!Schema.Table<DB.CustomFieldsData>().Index($"IdItem_IdItemType").Exists())
+                    Create.Index($"{tableName}_IdItem_IdItemType").OnTable(GetTableName<DB.CustomFieldsData>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItem)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsData x) => x.IdItemType)).Ascending();
 
         }
     }

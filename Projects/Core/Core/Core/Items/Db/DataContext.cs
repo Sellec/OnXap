@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Core.Items.Db
 {
@@ -6,9 +6,8 @@ namespace OnXap.Core.Items.Db
 
     class DataContext : CoreContextBase
     {
-        public IRepository<ItemLink> ItemLink { get; set; }
-        public IRepository<ItemParent> ItemParent { get; set; }
-        public IRepository<ItemType> ItemType { get; set; }
-
+        public DbSet<ItemLink> ItemLink { get; set; }
+        public DbSet<ItemParent> ItemParent { get; set; }
+        public DbSet<ItemType> ItemType { get; set; }
     }
 }

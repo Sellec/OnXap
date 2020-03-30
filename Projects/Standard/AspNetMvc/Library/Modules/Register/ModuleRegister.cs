@@ -1,13 +1,14 @@
-﻿using OnUtils.Data;
-using OnUtils.Data.Validation;
+﻿using Microsoft.EntityFrameworkCore;
 using OnUtils.Utils;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 namespace OnXap.Modules.Register
 {
+    using Core.Data;
     using Core.Db;
     using Core.Modules;
     using Journaling;
@@ -32,9 +33,18 @@ namespace OnXap.Modules.Register
                 using (var db = new ItemsCustomize.DB.Context())
                 using (var scope = db.CreateScope())
                 {
-                    db.CustomFieldsSchemes.AddOrUpdate(x => x.UniqueKey, scheme);
-                    db.SaveChanges();
-                    scope.Commit();
+                    db.CustomFieldsSchemes.
+                        Upsert(scheme).
+                        On(x => x.UniqueKey).
+                        WhenMatched((xDb, xIns) => new ItemsCustomize.DB.CustomFieldsScheme()
+                        {
+                            IdModule = xIns.IdModule,
+                            NameScheme = xIns.NameScheme
+                        }).
+                        Run();
+
+                    scheme.IdScheme = db.CustomFieldsSchemes.Where(x => x.UniqueKey == scheme.UniqueKey).First().IdScheme;
+                    scope.Complete();
                 }
 
                 IdSchemeUserRegister = scheme.IdScheme;
@@ -80,7 +90,7 @@ namespace OnXap.Modules.Register
 
             try
             {
-                using (var db = new UnitOfWork<User>())
+                using (var db = new CoreContext())
                 {
                     var hasEmail = false;
                     var hasPhone = false;
@@ -90,12 +100,12 @@ namespace OnXap.Modules.Register
                     {
                         data.email = data.email.ToLower();
                         hasEmail = true;
-                        if (db.Repo1.Where(x => x.email == data.email).Count() > 0) validationResult.AddModelError(nameof(data.email), "Пользователь с таким адресом электронной почты уже существует!");
+                        if (db.Users.Where(x => x.email == data.email).Count() > 0) validationResult.AddModelError(nameof(data.email), "Пользователь с таким адресом электронной почты уже существует!");
                     }
                     if (!validationResult.ContainsKey(nameof(data.phone)) && !string.IsNullOrEmpty(data.phone))
                     {
                         hasPhone = true;
-                        if (db.Repo1.Where(x => x.phone == data.phone).Count() > 0) validationResult.AddModelError(nameof(data.phone), "Пользователь с таким номером телефона уже существует!");
+                        if (db.Users.Where(x => x.phone == data.phone).Count() > 0) validationResult.AddModelError(nameof(data.phone), "Пользователь с таким номером телефона уже существует!");
                     }
 
                     if (validationResult.IsValid)
@@ -167,7 +177,7 @@ namespace OnXap.Modules.Register
 
                         using (var scope = db.CreateScope())
                         {
-                            db.Repo1.Add(query);
+                            db.Users.Add(query);
                             db.SaveChanges();
 
                             var credentitals = string.Join(" или ", new string[] { hasEmail ? "адрес электронной почты" : string.Empty, hasPhone ? "номер телефона" : string.Empty }.Where(x => !string.IsNullOrEmpty(x)));
@@ -226,7 +236,7 @@ namespace OnXap.Modules.Register
 
                             answer.Data = query;
 
-                            if (answer.Success) scope.Commit();
+                            if (answer.Success) scope.Complete();
                         }
                     }
                     else
@@ -237,7 +247,7 @@ namespace OnXap.Modules.Register
                     }
                 }
             }
-            catch (EntityValidationException ex)
+            catch (ValidationException ex)
             {
                 Debug.Logs("RegisterUser1: {0}", ex.CreateComplexMessage());
                 answer.FromFail(ex.CreateComplexMessage());

@@ -13,9 +13,9 @@ namespace OnXap.Modules.EditableMenu
         [MenuAction("Редактируемое меню", "editablemenu", Module.PERM_EDITABLEMENU)]
         public ActionResult EditableMenu()
         {
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new Db.DataContext())
             {
-                var model = db.Repo1.OrderBy(x => x.id).ToList();
+                var model = db.Menu.OrderBy(x => x.id).ToList();
                 return View("EditableMenu.cshtml", model);
             }
         }
@@ -23,9 +23,9 @@ namespace OnXap.Modules.EditableMenu
         [ModuleAction("editablemenu_edit", Module.PERM_EDITABLEMENU)]
         public ActionResult EditableMenuEdit(int IdMenu = 0)
         {
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new Db.DataContext())
             {
-                var menu = IdMenu == 0 ? new DB.Menu() : db.Repo1.Where(x => x.id == IdMenu).FirstOrDefault();
+                var menu = IdMenu == 0 ? new Db.Menu() : db.Menu.Where(x => x.id == IdMenu).FirstOrDefault();
                 if (menu == null) throw new Exception(string.Format("Меню с id={0} не найдено.", IdMenu));
 
                 return View("EditableMenuEdit.cshtml", new Design.Model.EditableMenu()
@@ -71,23 +71,23 @@ namespace OnXap.Modules.EditableMenu
         }
 
         [ModuleAction("editablemenu_edit_save", Module.PERM_EDITABLEMENU)]
-        public JsonResult EditableMenuSave(DB.Menu menu)
+        public JsonResult EditableMenuSave(Db.Menu menu)
         {
             var success = false;
             var result = "";
 
             try
             {
-                using (var db = Module.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     if (menu == null) throw new Exception("Не удалось получить данные из формы.");
 
-                    var dbmenu = menu.id > 0 ? db.Repo1.Where(x => x.id == menu.id).FirstOrDefault() : menu;
+                    var dbmenu = menu.id > 0 ? db.Menu.Where(x => x.id == menu.id).FirstOrDefault() : menu;
                     if (dbmenu == null) throw new Exception(string.Format("Не удалось найти меню с id={0}", menu.id));
 
                     if (string.IsNullOrEmpty(menu.name)) throw new Exception("Название меню не может быть пустым.");
 
-                    if (dbmenu.id == 0) db.Repo1.Add(menu);
+                    if (dbmenu.id == 0) db.Menu.Add(menu);
                     else
                     {
                         dbmenu.name = menu.name;
@@ -117,12 +117,12 @@ namespace OnXap.Modules.EditableMenu
             try
             {
                 if (IdMenu == 0) throw new Exception("Следует указать номер существующего меню.");
-                using (var db = Module.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
-                    var menu = db.Repo1.Where(x => x.id == IdMenu).FirstOrDefault();
+                    var menu = db.Menu.Where(x => x.id == IdMenu).FirstOrDefault();
                     if (menu == null) throw new Exception(string.Format("Меню с id={0} не найдено.", IdMenu));
 
-                    db.Repo1.Delete(menu);
+                    db.Menu.Remove(menu);
                     db.SaveChanges();
                 }
                 success = true;

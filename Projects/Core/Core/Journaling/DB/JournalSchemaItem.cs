@@ -21,7 +21,10 @@ namespace OnXap.Journaling.DB
             /*
              * На этом объекте нельзя создавать внешние ключи к таблице User, т.к. все запросы к объектам данного типа оборачиваются в Suppress-транзакцию.
              * */
-            if (!Schema.Table<JournalDAO>().Exists())
+            var isTableExists = Schema.Table<JournalDAO>().Exists();
+            var tableName = GetTableName<JournalDAO>();
+
+            if (!isTableExists)
             {
                 Create.Table<JournalDAO>().
                     WithColumn((JournalDAO x) => x.IdJournalData).AsInt32().NotNullable().PrimaryKey().Identity().
@@ -35,13 +38,6 @@ namespace OnXap.Journaling.DB
                     WithColumn((JournalDAO x) => x.IdUser).AsInt32().Nullable().
                     WithColumn((JournalDAO x) => x.ItemLinkId).AsGuid().Nullable();
 
-                Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
-                    OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending();
-
-                Create.ForeignKey("FK_Journal_ItemLink").
-                    FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
-                    ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
-                    OnDelete(System.Data.Rule.Cascade);
             }
             else
             {
@@ -56,27 +52,20 @@ namespace OnXap.Journaling.DB
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.IdUser, x => x.AsInt32().Nullable());
                 AddColumnIfNotExists(Schema, (JournalDAO x) => x.ItemLinkId, x => x.AsGuid().Nullable());
 
-                var tableName = GetTableName<JournalDAO>();
-
-                if (Schema.Table<JournalDAO>().Index("IX_Journal_ItemLinkId").Exists())
-                {
-                    Execute.Sql($@"EXEC sp_rename N'{tableName}.IX_Journal_ItemLinkId', N'IX_ItemLinkId', N'INDEX';");
-                }
-                else if (!Schema.Table<JournalDAO>().Index("IX_ItemLinkId").Exists())
-                {
-                    Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
-                        OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending();
-                }
-
-                if (!Schema.Table<JournalDAO>().Constraint("FK_Journal_ItemLink").Exists())
-                    Create.ForeignKey("FK_Journal_ItemLink").
-                        FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
-                        ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
-                        OnDelete(System.Data.Rule.Cascade);
-
                 if (Schema.Table<JournalDAO>().Constraint("FK_Journal_UserBase").Exists())
                     Delete.ForeignKey("FK_Journal_UserBase").OnTable(GetTableName<JournalDAO>());
             }
+
+            if (!isTableExists || !Schema.Table<JournalDAO>().Index("IX_ItemLinkId").Exists())
+                Create.Index("IX_ItemLinkId").OnTable(GetTableName<JournalDAO>()).
+                    OnColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).Ascending();
+
+            if (!isTableExists || !Schema.Table<JournalDAO>().Constraint("FK_Journal_ItemLink").Exists())
+                Create.ForeignKey("FK_Journal_ItemLink").
+                    FromTable(GetTableName<JournalDAO>()).ForeignColumn(GetColumnName((JournalDAO x) => x.ItemLinkId)).
+                    ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
+                    OnDelete(System.Data.Rule.Cascade);
+
         }
     }
 }

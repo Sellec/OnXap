@@ -13,6 +13,7 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
         public override void Up()
         {
             var isTableExists = Schema.Table<DB.CustomFieldsScheme>().Exists();
+            var tableName = GetTableName<DB.CustomFieldsScheme>();
 
             if (!isTableExists)
             {
@@ -30,10 +31,11 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
                 AddColumnIfNotExists(Schema, (DB.CustomFieldsScheme x) => x.UniqueKey, x => x.AsString(500).Nullable());
             }
 
-            if (!Schema.Table<DB.CustomFieldsScheme>().Exists() || !Schema.Table<DB.CustomFieldsScheme>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<DB.CustomFieldsScheme>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsScheme x) => x.UniqueKey)).Ascending().
-                    WithOptions().UniqueNullsNotDistinct();
+            if (!Schema.Table<DB.CustomFieldsScheme>().Exists() || !Schema.Table<DB.CustomFieldsScheme>().Index($"{tableName}_UniqueKey").Exists())
+                if (!Schema.Table<DB.CustomFieldsScheme>().Index($"UniqueKey").Exists())
+                    Create.Index($"{tableName}_UniqueKey").OnTable(GetTableName<DB.CustomFieldsScheme>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsScheme x) => x.UniqueKey)).Ascending().
+                        WithOptions().UniqueNullsNotDistinct();
         }
     }
 }

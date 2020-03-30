@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,9 +58,9 @@ namespace OnXap.Modules.Customer
         {
             if (!IdUser.HasValue) IdUser = AppCore.GetUserContextManager().GetCurrentUserContext().IdUser;
 
-            using (var db = new UnitOfWork<User>())
+            using (var db = new CoreContext())
             {
-                var data = db.Repo1.Where(x => x.IdUser == IdUser.Value).FirstOrDefault();
+                var data = db.Users.Where(x => x.IdUser == IdUser.Value).FirstOrDefault();
                 if (data == null) throw new Exception("Указанный пользователь не найден.");
                 else Module.CheckPermissionToEditOtherUser(IdUser.Value);
 
@@ -87,10 +87,10 @@ namespace OnXap.Modules.Customer
                 //if (!this.IsReCaptchaValid && !AppCore.GetUserContextManager().GetCurrentUserContext().IsSuperuser) ModelState.AddModelError("ReCaptcha", "Вы точно не робот?");
                 if (model == null) throw new Exception("Нет переданных данных.");
 
-                using (var db = new UnitOfWork<User>())
-                using (var trans = db.CreateScope())
+                using (var db = new CoreContext())
+                using (var scope = db.CreateScope())
                 {
-                    var data = db.Repo1.Where(x => x.IdUser == model.IdUser).FirstOrDefault();
+                    var data = db.Users.Where(x => x.IdUser == model.IdUser).FirstOrDefault();
                     if (data == null) throw new Exception("Указанный пользователь не найден.");
                     else Module.CheckPermissionToEditOtherUser(model.ID);
 
@@ -102,7 +102,7 @@ namespace OnXap.Modules.Customer
                             data.email = data.email?.ToLower();
                             if (data.email != model.email)
                             {
-                                var others = db.Repo1.AsNoTracking().Where(x => x.email.ToLower() == model.email && x.IdUser != data.IdUser).Count();
+                                var others = db.Users.AsNoTracking().Where(x => x.email.ToLower() == model.email && x.IdUser != data.IdUser).Count();
                                 if (others > 0) ModelState.AddModelError(prefix + nameof(model.email), "Такой email-адрес уже используется!");
                                 else data.email = model.email;
                             }
@@ -117,7 +117,7 @@ namespace OnXap.Modules.Customer
                                 if (string.IsNullOrEmpty(model.phone)) model.phone = null;
                                 else
                                 {
-                                    var others = db.Repo1.AsNoTracking().Where(x => x.phone.ToLower() == model.phone && x.IdUser != data.IdUser).Count();
+                                    var others = db.Users.AsNoTracking().Where(x => x.phone.ToLower() == model.phone && x.IdUser != data.IdUser).Count();
                                     if (others > 0) ModelState.AddModelError(prefix + nameof(model.phone), "Такой номер телефона уже используется!");
                                     else
                                     {
@@ -147,7 +147,7 @@ namespace OnXap.Modules.Customer
 
                         db.SaveChanges();
 
-                        trans.Commit();
+                        scope.Complete();
 
                         answer.Data = data;
 

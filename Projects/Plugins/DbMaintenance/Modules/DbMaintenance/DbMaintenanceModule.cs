@@ -51,8 +51,8 @@ namespace OnXap.Modules.DbMaintenance
                 using (var db = new DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
-                    db.DataContext.QueryTimeout = (int)TimeSpan.FromMinutes(5).TotalMilliseconds;
-                    var result = db.DataContext.StoredProcedure<object>("Maintenance_RebuildIndexes", new { MinimumIndexFragmentstionToSearch = 5 });
+                    db.QueryTimeout = (int)TimeSpan.FromMinutes(5).TotalMilliseconds;
+                    var result = db.StoredProcedure<object>("Maintenance_RebuildIndexes", new { MinimumIndexFragmentstionToSearch = 5 });
                 }
             }
             catch (Exception ex)

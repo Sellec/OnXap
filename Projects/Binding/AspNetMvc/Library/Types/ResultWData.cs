@@ -1,9 +1,11 @@
-﻿using OnUtils.Data.Validation;
-using System;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
 namespace OnXap.Types
 {
+    using Core.Data;
+
     /// <summary>
     /// Хранит стандартный для движка результат выполнения функции. Может использоваться в качестве результата выполнения ajax-запроса, 
     /// в этом случае будет возвращен стандартный формат ответа для $.requestJSON.
@@ -16,10 +18,10 @@ namespace OnXap.Types
         /// </summary>
         public ResultWData(bool success = false, string message = null, TData data = default(TData))
         {
-            this.Success = success;
-            this.Message = message;
-            this.Data = data;
-            this.ModelState = null;
+            Success = success;
+            Message = message;
+            Data = data;
+            ModelState = null;
         }
 
         #region Методы
@@ -33,19 +35,14 @@ namespace OnXap.Types
         {
             if (ex == null) return;
 
-            this.Success = false;
-            if (ex is EntityValidationException)
+            Success = false;
+            if (ex is ValidationException exVal)
             {
-                var exVal = ex as EntityValidationException;
-                this.Message = "Возникли ошибки во время проверки данных при сохранении в базу:\r\n" + exVal.CreateComplexMessage();
+                Message = "Возникли ошибки во время проверки данных при сохранении в базу:\r\n" + exVal.CreateComplexMessage();
             }
-            //else if (ex is System.Data.Entity.Core.UpdateException)
-            //{
-
-            //}
             else
             {
-                this.Message += ex.Message;
+                Message += ex.Message;
 
                 var exx = ex.InnerException;
                 var prefix = " - ";
@@ -53,8 +50,8 @@ namespace OnXap.Types
                 {
                     var exxType = exx.GetType();
 
-                    if (!string.IsNullOrEmpty(this.Message)) this.Message += "\r\n" + prefix;
-                    this.Message += exx.Message;
+                    if (!string.IsNullOrEmpty(Message)) Message += "\r\n" + prefix;
+                    Message += exx.Message;
 
                     exx = exx.InnerException;
                     prefix = "  " + prefix;
@@ -68,8 +65,8 @@ namespace OnXap.Types
         /// </summary>
         public void FromSuccess(string message)
         {
-            this.Message = message;
-            this.Success = true;
+            Message = message;
+            Success = true;
         }
 
         /// <summary>
@@ -78,8 +75,8 @@ namespace OnXap.Types
         /// </summary>
         public void FromFail(string message)
         {
-            this.Message = message;
-            this.Success = false;
+            Message = message;
+            Success = false;
         }
         #endregion
 

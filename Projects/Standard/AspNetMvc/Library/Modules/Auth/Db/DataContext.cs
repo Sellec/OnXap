@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Modules.Auth.Db
 {
@@ -6,7 +6,7 @@ namespace OnXap.Modules.Auth.Db
 
     class DataContext : CoreContext
     {
-        public IRepository<UserPasswordRecovery> UserPasswordRecovery { get; }
+        public DbSet<UserPasswordRecovery> UserPasswordRecovery { get; set; }
 
     }
 }

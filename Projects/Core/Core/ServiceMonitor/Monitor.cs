@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,6 @@ namespace OnXap.ServiceMonitor
     public class Monitor :
         CoreComponentBase,
         IComponentSingleton,
-        IUnitOfWorkAccessor<UnitOfWork<JournalData>>,
         ITypedJournalComponent<Monitor>
     {
         private static ConcurrentDictionary<Guid, JournalInfo> _servicesJournalsList = new ConcurrentDictionary<Guid, JournalInfo>();

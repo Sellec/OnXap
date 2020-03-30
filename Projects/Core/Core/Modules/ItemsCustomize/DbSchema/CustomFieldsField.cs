@@ -13,6 +13,7 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
         public override void Up()
         {
             var isTableExists = Schema.Table<DB.CustomFieldsField>().Exists();
+            var tableName = GetTableName<DB.CustomFieldsField>();
 
             if (!isTableExists)
             {
@@ -62,24 +63,28 @@ namespace OnXap.Modules.ItemsCustomize.DbSchema
                 AddColumnIfNotExists(Schema, (DB.CustomFieldsField x) => x.UniqueKey, x => x.AsString(400).Nullable());
             }
 
-            if (!Schema.Table<DB.CustomFieldsField>().Exists() || !Schema.Table<DB.CustomFieldsField>().Index("CustomFieldsField_UniqueKey").Exists())
-                Create.Index("CustomFieldsField_UniqueKey").OnTable(GetTableName<DB.CustomFieldsField>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.UniqueKey)).Ascending().
-                    WithOptions().UniqueNullsNotDistinct();
+            if (!Schema.Table<DB.CustomFieldsField>().Exists() || !Schema.Table<DB.CustomFieldsField>().Index($"{tableName}_UniqueKey").Exists())
+                if (!Schema.Table<DB.CustomFieldsField>().Index($"UniqueKey").Exists())
+                    Create.Index($"{tableName}_UniqueKey").OnTable(GetTableName<DB.CustomFieldsField>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.UniqueKey)).Ascending().
+                        WithOptions().UniqueNullsNotDistinct();
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index("field_id").Exists())
-                Create.Index("field_id").OnTable(GetTableName<DB.CustomFieldsField>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdField)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending();
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index($"{tableName}_field_id").Exists())
+                if (!Schema.Table<DB.CustomFieldsField>().Index($"field_id").Exists())
+                    Create.Index($"{tableName}_field_id").OnTable(GetTableName<DB.CustomFieldsField>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdField)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending();
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index("field_module1").Exists())
-                Create.Index("field_module1").OnTable(GetTableName<DB.CustomFieldsField>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending();
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index($"{tableName}_field_module1").Exists())
+                if (!Schema.Table<DB.CustomFieldsField>().Index($"field_module1").Exists())
+                    Create.Index($"{tableName}_field_module1").OnTable(GetTableName<DB.CustomFieldsField>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending();
 
-            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index("field_module1_2").Exists())
-                Create.Index("field_module1_2").OnTable(GetTableName<DB.CustomFieldsField>()).
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending().
-                    OnColumn(GetColumnName((DB.CustomFieldsField x) => x.name)).Ascending();
+            if (!isTableExists || !Schema.Table<DB.CustomFieldsField>().Index($"{tableName}_field_module1_2").Exists())
+                if (!Schema.Table<DB.CustomFieldsField>().Index($"field_module1_2").Exists())
+                    Create.Index($"{tableName}_field_module1_2").OnTable(GetTableName<DB.CustomFieldsField>()).
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.IdModule)).Ascending().
+                        OnColumn(GetColumnName((DB.CustomFieldsField x) => x.name)).Ascending();
         }
     }
 }

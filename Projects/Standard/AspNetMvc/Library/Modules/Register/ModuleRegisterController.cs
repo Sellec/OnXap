@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
@@ -25,7 +24,7 @@ namespace OnXap.Modules.Register
         {
             var d = AppCore.Get<UsersManagement.ModuleUsersManagement>().GetUsersByRolePermission<UsersManagement.ModuleUsersManagement>(UsersManagement.ModuleUsersManagement.PermissionReceiveRegisterModeratorNotifications);
 
-            return display("Register.cshtml", new Model.Register());
+            return View("Register.cshtml", new Model.Register());
         }
 
         [ModuleAction("reg2")]
@@ -37,11 +36,11 @@ namespace OnXap.Modules.Register
             {
                 if (ModelState.IsValid)
                 {
-                    using (var db = new UnitOfWork<User>())
+                    using (var db = new CoreContext())
                     {
                         if (!string.IsNullOrEmpty(model.email))
                         {
-                            if (db.Repo1.Where(x => x.email.ToLower() == model.email.ToLower()).Count() > 0) ModelState.AddModelError(nameof(model.email), "Этот email-адрес уже используется!");
+                            if (db.Users.Where(x => x.email.ToLower() == model.email.ToLower()).Count() > 0) ModelState.AddModelError(nameof(model.email), "Этот email-адрес уже используется!");
                         }
 
                         if (!string.IsNullOrEmpty(model.phone))
@@ -51,7 +50,7 @@ namespace OnXap.Modules.Register
                             else
                             {
                                 model.phone = phone.ParsedPhoneNumber;
-                                if (db.Repo1.Where(x => x.phone.ToLower() == model.phone.ToLower()).Count() > 0) ModelState.AddModelError(nameof(model.phone), "Этот номер телефона уже используется!");
+                                if (db.Users.Where(x => x.phone.ToLower() == model.phone.ToLower()).Count() > 0) ModelState.AddModelError(nameof(model.phone), "Этот номер телефона уже используется!");
                             }
                         }
                     }

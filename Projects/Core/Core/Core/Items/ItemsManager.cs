@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -19,7 +19,6 @@ namespace OnXap.Core.Items
     public class ItemsManager : 
         CoreComponentBase, 
         IComponentSingleton, 
-        IUnitOfWorkAccessor<DataContext>,
         ITypedJournalComponent<ItemsManager>
     {
         private class ParentsInternal
@@ -59,7 +58,7 @@ namespace OnXap.Core.Items
         /// </summary>
         /// <param name="module">Модуль</param>
         /// <param name="relationsList">Список взаимосвязей</param>
-        /// <param name="idItemType">Идентификатор типа сущности (см. <see cref="Db.ItemType.IdItemType"/>).</param>
+        /// <param name="idItemType">Идентификатор типа сущности (см. <see cref="ItemType.IdItemType"/>).</param>
         /// <returns>Возвращает true, если сохранение прошло успешно и false, если возникла ошибка. Возвращает true, если <paramref name="relationsList"/> пуст.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="module"/> равен null.</exception>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="relationsList"/> равен null.</exception>
@@ -120,7 +119,7 @@ namespace OnXap.Core.Items
                     }
                 }
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DataContext())
                 using (var scope = db.CreateScope())
                 {
                     foreach (var item in toBase.GroupBy(x => $"{x.item}_{x.type}_{x.parent}", x => x).Select(x => x.First()))
@@ -135,11 +134,11 @@ namespace OnXap.Core.Items
                         });
                     }
 
-                    db.DataContext.ExecuteQuery($"DELETE FROM ItemParent WHERE IdModule='{module.IdModule}' AND IdItemType='{idItemType}'");//" AND IdItem IN (".implode(', ', $ids).")");
+                    db.ExecuteQuery($"DELETE FROM ItemParent WHERE IdModule='{module.IdModule}' AND IdItemType='{idItemType}'");//" AND IdItem IN (".implode(', ', $ids).")");
                     if (toBase.Count > 0)
                     {
                         db.SaveChanges();
-                        scope.Commit();
+                        scope.Complete();
                     }
                 }
                 return true;
@@ -286,23 +285,27 @@ namespace OnXap.Core.Items
                             var data = query.FirstOrDefault();
                             if (data != null) return data.LinkId;
 
-                            db.ItemLink.AddOrUpdate(
-                                x => new
-                                {
-                                    x.ItemIdType,
-                                    x.ItemId,
-                                    x.ItemKey
-                                },
-                                new Db.ItemLink()
+                            db.ItemLink.
+                                Upsert(new ItemLink()
                                 {
                                     ItemIdType = itemKey.IdType,
                                     ItemId = itemKey.IdItem,
                                     ItemKey = itemKey.Key,
                                     LinkId = guid,
                                     DateCreate = DateTime.Now
-                                }
-                            );
-                            db.SaveChanges();
+                                }).
+                                On(x => new
+                                {
+                                    x.ItemIdType,
+                                    x.ItemId,
+                                    x.ItemKey
+                                }).
+                                WhenMatched((xDb, xIns) => new ItemLink()
+                                {
+                                    LinkId = xIns.LinkId,
+                                    DateCreate = xIns.DateCreate
+                                }).
+                                Run();
                             break;
                         }
                         catch (Exception ex)

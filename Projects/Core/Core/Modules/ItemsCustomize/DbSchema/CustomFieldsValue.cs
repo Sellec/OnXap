@@ -1,6 +1,4 @@
-﻿using FluentMigrator.SqlServer;
-
-namespace OnXap.Modules.ItemsCustomize.DbSchema
+﻿namespace OnXap.Modules.ItemsCustomize.DbSchema
 {
     using Core.DbSchema;
 

@@ -76,16 +76,12 @@ namespace OnXap.Binding.Providers
 
         protected override ICustomTypeDescriptor GetTypeDescriptor(Type type)
         {
-         //   Debug.WriteLine("GetTypeDescriptor: {0}", type.FullName);
             var td = base.GetTypeDescriptor(type);
-
             return td;
         }
 
         public override IEnumerable<ModelMetadata> GetMetadataForProperties(object container, Type containerType)
         {
-      //      Debug.WriteLine("GetMetadataForProperties: {0}, {1}", container?.GetType()?.FullName, containerType?.FullName);
-
             var metadata = new List<ModelMetadata>(base.GetMetadataForProperties(container, containerType));
 
             try

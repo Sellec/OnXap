@@ -1,23 +1,24 @@
-using OnUtils.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.Modules.ItemsCustomize.DB
 {
+    using Core.Db;
     using Core.Items.Db;
 
 #pragma warning disable CS1591 // todo внести комментарии.
-    public class Context : UnitOfWorkBase
+    public class Context : CoreContextBase
     {
-        public IRepository<CustomFieldsData> CustomFieldsDatas { get; }
+        public DbSet<CustomFieldsData> CustomFieldsDatas { get; set; }
 
-        public IRepository<CustomFieldsField> CustomFieldsFields { get; }
+        public DbSet<CustomFieldsField> CustomFieldsFields { get; set; }
 
-        public IRepository<CustomFieldsScheme> CustomFieldsSchemes { get; }
+        public DbSet<CustomFieldsScheme> CustomFieldsSchemes { get; set; }
 
-        public IRepository<CustomFieldsSchemeData> CustomFieldsSchemeDatas { get; }
+        public DbSet<CustomFieldsSchemeData> CustomFieldsSchemeDatas { get; set; }
 
-        public IRepository<CustomFieldsValue> CustomFieldsValues { get; }
+        public DbSet<CustomFieldsValue> CustomFieldsValues { get; set; }
 
-        public IRepository<ItemParent> ItemParent { get; }
+        public DbSet<ItemParent> ItemParent { get; set; }
 
     }
 }

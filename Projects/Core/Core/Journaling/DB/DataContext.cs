@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 
 #pragma warning disable CS1591
 namespace OnXap.Journaling.DB
@@ -8,8 +8,8 @@ namespace OnXap.Journaling.DB
 
     public class DataContext : CoreContext
     {
-        public IRepository<ItemLink> ItemLink { get; }
-        public IRepository<JournalDAO> Journal { get; }
-        public IRepository<JournalNameDAO> JournalName { get; }
+        public DbSet<ItemLink> ItemLink { get; set; }
+        public DbSet<JournalDAO> Journal { get; set; }
+        public DbSet<JournalNameDAO> JournalName { get; set; }
     }
 }

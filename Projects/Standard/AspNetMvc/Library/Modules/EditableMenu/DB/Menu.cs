@@ -1,4 +1,4 @@
-﻿namespace OnXap.Modules.EditableMenu.DB
+﻿namespace OnXap.Modules.EditableMenu.Db
 {
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;

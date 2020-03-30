@@ -1,18 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
-using System.Web.Mvc.Properties;
-using System.Web.Script.Serialization;
-
 using System.Web.Mvc;
+using System.Web.Script.Serialization;
 
 namespace OnXap.Binding.Providers
 {

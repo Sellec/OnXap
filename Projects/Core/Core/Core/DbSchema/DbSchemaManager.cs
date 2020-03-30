@@ -21,20 +21,25 @@ namespace OnXap.Core.DbSchema
 
             try
             {
-                var serviceProvider = new ServiceCollection().
-                    AddFluentMigratorCore().
-                    ConfigureRunner(rb => rb.
-                        AddSqlServer().
-                        WithGlobalConnectionString(AppCore.ConnectionStringFactory())).
-                    Configure<RunnerOptions>(cfg => cfg.Profile = DbSchemaDefaultProfile.ProfileName).
-                    AddSingleton<IMigrationSource>(sp => this).
-                    AddSingleton<IProfileSource, DbSchemaProfileSource>().
-                    BuildServiceProvider(false);
-
-                using (var scope = serviceProvider.CreateScope())
+                using (var ctx = new Db.CoreContextBase())
                 {
-                    var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
-                    runner.MigrateUp();
+                    var isNeedToRun = false;
+                    var serviceProvider = new ServiceCollection().
+                        AddFluentMigratorCore().
+                        ConfigureRunner(rb =>
+                        {
+                            isNeedToRun = AppCore.DbConfigurationBuilder.OnConfigureFluentMigrator(rb);
+                        }).
+                        Configure<RunnerOptions>(cfg => cfg.Profile = DbSchemaDefaultProfile.ProfileName).
+                        AddSingleton<IMigrationSource>(sp => this).
+                        AddSingleton<IProfileSource, DbSchemaProfileSource>().
+                        BuildServiceProvider(false);
+
+                    using (var scope = serviceProvider.CreateScope())
+                    {
+                        var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
+                        if (isNeedToRun) runner.MigrateUp();
+                    }
                 }
             }
             catch (Exception ex)

@@ -11,13 +11,14 @@ using System.Web.Mvc;
 
 namespace OnXap
 {
+    using Core.Data;
     using Binding.Binders;
     using Binding.Providers;
 
     /// <summary>
     /// Представляет приложение ASP.NET, умеющее инициализировать OnXap.
     /// </summary>
-    public abstract class HttpApplicationBase : System.Web.HttpApplication
+    public abstract class HttpApplicationBase : HttpApplication
     {
         private static object SyncRootStart = new object();
         private static volatile int _instancesCount = 0;
@@ -98,12 +99,9 @@ namespace OnXap
         }
 
         /// <summary>
-        /// Возвращает строку подключения для приложения.
+        /// Возвращает настройки подключения к базе.
         /// </summary>
-        protected abstract string ConnectionString
-        {
-            get;
-        }
+        protected abstract IDbConfigurationBuilder GetDbConfigurationBuilder();
 
         #endregion
 
@@ -137,7 +135,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, GetDbConfigurationBuilder());
                     switch (_runtimeOptions)
                     {
                         case ApplicationRuntimeOptions.DebugLevelDetailed:
@@ -206,7 +204,7 @@ namespace OnXap
 
                     var physicalApplicationPath = Server.MapPath("~");
 
-                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, () => ConnectionString);
+                    _applicationCore = new OnXApplicationAspNetMvc(physicalApplicationPath, GetDbConfigurationBuilder());
                     switch (_runtimeOptions)
                     {
                         case ApplicationRuntimeOptions.DebugLevelDetailed:
@@ -242,7 +240,6 @@ namespace OnXap
                 }
             }
 
-            WebUtils.QueryLogHelper.QueryLogEnabled = true;
             Context.Items["TimeRequestStart"] = DateTime.Now;
 
             HttpContext.Current.SetAppCore(_applicationCore);
@@ -314,14 +311,9 @@ namespace OnXap
         {
             Context.Items["TimeRequestEnd"] = DateTime.Now;
 
-            var queries = WebUtils.QueryLogHelper.GetQueries();
-            if (queries.Count > 0)
-            {
-            }
-
             try
             {
-                this.OnEndRequest();
+                OnEndRequest();
             }
             catch (ThreadAbortException) { throw; }
             catch (Exception ex) { Debug.WriteLine("OnBeginRequest: " + ex.Message); }
@@ -347,23 +339,10 @@ namespace OnXap
             {
                 _applicationCore.GetUserContextManager().ClearCurrentUserContext();
             }
-
-            var queries2 = WebUtils.QueryLogHelper.GetQueries();
-            if (queries2.Count > 0)
-            {
-            }
-            if (queries.Count > 0 && queries.Count != queries2.Count)
-            {
-            }
-
-            WebUtils.QueryLogHelper.QueryLogEnabled = false;
-            WebUtils.QueryLogHelper.ClearQueries();
         }
 
         internal void Application_PreSendRequestHeaders()
         {
-            // ensure that if GZip/Deflate Encoding is applied that headers are set
-            // also works when error occurs if filters are still active
             HttpResponse response = HttpContext.Current.Response;
             if (response.Filter is GZipStream && response.Headers["Content-encoding"] != "gzip")
                 response.AppendHeader("Content-encoding", "gzip");
@@ -378,14 +357,6 @@ namespace OnXap
 
         internal void Application_Disposed(Object sender, EventArgs e)
         {
-            //try
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName})");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Debug.WriteLine($"Application_Disposed({_unique}, {GetType().AssemblyQualifiedName}): {ex.ToString()}");
-            //}
         }
 
         internal void Application_End(Object sender, EventArgs e)

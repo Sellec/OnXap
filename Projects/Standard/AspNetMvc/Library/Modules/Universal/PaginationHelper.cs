@@ -99,8 +99,6 @@ namespace OnXap.Modules.Universal.Pagination
 
             var startPosition = 0;
 
-            sql = sql.Where(x => x != null);
-
             var itemsCount = sql.Count();
 
             if (IdPage.HasValue)

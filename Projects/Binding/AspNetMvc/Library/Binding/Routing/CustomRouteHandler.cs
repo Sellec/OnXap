@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,11 +11,16 @@ using System.Web.Routing;
 namespace OnXap.Binding.Routing
 {
     using Modules.Routing;
-    using Modules.Routing.DB;
+    using Modules.Routing.Db;
     using Providers;
 
     class CustomRouteHandler : MvcRouteHandler, IRouteConstraint
     {
+        class DataContext : Core.Db.CoreContextBase
+        {
+            public DbSet<Routing> Routing { get; set; }
+        }
+
         private ConcurrentDictionary<string, Routing> _dbCache = new ConcurrentDictionary<string, Routing>();
         private readonly OnXApplication _core = null;
 
@@ -31,10 +37,10 @@ namespace OnXap.Binding.Routing
 
             if (_dbCache.TryGetValue(url, out Routing data)) return data;
 
-            using (var db = new OnUtils.Data.UnitOfWork<Routing>())
+            using (var db = new DataContext())
             {
                 // Вложенный запрос работает долю секунды. А предыдущий вариант с условием и сортировкой внутри одного селекта работает значительно дольше.
-                var queryRoutes = db.DataContext.ExecuteQuery<Routing>($@"
+                var queryRoutes = db.ExecuteQuery<Routing>($@"
                     SELECT *
                     FROM [dbo].[UrlTranslation]
                     WHERE IdTranslation = (
@@ -136,9 +142,9 @@ namespace OnXap.Binding.Routing
             {
                 if (route.IdRoutingType == RoutingType.Old)
                 {
-                    using (var db = new OnUtils.Data.UnitOfWork<Routing>())
+                    using (var db = new DataContext())
                     {
-                        var routeMain = db.Repo1
+                        var routeMain = db.Routing
                             .Where(x => x.IdModule == route.IdModule && x.IdItem == route.IdItem &&
                                         x.IdItemType == route.IdItemType && x.IdRoutingType == RoutingType.Main)
                             .OrderByDescending(x => x.DateChange)

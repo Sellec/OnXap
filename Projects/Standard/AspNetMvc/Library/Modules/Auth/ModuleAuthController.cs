@@ -6,12 +6,12 @@ using System.Web.Mvc;
 namespace OnXap.Modules.Auth
 {
     using Core.Db;
-    using Db;
     using Core.Modules;
-    using Users;
+    using Db;
     using Exceptions;
     using Journaling;
     using MessagingEmail;
+    using Users;
 
     public class ModuleAuthController : ModuleControllerUser<ModuleAuth>
     {
@@ -257,7 +257,7 @@ namespace OnXap.Modules.Auth
                                 }
 
                                 db.SaveChanges();
-                                scope.Commit();
+                                scope.Complete();
                             }
 
                             answer.Data = codeType;
@@ -323,7 +323,7 @@ namespace OnXap.Modules.Auth
 
                             using (var scope = new System.Transactions.TransactionScope())
                             {
-                                db.UserPasswordRecovery.Delete(res.UserPasswordRecovery);
+                                db.UserPasswordRecovery.Remove(res.UserPasswordRecovery);
 
                                 res.User.password = UsersExtensions.hashPassword(model.Password);
                                 res.User.salt = salt;

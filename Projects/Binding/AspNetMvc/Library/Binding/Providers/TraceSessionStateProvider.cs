@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using OnUtils.Data.Errors;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
@@ -148,58 +147,21 @@ namespace OnXap.Binding.Providers
 
                             if (oldUpsertQueue.Count > 0)
                             {
-                                _sessionsSaveContext.Value.Sessions.InsertOrDuplicateUpdate(
-                                    oldUpsertQueue,
-                                    new UpsertField(nameof(UserSession.Created)),
-                                    new UpsertField(nameof(UserSession.Expires)),
-                                    new UpsertField(nameof(UserSession.LockDate)),
-                                    new UpsertField(nameof(UserSession.LockId)),
-                                    new UpsertField(nameof(UserSession.Locked)),
-                                    new UpsertField(nameof(UserSession.ItemContent)),
-                                    new UpsertField(nameof(UserSession.IdUser))
-                                );
+                                _sessionsSaveContext.Value.Sessions.
+                                    UpsertRange(oldUpsertQueue).
+                                    On(x => x.SessionId).
+                                    WhenMatched((xDb, xIns) => new UserSession()
+                                    {
+                                        Created = xIns.Created,
+                                        Expires = xIns.Expires,
+                                        LockDate = xIns.LockDate,
+                                        LockId = xIns.LockId,
+                                        Locked = xIns.Locked,
+                                        ItemContent = xIns.ItemContent,
+                                        IdUser = xIns.IdUser
+                                    }).
+                                    Run();
                             }
-
-                            //_cache.ToList().ForEach(p =>
-                            //    {
-                            //        lock (p.Value.SyncRoot)
-                            //        {
-                            //            if (p.Value.DateLastChanged > p.Value.DateLastSaved)
-                            //            {
-                            //                var entityState = _dbContext.GetState(p.Value);
-                            //                if (!p.Value.IsDeleted)
-                            //                {
-                            //                    if (entityState == ItemState.Detached)
-                            //                    {
-                            //                        _dbContext.Sessions.AddOrUpdate(p.Value);
-                            //                        p.Value.DateLastSaved = DateTime.Now;
-                            //                    }
-                            //                }
-                            //                else if (p.Value.IsDeleted)
-                            //                {
-                            //                    if (entityState != ItemState.Detached)
-                            //                    {
-                            //                        _dbContext.DeleteEntity(p.Value);
-
-                            //                        Sessions item = null;
-                            //                        _cache.TryRemove(p.Key, out item);
-                            //                    }
-                            //                }
-                            //            }
-                            //        }
-                            //    });
-
-                            //    _dbContext.SaveChanges();
-                        }
-                        catch (UpdateConcurrencyException ex)
-                        {
-                            Debug.WriteLine("SessionStateProvider: Update error2: {0}", ex.Message);
-                            //foreach (var entry in ex.Entries)
-                            //{
-                            //    Sessions item = entry.Entity as Sessions;
-                            //    _dbContext.Sessions.Delete(entry.Entity as Sessions);
-                            //    _cache.TryRemove(item.SessionId, out item);
-                            //}
                         }
                         catch (Exception ex)
                         {
@@ -514,9 +476,11 @@ namespace OnXap.Binding.Providers
 
     namespace Session
     {
-        class SessionContext : UnitOfWorkBase
+        using Core.Db;
+
+        class SessionContext : CoreContextBase
         {
-            public IRepository<UserSession> Sessions { get; set; }
+            public DbSet<UserSession> Sessions { get; set; }
         }
     }
 }

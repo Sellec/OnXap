@@ -1,6 +1,6 @@
-﻿using MimeDetective;
+﻿using Microsoft.EntityFrameworkCore;
+using MimeDetective;
 using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
 using OnUtils.Tasks;
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace OnXap.Modules.FileManager
     /// Менеджер, позволяющий управлять файлами в хранилище файлов (локально или cdn).
     /// </summary>
     [ModuleCore("Управление файлами")]
-    public class FileManager : ModuleCore<FileManager>, IUnitOfWorkAccessor<Db.DataContext>
+    public class FileManager : ModuleCore<FileManager>
     {
         private static FileManager _thisModule = null;
         private static ConcurrentFlagLocker<string> _servicesFlags = new ConcurrentFlagLocker<string>();
@@ -74,7 +74,7 @@ namespace OnXap.Modules.FileManager
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     result = db.File.Where(x => x.IdFile == idFile && !x.IsRemoved && !x.IsRemoving).FirstOrDefault();
                     return result != null ? NotFound.Success : NotFound.NotFound;
@@ -103,7 +103,7 @@ namespace OnXap.Modules.FileManager
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     try
                     {
@@ -141,7 +141,7 @@ namespace OnXap.Modules.FileManager
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     try
                     {
@@ -183,7 +183,7 @@ namespace OnXap.Modules.FileManager
                 var ids = new List<int>(fileList);
                 if (ids.Count > 0)
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new Db.DataContext())
                     {
                         var data = db.File.Where(x => ids.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).OrderBy(x => x.NameFile).ToDictionary(x => x.IdFile, x => x);
                         return fileList.ToDictionary(x => x, x => data.ContainsKey(x) ? data[x] : null);
@@ -229,7 +229,7 @@ namespace OnXap.Modules.FileManager
                 var context = AppCore.GetUserContextManager().GetCurrentUserContext();
 
                 var pathFileOld = string.Empty;
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     var data = uniqueKey.HasValue ? (db.File.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault() ?? null) : null;
 
@@ -290,7 +290,7 @@ namespace OnXap.Modules.FileManager
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     var file = db.File.Where(x => x.IdFile == idFile && !x.IsRemoved && !x.IsRemoving).FirstOrDefault();
                     if (file != null)
@@ -328,7 +328,7 @@ namespace OnXap.Modules.FileManager
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
                     //Немножечко оптимизируем под параметризацию запроса - если параметров разумное количество, то строим через переменные.
                     var IdList1 = fileList.Length > 0 ? fileList[0] : 0;
@@ -373,7 +373,7 @@ namespace OnXap.Modules.FileManager
             {
                 var rootDirectory = AppCore.ApplicationWorkingFolder;
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                 {
                     if (db.File.Where(x => fileList.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).ForEach(file =>
@@ -386,11 +386,11 @@ namespace OnXap.Modules.FileManager
                         catch (UnauthorizedAccessException) { return; }
                         catch { }
 
-                        db.File.Delete(file);
+                        db.File.Remove(file);
                     }) > 0)
                     {
                         db.SaveChanges();
-                        scope.Commit();
+                        scope.Complete();
                     }
                 }
 
@@ -415,7 +415,7 @@ namespace OnXap.Modules.FileManager
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Required))
                 {
                     if (db.File.Where(x => fileList.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).ForEach(file =>
@@ -424,7 +424,7 @@ namespace OnXap.Modules.FileManager
                     }) > 0)
                     {
                         db.SaveChanges();
-                        scope.Commit();
+                        scope.Complete();
                     }
                 }
 
@@ -442,9 +442,9 @@ namespace OnXap.Modules.FileManager
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new Db.DataContext())
                 {
-                    db.DataContext.StoredProcedure<object>("FileManager_FileCountUpdate");
+                    db.StoredProcedure<object>("FileManager_FileCountUpdate");
                 }
             }
             catch (Exception ex)
@@ -463,7 +463,7 @@ namespace OnXap.Modules.FileManager
             {
                 using (var db = new Db.DataContext())
                 {
-                    db.DataContext.StoredProcedure<object>("FileManager_PlaceFileIntoQueue");
+                    db.StoredProcedure<object>("FileManager_PlaceFileIntoQueue");
                 }
             }
             catch (ThreadAbortException) { }
@@ -540,7 +540,7 @@ namespace OnXap.Modules.FileManager
                             {
                                 if (removeList.Count > 0)
                                 {
-                                    db.FileRemoveQueue.Where(x => removeList.Contains(x.IdFile)).Delete();
+                                    db.FileRemoveQueue.RemoveRange(db.FileRemoveQueue.Where(x => removeList.Contains(x.IdFile)));
                                     db.SaveChanges<Db.FileRemoveQueue>();
                                 }
 
@@ -548,10 +548,19 @@ namespace OnXap.Modules.FileManager
                                 {
                                     if (updateList.Any(x => x.IsRemoving || !x.IsRemoved)) throw new Exception("Флаги удаления сбросились!");
 
-                                    db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(Db.File.IsRemoved)), new UpsertField(nameof(Db.File.IsRemoving)));
+                                    db.File.
+                                        UpsertRange(updateList).
+                                        AllowIdentityMatch().
+                                        On(x => x.IdFile).
+                                        WhenMatched((xDb, xIns) => new Db.File()
+                                        {
+                                            IsRemoved = xIns.IsRemoved,
+                                            IsRemoving = xIns.IsRemoving
+                                        }).
+                                        Run();
                                 }
 
-                                scope.Commit();
+                                scope.Complete();
                             }
                             countFiles += updateList.Count;
                         }
@@ -628,8 +637,16 @@ namespace OnXap.Modules.FileManager
                         {
                             using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                             {
-                                db.File.InsertOrDuplicateUpdate(updateList, new UpsertField(nameof(Db.File.IsRemoved)), new UpsertField(nameof(Db.File.IsRemoving)));
-                                scope.Commit();
+                                db.File.
+                                    UpsertRange(updateList).
+                                    On(x => x.IdFile).
+                                    WhenMatched((xDb, xIns) => new Db.File()
+                                    {
+                                        IsRemoved = xIns.IsRemoved,
+                                        IsRemoving = xIns.IsRemoving
+                                    }).
+                                    Run();
+                                scope.Complete();
                             }
                             countFiles += updateList.Count;
                         }

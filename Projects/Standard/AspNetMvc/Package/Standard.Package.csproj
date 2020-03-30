@@ -11,9 +11,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
-	  <Version>1.0.7</Version>
+	  <Version>1.5.4-beta1</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
+	  <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <Import Project="..\..\..\Common\Common.props" />
   <ItemGroup>
@@ -60,18 +61,9 @@
     <None Include="..\..\..\Common\Logo\iconpackage.png" Link="iconpackage.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Binding\AspNetMvc\Package\Binding.Package.csproj" />
+    <ProjectReference Include="..\..\..\Binding\AspNetMvc\Library\Binding.AspNetMvc.csproj" />
     <ProjectReference Include="..\..\..\Core\Core\Core.csproj" />
     <ProjectReference Include="..\..\..\Plugins\PrimeVueLibrary\Net\PrimeVueLibrary.Net.csproj" />
-    <PackageReference Include="Microsoft.AspNet.Mvc.ru">
-      <Version>5.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.Razor.ru">
-      <Version>3.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.WebPages.ru">
-      <Version>3.2.7</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
       <Version>2.0.1</Version>
     </PackageReference>
@@ -83,9 +75,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNet.WebPages">
       <Version>3.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Web.Infrastructure">
-      <Version>1.0.0</Version>
     </PackageReference>
   </ItemGroup>
 

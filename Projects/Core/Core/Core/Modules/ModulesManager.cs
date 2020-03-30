@@ -1,6 +1,5 @@
 ﻿using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.AppCore.DI;
-using OnUtils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,6 @@ namespace OnXap.Core.Modules
         CoreComponentBase,
         IComponentSingleton,
         IAutoStart,
-        IUnitOfWorkAccessor<CoreContext>,
         ITypedJournalComponent<ModulesManager>
     {
         class InstanceActivatingHandlerImpl : IInstanceActivatingHandler
@@ -179,7 +177,7 @@ namespace OnXap.Core.Modules
                 var moduleRegisterHandlerTypes = AppCore.GetQueryTypes().Where(x => typeof(IModuleRegisteredHandler).IsAssignableFrom(x)).ToList();
                 var moduleRegisterHandlers = moduleRegisterHandlerTypes.Select(x => AppCore.Get<IModuleRegisteredHandler>(x)).ToList();
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     fullName = Utils.TypeNameHelper.GetFullNameCleared(moduleType);
 
@@ -364,16 +362,19 @@ namespace OnXap.Core.Modules
             var urlNameEncoded = System.Web.HttpUtility.UrlEncode(configuration.UrlName);
             configuration.UrlName = urlNameEncoded;
 
-            using (var db = this.CreateUnitOfWork())
+            using (var db = new CoreContext())
             using (var scope = db.CreateScope())
             {
                 var moduleConfig = db.Module.FirstOrDefault(x => x.IdModule == module.ID);
                 if (moduleConfig == null)
                 {
                     var fullName = Utils.TypeNameHelper.GetFullNameCleared(typeof(TModule));
-
-                    moduleConfig = new ModuleConfig() { UniqueKey = fullName, DateChange = DateTime.Now, IdUserChange = 0 };
-                    db.Module.AddOrUpdate(moduleConfig);
+                    moduleConfig = db.Module.FirstOrDefault(x => x.UniqueKey == fullName);
+                    if (moduleConfig == null)
+                    {
+                        moduleConfig = new ModuleConfig() { UniqueKey = fullName, DateChange = DateTime.Now, IdUserChange = 0 };
+                        db.Module.Add(moduleConfig);
+                    }
                 }
 
                 moduleConfig.Configuration = configuration._valuesProvider.Save();
@@ -381,7 +382,7 @@ namespace OnXap.Core.Modules
                 moduleConfig.IdUserChange = context.IdUser;
 
                 db.SaveChanges();
-                scope.Commit();
+                scope.Complete();
 
                 module.ID = moduleConfig.IdModule;
                 module._moduleUrlName = string.IsNullOrEmpty(configuration.UrlName) ? moduleCoreAttribute.DefaultUrlName : configuration.UrlName;

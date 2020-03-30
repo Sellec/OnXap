@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace OnXap.Modules.Materials
     using Core.Modules;
 
     [ModuleCore("Контент", DefaultUrlName = "Content")]
-    public class ModuleMaterials : ModuleCore<ModuleMaterials>, IUnitOfWorkAccessor<DB.DataLayerContext>
+    public class ModuleMaterials : ModuleCore<ModuleMaterials>
     {
         public override IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items)
         {
@@ -23,7 +22,7 @@ namespace OnXap.Modules.Materials
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataLayerContext())
                 {
                     return (from p in db.Pages
                             where p.status > 0
@@ -42,7 +41,7 @@ namespace OnXap.Modules.Materials
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataLayerContext())
                 {
                     return (from p in db.Pages where p.id == IdPage select p).FirstOrDefault();
                 }

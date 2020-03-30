@@ -18,94 +18,94 @@ namespace OnXap.Modules.Routing.DbSchema
 
         private void CheckTable()
         { 
-            var isTableExists = Schema.Table<DB.Routing>().Exists();
+            var isTableExists = Schema.Table<Db.Routing>().Exists();
 
             if (!isTableExists)
             {
-                Create.Table<DB.Routing>().
-                    WithColumn((DB.Routing x) => x.IdRoute).AsInt32().NotNullable().PrimaryKey().Identity().
-                    WithColumn((DB.Routing x) => x.IdRoutingType).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.IdModule).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.IdItem).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.IdItemType).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.Action).AsString(200).NotNullable().WithDefaultValue("").
-                    WithColumn((DB.Routing x) => x.Arguments).AsString(4000).Nullable().
-                    WithColumn((DB.Routing x) => x.UrlFull).AsString(500).NotNullable().WithDefaultValue("").
-                    WithColumn((DB.Routing x) => x.DateChange).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0).
-                    WithColumn((DB.Routing x) => x.IsFixedLength).AsBoolean().NotNullable().WithDefaultValue(false).
-                    WithColumn((DB.Routing x) => x.UniqueKey).AsString(200).Nullable();
+                Create.Table<Db.Routing>().
+                    WithColumn((Db.Routing x) => x.IdRoute).AsInt32().NotNullable().PrimaryKey().Identity().
+                    WithColumn((Db.Routing x) => x.IdRoutingType).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.IdModule).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.IdItem).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.IdItemType).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.Action).AsString(200).NotNullable().WithDefaultValue("").
+                    WithColumn((Db.Routing x) => x.Arguments).AsString(4000).Nullable().
+                    WithColumn((Db.Routing x) => x.UrlFull).AsString(500).NotNullable().WithDefaultValue("").
+                    WithColumn((Db.Routing x) => x.DateChange).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0).
+                    WithColumn((Db.Routing x) => x.IsFixedLength).AsBoolean().NotNullable().WithDefaultValue(false).
+                    WithColumn((Db.Routing x) => x.UniqueKey).AsString(200).Nullable();
             }
             else
             {
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdRoute, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdRoutingType, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdModule, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdItem, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdItemType, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.Action, x => x.AsString(200).NotNullable().WithDefaultValue(""));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.Arguments, x => x.AsString(4000).Nullable());
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.UrlFull, x => x.AsString(500).NotNullable().WithDefaultValue(""));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.DateChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IdUserChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.IsFixedLength, x => x.AsBoolean().NotNullable().WithDefaultValue(false));
-                AddColumnIfNotExists(Schema, (DB.Routing x) => x.UniqueKey, x => x.AsString(200).Nullable());
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdRoute, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdRoutingType, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdModule, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdItem, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdItemType, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.Action, x => x.AsString(200).NotNullable().WithDefaultValue(""));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.Arguments, x => x.AsString(4000).Nullable());
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.UrlFull, x => x.AsString(500).NotNullable().WithDefaultValue(""));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.DateChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IdUserChange, x => x.AsInt32().NotNullable().WithDefaultValue(0));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.IsFixedLength, x => x.AsBoolean().NotNullable().WithDefaultValue(false));
+                AddColumnIfNotExists(Schema, (Db.Routing x) => x.UniqueKey, x => x.AsString(200).Nullable());
             }
 
-            if (Schema.Table<DB.Routing>().Index("NonClusteredIndex_20180302_114957").Exists()) Delete.Index("NonClusteredIndex_20180302_114957").OnTable(GetTableName<DB.Routing>());
-            if (Schema.Table<DB.Routing>().Index("NonClusteredIndex_IdTranslationType").Exists()) Delete.Index("NonClusteredIndex_IdTranslationType").OnTable(GetTableName<DB.Routing>());
-            if (Schema.Table<DB.Routing>().Index("NonClusteredIndex_RoutingByUrlFull").Exists()) Delete.Index("NonClusteredIndex_RoutingByUrlFull").OnTable(GetTableName<DB.Routing>());
-            if (Schema.Table<DB.Routing>().Index("urltranslation$IdModule_2").Exists()) Delete.Index("urltranslation$IdModule_2").OnTable(GetTableName<DB.Routing>());
-            if (Schema.Table<DB.Routing>().Index("urltranslationUniqueKey").Exists()) Delete.Index("urltranslationUniqueKey").OnTable(GetTableName<DB.Routing>());
+            if (Schema.Table<Db.Routing>().Index("NonClusteredIndex_20180302_114957").Exists()) Delete.Index("NonClusteredIndex_20180302_114957").OnTable(GetTableName<Db.Routing>());
+            if (Schema.Table<Db.Routing>().Index("NonClusteredIndex_IdTranslationType").Exists()) Delete.Index("NonClusteredIndex_IdTranslationType").OnTable(GetTableName<Db.Routing>());
+            if (Schema.Table<Db.Routing>().Index("NonClusteredIndex_RoutingByUrlFull").Exists()) Delete.Index("NonClusteredIndex_RoutingByUrlFull").OnTable(GetTableName<Db.Routing>());
+            if (Schema.Table<Db.Routing>().Index("urltranslation$IdModule_2").Exists()) Delete.Index("urltranslation$IdModule_2").OnTable(GetTableName<Db.Routing>());
+            if (Schema.Table<Db.Routing>().Index("urltranslationUniqueKey").Exists()) Delete.Index("urltranslationUniqueKey").OnTable(GetTableName<Db.Routing>());
 
-            if (!isTableExists || !Schema.Table<DB.Routing>().Index("IdModule_IdItem_IdItemType_UniqueKey_with_UrlFull").Exists())
-                Create.Index("IdModule_IdItem_IdItemType_UniqueKey_with_UrlFull").OnTable(GetTableName<DB.Routing>()).
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdModule)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdItem)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdItemType)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.UniqueKey)).Ascending().
-                    Include(GetColumnName((DB.Routing x) => x.UrlFull));
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("IdModule_IdItem_IdItemType_UniqueKey_with_UrlFull").Exists())
+                Create.Index("IdModule_IdItem_IdItemType_UniqueKey_with_UrlFull").OnTable(GetTableName<Db.Routing>()).
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdModule)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItem)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItemType)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.UniqueKey)).Ascending().
+                    Include(GetColumnName((Db.Routing x) => x.UrlFull));
 
-            if (!isTableExists || !Schema.Table<DB.Routing>().Index("IdRoutingType_with_IdRoute_UrlFull_UniqueKey").Exists())
-                Create.Index("IdRoutingType_with_IdRoute_UrlFull_UniqueKey").OnTable(GetTableName<DB.Routing>()).
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdRoutingType)).Ascending().
-                    Include(GetColumnName((DB.Routing x) => x.IdRoute)).
-                    Include(GetColumnName((DB.Routing x) => x.UrlFull)).
-                    Include(GetColumnName((DB.Routing x) => x.UniqueKey));
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("IdRoutingType_with_IdRoute_UrlFull_UniqueKey").Exists())
+                Create.Index("IdRoutingType_with_IdRoute_UrlFull_UniqueKey").OnTable(GetTableName<Db.Routing>()).
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdRoutingType)).Ascending().
+                    Include(GetColumnName((Db.Routing x) => x.IdRoute)).
+                    Include(GetColumnName((Db.Routing x) => x.UrlFull)).
+                    Include(GetColumnName((Db.Routing x) => x.UniqueKey));
 
-            if (!isTableExists || !Schema.Table<DB.Routing>().Index("UrlFull_IsFixedLength_with_IdRoute_IdRoutingType_DateChange").Exists())
-                Create.Index("UrlFull_IsFixedLength_with_IdRoute_IdRoutingType_DateChange").OnTable(GetTableName<DB.Routing>()).
-                    OnColumn(GetColumnName((DB.Routing x) => x.UrlFull)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IsFixedLength)).Ascending().
-                    Include(GetColumnName((DB.Routing x) => x.IdRoute)).
-                    Include(GetColumnName((DB.Routing x) => x.IdRoutingType)).
-                    Include(GetColumnName((DB.Routing x) => x.DateChange));
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("UrlFull_IsFixedLength_with_IdRoute_IdRoutingType_DateChange").Exists())
+                Create.Index("UrlFull_IsFixedLength_with_IdRoute_IdRoutingType_DateChange").OnTable(GetTableName<Db.Routing>()).
+                    OnColumn(GetColumnName((Db.Routing x) => x.UrlFull)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IsFixedLength)).Ascending().
+                    Include(GetColumnName((Db.Routing x) => x.IdRoute)).
+                    Include(GetColumnName((Db.Routing x) => x.IdRoutingType)).
+                    Include(GetColumnName((Db.Routing x) => x.DateChange));
 
-            if (!isTableExists || !Schema.Table<DB.Routing>().Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").Exists())
-                Create.Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").OnTable(GetTableName<DB.Routing>()).
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdModule)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdItem)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdItemType)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.Action)).Ascending().
-                    OnColumn(GetColumnName((DB.Routing x) => x.IdRoutingType)).Ascending();
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").Exists())
+                Create.Index("IdModule_IdItem_IdItemType_Action_IdRoutingType").OnTable(GetTableName<Db.Routing>()).
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdModule)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItem)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItemType)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.Action)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdRoutingType)).Ascending();
 
-            if (!isTableExists || !Schema.Table<DB.Routing>().Index("UniqueKey_IdModule_IdItem_IdItemType_Action").Exists())
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("UniqueKey_IdModule_IdItem_IdItemType_Action").Exists())
                 IfDatabase("sqlserver").Execute.Sql($@"
-                    CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey_IdModule_IdItem_IdItemType_Action] ON [dbo].[{GetTableName<DB.Routing>()}]
+                    CREATE UNIQUE NONCLUSTERED INDEX [UniqueKey_IdModule_IdItem_IdItemType_Action] ON [dbo].[{GetTableName<Db.Routing>()}]
                     (
-	                    [{GetColumnName((DB.Routing x) => x.UniqueKey)}] ASC,
-	                    [{GetColumnName((DB.Routing x) => x.IdModule)}] ASC,
-	                    [{GetColumnName((DB.Routing x) => x.IdItem)}] ASC,
-	                    [{GetColumnName((DB.Routing x) => x.IdItemType)}] ASC,
-	                    [{GetColumnName((DB.Routing x) => x.Action)}] ASC
+	                    [{GetColumnName((Db.Routing x) => x.UniqueKey)}] ASC,
+	                    [{GetColumnName((Db.Routing x) => x.IdModule)}] ASC,
+	                    [{GetColumnName((Db.Routing x) => x.IdItem)}] ASC,
+	                    [{GetColumnName((Db.Routing x) => x.IdItemType)}] ASC,
+	                    [{GetColumnName((Db.Routing x) => x.Action)}] ASC
                     )
-                    WHERE ([{GetColumnName((DB.Routing x) => x.UniqueKey)}] IS NOT NULL AND [{GetColumnName((DB.Routing x) => x.IdRoutingType)}]<>(2))
+                    WHERE ([{GetColumnName((Db.Routing x) => x.UniqueKey)}] IS NOT NULL AND [{GetColumnName((Db.Routing x) => x.IdRoutingType)}]<>(2))
                 ".Replace("                    ", ""));
         }
 
         private void CheckTrigger()
         {
-            var tableName = GetTableName<DB.Routing>();
+            var tableName = GetTableName<Db.Routing>();
             var triggerName = "UrlTranslation_SaveOldAddresses_AND_KeepMainAddressesUnique";
             var triggerBody = $@"
 -- =============================================
@@ -130,39 +130,39 @@ BEGIN
     SET IDENTITY_INSERT dbo.[{tableName}] off;
 
     INSERT INTO {tableName} (
-	   [{GetColumnName((DB.Routing x) => x.IdRoutingType)}],
-	   [{GetColumnName((DB.Routing x) => x.IdModule)}],
-	   [{GetColumnName((DB.Routing x) => x.IdItem)}],
-	   [{GetColumnName((DB.Routing x) => x.IdItemType)}],
-	   [{GetColumnName((DB.Routing x) => x.Action)}],
-	   [{GetColumnName((DB.Routing x) => x.Arguments)}],
-	   [{GetColumnName((DB.Routing x) => x.UrlFull)}],
-	   [{GetColumnName((DB.Routing x) => x.DateChange)}],
-	   [{GetColumnName((DB.Routing x) => x.IdUserChange)}],
-	   [{GetColumnName((DB.Routing x) => x.IsFixedLength)}],
-	   [{GetColumnName((DB.Routing x) => x.UniqueKey)}])
+	   [{GetColumnName((Db.Routing x) => x.IdRoutingType)}],
+	   [{GetColumnName((Db.Routing x) => x.IdModule)}],
+	   [{GetColumnName((Db.Routing x) => x.IdItem)}],
+	   [{GetColumnName((Db.Routing x) => x.IdItemType)}],
+	   [{GetColumnName((Db.Routing x) => x.Action)}],
+	   [{GetColumnName((Db.Routing x) => x.Arguments)}],
+	   [{GetColumnName((Db.Routing x) => x.UrlFull)}],
+	   [{GetColumnName((Db.Routing x) => x.DateChange)}],
+	   [{GetColumnName((Db.Routing x) => x.IdUserChange)}],
+	   [{GetColumnName((Db.Routing x) => x.IsFixedLength)}],
+	   [{GetColumnName((Db.Routing x) => x.UniqueKey)}])
     SELECT 
 	   2, 
-	   i.[{GetColumnName((DB.Routing x) => x.IdModule)}],
-	   i.[{GetColumnName((DB.Routing x) => x.IdItem)}],
-	   i.[{GetColumnName((DB.Routing x) => x.IdItemType)}],
-	   i.[{GetColumnName((DB.Routing x) => x.Action)}],
-	   i.[{GetColumnName((DB.Routing x) => x.Arguments)}],
-	   i.[{GetColumnName((DB.Routing x) => x.UrlFull)}],
-	   i.[{GetColumnName((DB.Routing x) => x.DateChange)}],
-	   i.[{GetColumnName((DB.Routing x) => x.IdUserChange)}],
-	   i.[{GetColumnName((DB.Routing x) => x.IsFixedLength)}],
+	   i.[{GetColumnName((Db.Routing x) => x.IdModule)}],
+	   i.[{GetColumnName((Db.Routing x) => x.IdItem)}],
+	   i.[{GetColumnName((Db.Routing x) => x.IdItemType)}],
+	   i.[{GetColumnName((Db.Routing x) => x.Action)}],
+	   i.[{GetColumnName((Db.Routing x) => x.Arguments)}],
+	   i.[{GetColumnName((Db.Routing x) => x.UrlFull)}],
+	   i.[{GetColumnName((Db.Routing x) => x.DateChange)}],
+	   i.[{GetColumnName((Db.Routing x) => x.IdUserChange)}],
+	   i.[{GetColumnName((Db.Routing x) => x.IsFixedLength)}],
 	   NULL
     FROM inserted i
-    LEFT JOIN dbo.[{tableName}] u ON 2 = u.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.IdModule)}] = u.[{GetColumnName((DB.Routing x) => x.IdModule)}] AND 	
-						  i.[{GetColumnName((DB.Routing x) => x.IdItem)}] = u.[{GetColumnName((DB.Routing x) => x.IdItem)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.IdItemType)}] = u.[{GetColumnName((DB.Routing x) => x.IdItemType)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.Action)}] = u.[{GetColumnName((DB.Routing x) => x.Action)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.Arguments)}] = u.[{GetColumnName((DB.Routing x) => x.Arguments)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.UrlFull)}] = u.[{GetColumnName((DB.Routing x) => x.UrlFull)}] AND 
-						  i.[{GetColumnName((DB.Routing x) => x.IsFixedLength)}] = u.[{GetColumnName((DB.Routing x) => x.IsFixedLength)}]
-    WHERE u.[{GetColumnName((DB.Routing x) => x.IdRoute)}] IS NULL
+    LEFT JOIN dbo.[{tableName}] u ON 2 = u.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.IdModule)}] = u.[{GetColumnName((Db.Routing x) => x.IdModule)}] AND 	
+						  i.[{GetColumnName((Db.Routing x) => x.IdItem)}] = u.[{GetColumnName((Db.Routing x) => x.IdItem)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.IdItemType)}] = u.[{GetColumnName((Db.Routing x) => x.IdItemType)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.Action)}] = u.[{GetColumnName((Db.Routing x) => x.Action)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.Arguments)}] = u.[{GetColumnName((Db.Routing x) => x.Arguments)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.UrlFull)}] = u.[{GetColumnName((Db.Routing x) => x.UrlFull)}] AND 
+						  i.[{GetColumnName((Db.Routing x) => x.IsFixedLength)}] = u.[{GetColumnName((Db.Routing x) => x.IsFixedLength)}]
+    WHERE u.[{GetColumnName((Db.Routing x) => x.IdRoute)}] IS NULL
 
     -- 2. [{tableName}KeepMainAddressesUnique]
     DECLARE @Result VARCHAR(MAX);
@@ -176,13 +176,13 @@ BEGIN
     --FROM [{tableName}] u
     --INNER JOIN inserted i ON i.[UrlFull] = u.[UrlFull] AND i.[IdTranslation] <> u.[IdTranslation]
     --WHERE 
-	   --i.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND 
-	   --u.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND 
+	   --i.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND 
+	   --u.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND 
 	   --u.[IdTranslation] NOT IN (
 		  --SELECT MAX(i.[IdTranslation]) AS IdTranslationMax
 		  --FROM [{tableName}] u
 		  --INNER JOIN inserted i ON i.[UrlFull] = u.[UrlFull] AND i.[IdTranslation] <> u.[IdTranslation]
-		  --WHERE i.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND u.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1
+		  --WHERE i.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND u.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1
     --)
 
     --print @Result
@@ -192,13 +192,13 @@ BEGIN
     --FROM [{tableName}] u
     --INNER JOIN inserted i ON i.[UrlFull] = u.[UrlFull] AND i.[IdTranslation] <> u.[IdTranslation]
     --WHERE 
-	   --i.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND 
-	   --u.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND 
+	   --i.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND 
+	   --u.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND 
 	   --u.[IdTranslation] NOT IN (
 		  --SELECT MAX(i.[IdTranslation]) AS IdTranslationMax
 		  --FROM [{tableName}] u
 		  --INNER JOIN inserted i ON i.[UrlFull] = u.[UrlFull] AND i.[IdTranslation] <> u.[IdTranslation]
-		  --WHERE i.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1 AND u.[{GetColumnName((DB.Routing x) => x.IdRoutingType)}] = 1
+		  --WHERE i.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1 AND u.[{GetColumnName((Db.Routing x) => x.IdRoutingType)}] = 1
     --)
 	   
 END

@@ -1,6 +1,4 @@
-﻿using OnUtils.Data;
-
-namespace OnXap.Modules.EditableMenu
+﻿namespace OnXap.Modules.EditableMenu
 {
     using Core.Modules;
 
@@ -8,7 +6,7 @@ namespace OnXap.Modules.EditableMenu
     /// Модуль управления редактируемыми меню.
     /// </summary>
     [ModuleCore("Редактируемые меню")]
-    public class Module : ModuleCore<Module>, IUnitOfWorkAccessor<UnitOfWork<DB.Menu>>
+    public class Module : ModuleCore<Module>
     {
         public const string PERM_EDITABLEMENU = "editablemenu";
 

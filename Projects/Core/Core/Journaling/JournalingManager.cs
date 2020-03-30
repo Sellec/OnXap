@@ -1,5 +1,4 @@
 ﻿using OnUtils;
-using OnUtils.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,7 +21,6 @@ namespace OnXap.Journaling
     public sealed class JournalingManager :
         CoreComponentBase,
         IComponentSingleton,
-        IUnitOfWorkAccessor<DB.DataContext>,
         ITypedJournalComponent<JournalingManager>
     {
         internal const int EventCodeDefault = 0;
@@ -61,19 +59,57 @@ namespace OnXap.Journaling
             {
                 if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
-                var data = new DB.JournalNameDAO()
-                {
-                    IdJournalType = idType,
-                    Name = name,
-                    UniqueKey = uniqueKey
-                };
+                DB.JournalNameDAO data = null;
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                 {
-                    db.JournalName.AddOrUpdate(x => x.UniqueKey, data);
-                    db.SaveChanges();
-                    scope.Commit();
+                    if (string.IsNullOrEmpty(uniqueKey))
+                    {
+                        var row = new DB.JournalNameDAO()
+                        {
+                            IdJournalType = idType,
+                            Name = name,
+                            UniqueKey = uniqueKey
+                        };
+                        db.JournalName.Add(row);
+                        db.SaveChanges();
+                        data = row;
+                    }
+                    else
+                    {
+                        var row = db.JournalName.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
+                        if (row == null)
+                        {
+                            row = new DB.JournalNameDAO()
+                            {
+                                IdJournalType = idType,
+                                Name = name,
+                                UniqueKey = uniqueKey
+                            };
+                            db.JournalName.Add(row);
+                            db.SaveChanges();
+                            data = row;
+                        }
+                        else
+                        {
+                            bool changed = false;
+                            if (row.IdJournalType != idType)
+                            {
+                                row.IdJournalType = idType;
+                                changed = true;
+                            }
+                            if (row.Name != name)
+                            {
+                                row.Name = name;
+                                changed = true;
+                            }
+
+                            if (changed) db.SaveChanges();
+                            data = row;
+                        }
+                    }
+                    scope.Complete();
                 }
 
                 var info = new Model.JournalInfo();
@@ -121,7 +157,7 @@ namespace OnXap.Journaling
             {
                 if (string.IsNullOrEmpty(uniqueKey)) throw new ArgumentNullException(nameof(uniqueKey));
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var data = db.JournalName.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
@@ -149,7 +185,7 @@ namespace OnXap.Journaling
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var data = db.JournalName.Where(x => x.IdJournal == IdJournal).FirstOrDefault();
@@ -216,7 +252,7 @@ namespace OnXap.Journaling
 
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var query = from item in db.ItemLink
@@ -249,7 +285,7 @@ namespace OnXap.Journaling
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
                     var query = DatabaseAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournalData == idJournalData);
@@ -523,7 +559,7 @@ namespace OnXap.Journaling
                     ItemLinkId = itemLinkId
                 };
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new DB.DataContext())
                 {
                     DB.JournalNameDAO journalForCritical = null;
 
@@ -536,7 +572,7 @@ namespace OnXap.Journaling
                         {
                             journalForCritical = db.JournalName.Where(x => x.IdJournal == IdJournal).FirstOrDefault();
                         }
-                        scope.Commit();
+                        scope.Complete();
                     }
 
                     if (eventType == EventType.CriticalError)

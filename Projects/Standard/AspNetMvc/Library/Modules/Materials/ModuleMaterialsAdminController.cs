@@ -19,7 +19,7 @@ namespace OnXap.Modules.Materials
         [MenuAction("Новости")]
         public ActionResult News()
         {
-            using (var db = Module.CreateUnitOfWork())
+            using (var db = new DB.DataLayerContext())
             {
                 var showDeleted = Request.Form.GetValues("ShowDeleted")?.Contains("true") ?? false;
                 var query = db.News.AsQueryable();
@@ -42,7 +42,7 @@ namespace OnXap.Modules.Materials
                 if (!IdNews.HasValue || IdNews.Value <= 0) data = new DB.News();
                 else
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new DB.DataLayerContext())
                     {
                         data = db.News.Where(x => x.id == IdNews.Value).FirstOrDefault();
                     }
@@ -74,7 +74,7 @@ namespace OnXap.Modules.Materials
             {
                 if (ModelState.IsValid)
                 {
-                    using (var db = Module.CreateUnitOfWork())
+                    using (var db = new DB.DataLayerContext())
                     {
                         DB.News data = null;
                         if (model.IdMaterial <= 0)
@@ -135,7 +135,7 @@ namespace OnXap.Modules.Materials
             {
                 if (!IdNews.HasValue || IdNews.Value <= 0) throw new Exception("Не указан номер новости.");
 
-                using (var db = Module.CreateUnitOfWork())
+                using (var db = new DB.DataLayerContext())
                 {
                     var data = db.News.Where(x => x.id == IdNews.Value).FirstOrDefault();
                     if (data == null) throw new Exception("Указанная новость не найдена.");

@@ -1,17 +1,14 @@
 ﻿using System;
-using OnUtils.Architecture.AppCore;
-using OnUtils.Data;
 
 namespace OnXap.Core.Configuration
 {
-    using Db;
     using Modules;
 
     /// <summary>
     /// Предоставляет методы для управления настройками модуля типа <typeparamref name="TModule"/>. Позволяет получить, изменить и применить измененные настройки к модулю.
     /// </summary>
     /// <seealso cref="ModuleConfiguration{TModule}"/>
-    public class ModuleConfigurationManipulator<TModule> : CoreComponentBase, IComponentTransient, IUnitOfWorkAccessor<CoreContext>
+    public class ModuleConfigurationManipulator<TModule> : CoreComponentBase, IComponentTransient
         where TModule : ModuleCore<TModule>
     {
         private TModule _module = null;

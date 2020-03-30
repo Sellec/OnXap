@@ -19,7 +19,7 @@
     <AssemblyOriginatorKeyFile>D:\Projects\TraceStudio\SigningKeys\OnUtils.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -80,20 +80,8 @@
     <PackageReference Include="Microsoft.AspNet.Mvc">
       <Version>5.2.7</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.Mvc.ru">
-      <Version>5.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.Razor.ru">
-      <Version>3.2.7</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AspNet.WebPages.ru">
-      <Version>3.2.7</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform">
       <Version>2.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Web.Infrastructure">
-      <Version>1.0.0</Version>
     </PackageReference>
     <PackageReference Include="Mime-Detective">
       <Version>0.0.5</Version>
@@ -108,7 +96,7 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>0.2.4</Version>
+      <Version>1.5.6-beta1</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
       <Version>0.0.8</Version>
@@ -118,9 +106,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web">
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Web.ApplicationServices">
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp">
@@ -139,11 +124,13 @@
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
+    <Compile Include="Modules\EditableMenu\Db\DataContext.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File20200306.cs" />
     <Compile Include="Modules\FileManager\DbSchema\FileRemoveQueue.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File.cs" />
     <Compile Include="Modules\FileManager\Db\FileCountUsage.cs" />
     <Compile Include="Modules\Materials\Models\NewsSave.cs" />
+    <Compile Include="System\Drawing\ImageExtension.cs" />
     <Compile Include="Users\Db\DataContext.cs" />
     <Compile Include="Users\Db\UserEntity.cs" />
     <Compile Include="Design\Additionals\ClassicStructures\PhotoList.cs" />
@@ -204,7 +191,7 @@
     <Compile Include="Modules\Default\Startup.cs" />
     <Compile Include="Modules\Developing\ModuleDevelopingController.cs" />
     <Compile Include="Modules\Developing\ModuleDeveloping.cs" />
-    <Compile Include="Modules\EditableMenu\DB\Menu.cs" />
+    <Compile Include="Modules\EditableMenu\Db\Menu.cs" />
     <Compile Include="Modules\EditableMenu\Module.cs" />
     <Compile Include="Modules\EditableMenu\ModuleController.cs" />
     <Compile Include="Modules\EditableMenu\Startup.cs" />
@@ -290,6 +277,8 @@
     <Compile Include="Users\IEntitiesManager.cs" />
     <Compile Include="Users\Startup.cs" />
     <Compile Include="Users\UserEntity.cs" />
+    <Compile Include="WebUtils\QueryCounterExtensions.cs" />
+    <Compile Include="WebUtils\QueryLogHelper.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -660,17 +649,14 @@
     <Content Include="Modules\Sitemap\Design\SitemapXml.cshtml" />
     <Content Include="Modules\MessagingEmail\Design\ModuleSettings.cshtml" />
     <Content Include="Modules\reCAPTCHA\Design\ModuleSettings.cshtml" />
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
+    <Content Include="app.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Binding\AspNetMvc\Library\Binding.Library.csproj">
-      <Project>{4819a652-4f35-4b7e-bdd4-15e713e9aa80}</Project>
-      <Name>Binding.Library</Name>
+    <ProjectReference Include="..\..\..\Binding\AspNetMvc\Library\Binding.AspNetMvc.csproj">
+      <Project>{643a1be6-4f9b-473d-8b8d-143d1dee91d2}</Project>
+      <Name>Binding.AspNetMvc</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Core\Core\Core.csproj">
       <Project>{f61ffcc5-3711-4d42-916a-ef83032f542a}</Project>

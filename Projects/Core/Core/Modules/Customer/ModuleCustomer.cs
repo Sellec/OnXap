@@ -1,5 +1,4 @@
-﻿using OnUtils.Data;
-using System;
+﻿using System;
 
 namespace OnXap.Modules.Customer
 {
@@ -11,7 +10,7 @@ namespace OnXap.Modules.Customer
     /// Модуль для управления пользователями и личным кабинетом.
     /// </summary>
     [ModuleCore("Личный кабинет", DefaultUrlName = "Customer")]
-    public abstract class ModuleCustomer : ModuleCore<ModuleCustomer>, IUnitOfWorkAccessor<CoreContext>
+    public abstract class ModuleCustomer : ModuleCore<ModuleCustomer>
     {
         /// <summary>
         /// Управление пользователями

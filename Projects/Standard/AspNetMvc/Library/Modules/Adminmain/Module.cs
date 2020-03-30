@@ -1,6 +1,4 @@
-﻿using OnUtils.Data;
-
-namespace OnXap.Modules.Adminmain
+﻿namespace OnXap.Modules.Adminmain
 {
     using Core.Modules;
 
@@ -8,7 +6,7 @@ namespace OnXap.Modules.Adminmain
     /// Модуль управления основными функциями.
     /// </summary>
     [ModuleCore(" Система")]
-    public class Module : ModuleCore<Module>, IUnitOfWorkAccessor<DataContext>
+    public class Module : ModuleCore<Module>
     {
         public const string PERM_CONFIGMAIN = "configuration_main";
         public const string PERM_MODULES = "modules";

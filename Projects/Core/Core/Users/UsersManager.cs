@@ -1,4 +1,4 @@
-﻿using OnUtils.Data;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace OnXap.Users
     /// <summary>
     /// Представляет менеджер, позволяющий управлять данными пользователей.
     /// </summary>
-    public sealed class UsersManager : CoreComponentBase, IComponentSingleton, IUnitOfWorkAccessor<CoreContext>
+    public sealed class UsersManager : CoreComponentBase, IComponentSingleton
     {
         #region CoreComponentBase
         /// <summary>
@@ -47,7 +47,7 @@ namespace OnXap.Users
 
                 if (orderBy != null) throw new ArgumentException("Параметр не поддерживается.", nameof(orderBy));
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     var queryBase = db.Users.AsQueryable();
 
@@ -92,26 +92,44 @@ namespace OnXap.Users
         }
 
         /// <summary>
+        /// Возвращает список ролей указанного пользователя.
+        /// </summary>
+        /// <param name="idUser">Идентификатор пользователя.</param>
+        [ApiReversible]
+        public List<Role> RolesByUser(int idUser)
+        {
+            return RolesByUsers(new int[] { idUser }).Select(x => x.Value).FirstOrDefault() ?? new List<Role>();
+        }
+
+
+        /// <summary>
         /// Возвращает списки ролей указанных пользователей.
         /// </summary>
-        /// <param name="userIdList">Список ролей для поиска пользователей.</param>
+        /// <param name="userIdList">Список пользователей.</param>
         /// <returns></returns>
         [ApiReversible]
-        public Dictionary<int, List<Role>> RolesByUser(int[] userIdList)
+        public Dictionary<int, List<Role>> RolesByUsers(int[] userIdList)
         {
             try
             {
                 if (userIdList == null || userIdList.Length == 0) return new Dictionary<int, List<Role>>();
 
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 {
                     var query = from roleJoin in db.RoleUser
                                 join role in db.Role on roleJoin.IdRole equals role.IdRole
-                                where userIdList.Contains(roleJoin.IdUser)
-                                group role by roleJoin.IdUser into gr
-                                select new { IdUser = gr.Key, Roles = gr.ToList() };
+                                select new { roleJoin.IdUser, role };
 
-                    return query.ToDictionary(x => x.IdUser, x => x.Roles);
+                    if (userIdList.Length == 1)
+                    {
+                        query = query.Where(x => x.IdUser == userIdList[0]);
+                    }
+                    else
+                    {
+                        query = query.Where(x => userIdList.Contains(x.IdUser));
+                    }
+
+                    return query.ToList().GroupBy(x => x.IdUser).ToDictionary(x => x.Key, x => x.Select(y => y.role).ToList());
                 }
             }
             catch (Exception ex)
@@ -130,7 +148,7 @@ namespace OnXap.Users
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Required))
                 {
                     if (db.Role.Where(x => x.IdRole == idRole).Count() == 0) return NotFound.NotFound;
@@ -138,7 +156,7 @@ namespace OnXap.Users
                     var userIdList2 = userIdList?.Distinct()?.ToArray();
                     if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole && !userIdList2.Contains(x.IdUser)).Delete();
+                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole && !userIdList2.Contains(x.IdUser)));
 
                         var context = AppCore.GetUserContextManager().GetCurrentUserContext();
                         var IdUserChange = context.IdUser;
@@ -157,11 +175,11 @@ namespace OnXap.Users
                     }
                     else
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole).Delete();
+                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole));
                     }
 
                     db.SaveChanges();
-                    scope.Commit();
+                    scope.Complete();
                 }
 
                 return NotFound.Success;
@@ -181,7 +199,7 @@ namespace OnXap.Users
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Required))
                 {
                     if (db.Role.Where(x => x.IdRole == idRole).Count() == 0) return NotFound.NotFound;
@@ -190,15 +208,15 @@ namespace OnXap.Users
 
                     if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole && userIdList2.Contains(x.IdUser)).Delete();
+                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole && userIdList2.Contains(x.IdUser)));
                     }
                     else
                     {
-                        db.RoleUser.Where(x => x.IdRole == idRole).Delete();
+                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole));
                     }
 
                     db.SaveChanges();
-                    scope.Commit();
+                    scope.Complete();
                 }
 
                 return NotFound.Success;
@@ -218,7 +236,7 @@ namespace OnXap.Users
         {
             try
             {
-                using (var db = this.CreateUnitOfWork())
+                using (var db = new CoreContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Required))
                 {
                     if (db.Role.Where(x => x.IdRole == idRole).Count() == 0) return NotFound.NotFound;
@@ -228,19 +246,28 @@ namespace OnXap.Users
 
                     var userIdList2 = userIdList.Distinct().ToArray();
 
-                    db.Users.Where(x => userIdList2.Contains(x.IdUser)).ToList().ForEach((User x) =>
+                    var usersToRole = db.Users.Where(x => userIdList2.Contains(x.IdUser)).ToList().Select(x => new RoleUser()
                     {
-                        db.RoleUser.AddOrUpdate(new RoleUser()
-                        {
-                            IdRole = idRole,
-                            IdUser = x.IdUser,
-                            IdUserChange = IdUserChange,
-                            DateChange = DateTime.Now.Timestamp()
-                        });
-                    });
+                        IdRole = idRole,
+                        IdUser = x.IdUser,
+                        IdUserChange = IdUserChange,
+                        DateChange = DateTime.Now.Timestamp()
+                    }).ToList();
+                    if (usersToRole.Count > 0)
+                    {
+                        db.RoleUser.
+                            UpsertRange(usersToRole).
+                            On(x => new { x.IdUser, x.IdRole }).
+                            WhenMatched((xDb, xIns) => new RoleUser()
+                            {
+                                IdUserChange = xIns.IdUserChange,
+                                DateChange = xIns.DateChange
+                            }).
+                            Run();
+                    }
 
                     db.SaveChanges();
-                    scope.Commit();
+                    scope.Complete();
                 }
 
                 return NotFound.Success;
@@ -269,7 +296,7 @@ namespace OnXap.Users
 
                 if (listIDForRequest.Count > 0)
                 {
-                    using (var db = this.CreateUnitOfWork())
+                    using (var db = new CoreContext())
                     {
                         var sql = (from p in db.Users where listIDForRequest.Contains(p.IdUser) select p);
                         foreach (var res in sql) users[res.IdUser] = res;
