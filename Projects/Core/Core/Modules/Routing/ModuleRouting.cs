@@ -195,10 +195,10 @@ namespace OnXap.Modules.Routing
             var itemsSet = items.ToDictionary<ItemBase, ItemBase, Tuple<Uri, UrlSourceType>>(x => x, x => null);
 
             var keys = itemsSet.Keys.ToList();
-            var result = urlManager.GetUrl(keys.Select(x => x.ID), idItemType, RoutingConstants.MAINKEY);
+            var result = urlManager.GetUrl(keys.Select(x => x.ID).ToArray(), idItemType, RoutingConstants.MAINKEY);
             if (!result.IsSuccess)
             {
-                result = urlManager.GetUrl(keys.Select(x => x.ID), idItemType, RoutingConstants.MAINKEY);
+                result = urlManager.GetUrl(keys.Select(x => x.ID).ToArray(), idItemType, RoutingConstants.MAINKEY);
             }
             if (!result.IsSuccess)
             {
