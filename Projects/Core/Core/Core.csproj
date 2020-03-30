@@ -7,7 +7,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>1.5.8-beta1</Version>
+    <Version>2.0.0</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -53,8 +53,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="OnUtils.Tasks.MomentalThreading" Version="1.5.1-beta1" />
-    <PackageReference Include="OnUtils" Version="1.5.6-beta1" />
+    <PackageReference Include="OnUtils.Tasks.MomentalThreading" Version="2.0.0" />
+    <PackageReference Include="OnUtils" Version="2.0.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="Ude.NetStandard" Version="1.2.0" />
   </ItemGroup>

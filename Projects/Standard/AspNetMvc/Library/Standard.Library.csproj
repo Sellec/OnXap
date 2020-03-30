@@ -96,7 +96,7 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>1.5.6-beta1</Version>
+      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
       <Version>0.0.8</Version>
@@ -117,6 +117,7 @@
   <ItemGroup>
     <Folder Include="Modules\EditableMenu\Model\" />
     <Folder Include="Modules\Materials\ViewModels\" />
+    <Folder Include="WebUtils\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Design\UI\primevuelibrary\Startup.cs" />
@@ -277,8 +278,6 @@
     <Compile Include="Users\IEntitiesManager.cs" />
     <Compile Include="Users\Startup.cs" />
     <Compile Include="Users\UserEntity.cs" />
-    <Compile Include="WebUtils\QueryCounterExtensions.cs" />
-    <Compile Include="WebUtils\QueryLogHelper.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
