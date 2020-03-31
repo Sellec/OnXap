@@ -606,7 +606,13 @@ namespace OnXap.Modules.FileManager
                 {
                     while ((DateTime.Now - dateStart) < executionTimeLimit)
                     {
-                        var filesQuery = db.File.AsNoTracking().Where(x => !x.IsRemoved && !x.IsRemoving && x.IdFile > idFileMax).OrderBy(x => x.IdFile).Take(5000);
+                        var filesQuery = db.File.
+                            AsNoTracking().
+                            Where(x => !x.IsRemoved && !x.IsRemoving && x.IdFile > idFileMax).
+                            Select(x => new Db.File() { IdFile = x.IdFile, PathFile = x.PathFile, IsRemoving = x.IsRemoving, IsRemoved = x.IsRemoved }).
+                            OrderBy(x => x.IdFile).
+                            Take(5000);
+
                         var filesList = filesQuery.ToList();
                         if (filesList.Count == 0)
                         {

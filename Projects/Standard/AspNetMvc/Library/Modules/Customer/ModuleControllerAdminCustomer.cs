@@ -426,8 +426,7 @@ namespace OnXap.Modules.Customer
                                                 DateChange = DateTime.Now.Timestamp()
                                             }));
 
-                                            if (rolesMustHave.Count > 0 && db.SaveChanges<RoleUser>() == 0)
-                                                throw new InvalidOperationException("Не удалось задать список ролей для пользователя.");
+                                            db.SaveChanges<RoleUser>();
                                         }
 
 
