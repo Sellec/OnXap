@@ -221,11 +221,6 @@ namespace OnXap
         }
 
         /// <summary>
-        /// Возвращает строку подключения. todo - разобраться со строками подключений.
-        /// </summary>
-        public Func<string> ConnectionStringFactory { get; private set; }
-
-        /// <summary>
         /// Внешний URL-адрес сервера.
         /// </summary>
         public virtual Uri ServerUrl
