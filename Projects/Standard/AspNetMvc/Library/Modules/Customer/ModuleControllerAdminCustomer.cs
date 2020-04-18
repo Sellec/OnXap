@@ -110,11 +110,11 @@ namespace OnXap.Modules.Customer
                                             switch (filter.MatchType)
                                             {
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => (x.name + "." + x.email + "." + x.phone).Contains(filter.Value));
+                                                    query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).Contains(filter.Value));
                                                     break;
 
                                                 case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => (x.name + "." + x.email + "." + x.phone).StartsWith(filter.Value));
+                                                    query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).StartsWith(filter.Value));
                                                     break;
                                             }
                                             break;
