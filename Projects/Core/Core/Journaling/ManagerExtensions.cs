@@ -24,13 +24,23 @@ namespace OnXap
         }
 
         /// <summary>
+        /// Возвращает журнал на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public static ExecutionResult<Journaling.Model.JournalInfo> GetJournal(this IComponentSingleton component)
+        {
+            return component.GetAppCore().Get<JournalingManager>().GetJournalTyped(component.GetType());
+        }
+
+        /// <summary>
         /// Регистрирует новый журнал или обновляет старый на основе компонента <paramref name="component"/>.
         /// </summary>
         /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
         /// <param name="nameJournal">См. <see cref="JournalNameDAO.Name"/>.</param>
         /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="nameJournal"/> представляет пустую строку или null.</exception>
-        public static ExecutionResult RegisterJournal(this IComponentSingleton component, string nameJournal)
+        public static ExecutionResult<Journaling.Model.JournalInfo> RegisterJournal(this IComponentSingleton component, string nameJournal)
         {
             return component.GetAppCore().Get<JournalingManager>().RegisterJournalTyped(component.GetType(), nameJournal);
         }

@@ -130,6 +130,10 @@
     <Compile Include="Modules\FileManager\DbSchema\FileRemoveQueue.cs" />
     <Compile Include="Modules\FileManager\DbSchema\File.cs" />
     <Compile Include="Modules\FileManager\Db\FileCountUsage.cs" />
+    <Compile Include="Modules\FileManager\FileManagerConfiguration.cs" />
+    <Compile Include="Modules\FileManager\Model\Configuration.cs" />
+    <Compile Include="Modules\FileManager\FileManagerControllerAdmin.cs" />
+    <Compile Include="Modules\FileManager\ViewModels\ModuleSettings.cs" />
     <Compile Include="Modules\Materials\Models\NewsSave.cs" />
     <Compile Include="System\Drawing\ImageExtension.cs" />
     <Compile Include="Users\Db\DataContext.cs" />
@@ -548,6 +552,7 @@
     <Content Include="Design\UI\standard.js" />
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
     <Content Include="Modules\Default\Views\Index.cshtml" />
+    <Content Include="Modules\FileManager\Views\ModuleSettings.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

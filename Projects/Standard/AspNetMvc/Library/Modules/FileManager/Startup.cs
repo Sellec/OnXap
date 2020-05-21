@@ -13,6 +13,7 @@ namespace OnXap.Modules.FileManager
         {
             bindingsCollection.SetSingleton<FileManager>();
             bindingsCollection.SetTransient<IModuleController<FileManager>, FileManagerController>();
+            bindingsCollection.AddTransient<IModuleController<FileManager>, FileManagerControllerAdmin>();
 
             bindingsCollection.SetTransient<ICustomFieldRender<FileImageFieldType>, FileImageFieldTypeRender>();
             bindingsCollection.SetTransient<ICustomFieldRender<FileFieldType>, FileFieldTypeRender>();

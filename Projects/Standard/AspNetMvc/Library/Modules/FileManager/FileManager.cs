@@ -26,7 +26,10 @@ namespace OnXap.Modules.FileManager
     {
         private static FileManager _thisModule = null;
         private static ConcurrentFlagLocker<string> _servicesFlags = new ConcurrentFlagLocker<string>();
-        private static int _checkRemovedFilesMax = 0;
+
+        private const int EventCodeBase = 10000000;
+        private const int EventCodeCheckRemovedFilesExecuted = EventCodeBase + 1;
+        private const int EventCodeCheckRemovedFilesInfo = EventCodeBase + 2;
 
         /// <summary>
         /// </summary>
@@ -51,11 +54,8 @@ namespace OnXap.Modules.FileManager
                 TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(RemoveMarkedFiles) + "_minutely1", Cron.MinuteInterval(1), () => RemoveMarkedFiles());
             }
 
-            // Не запускать не машине разработчика, иначе может быть так, что при подключении базе на удаленном сервере файлы физически останутся, а из базы будут удалены.
-            if (!Debug.IsDeveloper)
-            {
-                TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddSeconds(10), () => CheckRemovedFiles(true));
-            }
+            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddSeconds(30), () => CheckRemovedFiles());
+            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5", Cron.MinuteInterval(5), () => CheckRemovedFiles());
 
             ModelMetadataProviders.Current = new MVC.TraceModelMetadataProviderWithFiles();
         }
@@ -580,26 +580,52 @@ namespace OnXap.Modules.FileManager
             }
         }
 
-        internal static void CheckRemovedFiles(bool isStart)
+        internal static void CheckRemovedFiles()
         {
-            if (_thisModule?.AppCore?.GetState() != CoreComponentState.Started) return;
-
+            // Не запускать не машине разработчика, иначе может быть так, что при подключении базе на удаленном сервере файлы физически останутся, а из базы будут удалены.
+        //    if (Debug.IsDeveloper) return;
             if (!_servicesFlags.TryLock("CheckRemovedFiles")) return;
+
             bool isFinalized = false;
             int countFiles = 0;
+            int checkRemovedFilesMax = 0;
+            var startTime = DateTime.Now.Date.AddHours(3);
 
             try
             {
-                if (isStart)
+                if (_thisModule?.AppCore?.GetState() != CoreComponentState.Started) return;
+                if (!_thisModule.GetConfiguration<FileManagerConfiguration>().IsCheckRemovedFiles) return;
+
+                var journalResult = _thisModule.GetJournal();
+                if (!journalResult.IsSuccess)
                 {
-                    _checkRemovedFilesMax = 0;
-                    TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5", Cron.MinuteInterval(5), () => CheckRemovedFiles(false));
-                    _thisModule?.RegisterEvent(EventType.Info, "Запуск регулярной задачи проверки файлов.", null);
+                    Debug.WriteLine("Ошибка получения журнала файлового менеджера.");
+                    _thisModule?.RegisterEvent(EventType.Error, "Проверка удаленных файлов", $"Ошибка получения журнала файлового менеджера: {journalResult.Message}", null);
+                    return;
+                }
+
+                var dbAccessor = _thisModule.AppCore.Get<Journaling.DB.JournalingManagerDatabaseAccessor>();
+                using (var dbJournal = new Journaling.DB.DataContext())
+                {
+                    var range = new DateRange(DateTime.Now.Date, DateTime.Now.Date.AddDays(1));
+                    var queryBase = dbAccessor.CreateQueryJournalData(dbJournal).Where(x => x.JournalName.IdJournal == journalResult.Result.IdJournal && x.JournalData.DateEvent >= range.Start && x.JournalData.DateEvent < range.End);
+                    if (queryBase.Where(x => x.JournalData.EventCode == EventCodeCheckRemovedFilesExecuted).Count() > 0) return;
+
+                    var lastRunInfo = queryBase.Where(x => x.JournalData.EventCode == EventCodeCheckRemovedFilesInfo).OrderByDescending(x => x.JournalData.IdJournalData).FirstOrDefault();
+                    if (lastRunInfo == null)
+                    {
+                        if (DateTime.Now < startTime) return;
+                        _thisModule?.RegisterEvent(EventType.Info, "Проверка удаленных файлов", "Запуск регулярной задачи проверки файлов.");
+                    }
+                    else if (int.TryParse(lastRunInfo.JournalData.EventInfoDetailed, out int checkRemovedFilesMaxTmp))
+                    {
+                        checkRemovedFilesMax = checkRemovedFilesMaxTmp;
+                    }
                 }
 
                 var executionTimeLimit = new TimeSpan(0, 4, 30);
                 var dateStart = DateTime.Now;
-                int idFileMax = _checkRemovedFilesMax;
+                int idFileMax = checkRemovedFilesMax;
                 var rootDirectory = _thisModule?.AppCore?.ApplicationWorkingFolder;
 
                 using (var db = new Db.DataContext())
@@ -645,6 +671,7 @@ namespace OnXap.Modules.FileManager
                             {
                                 db.File.
                                     UpsertRange(updateList).
+                                    AllowIdentityMatch().
                                     On(x => x.IdFile).
                                     WhenMatched((xDb, xIns) => new Db.File()
                                     {
@@ -657,21 +684,23 @@ namespace OnXap.Modules.FileManager
                             countFiles += updateList.Count;
                         }
 
-                        _checkRemovedFilesMax = idFileMax;
+                        checkRemovedFilesMax = idFileMax;
                     }
                 }
 
-                if (isFinalized)
+                if (!isFinalized)
                 {
-                    TasksManager.RemoveTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5");
-                    TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddHours(2), () => CheckRemovedFiles(true));
-                    _thisModule?.RegisterEvent(EventType.Info, "Удаление регулярной задачи проверки файлов.", null);
+                    _thisModule?.RegisterEvent(EventType.Info, EventCodeCheckRemovedFilesInfo, "Проверка удаленных файлов", checkRemovedFilesMax.ToString());
+                }
+                else
+                {
+                    _thisModule?.RegisterEvent(EventType.Info, EventCodeCheckRemovedFilesExecuted, "Проверка удаленных файлов", "Удаление регулярной задачи проверки файлов.");
                 }
             }
             catch (ThreadAbortException) { }
             catch (Exception ex)
             {
-                _thisModule?.RegisterEvent(EventType.Error, "Ошибка заполнения очереди удаления", null, ex);
+                _thisModule?.RegisterEvent(EventType.Error, "Проверка удаленных файлов", "Ошибка заполнения очереди удаления", ex);
             }
             finally
             {

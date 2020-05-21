@@ -1,0 +1,23 @@
+@using OnXap.Modules.FileManager.ViewModels
+@model ModuleSettings
+@{
+    Layout = "~/AdminForModules/Design/baseModuleEdit.cshtml";
+}
+
+@section scripts {
+    <script type='text/javascript'>
+        $(document).ready(function () {
+        });
+
+    </script>
+}
+
+@section ModuleConfiguration {
+    <tr>
+        <td>@Html.LabelFor(x => x.IsCheckRemovedFiles)</td>
+        <td>
+            @Html.CheckBoxFor(x => x.IsCheckRemovedFiles)<br />
+            @Html.ValidationMessageFor(x => x.IsCheckRemovedFiles)
+        </td>
+    </tr>
+}
