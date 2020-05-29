@@ -46,7 +46,12 @@ namespace OnXap.WebUtils
                 {
                     var filename = "/";
                     var uri = (module?.AppCore as OnXApplication)?.ServerUrl?.ToString() ?? "http://localhost/";
-                    var context = HttpContext.Current ?? new HttpContext(new HttpRequest(filename, uri, ""), new HttpResponse(new StringWriter()));
+                    var context = HttpContext.Current;
+                    if (context == null)
+                    {
+                        context = new HttpContext(new HttpRequest(filename, uri, ""), new HttpResponse(new StringWriter()));
+                        context.SetAppCore(module?.AppCore);
+                    }
 
                     var contextWrapper = new HttpContextWrapper(context);
                     var routeData = new RouteData();

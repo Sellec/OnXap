@@ -39,7 +39,7 @@ namespace OnXap.Users
         #region CoreComponentBase
         /// <summary>
         /// </summary>
-        protected sealed override void OnStarting()
+        protected sealed override void OnStarted()
         {
             this.RegisterJournal("Менеджер контекстов пользователей");
 
