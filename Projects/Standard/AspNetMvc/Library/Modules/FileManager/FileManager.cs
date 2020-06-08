@@ -583,7 +583,7 @@ namespace OnXap.Modules.FileManager
         internal static void CheckRemovedFiles()
         {
             // Не запускать не машине разработчика, иначе может быть так, что при подключении базе на удаленном сервере файлы физически останутся, а из базы будут удалены.
-        //    if (Debug.IsDeveloper) return;
+            if (Debug.IsDeveloper) return;
             if (!_servicesFlags.TryLock("CheckRemovedFiles")) return;
 
             bool isFinalized = false;

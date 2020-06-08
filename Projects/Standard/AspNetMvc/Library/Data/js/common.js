@@ -769,48 +769,4 @@ function ShowAlert(text, closeCallback) {
     });
 }
 
-class PrimeVueDataTableFieldFilter {
-    constructor(source) {
-        this.FieldName = source.field;
-        this.MatchType =
-            source.filterMatchMode == "contains" ? 2 :
-                source.filterMatchMode == "startsWith" ? 1 : 0;
-        this.Value = source.value;
-    }
-}
-
-class PrimeVueDataTableSourceRequest {
-    constructor(fieldNameMapper) {
-        this.FirstRow = 0;
-        this.RowsLimit = 0;
-        this.SortByFieldName = null;
-        this.SortByAcsending = true;
-        this.FilterFields = [];
-
-        this.fieldNameMapper = typeof fieldNameMapper === 'function' ? fieldNameMapper : (val) => val;
-    }
-
-    ApplyPagination(source) {
-        this.FirstRow = source && source.first ? Number(source.first) : 0;
-        this.RowsLimit = source && source.rows ? Number(source.rows) : 0;
-    }
-
-    ApplySort(source) {
-        this.SortByFieldName = source && source.sortField ? this.fieldNameMapper(String(source.sortField)) : null;
-        this.SortByAcsending = !source ? true : source.sortOrder == 1 ? true : false;
-    }
-
-    ApplyFilter(source) {
-        this.FilterFields = [];
-        for (var field in source) {
-            if (source[field]) {
-                this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter({
-                    field: this.fieldNameMapper(field),
-                    value: source[field],
-                    filterMatchMode: 'contains'
-                });
-            }
-        }
-    }
-}
 

@@ -5,13 +5,31 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     mode: 'production',
-    entry: './src/main.js',
+    entry: './src/standardui.js',
     output: {
-        filename: 'main.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'standardui.js',
+        path: path.resolve(__dirname, 'dist'),
+        library: 'StandardUI'
+    },
+    module: {
+        rules: [
+            {
+                test: /\.m?js$/,
+                exclude: file => (
+                    /node_modules/.test(file) &&
+                    !/\.vue\.js/.test(file)
+                ),
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
+            }
+        ]
     },
     plugins: [
-        new CleanWebpackPlugin(),
+        //new CleanWebpackPlugin(),
         new CopyPlugin([
             { from: 'node_modules/vue/dist/vue.min.js', to: 'vue/' },
             { from: 'node_modules/primevuelibrary/dist', to: 'primevuelibrary/', ignore: ['**/themes/**/*'] },

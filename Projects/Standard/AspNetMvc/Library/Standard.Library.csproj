@@ -549,7 +549,6 @@
     <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Design\UI\standard.js" />
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
     <Content Include="Modules\Default\Views\Index.cshtml" />
     <Content Include="Modules\FileManager\Views\ModuleSettings.cshtml" />

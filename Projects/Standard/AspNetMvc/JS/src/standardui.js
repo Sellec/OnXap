@@ -1,6 +1,6 @@
-﻿PrimeVueLibrary.registerGlobalTags();
+PrimeVueLibrary.registerGlobalTags();
 
-var vueMainHeader = new Vue({
+export const MainHeader = new Vue({
     el: "#js-main-header",
     data: {
         user: {
@@ -21,7 +21,7 @@ var vueMainHeader = new Vue({
         }
     },
     methods: {
-        userUpdate(val) {
+        userUpdate: function (val) {
             this.user.logged = val && val.isGuest ? false : true;
             this.user.idImage = val && val.idImage ? Number(val.idImage) : null;
             this.user.access.controlPanel = val && val.access && val.access.controlPanel ? Boolean(val.access.controlPanel) : false;
@@ -51,7 +51,7 @@ var vueMainHeader = new Vue({
             return items;
         }
     },
-    mounted() {
+    mounted: function () {
         this.ui.urls.userSigninUrl = this.$el.getAttribute("data-user-signin-url");
         this.ui.urls.userSignoutUrl = this.$el.getAttribute("data-user-signout-url");
         this.ui.urls.userProfileUrl = this.$el.getAttribute("data-user-profile-url");
@@ -59,3 +59,48 @@ var vueMainHeader = new Vue({
         this.ui.urls.controlPanelUrl = this.$el.getAttribute("data-controlpanel-url");
     }
 });
+
+export class PrimeVueDataTableFieldFilter {
+    constructor(source) {
+        this.FieldName = source.field;
+        this.MatchType =
+            source.filterMatchMode === "contains" ? 2 :
+                source.filterMatchMode === "startsWith" ? 1 : 0;
+        this.Value = source.value;
+    }
+}
+
+export class PrimeVueDataTableSourceRequest {
+    constructor(fieldNameMapper) {
+        this.FirstRow = 0;
+        this.RowsLimit = 0;
+        this.SortByFieldName = null;
+        this.SortByAcsending = true;
+        this.FilterFields = [];
+
+        this.fieldNameMapper = typeof fieldNameMapper === 'function' ? fieldNameMapper : (val) => val;
+    }
+
+    ApplyPagination(source) {
+        this.FirstRow = source && source.first ? Number(source.first) : 0;
+        this.RowsLimit = source && source.rows ? Number(source.rows) : 0;
+    }
+
+    ApplySort(source) {
+        this.SortByFieldName = source && source.sortField ? this.fieldNameMapper(String(source.sortField)) : null;
+        this.SortByAcsending = !source ? true : source.sortOrder === 1 ? true : false;
+    }
+
+    ApplyFilter(source) {
+        this.FilterFields = [];
+        for (var field in source) {
+            if (source[field]) {
+                this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter({
+                    field: this.fieldNameMapper(field),
+                    value: source[field],
+                    filterMatchMode: 'contains'
+                });
+            }
+        }
+    }
+}

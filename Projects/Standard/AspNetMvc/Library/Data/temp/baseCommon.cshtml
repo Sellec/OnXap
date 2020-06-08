@@ -38,9 +38,9 @@
 <!DOCTYPE html>
 <html lang="ru" @RenderSection("htmlTagAttributes", false)>
 <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="author" content="">
 
@@ -137,9 +137,9 @@
     <!-- End (popup-dialog) -->
 
     @RenderSection("scripts", false)
-    <script type="text/javascript" src="~/Design/UI/standard.js"></script>
+    <script type="text/javascript" src="~/Design/UI/standardui.js"></script>
     <script type="text/javascript">
-        vueMainHeader.userUpdate(@userUpdate.jsobject());
+        StandardUI.MainHeader.userUpdate(@userUpdate.jsobject());
     </script>
 </body>
 </html>

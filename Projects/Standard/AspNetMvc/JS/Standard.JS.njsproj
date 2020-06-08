@@ -36,9 +36,10 @@
     <Compile Include="dist\primevuelibrary\primevuelibrary.js" />
     <Compile Include="dist\primevuelibrary\primevuelibrary.min.js" />
     <Compile Include="dist\primevuelibrary\quill.min.js" />
+    <Compile Include="dist\standardui.js" />
     <Compile Include="dist\vue\vue.min.js" />
     <Compile Include="server.js" />
-    <Compile Include="src\main.js" />
+    <Compile Include="src\standardui.js" />
     <Compile Include="webpack.config.js" />
     <Content Include="dist\jqueryui\jquery-ui.min.css" />
     <Content Include="dist\primevuelibrary\fonts\primeicons.eot" />

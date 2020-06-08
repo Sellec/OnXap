@@ -554,6 +554,9 @@ input[type=text]::-ms-clear {
 }
 
 
+.p-chips {
+    display: inline-block;
+}
 .p-chips > ul.p-inputtext {
     clear: left;
     cursor: text;
@@ -606,6 +609,9 @@ input[type=text]::-ms-clear {
     -moz-border-radius: 0;
     -webkit-border-radius: 0;
     border-radius: 0;
+}
+.p-fluid .p-chips {
+    display: block;
 }
 
 
@@ -1141,6 +1147,9 @@ input[type=text]::-ms-clear {
     justify-content: center;
     align-items: center;
     pointer-events: none;
+    background-color: transparent;
+    transition-property: background-color;
+    transition-duration: 150ms;
 }
 .p-dialog-mask.p-component-overlay {
     pointer-events: auto;
@@ -1252,6 +1261,10 @@ input[type=text]::-ms-clear {
     opacity: 0;
     transform: scale(0.7);
 }
+.p-dialog-mask.p-dialog-mask-leave {
+    background-color: transparent;
+}
+
 /* Top, Bottom, Left, Right, Top* and Bottom* */
 .p-dialog-top .p-dialog,
 .p-dialog-bottom .p-dialog,
@@ -3034,6 +3047,7 @@ input[type=text]::-ms-clear {
     cursor: pointer;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
 }
 .p-multiselect-label-empty {
     overflow: hidden;
@@ -3586,6 +3600,13 @@ input[type=text]::-ms-clear {
     -webkit-transition: transform .3s;
     transition: transform .3s;
 }
+.p-sidebar-mask {
+    background-color: transparent;
+    transition: background-color;
+}
+.p-sidebar-mask-leave.p-component-overlay {
+    background-color: transparent;
+}
 .p-sidebar-left {
     top: 0;
     left: 0;
@@ -3669,6 +3690,7 @@ input[type=text]::-ms-clear {
 .p-sidebar-close {
     float: right;
     cursor: pointer;
+    line-height: 1;
 }
 @media screen and (max-width: 64em) {
 .p-sidebar-left.p-sidebar-lg,
