@@ -269,7 +269,11 @@ $(function () {
                         if (isSubmittingRJ == true) return;
 
                         thisObject.data("requestJSON_submitting", true);
-                        try { $.proxy(config.getRequestId, this)(requestId); } catch { };
+                        try {
+                            $.proxy(config.getRequestId, this)(requestId);
+                        } catch (err) {
+                            console.log("getRequestId", err);
+                        }
 
                         try {
                             var dataToSend = $(this).serializeArray();
