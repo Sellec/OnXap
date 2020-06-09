@@ -105,7 +105,9 @@ h6 {
 
 img.user-image-header {
     height: 33px;
+    width: 33px;
     margin: 0;
+    padding: 0;
     vertical-align: bottom;
 }
 

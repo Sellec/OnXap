@@ -11,7 +11,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageId>OnXap.Standard.AspNetMvc</PackageId>
     <Product>OnXap</Product>
-	  <Version>2.0.7</Version>
+	  <Version>2.0.8</Version>
 	  <PackageReleaseNotes>
 </PackageReleaseNotes>
 	  <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>

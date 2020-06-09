@@ -33,7 +33,7 @@ module.exports = {
         new CopyPlugin([
             { from: 'node_modules/vue/dist/vue.min.js', to: 'vue/' },
             { from: 'node_modules/primevuelibrary/dist', to: 'primevuelibrary/', ignore: ['**/themes/**/*'] },
-            { from: 'node_modules/primevuelibrary/dist/themes/nova-light', to: 'primevuelibrary/themes/nova-light/' },
+            { from: 'node_modules/primevuelibrary/dist/themes/nova-accent', to: 'primevuelibrary/themes/nova-accent/' },
             { from: 'node_modules/jqueryui/jquery-ui.min.css', to: 'jqueryui/' },
             { from: 'node_modules/jqueryui/jquery-ui.min.js', to: 'jqueryui/' },
             { from: 'node_modules/jquery/dist/jquery.min.js', to: 'jquery/' }

@@ -57,7 +57,7 @@
     <script src="~/Design/UI/primevuelibrary/primevuelibrary.min.js"></script>
 
     <link href="~/Design/UI/primevuelibrary/primevuelibrary.min.css " rel="stylesheet">
-    <link href="~/Design/UI/primevuelibrary/themes/nova-light/theme.css " rel="stylesheet">
+    <link href="~/Design/UI/primevuelibrary/themes/nova-accent/theme.css " rel="stylesheet">
 
     <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
     <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
@@ -95,9 +95,11 @@
                      data-user-image-template-url="@(Url.CreateRoute<FileManager, FileManagerController>(x => x.FileImageCrop(1234567890, 100, 100)))"
                      data-controlpanel-url="@(Url.CreateRoute<ModuleAdmin, ModuleAdminController>())">
                     <pvl-menubar>
-                        <pvl-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pvl-button>
-                        <img :src="userImageUrl" v-show="user.logged" class="user-image-header p-button" @@click="OnToggleUserMenu" />
-                        <pvl-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
+                        <template #end>
+                            <pvl-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pvl-button>
+                            <img :src="userImageUrl" v-show="user.logged" class="user-image-header p-button" @@click="OnToggleUserMenu" />
+                            <pvl-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
+                        </template>
                     </pvl-menubar>
                 </div>
                 <!-- (breadcrumbs) -->
