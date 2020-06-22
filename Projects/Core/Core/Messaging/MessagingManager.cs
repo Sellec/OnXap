@@ -93,22 +93,22 @@ namespace OnXap.Messaging
         #endregion
 
         #region Методы
-        internal static void CallServiceIncomingHandle(Type serviceType)
+        internal static void CallServiceIncomingHandle(Type serviceType, TimeSpan executeInterval)
         {
             var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
-            service?.PrepareIncomingHandle();
+            service?.PrepareIncomingHandle(executeInterval);
         }
 
-        internal static void CallServiceIncomingReceive(Type serviceType)
+        internal static void CallServiceIncomingReceive(Type serviceType, TimeSpan executeInterval)
         {
             var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
-            service?.PrepareIncomingReceive();
+            service?.PrepareIncomingReceive(executeInterval);
         }
 
-        internal static void CallServiceOutcoming(Type serviceType)
+        internal static void CallServiceOutcoming(Type serviceType, TimeSpan executeInterval)
         {
             var service = _appCore?.Get<MessagingManager>()?._services?.FirstOrDefault(x => x.GetType() == serviceType);
-            service?.PrepareOutcoming();
+            service?.PrepareOutcoming(executeInterval);
         }
 
         /// <summary>

@@ -600,7 +600,6 @@ namespace OnXap.Journaling
                 return new ExecutionRegisterResult(false, $"Возникла ошибка во время регистрации события в журнал №{IdJournal}. Смотрите информацию в системном текстовом журнале.");
             }
         }
-
         #endregion
 
         #region Свойства

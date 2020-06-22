@@ -70,15 +70,15 @@ namespace OnXap.Messaging
             this.RegisterServiceState(ServiceStatus.RunningIdeal, "Сервис запущен.");
 
             var type = GetType();
-            TasksManager.SetTask(TasksOutcomingSend + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceOutcoming(type));
-            TasksManager.SetTask(TasksIncomingReceive + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingReceive(type));
-            TasksManager.SetTask(TasksIncomingHandle + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingHandle(type));
+            TasksManager.SetTask(TasksOutcomingSend + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
+            TasksManager.SetTask(TasksIncomingReceive + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)));
+            TasksManager.SetTask(TasksIncomingHandle + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
 
             _executingFlags.TryLock(nameof(RegisterOutcomingMessage));
-            TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type));
+            TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromSeconds(30)));
 
             _executingFlags.TryLock(nameof(RegisterIncomingMessage));
-            TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type));
+            TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromSeconds(30)));
 
             OnServiceStarting();
         }
@@ -160,7 +160,7 @@ namespace OnXap.Messaging
                     if (_executingFlags.TryLock(nameof(RegisterOutcomingMessage)))
                     {
                         var type = GetType();
-                        TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type));
+                        TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
                     }
 
                     messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(message, mess));
@@ -203,7 +203,7 @@ namespace OnXap.Messaging
                     if (_executingFlags.TryLock(nameof(RegisterIncomingMessage)))
                     {
                         var type = GetType();
-                        TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type));
+                        TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
                     }
 
                     return true;
@@ -256,7 +256,7 @@ namespace OnXap.Messaging
             }
         }
 
-        private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction)
+        private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction, int limit)
         {
             var dateTime = DateTime.Now;
             var query = db.MessageQueue.Where(x =>
@@ -266,7 +266,7 @@ namespace OnXap.Messaging
                 (!x.DateDelayed.HasValue || x.DateDelayed.Value <= dateTime)
             );
 
-            var messages = query.ToList();
+            var messages = query.Take(limit).ToList();
 
             var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
             resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
@@ -323,7 +323,7 @@ namespace OnXap.Messaging
         #endregion
 
         #region IInternalForTasks
-        void IMessageServiceInternal.PrepareOutcoming()
+        void IMessageServiceInternal.PrepareOutcoming(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 
@@ -341,100 +341,106 @@ namespace OnXap.Messaging
                 using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                 {
-                    var messages = GetMessages(db, false);
-                    if (messages == null) return;
-
-                    messagesAll = messages.Count;
-
-                    OnBeforeExecuteOutcoming(messagesAll);
-
-                    var processedMessages = new List<IntermediateStateMessage<TMessage>>();
-
-                    var time = new MeasureTime();
-                    foreach (var intermediateMessage in messages)
+                    var timeEnd = DateTimeOffset.Now.Add(executeInterval);
+                    while (DateTimeOffset.Now < timeEnd)
                     {
-                        if (intermediateMessage.MessageSource.StateType == DB.MessageStateType.Error)
-                        {
-                            processedMessages.Add(intermediateMessage);
-                            continue;
-                        }
+                        var messages = GetMessages(db, false, 100);
+                        if (messages.IsNullOrEmpty()) break;
+                        messagesAll += messages.Count;
 
-                        var components = GetComponents().
-                            OfType<OutcomingMessageSender<TMessage>>().
-                            Select(x => new {
-                                Component = x,
-                                IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
-                            }).
-                            OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
-                            ToList();
+                        var processedMessages = new List<IntermediateStateMessage<TMessage>>();
 
-                        if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
+                        var time = new MeasureTime();
+                        foreach (var intermediateMessage in messages)
                         {
-                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
-                        }
+                            if (DateTimeOffset.Now >= timeEnd) break;
 
-                        foreach (var componentInfo in components)
-                        {
-                            try
+                            if (intermediateMessage.MessageSource.StateType == DB.MessageStateType.Error)
                             {
-                                var component = componentInfo.Component;
-                                var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
-                                var componentResult = component.OnSend(messageInfo, this);
-                                if (componentResult != null)
-                                {
-                                    intermediateMessage.MessageSource.DateChange = DateTime.Now;
-                                    switch (componentResult.StateType)
-                                    {
-                                        case MessageStateType.Completed:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
-                                            intermediateMessage.MessageSource.State = null;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = null;
-                                            break;
-
-                                        case MessageStateType.Delayed:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
-                                            break;
-
-                                        case MessageStateType.Repeat:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
-                                            break;
-
-                                        case MessageStateType.Error:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
-                                            break;
-
-                                    }
-                                    processedMessages.Add(intermediateMessage);
-                                    break;
-                                }
-                            }
-                            catch
-                            {
+                                processedMessages.Add(intermediateMessage);
                                 continue;
                             }
+
+                            var components = GetComponents().
+                                OfType<OutcomingMessageSender<TMessage>>().
+                                Select(x => new
+                                {
+                                    Component = x,
+                                    IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
+                                }).
+                                OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
+                                ToList();
+
+                            if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
+                            {
+                                components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
+                            }
+
+                            foreach (var componentInfo in components)
+                            {
+                                try
+                                {
+                                    var component = componentInfo.Component;
+                                    var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
+                                    var componentResult = component.OnSend(messageInfo, this);
+                                    if (componentResult != null)
+                                    {
+                                        intermediateMessage.MessageSource.DateChange = DateTime.Now;
+                                        switch (componentResult.StateType)
+                                        {
+                                            case MessageStateType.Completed:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
+                                                intermediateMessage.MessageSource.State = null;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                break;
+
+                                            case MessageStateType.Delayed:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                break;
+
+                                            case MessageStateType.Repeat:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                break;
+
+                                            case MessageStateType.Error:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                break;
+
+                                        }
+                                        messagesSent++;
+                                        processedMessages.Add(intermediateMessage);
+                                        break;
+                                    }
+                                }
+                                catch
+                                {
+                                    messagesErrors++;
+                                    continue;
+                                }
+                            }
+
+                            if (time.Calculate(false).TotalSeconds >= 3)
+                            {
+                                db.SaveChanges();
+                                processedMessages.Clear();
+                                time.Start();
+                            }
                         }
 
-                        if (time.Calculate(false).TotalSeconds >= 3)
+                        if (processedMessages.Count > 0)
                         {
                             db.SaveChanges();
-                            processedMessages.Clear();
-                            time.Start();
                         }
-                    }
-
-                    if (processedMessages.Count > 0)
-                    {
-                        db.SaveChanges();
                     }
 
                     db.SaveChanges();
@@ -443,7 +449,7 @@ namespace OnXap.Messaging
             }
             catch (Exception ex)
             {
-                this.RegisterServiceState(ServiceStatus.RunningWithErrors, $"Сообщений в очереди - {messagesAll}. Отправлено - {messagesSent}. Ошибки отправки - {messagesErrors}.", ex);
+                this.RegisterServiceState(ServiceStatus.RunningWithErrors, $"Сообщений получено для отправки - {messagesAll}. Отправлено - {messagesSent}. Ошибки отправки - {messagesErrors}.", ex);
             }
             finally
             {
@@ -451,7 +457,7 @@ namespace OnXap.Messaging
             }
         }
 
-        void IMessageServiceInternal.PrepareIncomingReceive()
+        void IMessageServiceInternal.PrepareIncomingReceive(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 
@@ -464,137 +470,143 @@ namespace OnXap.Messaging
             try
             {
                 using (var db = new DB.DataContext())
-                using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                 {
                     var components = GetComponents().
                     OfType<IncomingMessageReceiver<TMessage>>().
-                    Select(x => new {
+                    Select(x => new
+                    {
                         Component = x,
                         IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
                     }).
                     OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
                     ToList();
 
-                    foreach (var componentInfo in components)
+                    var timeEnd = DateTimeOffset.Now.Add(executeInterval);
+
+                    using (var scope = db.CreateScope(TransactionScopeOption.Suppress)) // Здесь Suppress вместо RequiresNew, т.к. весь процесс отправки занимает много времени и блокировать таблицу нельзя.
                     {
-                        try
+                        foreach (var componentInfo in components)
                         {
-                            var messages = componentInfo.Component.OnReceive(this);
-                            if (messages != null && messages.Count > 0)
+                            try
                             {
-                                int countAdded = 0;
-                                foreach (var message in messages)
+                                var messages = componentInfo.Component.OnReceive(this);
+                                if (messages != null && messages.Count > 0)
                                 {
-                                    if (message == null) continue;
-
-                                    var stateType = DB.MessageStateType.NotProcessed;
-                                    if (message.IsComplete) stateType = DB.MessageStateType.Complete;
-                                    if (message.IsError) stateType = DB.MessageStateType.Error;
-
-                                    var mess = new DB.MessageQueue()
+                                    int countAdded = 0;
+                                    foreach (var message in messages)
                                     {
-                                        IdMessageType = IdMessageType,
-                                        Direction = true,
-                                        State = message.State,
-                                        StateType = stateType,
-                                        DateCreate = DateTime.Now,
-                                        DateDelayed = message.DateDelayed,
-                                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
-                                    };
+                                        if (message == null) continue;
 
-                                    db.MessageQueue.Add(mess);
-                                    countAdded++;
-                                    messagesReceived++;
+                                        var stateType = DB.MessageStateType.NotProcessed;
+                                        if (message.IsComplete) stateType = DB.MessageStateType.Complete;
+                                        if (message.IsError) stateType = DB.MessageStateType.Error;
 
-                                    if (countAdded >= 50)
-                                    {
-                                        db.SaveChanges();
-                                        countAdded = 0;
+                                        var mess = new DB.MessageQueue()
+                                        {
+                                            IdMessageType = IdMessageType,
+                                            Direction = true,
+                                            State = message.State,
+                                            StateType = stateType,
+                                            DateCreate = DateTime.Now,
+                                            DateDelayed = message.DateDelayed,
+                                            MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
+                                        };
+
+                                        db.MessageQueue.Add(mess);
+                                        countAdded++;
+                                        messagesReceived++;
+
+                                        if (countAdded >= 50)
+                                        {
+                                            db.SaveChanges();
+                                            countAdded = 0;
+                                        }
                                     }
-                                }
 
-                                db.SaveChanges();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
-                            continue;
-                        }
-
-                        try
-                        {
-                            while (true)
-                            {
-                                var message = componentInfo.Component.OnBeginReceive(this);
-                                if (message == null) break;
-
-                                DB.MessageQueue queueMessage = null;
-
-                                var queueState = DB.MessageStateType.NotProcessed;
-                                if (message.IsComplete) queueState = DB.MessageStateType.Complete;
-                                if (message.IsError) queueState = DB.MessageStateType.Error;
-
-                                try
-                                {
-                                    var mess = new DB.MessageQueue()
-                                    {
-                                        IdMessageType = IdMessageType,
-                                        Direction = true,
-                                        State = message.State,
-                                        StateType = DB.MessageStateType.IntermediateAdded,
-                                        DateCreate = DateTime.Now,
-                                        DateDelayed = message.DateDelayed,
-                                        MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
-                                    };
-
-                                    db.MessageQueue.Add(mess);
                                     db.SaveChanges();
-
-                                    queueMessage = mess;
                                 }
-                                catch (Exception ex)
+                            }
+                            catch (Exception ex)
+                            {
+                                this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
+                                continue;
+                            }
+
+                            try
+                            {
+                                while (true)
                                 {
-                                    this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка регистрации сообщения после '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка регистрации сообщения после вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
+                                    var message = componentInfo.Component.OnBeginReceive(this);
+                                    if (message == null) break;
+
+                                    DB.MessageQueue queueMessage = null;
+
+                                    var queueState = DB.MessageStateType.NotProcessed;
+                                    if (message.IsComplete) queueState = DB.MessageStateType.Complete;
+                                    if (message.IsError) queueState = DB.MessageStateType.Error;
+
                                     try
                                     {
-                                        componentInfo.Component.OnEndReceive(false, message, this);
-                                    }
-                                    catch (Exception ex2)
-                                    {
-                                        this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}' после ошибки регистрации сообщения.", ex2);
-                                    }
-                                    continue;
-                                }
+                                        var mess = new DB.MessageQueue()
+                                        {
+                                            IdMessageType = IdMessageType,
+                                            Direction = true,
+                                            State = message.State,
+                                            StateType = DB.MessageStateType.IntermediateAdded,
+                                            DateCreate = DateTime.Now,
+                                            DateDelayed = message.DateDelayed,
+                                            MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
+                                        };
 
-                                try
-                                {
-                                    var endReceiveResult = componentInfo.Component.OnEndReceive(true, message, this);
-                                    if (endReceiveResult)
-                                    {
-                                        queueMessage.StateType = queueState;
+                                        db.MessageQueue.Add(mess);
+                                        db.SaveChanges();
+
+                                        queueMessage = mess;
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        db.MessageQueue.Remove(queueMessage);
+                                        this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка регистрации сообщения после '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка регистрации сообщения после вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
+                                        try
+                                        {
+                                            componentInfo.Component.OnEndReceive(false, message, this);
+                                        }
+                                        catch (Exception ex2)
+                                        {
+                                            this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}' после ошибки регистрации сообщения.", ex2);
+                                        }
+                                        continue;
                                     }
-                                    db.SaveChanges();
-                                }
-                                catch (Exception ex)
-                                {
-                                    this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}' после успешной регистрации сообщения.", ex);
+
+                                    try
+                                    {
+                                        var endReceiveResult = componentInfo.Component.OnEndReceive(true, message, this);
+                                        if (endReceiveResult)
+                                        {
+                                            queueMessage.StateType = queueState;
+                                        }
+                                        else
+                                        {
+                                            db.MessageQueue.Remove(queueMessage);
+                                        }
+                                        db.SaveChanges();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}' после успешной регистрации сообщения.", ex);
+                                    }
+
+                                    if (DateTimeOffset.Now >= timeEnd) break;
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
+                                continue;
+                            }
                         }
-                        catch (Exception ex)
-                        {
-                            this.RegisterServiceEvent(Journaling.EventType.Error, $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}'", $"Ошибка вызова '{nameof(componentInfo.Component.OnBeginReceive)}' для компонента '{componentInfo?.Component?.GetType()?.FullName}'.", ex);
-                            continue;
-                        }
+                        db.SaveChanges();
+                        scope.Complete();
                     }
-
-                    db.SaveChanges();
-                    scope.Complete();
                 }
 
                 if (messagesReceived > 0)
@@ -618,7 +630,7 @@ namespace OnXap.Messaging
             }
         }
 
-        void IMessageServiceInternal.PrepareIncomingHandle()
+        void IMessageServiceInternal.PrepareIncomingHandle(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 
@@ -628,7 +640,7 @@ namespace OnXap.Messaging
             _executingFlags.ReleaseLock(nameof(RegisterIncomingMessage));
 
             int messagesAll = 0;
-            int messagesSent = 0;
+            int messagesHandled = 0;
             int messagesErrors = 0;
 
             try
@@ -636,83 +648,94 @@ namespace OnXap.Messaging
                 using (var db = new DB.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
-                    var messages = GetMessages(db, true);
-                    if (messages.IsNullOrEmpty()) return;
-
-                    messagesAll = messages.Count;
-
-                    var components = GetComponents().
-                        OfType<IncomingMessageHandler<TMessage>>().
-                        Select(x => new {
-                            Component = x,
-                            IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
-                        }).
-                        OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
-                        ToList();
-
-                    foreach (var intermediateMessage in messages)
+                    var timeEnd = DateTimeOffset.Now.Add(executeInterval);
+                    while (DateTimeOffset.Now < timeEnd)
                     {
-                        var componentsForMessage = components;
-                        if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
-                        {
-                            components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
-                        }
+                        var messages = GetMessages(db, true, 100);
+                        if (messages.IsNullOrEmpty()) break;
 
-                        foreach (var componentInfo in components)
-                        {
-                            try
+                        messagesAll += messages.Count;
+
+                        var components = GetComponents().
+                            OfType<IncomingMessageHandler<TMessage>>().
+                            Select(x => new
                             {
-                                var component = componentInfo.Component;
-                                var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
-                                var componentResult = component.OnPrepare(messageInfo, this);
-                                if (componentResult != null)
-                                {
-                                    intermediateMessage.MessageSource.DateChange = DateTime.Now;
-                                    switch (componentResult.StateType)
-                                    {
-                                        case MessageStateType.Completed:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
-                                            intermediateMessage.MessageSource.State = null;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = null;
-                                            break;
+                                Component = x,
+                                IdTypeComponent = ItemTypeFactory.GetItemType(x.GetType())?.IdItemType
+                            }).
+                            OrderBy(x => ((IPoolObjectOrdered)x.Component).OrderInPool).
+                            ToList();
 
-                                        case MessageStateType.Delayed:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
-                                            break;
+                        foreach (var intermediateMessage in messages)
+                        {
+                            if (DateTimeOffset.Now >= timeEnd) break;
 
-                                        case MessageStateType.Repeat:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                            intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
-                                            break;
-
-                                        case MessageStateType.Error:
-                                            intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
-                                            intermediateMessage.MessageSource.State = componentResult.State;
-                                            intermediateMessage.MessageSource.IdTypeComponent = null;
-                                            intermediateMessage.MessageSource.DateDelayed = null;
-                                            break;
-                                    }
-                                    db.SaveChanges();
-                                    break;
-                                }
+                            var componentsForMessage = components;
+                            if (intermediateMessage.MessageSource.IdTypeComponent.HasValue)
+                            {
+                                components = components.Where(x => x.IdTypeComponent.HasValue && x.IdTypeComponent == intermediateMessage.MessageSource.IdTypeComponent).ToList();
                             }
-                            catch
+
+                            foreach (var componentInfo in components)
                             {
-                                continue;
+                                try
+                                {
+                                    var component = componentInfo.Component;
+                                    var messageInfo = new MessageInfo<TMessage>(intermediateMessage);
+                                    var componentResult = component.OnPrepare(messageInfo, this);
+                                    if (componentResult != null)
+                                    {
+                                        intermediateMessage.MessageSource.DateChange = DateTime.Now;
+                                        switch (componentResult.StateType)
+                                        {
+                                            case MessageStateType.Completed:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
+                                                intermediateMessage.MessageSource.State = null;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                break;
+
+                                            case MessageStateType.Delayed:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                break;
+
+                                            case MessageStateType.Repeat:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                break;
+
+                                            case MessageStateType.Error:
+                                                intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
+                                                intermediateMessage.MessageSource.State = componentResult.State;
+                                                intermediateMessage.MessageSource.IdTypeComponent = null;
+                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                break;
+                                        }
+                                        messagesHandled++;
+                                        db.SaveChanges();
+                                        break;
+                                    }
+                                }
+                                catch
+                                {
+                                    messagesErrors++;
+                                    continue;
+                                }
                             }
                         }
                     }
+                    db.SaveChanges();
+                    scope.Complete();
                 }
             }
             catch (Exception ex)
             {
-                this.RegisterServiceState(ServiceStatus.RunningWithErrors, $"Сообщений в очереди - {messagesAll}. Обработано - {messagesSent}. Ошибки обработки - {messagesErrors}.", ex);
+                this.RegisterServiceState(ServiceStatus.RunningWithErrors, $"Сообщений получено для обработки - {messagesAll}. Обработано - {messagesHandled}. Ошибки обработки - {messagesErrors}.", ex);
             }
             finally
             {
