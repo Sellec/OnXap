@@ -348,6 +348,8 @@ namespace OnXap.Messaging
                         if (messages.IsNullOrEmpty()) break;
                         messagesAll += messages.Count;
 
+                        OnBeforeExecuteOutcoming(messagesAll);
+
                         var processedMessages = new List<IntermediateStateMessage<TMessage>>();
 
                         var time = new MeasureTime();
