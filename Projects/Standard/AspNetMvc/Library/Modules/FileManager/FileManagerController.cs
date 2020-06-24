@@ -353,7 +353,17 @@ namespace OnXap.Modules.FileManager
                     lInitialImageCroppingX = Math.Floor((lInitialImageWidth - lCroppedImageWidth) / 2);
                 }
 
-                var newImage = new Bitmap(aNewImageWidth, aNewImageHeight, image.PixelFormat);
+                var pixelFormat = image.PixelFormat;
+                switch (pixelFormat)
+                {
+                    case PixelFormat.Format1bppIndexed:
+                    case PixelFormat.Format4bppIndexed:
+                    case PixelFormat.Format8bppIndexed:
+                        pixelFormat = PixelFormat.Format32bppRgb;
+                        break;
+                }
+
+                var newImage = new Bitmap(aNewImageWidth, aNewImageHeight, pixelFormat);
                 using (var gr = Graphics.FromImage(newImage))
                 {
                     //gr.SmoothingMode = SmoothingMode.HighQuality;
