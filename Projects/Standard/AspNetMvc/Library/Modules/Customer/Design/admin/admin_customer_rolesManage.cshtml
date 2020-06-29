@@ -49,7 +49,6 @@
                 $("input[name=NameRole]").val(data.NameRole);
                 $("input[name=IsHidden]").prop("checked", data.IsHidden);
                 updatePermissionsFromRole(data.Permissions);
-                console.log(data);
 
                 $("td#roleTable th#roleCaption").text("Редактирование роли '" + data.NameRole + "'");
                 $("td#roleTable").show();

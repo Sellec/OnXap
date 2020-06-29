@@ -50,7 +50,7 @@
                 dataList: null,
                 paginatorRows: 10,
                 requestId: null,
-                requestOptions: new PrimeVueDataTableSourceRequest(x => {
+                requestOptions: new StandardUI.PrimeVueDataTableSourceRequest(x => {
                     switch (x) {
                         case 'eventType':
                             return '@Html.NameOf(x => x.JournalData.First().EventType)';
@@ -120,7 +120,6 @@
                 },
                 findEventTypeCaption: function (eventType) {
                     var eventTypeFound = this.eventTypes.filter(x => x.id == eventType);
-                    console.log(eventType, this.eventTypes, eventTypeFound);
                     return eventTypeFound.length == 1 ? eventTypeFound[0].caption : '!!!Неизвестный тип события';
                 }
             },

@@ -26,7 +26,6 @@
     {
         try
         {
-            console.log(itemData);
             $("input[name='@Html.NameOf(x => x.IdModule)']").val(itemData.@Html.NameOf(x => x.IdModule));
             $("input[name='@Html.NameOf(x => x.IdField)']").val(itemData.@Html.NameOf(x => x.IdField));
             $("#EditLabel").text(itemData.@Html.NameOf(x => x.IdField) == 0 ? "Добавление поля" : "Редактирование поля '" + itemData.@Html.NameOf(x => x.name) + "'");

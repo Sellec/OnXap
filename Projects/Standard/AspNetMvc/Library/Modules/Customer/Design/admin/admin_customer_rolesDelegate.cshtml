@@ -94,7 +94,6 @@
         $("table#UserRoles select.plistUsers").click(function(){
             try
             {
-                console.log("1");
                 var userID = $(this).val();
                 User = userID;
 
@@ -155,7 +154,6 @@
         });
 
         $("table#RoleUsers").bind('filterEnd', function(){
-            console.log(2);
             var table = this;
 
             $("input.plistUsers", table).parent().hide();
