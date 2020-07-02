@@ -55,7 +55,7 @@ namespace OnXap.Core.Modules
             ViewData["CurrentUserContext"] = AppCore.GetUserContextManager().GetCurrentUserContext();
 
             ViewData["ControllerThreadId"] = System.Threading.Thread.CurrentThread.ManagedThreadId;
-            ViewData["QueriesFromBeginRequest"] = WebUtils.QueryLogHelper.GetQueries().Count;
+            ViewData["QueriesFromBeginRequest"] = Data.Helpers.QueryLogHelper.GetQueries().Count;
             ViewData["TimeViewSend"] = DateTime.Now;
         }
 

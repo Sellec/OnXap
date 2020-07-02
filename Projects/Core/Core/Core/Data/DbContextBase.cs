@@ -31,6 +31,7 @@ namespace OnXap.Core.Data
         /// </summary>
         protected sealed override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            optionsBuilder.AddInterceptors(new Helpers.QueryInterceptor());
             OnConfiguringInternal(optionsBuilder);
         }
 
@@ -110,6 +111,8 @@ namespace OnXap.Core.Data
         public IEnumerable<TEntity> ExecuteQuery<TEntity>(object query, object parameters = null, bool cacheInLocal = false, TEntity entityExample = default(TEntity)) 
             where TEntity : class
         {
+            var queryObject = new object();
+
             try
             {
                 var queryText = query.ToString();
@@ -128,6 +131,7 @@ namespace OnXap.Core.Data
                         if (dapperTypeContainsKey != null && dapperTypeGet != null)
                         {
                             var dynamicParameters = new DynamicParameters(parameters);
+                            Helpers.QueryCounterExtensions.OnExecuting(queryObject, queryText, parameters);
                             var results = Database.GetDbConnection().Query(queryText, dynamicParameters, buffered: cacheInLocal, commandTimeout: Database.GetCommandTimeout());
 
                             return results.Select(res =>
@@ -135,7 +139,7 @@ namespace OnXap.Core.Data
                                 var obj = (TEntity)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(TEntity));
                                 properties.Where(x => x.Value != null).ForEach(x => x.Value.SetValue(obj, dapperTypeContainsKey.Invoke(res, new object[] { x.Key.Name }).Equals(true) ? dapperTypeGet.Invoke(res, new object[] { x.Key.Name }) : null));
                                 return obj;
-                            });
+                            }).ToList();
                         }
                     }
 
@@ -147,12 +151,16 @@ namespace OnXap.Core.Data
 
                     var dynamicParameters = new DynamicParameters(parameters);
                     var results = Database.GetDbConnection().Query<TEntity>(queryText, parameters, buffered: cacheInLocal, commandTimeout: Database.GetCommandTimeout());
-                    return results;
+                    return results.ToList();
                 }
             }
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                Helpers.QueryCounterExtensions.OnExecuted(queryObject);
             }
         }
 
@@ -167,11 +175,14 @@ namespace OnXap.Core.Data
         /// </param>
         public int ExecuteQuery(object query, object parameters = null)
         {
+            var queryObject = new object();
+
             try
             {
                 if (query != null)
                 {
                     var queryText = query.ToString();
+                    Helpers.QueryCounterExtensions.OnExecuting(queryObject, queryText, parameters);
                     var results = Database.GetDbConnection().Execute(queryText, parameters, commandTimeout: Database.GetCommandTimeout());
 
                     return results;
@@ -181,6 +192,10 @@ namespace OnXap.Core.Data
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                Helpers.QueryCounterExtensions.OnExecuted(queryObject);
             }
         }
 
@@ -200,14 +215,21 @@ namespace OnXap.Core.Data
         public IEnumerable<TEntity> StoredProcedure<TEntity>(string procedure_name, object parameters = null) 
             where TEntity : class
         {
+            var queryObject = new object();
+
             try
             {
+                Helpers.QueryCounterExtensions.OnExecuting(queryObject, procedure_name, parameters);
                 var results = Database.GetDbConnection().Query<TEntity>(procedure_name, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: Database.GetCommandTimeout());
                 return results;
             }
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                Helpers.QueryCounterExtensions.OnExecuted(queryObject);
             }
         }
 
@@ -225,8 +247,11 @@ namespace OnXap.Core.Data
             where TEntity1 : class
             where TEntity2 : class
         {
+            var queryObject = new object();
+
             try
             {
+                Helpers.QueryCounterExtensions.OnExecuting(queryObject, procedure_name, parameters);
                 using (var reader = Database.GetDbConnection().QueryMultiple(procedure_name, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: Database.GetCommandTimeout()))
                 {
                     return new Tuple<IEnumerable<TEntity1>, IEnumerable<TEntity2>>(reader.Read<TEntity1>().ToList(), reader.Read<TEntity2>().ToList());
@@ -235,6 +260,10 @@ namespace OnXap.Core.Data
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                Helpers.QueryCounterExtensions.OnExecuted(queryObject);
             }
         }
 
@@ -253,8 +282,11 @@ namespace OnXap.Core.Data
             where TEntity2 : class
             where TEntity3 : class
         {
+            var queryObject = new object();
+
             try
             {
+                Helpers.QueryCounterExtensions.OnExecuting(queryObject, procedure_name, parameters);
                 using (var reader = Database.GetDbConnection().QueryMultiple(procedure_name, parameters, commandType: System.Data.CommandType.StoredProcedure, commandTimeout: Database.GetCommandTimeout()))
                 {
                     return new Tuple<IEnumerable<TEntity1>, IEnumerable<TEntity2>, IEnumerable<TEntity3>>(reader.Read<TEntity1>().ToList(), reader.Read<TEntity2>().ToList(), reader.Read<TEntity3>().ToList());
@@ -263,6 +295,10 @@ namespace OnXap.Core.Data
             catch (Exception)
             {
                 throw;
+            }
+            finally
+            {
+                Helpers.QueryCounterExtensions.OnExecuted(queryObject);
             }
         }
         #endregion

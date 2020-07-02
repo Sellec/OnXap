@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OnXap.WebUtils
+namespace OnXap.Core.Data.Helpers
 {
     /// <summary>
     /// </summary>
@@ -13,7 +13,7 @@ namespace OnXap.WebUtils
             {
                if (QueryLogEnabled)
                {
-                   if (_queries == null) _queries = new List<QueryCounterExtensions.QueryInfo>();
+                   if (_queries == null) _queries = new List<QueryInfo>();
                    _queries.Add(query);
                }
             };
@@ -22,9 +22,9 @@ namespace OnXap.WebUtils
         /// <summary>
         /// Возвращает список запросов для текущего потока (см. <see cref="QueryLogEnabled"/> про потокозависимость).
         /// </summary>
-        public static List<QueryCounterExtensions.QueryInfo> GetQueries()
+        public static List<QueryInfo> GetQueries()
         {
-            if (_queries == null) _queries = new List<QueryCounterExtensions.QueryInfo>();
+            if (_queries == null) _queries = new List<QueryInfo>();
             return _queries;
         }
 
@@ -45,6 +45,6 @@ namespace OnXap.WebUtils
         public static bool QueryLogEnabled = default(bool);
 
         [ThreadStatic]
-        private static List<QueryCounterExtensions.QueryInfo> _queries;
+        private static List<QueryInfo> _queries;
     }
 }

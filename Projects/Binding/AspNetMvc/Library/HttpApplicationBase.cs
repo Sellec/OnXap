@@ -240,7 +240,7 @@ namespace OnXap
                 }
             }
 
-            WebUtils.QueryLogHelper.QueryLogEnabled = true;
+            Core.Data.Helpers.QueryLogHelper.QueryLogEnabled = true;
             Context.Items["TimeRequestStart"] = DateTime.Now;
 
             HttpContext.Current.SetAppCore(_applicationCore);
@@ -341,8 +341,8 @@ namespace OnXap
                 _applicationCore.GetUserContextManager().ClearCurrentUserContext();
             }
 
-            WebUtils.QueryLogHelper.QueryLogEnabled = false;
-            WebUtils.QueryLogHelper.ClearQueries();
+            Core.Data.Helpers.QueryLogHelper.QueryLogEnabled = false;
+            Core.Data.Helpers.QueryLogHelper.ClearQueries();
         }
 
         internal void Application_PreSendRequestHeaders()
