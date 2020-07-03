@@ -141,7 +141,7 @@ namespace OnXap.Modules.Routing
         {
             if (_defferedObjects.IsValueCreated && _defferedObjects.Value.Collection.ContainsKey(type))
             {
-                Dictionary<ItemBase, int> items = null;
+                List<ItemBase> items = null;
                 lock (_defferedObjects.Value.SyncRoot)
                 {
                     for (int i = 0; i < 3; i++)
@@ -159,7 +159,7 @@ namespace OnXap.Modules.Routing
 
                             if (oldCollection != null)
                             {
-                                items = oldCollection.ToDictionary(x => x.Key, x => x.Value);
+                                items = oldCollection.Keys.ToList();
                                 oldCollection.Clear();
                             }
                             break;
@@ -172,33 +172,19 @@ namespace OnXap.Modules.Routing
                 }
 
                 var IdItemType = ItemTypeAttribute.GetValueFromType(type);
-                var dataForItems = GetForQuery(IdItemType, type, items.Keys);
-                try
-                {
-                    if (dataForItems != null)
-                    {
-                        foreach (var p in dataForItems)
-                        {
-                            p.Key._routingUrlMain = p.Value?.Item1;
-                            p.Key._routingUrlMainSourceType = p.Value?.Item2 ?? UrlSourceType.None;
-                        }
-                    }
-                }
-                finally { if (dataForItems != null) dataForItems.Clear(); }
+                GetForQuery(IdItemType, type, items);
             }
         }
 
-        internal Dictionary<ItemBase, Tuple<Uri, UrlSourceType>> GetForQuery(int idItemType, Type type, IEnumerable<ItemBase> items)
+        internal void GetForQuery(int idItemType, Type type, List<ItemBase> items)
         {
             var absoluteUrl = AppCore.ServerUrl;
             var urlManager = AppCore.Get<UrlManager>();
-            var itemsSet = items.ToDictionary<ItemBase, ItemBase, Tuple<Uri, UrlSourceType>>(x => x, x => null);
-
-            var keys = itemsSet.Keys.ToList();
-            var result = urlManager.GetUrl(keys.Select(x => x.ID).ToArray(), idItemType, RoutingConstants.MAINKEY);
+            var idList = items.Select(x => x.ID).Distinct().ToArray();
+            var result = urlManager.GetUrl(idList, idItemType, RoutingConstants.MAINKEY);
             if (!result.IsSuccess)
             {
-                result = urlManager.GetUrl(keys.Select(x => x.ID).ToArray(), idItemType, RoutingConstants.MAINKEY);
+                result = urlManager.GetUrl(idList, idItemType, RoutingConstants.MAINKEY);
             }
             if (!result.IsSuccess)
             {
@@ -206,36 +192,44 @@ namespace OnXap.Modules.Routing
                 throw new Exception("Ошибка получения адресов");
             }
 
-            var itemsEmpty = new System.Collections.ObjectModel.Collection<ItemBase>();
+            var itemsEmpty = new Dictionary<ModuleCore, List<ItemBase>>();
 
-            foreach (var x in keys)
+            foreach (var item in items)
             {
-                if (result.Result.TryGetValue(x.ID, out string value) && !string.IsNullOrEmpty(value))
+                if (result.Result.TryGetValue(item.ID, out string value) && !string.IsNullOrEmpty(value))
                 {
-                    if (Uri.TryCreate(value, UriKind.Absolute, out Uri url)) itemsSet[x] = new Tuple<Uri, UrlSourceType>(url, UrlSourceType.Routing);
-                    else if (Uri.TryCreate(absoluteUrl, value, out Uri url2)) itemsSet[x] = new Tuple<Uri, UrlSourceType>(url2, UrlSourceType.Routing);
+                    if (Uri.TryCreate(value, UriKind.Absolute, out Uri url))
+                    {
+                        item._routingUrlMain = url;
+                        item._routingUrlMainSourceType = UrlSourceType.Routing;
+                    }
+                    else if (Uri.TryCreate(absoluteUrl, value, out Uri url2))
+                    {
+                        item._routingUrlMain = url2;
+                        item._routingUrlMainSourceType = UrlSourceType.Routing;
+                    }
                 }
-                else itemsEmpty.Add(x);
+                else
+                {
+                    if (!itemsEmpty.ContainsKey(item.OwnerModule)) itemsEmpty[item.OwnerModule] = new List<ItemBase>();
+                    itemsEmpty[item.OwnerModule].Add(item);
+                }
             }
 
             if (itemsEmpty.Count > 0)
             {
-                itemsEmpty.GroupBy(x => x.OwnerModule, x => x).ForEach(gr_ =>
+                itemsEmpty.ForEach(x =>
                 {
-                    if (gr_.Key != null)
-                    {
-                        var itemsModule = gr_.ToList();
-
-                        var generated = gr_.Key.GenerateLinks(itemsModule);
-                        if (generated != null)
-                            foreach (var pair in generated)
-                                if (pair.Value != null)
-                                    itemsSet[pair.Key] = new Tuple<Uri, UrlSourceType>(pair.Value, UrlSourceType.Module);
-                    }
+                    var generated = x.Key.GenerateLinks(x.Value);
+                    if (generated != null)
+                        foreach (var pair in generated)
+                            if (pair.Value != null)
+                            {
+                                pair.Key._routingUrlMain = pair.Value;
+                                pair.Key._routingUrlMainSourceType = UrlSourceType.Module;
+                            }
                 });
             }
-
-            return itemsSet;
         }
         #endregion
 
