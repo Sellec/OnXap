@@ -27,11 +27,19 @@ namespace OnXap.Messaging
         IAutoStart
         where TMessage : MessageBase, new()
     {
+        class QueuePositionInfo
+        {
+            public int IdQueueCurrent;
+            public int IdQueueMax;
+        }
+
         private readonly string TasksOutcomingSend;
         private readonly string TasksIncomingReceive;
         private readonly string TasksIncomingHandle;
 
         private Types.ConcurrentFlagLocker<string> _executingFlags = new Types.ConcurrentFlagLocker<string>();
+        private QueuePositionInfo _outcomingQueueInfo = new QueuePositionInfo();
+        private QueuePositionInfo _incomingHandleQueueInfo = new QueuePositionInfo();
 
         private const int JournalEventBase = 10000;
 
@@ -70,9 +78,9 @@ namespace OnXap.Messaging
             this.RegisterServiceState(ServiceStatus.RunningIdeal, "Сервис запущен.");
 
             var type = GetType();
-            TasksManager.SetTask(TasksOutcomingSend + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
-            TasksManager.SetTask(TasksIncomingReceive + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)));
-            TasksManager.SetTask(TasksIncomingHandle + "_minutely1", Cron.MinuteInterval(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
+            TasksManager.SetTask(TasksOutcomingSend + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
+            TasksManager.SetTask(TasksIncomingReceive + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)));
+            TasksManager.SetTask(TasksIncomingHandle + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
 
             _executingFlags.TryLock(nameof(RegisterOutcomingMessage));
             TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromSeconds(30)));
@@ -256,17 +264,37 @@ namespace OnXap.Messaging
             }
         }
 
-        private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction, int limit)
+        private List<IntermediateStateMessage<TMessage>> GetMessages(DB.DataContext db, bool direction, int limit, QueuePositionInfo queuePositionInfo)
         {
             var dateTime = DateTime.Now;
-            var query = db.MessageQueue.Where(x =>
-                x.Direction == direction &&
-                x.IdMessageType == IdMessageType &&
-                (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat) &&
-                (!x.DateDelayed.HasValue || x.DateDelayed.Value <= dateTime)
-            );
+            var query = db.MessageQueue.
+                Where(x =>
+                    x.Direction == direction &&
+                    x.IdMessageType == IdMessageType &&
+                    (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat) &&
+                    (!x.DateDelayed.HasValue || x.DateDelayed.Value <= dateTime)
+                ).
+                OrderBy(x => x.IdQueue);
+
+            if (queuePositionInfo.IdQueueMax <= 0)
+            {
+                var idQueueMax = query.Max(x => (int?)x.IdQueue) ?? 0;
+                queuePositionInfo.IdQueueCurrent = 0;
+                queuePositionInfo.IdQueueMax = idQueueMax;
+            }
+            else
+            {
+                query = query.
+                    Where(x => x.IdQueue > queuePositionInfo.IdQueueCurrent && x.IdQueue <= queuePositionInfo.IdQueueMax).
+                    OrderBy(x => x.IdQueue);
+            }
 
             var messages = query.Take(limit).ToList();
+            if (messages.Count == 0)
+            {
+                queuePositionInfo.IdQueueMax = 0;
+                return new List<IntermediateStateMessage<TMessage>>();
+            }
 
             var resolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
             resolver.DefaultMembersSearchFlags = resolver.DefaultMembersSearchFlags | System.Reflection.BindingFlags.NonPublic;
@@ -344,7 +372,7 @@ namespace OnXap.Messaging
                     var timeEnd = DateTimeOffset.Now.Add(executeInterval);
                     while (DateTimeOffset.Now < timeEnd)
                     {
-                        var messages = GetMessages(db, false, 100);
+                        var messages = GetMessages(db, false, 100, _outcomingQueueInfo);
                         if (messages.IsNullOrEmpty()) break;
                         messagesAll += messages.Count;
 
@@ -430,6 +458,8 @@ namespace OnXap.Messaging
                                     continue;
                                 }
                             }
+
+                            _outcomingQueueInfo.IdQueueCurrent = intermediateMessage.MessageSource.IdQueue;
 
                             if (time.Calculate(false).TotalSeconds >= 3)
                             {
@@ -653,7 +683,7 @@ namespace OnXap.Messaging
                     var timeEnd = DateTimeOffset.Now.Add(executeInterval);
                     while (DateTimeOffset.Now < timeEnd)
                     {
-                        var messages = GetMessages(db, true, 100);
+                        var messages = GetMessages(db, true, 100, _incomingHandleQueueInfo);
                         if (messages.IsNullOrEmpty()) break;
 
                         messagesAll += messages.Count;
@@ -729,6 +759,8 @@ namespace OnXap.Messaging
                                     continue;
                                 }
                             }
+
+                            _incomingHandleQueueInfo.IdQueueCurrent = intermediateMessage.MessageSource.IdQueue;
                         }
                     }
                     db.SaveChanges();
