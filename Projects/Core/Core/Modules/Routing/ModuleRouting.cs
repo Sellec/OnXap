@@ -209,7 +209,7 @@ namespace OnXap.Modules.Routing
                         item._routingUrlMainSourceType = UrlSourceType.Routing;
                     }
                 }
-                else
+                else if (item.OwnerModule != null)
                 {
                     if (!itemsEmpty.ContainsKey(item.OwnerModule)) itemsEmpty[item.OwnerModule] = new List<ItemBase>();
                     itemsEmpty[item.OwnerModule].Add(item);

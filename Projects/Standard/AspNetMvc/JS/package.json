@@ -6,7 +6,7 @@
   "dependencies": {
     "jquery": "^2.2.4",
     "jqueryui": "^1.11.1",
-    "primevuelibrary": "^0.5.0",
+    "primevuelibrary": "^0.7.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {

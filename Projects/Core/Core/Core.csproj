@@ -7,7 +7,7 @@
     <Product>OnXap</Product>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>2.4.9</Version>
+    <Version>2.4.10</Version>
     <AssemblyName>OnXap.Core</AssemblyName>
     <RootNamespace>OnXap</RootNamespace>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -64,5 +64,8 @@
     </Reference>
     <Reference Include="System.Transactions" Condition="'$(TargetFramework)' == 'net461'" />
     <Reference Include="System.Web" Condition="'$(TargetFramework)' == 'net461'" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Jobs\" />
   </ItemGroup>
 </Project>

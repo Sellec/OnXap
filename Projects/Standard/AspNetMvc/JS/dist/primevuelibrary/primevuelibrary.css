@@ -52,6 +52,8 @@
 .p-autocomplete-item {
     cursor: pointer;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
 .p-autocomplete-multiple-container {
     margin: 0;
@@ -162,6 +164,8 @@
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Multiple Month DatePicker */
@@ -180,6 +184,8 @@
     align-items: center;
     cursor: pointer;
     margin: 0 auto;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Month Picker */
@@ -189,6 +195,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    overflow: hidden;
+    position: relative;
 }
 
 /*  Button Bar */
@@ -209,6 +217,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    overflow: hidden;
+    position: relative;
 }
 .p-timepicker > div {
     display: flex;
@@ -248,7 +258,9 @@
     flex-shrink: 0;
     display: flex;
     justify-content: center;
-	align-items: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
 }
 .p-carousel-container {
 	display: flex;
@@ -256,6 +268,7 @@
 }
 .p-carousel-items-content {
 	overflow: hidden;
+    width: 100%;
 }
 .p-carousel-items-container {
 	display: flex;
@@ -419,6 +432,8 @@
     display: flex;
     align-items: center;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-contextmenu .p-menuitem-text {
     line-height: 1;
@@ -483,6 +498,8 @@ input.p-dropdown-label  {
     cursor: pointer;
     font-weight: normal;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
 .p-dropdown-items {
     margin: 0;
@@ -524,13 +541,20 @@ input.p-dropdown-label  {
 .p-paginator-next,
 .p-paginator-last,
 .p-paginator-first,
-.p-paginator-prev {
+.p-paginator-prev,
+.p-paginator-current {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
     user-select: none;
+    overflow: hidden;
+    position: relative;
+}
+.p-paginator-element:focus {
+    z-index: 1;
+    position: relative;
 }
 
 
@@ -552,7 +576,9 @@ input.p-dropdown-label  {
     vertical-align: middle;
 }
 .p-datatable .p-sortable-column .p-sortable-column-badge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .p-datatable-auto-layout > .p-datatable-wrapper {
     overflow-x: auto;
@@ -652,6 +678,24 @@ input.p-dropdown-label  {
 .p-datatable .p-datatable-tbody > tr > td.p-cell-editing .p-component {
     width: 100%;
 }
+.p-datatable .p-row-editor-init,
+.p-datatable .p-row-editor-save,
+.p-datatable .p-row-editor-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Expand */
+.p-datatable .p-row-toggler {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
 
 /* Reorder */
 .p-datatable-reorder-indicator-up,
@@ -712,6 +756,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Fluid */
@@ -1905,6 +1951,8 @@ input.p-dropdown-label  {
 .p-fieldset-toggleable .p-fieldset-legend a {
     cursor: pointer;
     user-select: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-fieldset-legend-text {
     line-height: 1;
@@ -2024,7 +2072,9 @@ input.p-dropdown-label  {
     justify-content: center;
 }
 .p-message-close.p-link {
-    margin-left: auto
+    margin-left: auto;
+    overflow: hidden;
+    position: relative;
 }
 .p-message-enter {
     opacity: 0;
@@ -2058,6 +2108,13 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
 }
+.p-fileupload-row > div {
+    flex: 1 1 auto;
+    width: 25%;
+}
+.p-fileupload-row > div:last-child {
+    text-align: right;
+}
 .p-fileupload-content .p-progressbar {
     width: 100%;
     position: absolute;
@@ -2069,17 +2126,7 @@ input.p-dropdown-label  {
     overflow: hidden;
 }
 .p-button.p-fileupload-choose input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    opacity: 0;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    filter: alpha(opacity=0);
-    direction: ltr;
-    cursor: pointer;
+    display: none;
 }
 .p-fileupload-choose.p-fileupload-choose-selected input[type=file] {
     display: none;
@@ -2134,6 +2181,8 @@ input.p-dropdown-label  {
 }
 .p-listbox-item {
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 .p-listbox-filter-container {
     position: relative;
@@ -2164,6 +2213,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-megamenu .p-menuitem-text {
     line-height: 1;
@@ -2242,6 +2293,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-menu .p-menuitem-text {
     line-height: 1;
@@ -2262,6 +2315,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-menubar .p-menuitem-text {
     line-height: 1;
@@ -2352,6 +2407,8 @@ input.p-dropdown-label  {
     align-items: center;
     font-weight: normal;
     white-space: nowrap;
+    position: relative;
+    overflow: hidden;
 }
 .p-multiselect-header {
     display: flex;
@@ -2375,6 +2432,8 @@ input.p-dropdown-label  {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
 }
 .p-fluid .p-multiselect {
     display: flex;
@@ -2402,6 +2461,8 @@ input.p-dropdown-label  {
 }
 .p-orderlist-item {
     cursor: pointer;
+    overflow: hidden;
+    position: relative;
 }
 .p-orderlist.p-state-disabled .p-orderlist-item,
 .p-orderlist.p-state-disabled .p-button {
@@ -2428,12 +2489,18 @@ input.p-dropdown-label  {
 }
 .p-organizationchart-node-content .p-node-toggler {
     position: absolute;
-    bottom: -9px;
-    margin-left: -8px;
+    bottom: -.75rem;
+    margin-left: -.75rem;
     z-index: 2;
     left: 50%;
     user-select: none;
     cursor: pointer;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.p-organizationchart-node-content .p-node-toggler .p-node-toggler-icon {
+    position: relative;
+    top: .25rem;
 }
 .p-organizationchart-line-down {
     margin: 0 auto;
@@ -2463,29 +2530,23 @@ input.p-dropdown-label  {
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Animation */
-.p-overlaypanel-enter,
+.p-overlaypanel-enter {
+    opacity: 0;
+    transform: scaleY(0.8);
+}
 .p-overlaypanel-leave-to {
     opacity: 0;
-    transform: translate3d(-50%, -25%, 0) scale(0.9);
 }
-.p-overlaypanel-enter-active,
+.p-overlaypanel-enter-active {
+    transition: transform .12s cubic-bezier(0, 0, 0.2, 1), opacity .12s cubic-bezier(0, 0, 0.2, 1);
+}
 .p-overlaypanel-leave-active {
-    transition: all 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-.p-overlaypanel-enter,
-.p-overlaypanel-leave-to {
-    opacity: 0;
-    -webkit-transform: translateY(5%);
-    -ms-transform: translateY(5%);
-    transform: translateY(5%);
-}
-.p-overlaypanel-enter-active,
-.p-overlaypanel-leave-active {
-    -webkit-transition: transform .3s, opacity .15s;
-    transition: transform .3s, opacity .15s;
+    transition: opacity .1s linear;
 }
 .p-overlaypanel:after, .p-overlaypanel:before {
 	bottom: 100%;
@@ -2530,6 +2591,8 @@ input.p-dropdown-label  {
     align-items: center;
     cursor: pointer;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 
 
@@ -2582,6 +2645,8 @@ input.p-dropdown-label  {
 }
 .p-picklist-item {
     cursor: pointer;
+    overflow: hidden;
+    position: relative;
 }
 .p-picklist-item.p-picklist-flip-enter-active.p-picklist-flip-enter-to,
 .p-picklist-item.p-picklist-flip-leave-active.p-picklist-flip-leave-to {
@@ -2679,6 +2744,7 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 .p-sidebar-mask {
     background-color: transparent;
@@ -2782,7 +2848,7 @@ input.p-dropdown-label  {
 }
 .p-slider .p-slider-handle {
 	position: absolute;
-	cursor: default;
+	cursor: grab;
     touch-action: none;
     display: block;
 }
@@ -2891,12 +2957,18 @@ input.p-dropdown-label  {
     align-items: center;
     position: relative;
     text-decoration: none;
+    text-decoration: none;
+    overflow: hidden;
 }
 .p-tabmenu-nav a:focus {
     z-index: 1;
 }
 .p-tabmenu-nav .p-menuitem-text {
     line-height: 1;
+}
+.p-tabmenu-ink-bar {
+    display: none;
+    z-index: 1;
 }
 
 
@@ -2914,15 +2986,20 @@ input.p-dropdown-label  {
     align-items: center;
     position: relative;
     text-decoration: none;
+    overflow: hidden;
+}
+.p-tabview-nav li.p-hidden {
+    display: none;
+}
+.p-tabview-ink-bar {
+    display: none;
+    z-index: 1;
 }
 .p-tabview-nav-link:focus {
     z-index: 1;
 }
 .p-tabview-title {
     line-height: 1;
-}
-.p-tabview .p-tabview-nav li.p-hidden {
-    display: none;
 }
 
 
@@ -2954,6 +3031,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     text-decoration: none;
+    overflow: hidden;
+    position: relative;
 }
 .p-tieredmenu .p-menuitem-text {
     line-height: 1;
@@ -3002,6 +3081,8 @@ input.p-dropdown-label  {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 .p-toast-icon-close.p-link {
 	cursor: pointer;
@@ -3058,6 +3139,11 @@ input.p-dropdown-label  {
 .p-tree-toggler {
     cursor: pointer;
     user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
 }
 .p-treenode-leaf > .p-treenode-content .p-tree-toggler {
     visibility: hidden;
@@ -3112,6 +3198,18 @@ input.p-dropdown-label  {
 .p-treetable-toggler {
     cursor: pointer;
     user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    overflow: hidden;
+    position: relative;
+}
+.p-treetable-toggler + .p-checkbox {
+    vertical-align: middle;
+}
+.p-treetable-toggler + .p-checkbox + span {
+    vertical-align: middle;
 }
 
 /* Resizable */
@@ -3246,34 +3344,40 @@ button {
     user-select: none;
 }
 
-/* Overlay Animations */
-.p-input-overlay {
-    transform: translateY(5%);
+/* Non vue overlay animations */
+.p-connected-overlay {
     opacity: 0;
-    transition: transform .3s, opacity .3s;
+    transform: scaleY(0.8);
+    transition: transform .12s cubic-bezier(0, 0, 0.2, 1), opacity .12s cubic-bezier(0, 0, 0.2, 1);
 }
 
-.p-input-overlay-visible {
-    transform: translateY(0);
+.p-connected-overlay-visible {
     opacity: 1;
+    transform: scaleY(1);
 }
 
-.p-input-overlay-hidden {
+.p-connected-overlay-hidden {
     opacity: 0;
-    transform: translateY(5%);
-    transition: transform .3s, opacity .15s;
+    transform: scaleY(1);
+    transition: opacity .1s linear;
 }
 
-/* Overlay Animations */
-.p-input-overlay-enter,
-.p-input-overlay-leave-to {
+/* Vue based overlay animations */
+.p-connected-overlay-enter {
     opacity: 0;
-    transform: translateY(5%);
+    transform: scaleY(0.8);
 }
 
-.p-input-overlay-enter-active,
-.p-input-overlay-leave-active {
-    transition: transform .3s, opacity .15s;
+.p-connected-overlay-leave-to {
+    opacity: 0;
+}
+
+.p-connected-overlay-enter-active {
+    transition: transform .12s cubic-bezier(0, 0, 0.2, 1), opacity .12s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.p-connected-overlay-leave-active {
+    transition: opacity .1s linear;
 }
 
 /* Toggleable Content */
@@ -3308,7 +3412,30 @@ button {
     position: absolute;
     width: 1px;
     word-wrap: normal !important;
-  }
+}
+
+.p-ink {
+    display: block;
+    position: absolute;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+    transform: scale(0);
+}
+  
+.p-ink-active {
+    animation: ripple 0.4s linear;
+}
+
+.p-ripple-disabled .p-ink {
+    display: none !important;
+}
+  
+@keyframes ripple {  
+    100% {
+        opacity: 0;
+        transform: scale(2.5);
+    }
+}
 .p-badge {
     display: inline-block;
     border-radius: 50%;
@@ -3345,9 +3472,11 @@ button {
     align-items: center;
     vertical-align: bottom;
     text-align: center;
+    overflow: hidden;
+    position: relative;
 }
 
-.p-button-text {
+.p-button-label {
     flex: 1 1 auto;
 }
 
@@ -3363,7 +3492,7 @@ button {
     justify-content: center;
 }
 
-.p-button-icon-only .p-button-text {
+.p-button-icon-only .p-button-label {
     visibility: hidden;
     width: 0;
     flex: 0 0 auto;
@@ -3401,6 +3530,7 @@ button {
 
 .p-buttonset .p-button:focus {
     position: relative;
+    z-index: 1;
 }
 .p-checkbox {
     display: inline-flex;
@@ -3480,6 +3610,7 @@ button {
 .p-input-icon-left,
 .p-input-icon-right {
     position: relative;
+    display: inline-block;
 }
 
 .p-input-icon-left > i,
@@ -3487,6 +3618,12 @@ button {
     position: absolute;
     top: 50%;
     margin-top: -.5rem;
+}
+
+.p-fluid .p-input-icon-left,
+.p-fluid .p-input-icon-right {
+    display: block;
+    width: 100%;
 }
 .p-password-meter {
     background:transparent url(images/password-meter.png) no-repeat left top;
@@ -3508,6 +3645,19 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.p-radiobutton-icon {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0) scale(.1);
+    border-radius: 50%;
+    visibility: hidden;
+}
+
+.p-radiobutton-box.p-highlight .p-radiobutton-icon {
+    transform: translateZ(0) scale(1.0, 1.0);
+    visibility: visible;
 }
 .p-tooltip {
     position:absolute;
@@ -3570,7 +3720,7 @@ button {
     border-width: 0 .25em .25rem;
 }
 @font-face {
-    font-family: 'PrimeIcons';
+    font-family: 'primeicons';
     font-display: auto;
     src: url(fonts/primeicons.eot);
     src: url(fonts/primeicons.eot?#iefix) format('embedded-opentype'), url(fonts/primeicons.ttf) format('truetype'), url(fonts/primeicons.woff) format('woff'), url(fonts/primeicons.svg?#primeicons) format('svg');
@@ -3589,6 +3739,11 @@ button {
     display: inline-block;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.pi:before {
+    --webkit-backface-visibility:hidden;
+    backface-visibility: hidden;
 }
 
 .pi-fw {
