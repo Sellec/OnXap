@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
-    "jquery": "^2.2.4",
+    "jquery": "^3.5.0",
     "jqueryui": "^1.11.1",
     "primevuelibrary": "^0.7.0",
     "vue": "^2.6.11"
