@@ -1,6 +1,7 @@
 ﻿using OnUtils.Architecture.AppCore;
 using OnUtils.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 
 namespace OnXap.Modules.DbMaintenance
@@ -8,6 +9,7 @@ namespace OnXap.Modules.DbMaintenance
     using Core.Modules;
     using Db;
     using Journaling;
+    using TaskSheduling;
     using Types;
 
     /// <summary>
@@ -28,8 +30,15 @@ namespace OnXap.Modules.DbMaintenance
             /*
              * Обслуживание индексов запускаем один раз при старте и раз в несколько часов
              * */
-            TasksManager.SetTask(typeof(DbMaintenanceModule).FullName + "_" + nameof(MaintenanceIndexes), DateTime.Now.AddSeconds(30), () => MaintenanceIndexesStatic());
-            TasksManager.SetTask(typeof(DbMaintenanceModule).FullName + "_" + nameof(MaintenanceIndexes) + "_hourly6", Cron.HourInterval(6), () => MaintenanceIndexesStatic());
+            AppCore.Get<TaskSchedulingManager>().RegisterTask(new TaskRequest()
+            {
+                Name = "Обслуживание индексов",
+                Description = "",
+                AllowManualShedule = false,
+                UniqueKey = $"{typeof(DbMaintenanceModule).FullName}_{nameof(MaintenanceIndexes)}",
+                ExecutionLambda = () => MaintenanceIndexesStatic(),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.HourInterval(4)) }
+            });
         }
 
         #region Maintenance indexes tasks

@@ -16,6 +16,7 @@ namespace OnXap.Modules.FileManager
     using Core.Modules;
     using Journaling;
     using Types;
+    using TaskSheduling;
     using DictionaryFiles = Dictionary<int, Db.File>;
 
     /// <summary>
@@ -37,25 +38,56 @@ namespace OnXap.Modules.FileManager
         {
             _thisModule = this;
 
+            var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+
 #if DEBUG
             /*
              * Регулярная сборка мусора для сборки в режиме отладки.
              * */
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(GCCollect) + "_minutely1", Cron.MinuteInterval(1), () => GCCollectStatic());
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = "Сборка мусора для отладки (GCCollect)",
+                Description = "",
+                AllowManualShedule = false,
+                UniqueKey = $"{typeof(FileManager).FullName}_{nameof(GCCollect)}",
+                ExecutionLambda = () => GCCollectStatic(),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+            });
 #endif
 
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(PlaceFileIntoQueue) + "_0", DateTime.Now.AddSeconds(10), () => PlaceFileIntoQueue());
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(PlaceFileIntoQueue) + "_minutely5", Cron.MinuteInterval(5), () => PlaceFileIntoQueue());
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = "Пометка старых файлов на удаление",
+                Description = "Файлы с истекшим сроком жизни помечаются на удаление.",
+                AllowManualShedule = true,
+                UniqueKey = $"{typeof(FileManager).FullName}_{nameof(PlaceFileIntoQueue)}",
+                ExecutionLambda = () => PlaceFileIntoQueue(),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
+            });
 
             // Не запускать не машине разработчика, иначе может быть так, что при подключении базе на удаленном сервере файлы физически останутся, а из базы будут удалены.
             if (!Debug.IsDeveloper)
             {
-                TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(RemoveMarkedFiles) + "_0", DateTime.Now.AddSeconds(10), () => RemoveMarkedFiles());
-                TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(RemoveMarkedFiles) + "_minutely1", Cron.MinuteInterval(1), () => RemoveMarkedFiles());
+                taskSchedulingManager.RegisterTask(new TaskRequest()
+                {
+                    Name = "Обработка файлов, помеченных на удаление",
+                    Description = "Файлы, помеченные на удаление, удаляются с диска и отмечаются в базе как недоступные.",
+                    AllowManualShedule = true,
+                    UniqueKey = $"{typeof(FileManager).FullName}_{nameof(RemoveMarkedFiles)}",
+                    ExecutionLambda = () => RemoveMarkedFiles(),
+                    Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                });
             }
 
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_0", DateTime.Now.AddSeconds(30), () => CheckRemovedFiles());
-            TasksManager.SetTask(typeof(FileManager).FullName + "_" + nameof(CheckRemovedFiles) + "_minutely5", Cron.MinuteInterval(5), () => CheckRemovedFiles());
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = "Обработка файлов, отсутствующих на диске",
+                Description = "Файлы, отсутствующие на диске, помечаются на удаление.",
+                AllowManualShedule = true,
+                UniqueKey = $"{typeof(FileManager).FullName}_{nameof(CheckRemovedFiles)}",
+                ExecutionLambda = () => CheckRemovedFiles(),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
+            });
 
             ModelMetadataProviders.Current = new MVC.TraceModelMetadataProviderWithFiles();
         }

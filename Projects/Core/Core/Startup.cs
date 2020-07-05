@@ -9,6 +9,7 @@ namespace OnXap
         {
             bindingsCollection.SetSingleton<Modules.CoreModule.CoreModule>();
             bindingsCollection.SetSingleton<Modules.UsersManagement.ModuleUsersManagement>();
+            bindingsCollection.SetSingleton<TaskSheduling.TaskSchedulingManager>();
         }
     }
 }

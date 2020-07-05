@@ -15,6 +15,7 @@ namespace OnXap.Messaging
     using Core.Items;
     using Messages;
     using ServiceMonitor;
+    using TaskSheduling;
 
     /// <summary>
     /// Предпочтительная базовая реализация сервиса обработки сообщений для приложения.
@@ -78,15 +79,35 @@ namespace OnXap.Messaging
             this.RegisterServiceState(ServiceStatus.RunningIdeal, "Сервис запущен.");
 
             var type = GetType();
-            TasksManager.SetTask(TasksOutcomingSend + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
-            TasksManager.SetTask(TasksIncomingReceive + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)));
-            TasksManager.SetTask(TasksIncomingHandle + "_minutely1", Cron.MinuteInterval(1), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
 
-            _executingFlags.TryLock(nameof(RegisterOutcomingMessage));
-            TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromSeconds(30)));
-
-            _executingFlags.TryLock(nameof(RegisterIncomingMessage));
-            TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromSeconds(30)));
+            var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = $"Прием входящих сообщений, сервис '{GetType().FullName}'",
+                Description = "",
+                AllowManualShedule = false,
+                UniqueKey = "CallServiceIncomingReceive_" + GetType().FullName,
+                ExecutionLambda = () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+            });
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = $"Обработка входящих сообщений, сервис '{GetType().FullName}'",
+                Description = "",
+                AllowManualShedule = false,
+                UniqueKey = "CallServiceIncomingHandle_" + GetType().FullName,
+                ExecutionLambda = () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+            });
+            taskSchedulingManager.RegisterTask(new TaskRequest()
+            {
+                Name = $"Отправка исходящих сообщений, сервис '{GetType().FullName}'",
+                Description = "",
+                AllowManualShedule = false,
+                UniqueKey = "CallServiceOutcoming_" + GetType().FullName,
+                ExecutionLambda = () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)),
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+            });
 
             OnServiceStarting();
         }
@@ -165,11 +186,13 @@ namespace OnXap.Messaging
 
                     db.MessageQueue.Add(mess);
                     db.SaveChanges();
-                    if (_executingFlags.TryLock(nameof(RegisterOutcomingMessage)))
-                    {
-                        var type = GetType();
-                        TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
-                    }
+
+                    //todo закомментировано до момента доработки планировщика задач, нужна возможность добавлять пункт в расписание.
+                    //if (_executingFlags.TryLock(nameof(RegisterOutcomingMessage)))
+                    //{
+                    //    var type = GetType();
+                    //    TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
+                    //}
 
                     messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(message, mess));
                     return true;
@@ -208,11 +231,13 @@ namespace OnXap.Messaging
 
                     db.MessageQueue.Add(mess);
                     db.SaveChanges();
-                    if (_executingFlags.TryLock(nameof(RegisterIncomingMessage)))
-                    {
-                        var type = GetType();
-                        TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
-                    }
+
+                    //todo закомментировано до момента доработки планировщика задач, нужна возможность добавлять пункт в расписание.
+                    //if (_executingFlags.TryLock(nameof(RegisterIncomingMessage)))
+                    //{
+                    //    var type = GetType();
+                    //    TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
+                    //}
 
                     return true;
                 }
