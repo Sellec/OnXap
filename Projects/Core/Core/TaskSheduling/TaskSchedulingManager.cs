@@ -61,12 +61,12 @@ namespace OnXap.TaskSheduling
             {
                 if (schedule is TaskCronSchedule taskCronSchedule)
                 {
-                    var scheduleUniqueKey = $"task_{taskDescription}_sc_{i}";
+                    var scheduleUniqueKey = $"task_{taskDescription.UniqueKey}_sc_{i}";
                     TasksManager.SetTask(scheduleUniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey));
                 }
                 else if (schedule is TaskFixedTimeSchedule taskFixedTimeSchedule)
                 {
-                    var scheduleUniqueKey = $"task_{taskDescription}_sc_{i}";
+                    var scheduleUniqueKey = $"task_{taskDescription.UniqueKey}_sc_{i}";
                     TasksManager.SetTask(scheduleUniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey));
                 }
             }
