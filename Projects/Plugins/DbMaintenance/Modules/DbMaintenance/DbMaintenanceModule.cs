@@ -27,18 +27,17 @@ namespace OnXap.Modules.DbMaintenance
         {
             _thisModule = this;
 
-            /*
-             * Обслуживание индексов запускаем один раз при старте и раз в несколько часов
-             * */
-            AppCore.Get<TaskSchedulingManager>().RegisterTask(new TaskRequest()
+            var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+            var task = taskSchedulingManager.RegisterTask(new TaskRequest()
             {
                 Name = "Обслуживание индексов",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
                 UniqueKey = $"{typeof(DbMaintenanceModule).FullName}_{nameof(MaintenanceIndexes)}",
-                ExecutionLambda = () => MaintenanceIndexesStatic(),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.HourInterval(4)) }
+                ExecutionLambda = () => MaintenanceIndexesStatic()
             });
+            if (task.ManualSchedules.Count == 0) taskSchedulingManager.SetTaskManualScheduleList(task, new List<TaskSchedule>() { new TaskCronSchedule(Cron.Daily()) { IsEnabled = true } });
         }
 
         #region Maintenance indexes tasks

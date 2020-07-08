@@ -18,18 +18,17 @@ namespace OnXap.Modules.Lexicon
         {
             _thisModule = this;
 
-            /*
-             * Регулярная проверка новых слов в лексическом менеджере.
-             * */
-            AppCore.Get<TaskSchedulingManager>().RegisterTask(new TaskRequest()
+            var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+            var task = taskSchedulingManager.RegisterTask(new TaskRequest()
             {
                 Name = "Проверка новых необработанных слов",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
                 UniqueKey = $"{typeof(LexiconManager).FullName}_{nameof(LexiconManager.PrepareNewWords)}",
-                ExecutionLambda = () => LexiconNewWordsStatic(),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(2)) }
+                ExecutionLambda = () => LexiconNewWordsStatic()
             });
+            if (task.ManualSchedules.Count == 0) taskSchedulingManager.SetTaskManualScheduleList(task, new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(2)) { IsEnabled = true } });
         }
 
         #region Lexicon new words
