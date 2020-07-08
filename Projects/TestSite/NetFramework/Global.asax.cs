@@ -47,6 +47,11 @@ namespace OnXap.Site
             }
         }
 
+        protected override void OnBeforeApplicationStart()
+        {
+            Console.WriteLine(typeof(Modules.FileManager.FileManager).FullName);
+        }
+
         protected override void OnAfterApplicationStart()
         {
             try

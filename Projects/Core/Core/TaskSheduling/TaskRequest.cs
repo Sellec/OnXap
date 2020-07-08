@@ -25,9 +25,11 @@ namespace OnXap.TaskSheduling
         public string UniqueKey { get; set; }
 
         /// <summary>
-        /// Указывает, разрешена ли донастройка расписания задачи.
+        /// Позволяет определить или указать, разрешено ли выполнение задачи.
         /// </summary>
-        public bool AllowManualShedule { get; set; }
+        /// <remarks>Если <see cref="TaskOptions"/> содержит флаг <see cref="TaskOptions.AllowDisabling"/> и задача была выключена, то изначальное значение свойства будет проигнорировано. 
+        /// Если обязательно необходимо сменить статус задачи при её регистрации, следует вызвать метод <see cref="TaskSchedulingManager.SetTaskEnabled(TaskDescription, bool)"/>.</remarks>
+        public bool IsEnabled { get; set; }
 
         /// <summary>
         /// Лямбда-выражение для выполнения задачи.
@@ -38,6 +40,11 @@ namespace OnXap.TaskSheduling
         /// Список правил запуска задачи.
         /// </summary>
         public List<TaskSchedule> Schedules { get; set; }
+
+        /// <summary>
+        /// Дополнительные параметры задачи.
+        /// </summary>
+        public TaskOptions TaskOptions { get; set; }
 
     }
 }

@@ -85,7 +85,7 @@ namespace OnXap.Messaging
             {
                 Name = $"Прием входящих сообщений, сервис '{GetType().FullName}'",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
                 UniqueKey = "CallServiceIncomingReceive_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -94,7 +94,7 @@ namespace OnXap.Messaging
             {
                 Name = $"Обработка входящих сообщений, сервис '{GetType().FullName}'",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
                 UniqueKey = "CallServiceIncomingHandle_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -103,7 +103,7 @@ namespace OnXap.Messaging
             {
                 Name = $"Отправка исходящих сообщений, сервис '{GetType().FullName}'",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
                 UniqueKey = "CallServiceOutcoming_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }

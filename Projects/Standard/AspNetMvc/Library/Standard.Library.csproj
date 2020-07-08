@@ -121,7 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Design\UI\primevuelibrary\Startup.cs" />
+    <Compile Include="Modules\Adminmain\Model\TaskSheduling.cs" />
     <Compile Include="Modules\Adminmain\ViewModels\MainSettings.cs" />
+    <Compile Include="Modules\Adminmain\ViewModels\TaskSheduling.cs" />
     <Compile Include="Modules\Auth\Db\DataContext.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecoverySchemaItem.cs" />
     <Compile Include="Modules\Auth\Db\UserPasswordRecovery.cs" />
@@ -546,12 +548,16 @@
     <Content Include="Data\img\share-signature-2.svg" />
     <Content Include="Data\img\share-signature-3.svg" />
     <Content Include="Data\img\white-load-icon.svg" />
+    <Content Include="Design\UI\jqCron\jqCron.css" />
+    <Content Include="Design\UI\jqCron\jqCron.js" />
+    <Content Include="Design\UI\jqCron\jqCron.ru.js" />
     <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
     <Content Include="Modules\Default\Views\Index.cshtml" />
     <Content Include="Modules\FileManager\Views\ModuleSettings.cshtml" />
+    <Content Include="Modules\Adminmain\Views\TaskSheduling.cshtml" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

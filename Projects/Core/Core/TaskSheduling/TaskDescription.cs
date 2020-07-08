@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 
 namespace OnXap.TaskSheduling
@@ -9,6 +9,10 @@ namespace OnXap.TaskSheduling
     /// </summary>
     public class TaskDescription
     {
+        internal TaskDescription()
+        {
+        }
+
         /// <summary>
         /// Идентификатор задачи.
         /// </summary>
@@ -36,9 +40,14 @@ namespace OnXap.TaskSheduling
         public bool IsConfirmed { get; internal set; }
 
         /// <summary>
-        /// Указывает, разрешена ли донастройка расписания задачи.
+        /// Указывает, разрешено ли выполнение задачи.
         /// </summary>
-        public bool AllowManualShedule { get; internal set; }
+        public bool IsEnabled { get; internal set; }
+
+        /// <summary>
+        /// Дополнительные параметры задачи.
+        /// </summary>
+        public TaskOptions TaskOptions { get; internal set; }
 
         /// <summary>
         /// Лямбда-выражение для выполнения задачи.
@@ -46,8 +55,14 @@ namespace OnXap.TaskSheduling
         public Expression<Action> ExecutionLambda { get; internal set; }
 
         /// <summary>
-        /// Список правил запуска задачи.
+        /// Список правил запуска задачи, присвоенных при регистрации.
         /// </summary>
-        public List<TaskSchedule> Schedules { get; set; }
+        public ReadOnlyCollection<TaskSchedule> Schedules { get; internal set; }
+
+        /// <summary>
+        /// Список правил запуска задачи, созданных вручную.
+        /// </summary>
+        public ReadOnlyCollection<TaskSchedule> ManualSchedules { get; internal set; }
+
     }
 }

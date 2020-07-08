@@ -7,7 +7,19 @@ namespace OnXap.TaskSheduling
     /// </summary>
     public abstract class TaskSchedule
     {
+        /// <summary>
+        /// Возвращает уникальный ключ правила запуска.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetUniqueKey();
 
+        /// <summary>
+        /// Состояние правила - включено или выключено.
+        /// </summary>
+        /// <remarks>
+        /// Все правила, заданные при регистрации задачи, считаются включенными, несмотря на переданное значение свойства.
+        /// </remarks>
+        public bool IsEnabled { get; set; }
     }
 
     /// <summary>
@@ -27,6 +39,13 @@ namespace OnXap.TaskSheduling
         /// Правило запуска.
         /// </summary>
         public string CronExpression { get; }
+
+        /// <summary>
+        /// </summary>
+        public sealed override string GetUniqueKey()
+        {
+            return CronExpression;
+        }
     }
 
     /// <summary>
@@ -46,5 +65,12 @@ namespace OnXap.TaskSheduling
         /// Дата и время запуска.
         /// </summary>
         public DateTimeOffset DateTime { get; }
+
+        /// <summary>
+        /// </summary>
+        public sealed override string GetUniqueKey()
+        {
+            return DateTime.ToString("yyyy-MM-dd HH:mm");
+        }
     }
 }

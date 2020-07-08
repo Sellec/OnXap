@@ -48,7 +48,8 @@ namespace OnXap.Modules.FileManager
             {
                 Name = "Сборка мусора для отладки (GCCollect)",
                 Description = "",
-                AllowManualShedule = false,
+                IsEnabled = true,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(GCCollect)}",
                 ExecutionLambda = () => GCCollectStatic(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -59,7 +60,8 @@ namespace OnXap.Modules.FileManager
             {
                 Name = "Пометка старых файлов на удаление",
                 Description = "Файлы с истекшим сроком жизни помечаются на удаление.",
-                AllowManualShedule = true,
+                IsEnabled = true,
+                TaskOptions = TaskOptions.AllowDisabling,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(PlaceFileIntoQueue)}",
                 ExecutionLambda = () => PlaceFileIntoQueue(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
@@ -72,7 +74,8 @@ namespace OnXap.Modules.FileManager
                 {
                     Name = "Обработка файлов, помеченных на удаление",
                     Description = "Файлы, помеченные на удаление, удаляются с диска и отмечаются в базе как недоступные.",
-                    AllowManualShedule = true,
+                    IsEnabled = true,
+                    TaskOptions = TaskOptions.AllowDisabling,
                     UniqueKey = $"{typeof(FileManager).FullName}_{nameof(RemoveMarkedFiles)}",
                     ExecutionLambda = () => RemoveMarkedFiles(),
                     Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -83,7 +86,8 @@ namespace OnXap.Modules.FileManager
             {
                 Name = "Обработка файлов, отсутствующих на диске",
                 Description = "Файлы, отсутствующие на диске, помечаются на удаление.",
-                AllowManualShedule = true,
+                IsEnabled = true,
+                TaskOptions = TaskOptions.AllowDisabling,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(CheckRemovedFiles)}",
                 ExecutionLambda = () => CheckRemovedFiles(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }

@@ -1,7 +1,10 @@
 ﻿using OnUtils.Tasks;
+using System.Collections.ObjectModel;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.TaskSheduling
 {
@@ -18,57 +21,295 @@ namespace OnXap.TaskSheduling
         /// Позволяет зарегистрировать задачу. Если задача ранее была зарегистрирована, то обновляет параметры ранее зарегистрированной задачи.
         /// </summary>
         /// <returns>Возвращает зарегистрированную задачу.</returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="taskRequest"/> равен null.</exception>
+        /// <exception cref="ArgumentException">Возникает, если не указано имя задачи.</exception>
+        /// <exception cref="ArgumentException">Возникает, если не указан уникальный ключ задачи.</exception>
         public TaskDescription RegisterTask(TaskRequest taskRequest)
         {
             if (taskRequest == null) throw new ArgumentNullException(nameof(taskRequest));
             if (string.IsNullOrEmpty(taskRequest.Name)) throw new ArgumentException("Имя задачи не может быть пустым.", nameof(taskRequest.Name));
             if (string.IsNullOrEmpty(taskRequest.UniqueKey)) throw new ArgumentException("Уникальный ключ задачи не может быть пустым.", nameof(taskRequest.UniqueKey));
+            if (taskRequest.Schedules?.GroupBy(x=>x.GetUniqueKey()).Any(x=>x.Count() > 1) ?? false) throw new ArgumentException("В задаче есть повторяющиеся правила запуска.", nameof(taskRequest.Schedules));
 
-            var taskDescription = _taskList.AddOrUpdate(taskRequest.UniqueKey,
-                key => {
-                    return new TaskDescription()
+            try
+            {
+                var taskDescription = _taskList.AddOrUpdate(taskRequest.UniqueKey,
+                    key => UpdateTask(new TaskDescription(), taskRequest),
+                    (key, old) => UpdateTask(old, taskRequest)
+                );
+                PrepareTaskSchedules(taskDescription);
+                return taskDescription;
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка во время регистрации задачи", null, ex);
+                throw new Exception("Неожиданная ошибка во время регистрации задачи.");
+            }
+        }
+
+        private TaskDescription UpdateTask(TaskDescription taskDescription, TaskRequest taskRequest)
+        {
+            using (var db = new Db.DataContext())
+            {
+                var taskDb = db.Task.Where(x => x.UniqueKey == taskRequest.UniqueKey).Include(x => x.TaskSchedules).FirstOrDefault();
+                if (taskDb == null)
+                {
+                    taskDb = new Db.Task()
                     {
-                        Id = -1,
                         Name = taskRequest.Name,
                         Description = taskRequest.Description,
-                        ExecutionLambda = taskRequest.ExecutionLambda,
-                        IsConfirmed = true,
-                        UniqueKey = taskRequest.UniqueKey,
-                        AllowManualShedule = taskRequest.AllowManualShedule,
-                        Schedules = new List<TaskSchedule>(taskRequest.Schedules)
+                        IsEnabled = null,
+                        TaskSchedules = new List<Db.TaskSchedule>(),
+                        UniqueKey = taskRequest.UniqueKey
                     };
-                },
-                (key, old) =>
+                    db.Task.Add(taskDb);
+                    db.SaveChanges();
+                }
+
+                taskDb.Name = taskRequest.Name;
+                taskDb.Description = taskRequest.Description;
+
+                if (!taskRequest.TaskOptions.HasFlag(TaskOptions.AllowDisabling))
                 {
-                    old.Id = -1;
-                    old.Name = taskRequest.Name;
-                    old.Description = taskRequest.Description;
-                    old.ExecutionLambda = taskRequest.ExecutionLambda;
-                    old.IsConfirmed = true;
-                    old.UniqueKey = taskRequest.UniqueKey;
-                    old.AllowManualShedule = taskRequest.AllowManualShedule;
-                    old.Schedules = new List<TaskSchedule>(taskRequest.Schedules);
-                    return old;
-                });
-            PrepareTaskSchedules(taskDescription);
+                    taskDb.IsEnabled = null;
+                }
+
+                if (!taskRequest.TaskOptions.HasFlag(TaskOptions.AllowManualSchedule) && taskDb.TaskSchedules.Count > 0)
+                {
+                    db.TaskSchedule.RemoveRange(taskDb.TaskSchedules);
+                    taskDb.TaskSchedules.Clear();
+                }
+                db.SaveChanges();
+
+                var schedules = new List<TaskSchedule>();
+                foreach (var scheduleDb in taskDb.TaskSchedules)
+                {
+                    TaskSchedule taskSchedule = null;
+                    if (scheduleDb.DateTimeFixed.HasValue)
+                    {
+                        taskSchedule = new TaskFixedTimeSchedule(scheduleDb.DateTimeFixed.Value);
+                    }
+                    else if (!string.IsNullOrEmpty(scheduleDb.Cron))
+                    {
+                        taskSchedule = new TaskCronSchedule(scheduleDb.Cron);
+                    }
+
+                    if (taskSchedule == null)
+                    {
+                        continue;
+                    }
+                    taskSchedule.IsEnabled = scheduleDb.IsEnabled;
+                    schedules.Add(taskSchedule);
+                }
+
+                taskDescription.Id = taskDb.Id;
+                taskDescription.Name = taskRequest.Name;
+                taskDescription.Description = taskRequest.Description;
+                taskDescription.ExecutionLambda = taskRequest.ExecutionLambda;
+                taskDescription.IsConfirmed = true;
+                taskDescription.UniqueKey = taskRequest.UniqueKey;
+                taskDescription.IsEnabled = taskDb.IsEnabled ?? taskRequest.IsEnabled;
+                taskDescription.TaskOptions = taskRequest.TaskOptions;
+                taskDescription.Schedules = new ReadOnlyCollection<TaskSchedule>(taskRequest.Schedules ?? new List<TaskSchedule>());
+                taskDescription.ManualSchedules = new ReadOnlyCollection<TaskSchedule>(schedules.GroupBy(x => x.GetUniqueKey()).Select(x=>x.First()).ToList());
+            }
             return taskDescription;
+        }
+
+        /// <summary>
+        /// Возвращает список задач.
+        /// </summary>
+        /// <param name="onlyConfirmed">Если равено true, то возвращает только подтвержденные задачи (см. <see cref="TaskDescription.IsConfirmed"/>.</param>
+        public List<TaskDescription> GetTaskList(bool onlyConfirmed)
+        {
+            try
+            {
+                var list = _taskList.Values.ToDictionary(x => x.Id, x => x);
+                if (!onlyConfirmed)
+                {
+                    using (var db = new Db.DataContext())
+                    {
+                        var query = db.Task.Include(x => x.TaskSchedules);
+                        var taskList = query.ToList();
+                        foreach (var taskDb in taskList)
+                        {
+                            if (list.ContainsKey(taskDb.Id)) continue;
+
+                            var schedules = new List<TaskSchedule>();
+                            foreach (var scheduleDb in taskDb.TaskSchedules)
+                            {
+                                TaskSchedule taskSchedule = null;
+                                if (scheduleDb.DateTimeFixed.HasValue)
+                                {
+                                    taskSchedule = new TaskFixedTimeSchedule(scheduleDb.DateTimeFixed.Value);
+                                }
+                                else if (!string.IsNullOrEmpty(scheduleDb.Cron))
+                                {
+                                    taskSchedule = new TaskCronSchedule(scheduleDb.Cron);
+                                }
+
+                                if (taskSchedule == null)
+                                {
+                                    continue;
+                                }
+                                taskSchedule.IsEnabled = scheduleDb.IsEnabled;
+                                schedules.Add(taskSchedule);
+                            }
+
+                            var taskDescription = new TaskDescription
+                            {
+                                Id = taskDb.Id,
+                                Name = taskDb.Name,
+                                Description = taskDb.Description,
+                                ExecutionLambda = null,
+                                IsConfirmed = false,
+                                UniqueKey = taskDb.UniqueKey,
+                                IsEnabled = taskDb.IsEnabled ?? false,
+                                TaskOptions = TaskOptions.None,
+                                Schedules = new ReadOnlyCollection<TaskSchedule>(new List<TaskSchedule>()),
+                                ManualSchedules = new ReadOnlyCollection<TaskSchedule>(schedules)
+                            };
+                            list[taskDb.Id] = taskDescription;
+                        }
+                    }
+                }
+                return list.Values.ToList();
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка во время получения списка задач", null, ex);
+                throw new Exception("Неожиданная ошибка во время получения списка задач.");
+            }
         }
 
         private void PrepareTaskSchedules(TaskDescription taskDescription)
         {
-            int i = 0;
-            foreach(var schedule in taskDescription.Schedules)
+            foreach (var schedule in taskDescription.ManualSchedules)
             {
+                var scheduleUniqueKey = schedule.GetUniqueKey();
+                var uniqueKey = $"task_{taskDescription.UniqueKey}_sc_{scheduleUniqueKey}";
+
+                if (!schedule.IsEnabled)
+                {
+                    TasksManager.RemoveTask(uniqueKey);
+                    continue;
+                }
+
                 if (schedule is TaskCronSchedule taskCronSchedule)
                 {
-                    var scheduleUniqueKey = $"task_{taskDescription.UniqueKey}_sc_{i}";
-                    TasksManager.SetTask(scheduleUniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey));
+                    TasksManager.SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
                 else if (schedule is TaskFixedTimeSchedule taskFixedTimeSchedule)
                 {
-                    var scheduleUniqueKey = $"task_{taskDescription.UniqueKey}_sc_{i}";
-                    TasksManager.SetTask(scheduleUniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey));
+                    TasksManager.SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
+            }
+            foreach (var schedule in taskDescription.Schedules)
+            {
+                var scheduleUniqueKey = schedule.GetUniqueKey();
+                var uniqueKey = $"task_{taskDescription.UniqueKey}_sc_{scheduleUniqueKey}";
+
+                if (schedule is TaskCronSchedule taskCronSchedule)
+                {
+                    TasksManager.SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                }
+                else if (schedule is TaskFixedTimeSchedule taskFixedTimeSchedule)
+                {
+                    TasksManager.SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Позволяет изменить состояние задачи.
+        /// </summary>
+        /// <param name="taskDescription">Зарегистрированная задача.</param>
+        /// <param name="isEnabled">Новое состояние задачи.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="taskDescription"/> равен null.</exception>
+        /// <exception cref="InvalidOperationException">Возникает, если задача не зарегистрирована.</exception>
+        /// <exception cref="InvalidOperationException">Возникает, если для задачи запрещено изменение состояния (см. <see cref="TaskOptions.AllowDisabling"/>).</exception>
+        public void SetTaskEnabled(TaskDescription taskDescription, bool isEnabled)
+        {
+            if (taskDescription == null) throw new ArgumentNullException(nameof(taskDescription));
+            if (!_taskList.TryGetValue(taskDescription.UniqueKey, out var taskDescription2)) throw new InvalidOperationException("Неизвестная задача.");
+            if (!taskDescription2.TaskOptions.HasFlag(TaskOptions.AllowDisabling)) throw new InvalidOperationException("Для задачи запрещено изменение состояния.");
+            taskDescription2.IsEnabled = isEnabled;
+            taskDescription.IsEnabled = isEnabled;
+        }
+
+        /// <summary>
+        /// Позволяет изменить список дополнительных правил задачи.
+        /// </summary>
+        /// <param name="taskDescription">Зарегистрированная задача.</param>
+        /// <param name="scheduleList">Список правил задачи.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="taskDescription"/> равен null.</exception>
+        /// <exception cref="InvalidOperationException">Возникает, если задача не зарегистрирована.</exception>
+        /// <exception cref="InvalidOperationException">Возникает, если для задачи запрещено изменение списка правил (см. <see cref="TaskOptions.AllowManualSchedule"/>).</exception>
+        public void SetTaskManualScheduleList(TaskDescription taskDescription, List<TaskSchedule> scheduleList)
+        {
+            if (taskDescription == null) throw new ArgumentNullException(nameof(taskDescription));
+            if (!_taskList.TryGetValue(taskDescription.UniqueKey, out var taskDescription2)) throw new InvalidOperationException("Неизвестная задача.");
+            if (!taskDescription2.TaskOptions.HasFlag(TaskOptions.AllowManualSchedule)) throw new InvalidOperationException("Для задачи запрещено изменение списка правил.");
+            if (scheduleList?.GroupBy(x => x.GetUniqueKey()).Any(x => x.Count() > 1) ?? false) throw new ArgumentException("В списке есть повторяющиеся правила запуска.", nameof(scheduleList));
+
+            try
+            {
+                var schedules = scheduleList?.ToDictionary(x => x.GetUniqueKey(), x => x);
+                var collection = new ReadOnlyCollection<TaskSchedule>(scheduleList ?? new List<TaskSchedule>());
+
+                using (var db = new Db.DataContext())
+                {
+                    var list = db.TaskSchedule.Where(x => x.IdTask == taskDescription2.Id).ToList();
+
+                    var listToRemove = list.Where(x => !schedules.ContainsKey(x.GetUniqueKey())).ToList();
+                    db.TaskSchedule.RemoveRange(listToRemove);
+
+                    var isChanged = listToRemove.Count > 0;
+
+                    list.Where(x => schedules.ContainsKey(x.GetUniqueKey())).ForEach(x =>
+                    {
+                        isChanged = isChanged || x.IsEnabled != schedules[x.GetUniqueKey()].IsEnabled;
+                        x.IsEnabled = schedules[x.GetUniqueKey()].IsEnabled;
+                    });
+
+                    schedules.ForEach(pair =>
+                    {
+                        if (!list.Any(x => x.GetUniqueKey() == pair.Key))
+                        {
+                            if (pair.Value is TaskCronSchedule taskCronSchedule)
+                            {
+                                isChanged = true;
+                                db.TaskSchedule.Add(new Db.TaskSchedule()
+                                {
+                                    IdTask = taskDescription2.Id,
+                                    IsEnabled = pair.Value.IsEnabled,
+                                    Cron = taskCronSchedule.CronExpression
+                                });
+                            }
+                            else if (pair.Value is TaskFixedTimeSchedule taskFixedTimeSchedule)
+                            {
+                                isChanged = true;
+                                db.TaskSchedule.Add(new Db.TaskSchedule()
+                                {
+                                    IdTask = taskDescription2.Id,
+                                    IsEnabled = pair.Value.IsEnabled,
+                                    DateTimeFixed = taskFixedTimeSchedule.DateTime
+                                });
+                            }
+                        }
+                    });
+
+                    if (isChanged) db.SaveChanges();
+
+                    taskDescription2.ManualSchedules = collection;
+                    taskDescription.ManualSchedules = collection;
+                    PrepareTaskSchedules(taskDescription2);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(Journaling.EventType.CriticalError, "Ошибка во время сохранения списка правил", null, ex);
+                throw new Exception("Неожиданная ошибка во время сохранения списка правил.");
             }
         }
         #endregion
@@ -95,12 +336,28 @@ namespace OnXap.TaskSheduling
             if (_this == this) _this = null;
         }
 
-        private void ExecuteTask(string uniqueKey)
+        private void ExecuteTask(string taskUniqueKey, string scheduleUniqueKey)
         {
-            if (!_taskList.TryGetValue(uniqueKey, out var taskDescription))
+            if (!_taskList.TryGetValue(taskUniqueKey, out var taskDescription))
             {
-                this.RegisterEvent(Journaling.EventType.Error, "Ошибка запуска задачи - задача не найдена", $"Ключ задачи - '{uniqueKey}'.");
+                this.RegisterEvent(Journaling.EventType.Error, "Ошибка запуска задачи - задача не найдена", $"Ключ задачи - '{taskUniqueKey}'.");
                 return;
+            }
+
+            var schedule = taskDescription.Schedules.Where(x => x.GetUniqueKey() == scheduleUniqueKey).FirstOrDefault();
+            if (schedule == null)
+            {
+                schedule = taskDescription.ManualSchedules.Where(x => x.GetUniqueKey() == scheduleUniqueKey).FirstOrDefault();
+                if (schedule == null)
+                {
+                    // 
+                    return;
+                }
+                if (!schedule.IsEnabled)
+                {
+                    //
+                    return;
+                }
             }
 
             try
@@ -118,9 +375,9 @@ namespace OnXap.TaskSheduling
             }
         }
 
-        private static void ExecuteTaskStatic(string uniqueKey)
+        private static void ExecuteTaskStatic(string taskUniqueKey, string scheduleUniqueKey)
         {
-            _this?.ExecuteTask(uniqueKey);
+            _this?.ExecuteTask(taskUniqueKey, scheduleUniqueKey);
         }
         #endregion
     }

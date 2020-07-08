@@ -17,6 +17,7 @@ namespace OnXap.Modules.Adminmain
     using Routing.Db;
     using WebCoreModule;
     using JournalingDB = Journaling.DB;
+    using OnXap.TaskSheduling;
 
     /// <summary>
     /// Представляет контроллер для панели управления.
@@ -609,6 +610,66 @@ namespace OnXap.Modules.Adminmain
                 answer.FromFail("Ошибка во время удаления журнала.");
             }
             return ReturnJson(answer);
+        }
+
+        [MenuAction("Планировщик задач", null, Module.PERM_TASKSHEDULING)]
+        public virtual ActionResult TaskSheduling()
+        {
+            var taskList = AppCore.Get<TaskSchedulingManager>().GetTaskList(false);
+            var model = new ViewModels.TaskSheduling()
+            {
+                TaskList = taskList.Select(x => new Model.TaskShedulingTask(x)).ToList()
+            };
+            return View("TaskSheduling.cshtml", model);
+        }
+
+        public virtual JsonResult TaskShedulingTaskSave(Model.TaskShedulingTask model = null)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return ReturnJson(false, "Ошибка проверки данных формы.");
+                }
+
+                var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+                var taskDescription = taskSchedulingManager.GetTaskList(true).Where(x => x.Id == model.Id).FirstOrDefault();
+                if (taskDescription == null)
+                {
+                    return ReturnJson(false, $"Не найдена задача с №{model.Id}.");
+                }
+                if (taskDescription.IsEnabled != model.IsEnabled)
+                {
+                    if (!taskDescription.TaskOptions.HasFlag(TaskOptions.AllowDisabling))
+                    {
+                        return ReturnJson(false, $"Изменение состояния задачи запрещено.");
+                    }
+                    taskSchedulingManager.SetTaskEnabled(taskDescription, model.IsEnabled);
+                }
+                if (taskDescription.TaskOptions.HasFlag(TaskOptions.AllowManualSchedule))
+                {
+                    var scheduleList = new List<TaskSchedule>();
+                    if (model.ManualScheduleList != null)
+                        foreach(var row in model.ManualScheduleList)
+                        {
+                            if (row.Type == Model.TaskShedulingScheduleType.Cron) scheduleList.Add(new TaskCronSchedule(row.Cron) { IsEnabled = row.IsEnabled });
+                            else if (row.Type == Model.TaskShedulingScheduleType.DateTimeFixed) scheduleList.Add(new TaskFixedTimeSchedule(row.DateTimeFixed.Value) { IsEnabled = row.IsEnabled });
+                        }
+                    taskSchedulingManager.SetTaskManualScheduleList(taskDescription, scheduleList);
+                }
+
+                return ReturnJson(true, null, new Model.TaskShedulingTask(taskDescription));
+            }
+            catch (HandledException ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время сохранения задачи", null, ex.InnerException);
+                return ReturnJson(false, $"Ошибка во время сохранения задачи.");
+            }
+            catch (Exception ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неожиданная ошибка во время сохранения задачи", null, ex);
+                return ReturnJson(false, $"Неожиданная ошибка во время сохранения задачи: {ex.Message}");
+            }
         }
 
     }
