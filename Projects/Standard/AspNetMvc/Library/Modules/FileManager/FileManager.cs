@@ -49,7 +49,7 @@ namespace OnXap.Modules.FileManager
                 Name = "Сборка мусора для отладки (GCCollect)",
                 Description = "",
                 IsEnabled = true,
-                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(GCCollect)}",
                 ExecutionLambda = () => GCCollectStatic(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -61,7 +61,7 @@ namespace OnXap.Modules.FileManager
                 Name = "Пометка старых файлов на удаление",
                 Description = "Файлы с истекшим сроком жизни помечаются на удаление.",
                 IsEnabled = true,
-                TaskOptions = TaskOptions.AllowDisabling,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(PlaceFileIntoQueue)}",
                 ExecutionLambda = () => PlaceFileIntoQueue(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
@@ -75,7 +75,7 @@ namespace OnXap.Modules.FileManager
                     Name = "Обработка файлов, помеченных на удаление",
                     Description = "Файлы, помеченные на удаление, удаляются с диска и отмечаются в базе как недоступные.",
                     IsEnabled = true,
-                    TaskOptions = TaskOptions.AllowDisabling,
+                    TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                     UniqueKey = $"{typeof(FileManager).FullName}_{nameof(RemoveMarkedFiles)}",
                     ExecutionLambda = () => RemoveMarkedFiles(),
                     Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
@@ -87,7 +87,7 @@ namespace OnXap.Modules.FileManager
                 Name = "Обработка файлов, отсутствующих на диске",
                 Description = "Файлы, отсутствующие на диске, помечаются на удаление.",
                 IsEnabled = true,
-                TaskOptions = TaskOptions.AllowDisabling,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(CheckRemovedFiles)}",
                 ExecutionLambda = () => CheckRemovedFiles(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }

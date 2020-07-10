@@ -133,6 +133,15 @@
                         });
                     });
                 },
+                onExecute: function (taskDescription) {
+                    $.requestJSON(
+                        "@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskExecute(123321)))".replace('123321', taskDescription.id),
+                        null,
+                        function (result, message) {
+                            if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
+                        }
+                    );
+                },
                 onScheduleRemove: function (taskSchedule) {
                     this.taskDescriptionCurrent.data.manualScheduleList = this.taskDescriptionCurrent.data.manualScheduleList.filter(x => x !== taskSchedule);
                 },
@@ -235,6 +244,8 @@
                 <pvl-column column-key="Actions" header="Действия" header-style="width:150px;">
                     <template #body="slotProps">
                         <pvl-button label="Подробно" @@click.stop="onShow(slotProps.data)"></pvl-button>
+                        <br />
+                        <pvl-button label="Выполнить" @@click.stop="onExecute(slotProps.data)"></pvl-button>
                     </template>
                 </pvl-column>
             </pvl-datatable>

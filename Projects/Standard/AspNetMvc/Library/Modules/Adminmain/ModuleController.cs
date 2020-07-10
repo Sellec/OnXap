@@ -672,5 +672,30 @@ namespace OnXap.Modules.Adminmain
             }
         }
 
+        public virtual JsonResult TaskShedulingTaskExecute(int id)
+        {
+            try
+            {
+                var taskSchedulingManager = AppCore.Get<TaskSchedulingManager>();
+                var taskDescription = taskSchedulingManager.GetTaskList(true).Where(x => x.Id == id).FirstOrDefault();
+                if (taskDescription == null)
+                {
+                    return ReturnJson(false, $"Не найдена задача с №{id}.");
+                }
+                taskSchedulingManager.ExecuteTask(taskDescription);
+                return ReturnJson(true, "Запуск задачи запланирован.");
+            }
+            catch (HandledException ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время запуска выполнения задачи", null, ex.InnerException);
+                return ReturnJson(false, $"Ошибка во время запуска выполнения задачи.");
+            }
+            catch (Exception ex)
+            {
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неожиданная ошибка во время запуска выполнения задачи", null, ex);
+                return ReturnJson(false, $"Неожиданная ошибка во время запуска выполнения задачи: {ex.Message}");
+            }
+        }
+
     }
 }

@@ -1,10 +1,10 @@
-﻿using OnUtils.Tasks;
-using System.Collections.ObjectModel;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils.Tasks;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace OnXap.TaskSheduling
 {
@@ -15,6 +15,7 @@ namespace OnXap.TaskSheduling
     {
         private static TaskSchedulingManager _this;
         private ConcurrentDictionary<string, TaskDescription> _taskList = new ConcurrentDictionary<string, TaskDescription>();
+        private Types.ConcurrentFlagLocker<string> _executeFlags = new Types.ConcurrentFlagLocker<string>();
 
         #region Управление задачами.
         /// <summary>
@@ -340,7 +341,7 @@ namespace OnXap.TaskSheduling
         {
             if (!_taskList.TryGetValue(taskUniqueKey, out var taskDescription))
             {
-                this.RegisterEvent(Journaling.EventType.Error, "Ошибка запуска задачи - задача не найдена", $"Ключ задачи - '{taskUniqueKey}'.");
+                this.RegisterEvent(Journaling.EventType.Error, "Ошибка запуска", $"Задача не найдена. Ключ задачи - '{taskUniqueKey}'.");
                 return;
             }
 
@@ -360,24 +361,47 @@ namespace OnXap.TaskSheduling
                 }
             }
 
+            ExecuteTaskInternal(taskDescription);
+        }
+
+        private void ExecuteTaskInternal(TaskDescription taskDescription)
+        {
+            if (!_executeFlags.TryLock(taskDescription.UniqueKey) && taskDescription.TaskOptions.HasFlag(TaskOptions.PreventParallelExecution))
+                return;
+
             try
             {
-                this.RegisterEvent(Journaling.EventType.Info, "Запуск задачи", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
+                this.RegisterEvent(Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
                 var timeStart = DateTime.Now;
 
                 taskDescription.ExecutionLambda.Compile().Invoke();
 
-                this.RegisterEvent(Journaling.EventType.Info, "Завершение задачи", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
+                this.RegisterEvent(Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
             }
             catch (Exception ex)
             {
-                this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения задачи", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
+                this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
+            }
+            finally
+            {
+                _executeFlags.ReleaseLock(taskDescription.UniqueKey);
             }
         }
 
         private static void ExecuteTaskStatic(string taskUniqueKey, string scheduleUniqueKey)
         {
             _this?.ExecuteTask(taskUniqueKey, scheduleUniqueKey);
+        }
+
+        /// <summary>
+        /// Позволяет инициировать немедленный запуск задачи в отдельном объекте <see cref="System.Threading.Tasks.Task"/>.
+        /// </summary>
+        /// <param name="taskDescription">Запускаемая задача.</param>
+        /// <return>Возвращает объект <see cref="System.Threading.Tasks.Task"/>.</return>
+        public System.Threading.Tasks.Task ExecuteTask(TaskDescription taskDescription)
+        {
+            if (!_taskList.Any(x => x.Value == taskDescription)) throw new InvalidOperationException("Задача не зарегистрирована.");
+            return System.Threading.Tasks.Task.Factory.StartNew(() => ExecuteTaskInternal(taskDescription));
         }
         #endregion
     }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnXap.TaskSheduling
 {
@@ -25,5 +21,10 @@ namespace OnXap.TaskSheduling
         /// Разрешено включение/выключение задачи.
         /// </summary>
         AllowDisabling = 2,
+
+        /// <summary>
+        /// Предотвращать выполнение одной задачи в параллельных потоках.
+        /// </summary>
+        PreventParallelExecution = 4,
     }
 }
