@@ -155,7 +155,7 @@ namespace System.Web.Mvc
             where TModule : ModuleCore<TModule>
             where TModuleController : IModuleController<TModule>
         {
-            return helper.RequestContext.HttpContext.GetAppCore().Get<RoutingManager>().CreateRoute<TModule, TModuleController>(expression);
+            return helper.RequestContext.HttpContext.GetAppCore().Get<RoutingManager>().CreateRoute<TModule, TModuleController>(expression, includeAuthority);
         }
     }
 }
