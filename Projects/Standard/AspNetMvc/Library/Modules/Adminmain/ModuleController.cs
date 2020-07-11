@@ -672,7 +672,7 @@ namespace OnXap.Modules.Adminmain
             }
         }
 
-        public virtual JsonResult TaskShedulingTaskExecute(int id)
+        public virtual JsonResult TaskShedulingTaskExecute(int id, bool waitForCompletion = false)
         {
             try
             {
@@ -682,8 +682,16 @@ namespace OnXap.Modules.Adminmain
                 {
                     return ReturnJson(false, $"Не найдена задача с №{id}.");
                 }
-                taskSchedulingManager.ExecuteTask(taskDescription);
-                return ReturnJson(true, "Запуск задачи запланирован.");
+                var task = taskSchedulingManager.ExecuteTask(taskDescription);
+                if (waitForCompletion)
+                {
+                    task.Wait();
+                    return ReturnJson(true, "Задача запущена и завершена.");
+                }
+                else
+                {
+                    return ReturnJson(true, "Запуск задачи запланирован.");
+                }
             }
             catch (HandledException ex)
             {

@@ -33,7 +33,7 @@ namespace OnXap.Modules.DbMaintenance
                 Name = "Обслуживание индексов",
                 Description = "",
                 IsEnabled = true,
-                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(DbMaintenanceModule).FullName}_{nameof(MaintenanceIndexes)}",
                 ExecutionLambda = () => MaintenanceIndexesStatic()
             });

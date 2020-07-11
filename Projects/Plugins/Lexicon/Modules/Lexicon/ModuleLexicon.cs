@@ -24,7 +24,7 @@ namespace OnXap.Modules.Lexicon
                 Name = "Проверка новых необработанных слов",
                 Description = "",
                 IsEnabled = true,
-                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(LexiconManager).FullName}_{nameof(LexiconManager.PrepareNewWords)}",
                 ExecutionLambda = () => LexiconNewWordsStatic()
             });

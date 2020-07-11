@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="/Design/UI/jqCron/jqCron.css">
 <style>
     .task-disabled { background-color: gray !important }
+    .task-actions .p-component + .p-component:before {
+        margin: 0 5px 5px 0;
+    }
 </style>
 <script type='text/javascript'>
     class TaskScheduleSave {
@@ -83,7 +86,20 @@
                     isSaving: false,
                     requestId: null,
                     tabActive: false,
-                }
+                },
+                taskScheduleRunOptions: []
+            },
+            created: function () {
+                this.taskScheduleRunOptions = [
+                    {
+                        label: 'Выполнить и подождать завершения',
+                        icon: 'pi pi-caret-right',
+                        command: (event) => {
+                            console.log(event);
+                            //this.onExecute( true);
+                        }
+                    },
+                ];
             },
             computed: {
                 c_allowManualSchedule: function () {
@@ -133,9 +149,13 @@
                         });
                     });
                 },
-                onExecute: function (taskDescription) {
+                onExecute: function (taskDescription, waitForCompletion) {
+                    var component = this;
+
+                    console.log("@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskExecute(123321, false)))");
+                    console.log("@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskExecute(123321, false)))".replace('123321', taskDescription.id).replace('False', waitForCompletion ? 'True' : 'False'));
                     $.requestJSON(
-                        "@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskExecute(123321)))".replace('123321', taskDescription.id),
+                        "@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskExecute(123321, false)))".replace('123321', taskDescription.id).replace('False', waitForCompletion ? 'True' : 'False'),
                         null,
                         function (result, message) {
                             if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
@@ -179,7 +199,6 @@
                 },
                 onSaveChanges: function () {
                     var component = this;
-                    console.log(component.taskDescriptionCurrent.data.manualScheduleList);
                     component.taskDescriptionCurrent.isSaving = true;
                     component.taskDescriptionCurrent.requestId = $.requestJSON(
                         "@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskSave(null)))",
@@ -241,11 +260,10 @@
                         {{ slotProps.data.isConfirmed ? 'Подтверждена' : 'Не подтверждена' }}
                     </template>
                 </pvl-column>
-                <pvl-column column-key="Actions" header="Действия" header-style="width:150px;">
+                <pvl-column column-key="Actions" header="Действия" header-style="width:150px;" header-class="task-actions">
                     <template #body="slotProps">
-                        <pvl-button label="Подробно" @@click.stop="onShow(slotProps.data)"></pvl-button>
-                        <br />
-                        <pvl-button label="Выполнить" @@click.stop="onExecute(slotProps.data)"></pvl-button>
+                        <pvl-button label="Подробно" @@click.stop="onShow(slotProps.data)" style="margin:0 5px 5px 0;"></pvl-button>
+                        <pvl-splitbutton label="Выполнить" icon="pi pi-caret-right" :model="taskScheduleRunOptions" @@click.stop="onExecute(slotProps.data, true)"></pvl-splitbutton>
                     </template>
                 </pvl-column>
             </pvl-datatable>
