@@ -151,13 +151,12 @@ namespace OnXap.Core.Items
 
         private static ItemType GetOrAdd(string caption, string uniqueKey, bool registerIfNoFound)
         {
-            var r = ItemTypes.Where(x => x.Value.UniqueKey == uniqueKey).Select(x => x.Value).FirstOrDefault();
-            if (r == null)
+            return ItemTypes.GetOrAdd(uniqueKey, k =>
             {
                 using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
                 {
-                    r = db.ItemType.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
+                    var r = db.ItemType.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                     if (r == null && registerIfNoFound)
                     {
                         var r_ = new ItemType() { NameItemType = caption, UniqueKey = uniqueKey };
@@ -171,10 +170,34 @@ namespace OnXap.Core.Items
                         db.SaveChanges();
                     }
                     ItemTypes[uniqueKey] = r;
+                    return r;
                 }
-            }
+            });
 
-            return r;
+            //var r = ItemTypes.Where(x => x.Value.UniqueKey == uniqueKey).Select(x => x.Value).FirstOrDefault();
+            //if (r == null)
+            //{
+            //    using (var db = new Db.DataContext())
+            //    using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
+            //    {
+            //        r = db.ItemType.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
+            //        if (r == null && registerIfNoFound)
+            //        {
+            //            var r_ = new ItemType() { NameItemType = caption, UniqueKey = uniqueKey };
+            //            db.ItemType.Add(r_);
+            //            db.SaveChanges();
+            //            r = r_;
+            //        }
+            //        if (r != null && r.NameItemType != caption)
+            //        {
+            //            r.NameItemType = caption;
+            //            db.SaveChanges();
+            //        }
+            //        ItemTypes[uniqueKey] = r;
+            //    }
+            //}
+
+            //return r;
         }
 
         internal static ConcurrentDictionary<string, ItemType> ItemTypes
