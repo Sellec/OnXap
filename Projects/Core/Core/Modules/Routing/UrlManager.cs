@@ -8,6 +8,7 @@ using System.Linq;
 namespace OnXap.Modules.Routing
 {
     using Core;
+    using Core.Data;
     using Core.Modules;
     using Db;
     using Journaling;
@@ -299,9 +300,15 @@ namespace OnXap.Modules.Routing
 
                     var coll = idItemList.GroupBy(x => x).Select(x => x.Key).ToDictionary(x => x, x => string.Empty);
 
-                    var queryResults = db.Routing.
-                        Where(x => coll.Keys.ToList().Contains(x.IdItem) && x.IdItemType == idItemType && x.UniqueKey == uniqueKey).
+                    var queryResultsBase = db.Routing.
+                        Where(x => x.IdItemType == idItemType && x.UniqueKey == uniqueKey).
                         Select(x => new { x.IdItem, x.UrlFull });
+
+                    var collKeys = coll.Keys.ToArray();
+                    if (collKeys.Length == 1) queryResultsBase = queryResultsBase.Where(x => x.IdItem == collKeys[0]);
+                    else queryResultsBase = queryResultsBase.In(collKeys, x => x.IdItem);
+
+                    var queryResults = queryResultsBase.Select(x => new { x.IdItem, x.UrlFull });
 
                     var results = queryResults.ToList();
                     results.ForEach(x => coll[x.IdItem] = x.UrlFull);

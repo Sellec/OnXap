@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -34,8 +35,20 @@ namespace OnXap.Core.Data.Helpers
                 }
                 else if (_parametersRaw != null)
                 {
-                    var type = _parametersRaw.GetType();
-                    _parameters = type.GetProperties().ToDictionary(x => x.Name, x => $"{x.GetValue(_parametersRaw, null)}");
+                    if (_parametersRaw is IDictionary dictionary)
+                    {
+                        var parameters = new Dictionary<string, string>();
+                        foreach (DictionaryEntry entry in dictionary)
+                        {
+                            parameters[(string)entry.Key] = $"{entry.Value}";
+                        }
+                        _parameters = parameters;
+                    }
+                    else
+                    {
+                        var type = _parametersRaw.GetType();
+                        _parameters = type.GetProperties().ToDictionary(x => x.Name, x => $"{x.GetValue(_parametersRaw, null)}");
+                    }
                 }
                 else
                 {
@@ -49,7 +62,7 @@ namespace OnXap.Core.Data.Helpers
 
         public DateTime StartTime { get; }
         public TimeSpan? ExecutionTime { get; internal set; }
-
+        public List<QueryInfo> CurrentExecutingQueries { get; internal set; }
     }
 
     /// <summary>
@@ -62,6 +75,7 @@ namespace OnXap.Core.Data.Helpers
         internal static void OnExecuting(object commandUniqueObject, string queryText, object parameters)
         {
             var queryInfo = new QueryInfo(queryText, parameters);
+            queryInfo.CurrentExecutingQueries = GetCurrentExecutingQueries();
             _commandsTiming[commandUniqueObject] = queryInfo;
             //_commandsTimingByThread.Value.Add(queryInfo);
         }

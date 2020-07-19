@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace OnXap.Modules.ItemsCustomize
 {
+    using Core.Data;
     using Core.Items;
     using Core.Modules;
     using DB;
@@ -405,10 +406,12 @@ namespace OnXap.Modules.ItemsCustomize
                     using (var db = new Context())
                     {
                         var _ids = ids.ToArray();
-                        var values = (from p in db.CustomFieldsDatas.AsNoTracking()
+                        var values = from p in db.CustomFieldsDatas.AsNoTracking()
                                       join fi in db.CustomFieldsFields.AsNoTracking() on p.IdField equals fi.IdField
-                                      where ids.Contains(p.IdItem) && p.IdItemType == IdItemTypeFirst.Value && fi.Block == 0
-                                      select p);
+                                      where p.IdItemType == IdItemTypeFirst.Value && fi.Block == 0
+                                      select p;
+                        if (_ids.Length == 1) values = values.Where(x => x.IdItem == _ids[0]);
+                        else values = values.In(_ids, x => x.IdItem);
 
                         foreach (var res in values)
                         {
