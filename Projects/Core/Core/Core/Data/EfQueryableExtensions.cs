@@ -1,17 +1,58 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace OnXap.Core.Data
 {
-    static partial class EfQueryableExtensions
+    /// <summary>
+    /// </summary>
+    public static partial class EfQueryableExtensions
     {
+        /// <summary>
+        /// Метод расширения, позволяющий параметризировать запрос вида Contains(itemkey).
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TQuery"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="values"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="throwIfParameterCountExceeded"></param>
+        /// <returns></returns>
         public static IQueryable<TQuery> In<TKey, TQuery>(
              this IQueryable<TQuery> queryable,
              IEnumerable<TKey> values,
-             Expression<Func<TQuery, TKey>> keySelector)
+             Expression<Func<TQuery, TKey>> keySelector,
+             bool throwIfParameterCountExceeded = false)
+        {
+            return queryable.Internal(values, keySelector, false, throwIfParameterCountExceeded);
+        }
+
+        /// <summary>
+        /// Метод расширения, позволяющий параметризировать запрос вида Not Contains(itemkey).
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TQuery"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="values"></param>
+        /// <param name="keySelector"></param>
+        /// <param name="throwIfParameterCountExceeded"></param>
+        /// <returns></returns>
+        public static IQueryable<TQuery> NotIn<TKey, TQuery>(
+             this IQueryable<TQuery> queryable,
+             IEnumerable<TKey> values,
+             Expression<Func<TQuery, TKey>> keySelector,
+             bool throwIfParameterCountExceeded = false)
+        {
+            return queryable.Internal(values, keySelector, true, throwIfParameterCountExceeded);
+        }
+
+        private static IQueryable<TQuery> Internal<TKey, TQuery>(
+             this IQueryable<TQuery> queryable,
+             IEnumerable<TKey> values,
+             Expression<Func<TQuery, TKey>> keySelector,
+             bool exclude,
+             bool throwIfParameterCountExceeded)
         {
             if (values == null)
             {
@@ -23,16 +64,31 @@ namespace OnXap.Core.Data
                 throw new ArgumentNullException(nameof(keySelector));
             }
 
-            if (!values.Any())
+            if (!exclude && !values.Any())
             {
                 return queryable.Take(0);
             }
 
-            var distinctValues = Bucketize(values);
+            var distinctValueList = values.Distinct().ToList();
+            var distinctValueListCount = distinctValueList.Count;
+            var distinctValues = Bucketize(distinctValueList);
 
             if (distinctValues.Length > 2048)
             {
-                throw new ArgumentException("Too many parameters for SQL Server, reduce the number of parameters", nameof(keySelector));
+                if (throwIfParameterCountExceeded)
+                {
+                    throw new ArgumentException("Too many parameters for SQL Server, reduce the number of parameters", nameof(keySelector));
+                }
+                else
+                {
+                    distinctValueList = distinctValueList.Take(distinctValueListCount).ToList();
+                    var method = distinctValueList.GetType().GetMethod("Contains");
+                    Expression<Func<List<TKey>>> valueAsExpression = () => distinctValueList;
+                    var call = Expression.Call(valueAsExpression.Body, method, keySelector.Body);
+                    var lambda = Expression.Lambda<Func<TQuery, bool>>(call, keySelector.Parameters);
+
+                    return queryable.Where(lambda);
+                }
             }
 
             var predicates = distinctValues
@@ -40,13 +96,16 @@ namespace OnXap.Core.Data
                 {
                     // Create an expression that captures the variable so EF can turn this into a parameterized SQL query
                     Expression<Func<TKey>> valueAsExpression = () => v;
-                    return Expression.Equal(keySelector.Body, valueAsExpression.Body);
+                    return exclude ? Expression.NotEqual(keySelector.Body, valueAsExpression.Body) : Expression.Equal(keySelector.Body, valueAsExpression.Body);
                 })
                 .ToList();
 
             while (predicates.Count > 1)
             {
-                predicates = PairWise(predicates).Select(p => Expression.OrElse(p.Item1, p.Item2)).ToList();
+                if (exclude)
+                    predicates = PairWise(predicates).Select(p => Expression.AndAlso(p.Item1, p.Item2)).ToList();
+                else
+                    predicates = PairWise(predicates).Select(p => Expression.OrElse(p.Item1, p.Item2)).ToList();
             }
 
             var body = predicates.Single();
@@ -72,10 +131,8 @@ namespace OnXap.Core.Data
             }
         }
 
-        private static TKey[] Bucketize<TKey>(IEnumerable<TKey> values)
+        private static TKey[] Bucketize<TKey>(List<TKey> distinctValueList)
         {
-            var distinctValueList = values.Distinct().ToList();
-
             // Calculate bucket size as 1,2,4,8,16,32,64,...
             var bucket = 1;
             while (distinctValueList.Count > bucket)
