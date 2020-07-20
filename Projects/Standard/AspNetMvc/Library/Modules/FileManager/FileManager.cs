@@ -13,10 +13,11 @@ using System.Web.Mvc;
 
 namespace OnXap.Modules.FileManager
 {
+    using Core.Data;
     using Core.Modules;
     using Journaling;
-    using Types;
     using TaskSheduling;
+    using Types;
     using DictionaryFiles = Dictionary<int, Db.File>;
 
     /// <summary>
@@ -221,7 +222,8 @@ namespace OnXap.Modules.FileManager
                 {
                     using (var db = new Db.DataContext())
                     {
-                        var data = db.File.Where(x => ids.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).OrderBy(x => x.NameFile).ToDictionary(x => x.IdFile, x => x);
+                        var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).In(ids, x => x.IdFile);
+                        var data = query.OrderBy(x => x.NameFile).ToDictionary(x => x.IdFile, x => x);
                         return fileList.ToDictionary(x => x, x => data.ContainsKey(x) ? data[x] : null);
                     }
                 }
@@ -366,19 +368,8 @@ namespace OnXap.Modules.FileManager
             {
                 using (var db = new Db.DataContext())
                 {
-                    //Немножечко оптимизируем под параметризацию запроса - если параметров разумное количество, то строим через переменные.
-                    var IdList1 = fileList.Length > 0 ? fileList[0] : 0;
-                    var IdList2 = fileList.Length > 1 ? fileList[1] : 0;
-                    var IdList3 = fileList.Length > 2 ? fileList[2] : 0;
-                    var IdList4 = fileList.Length > 3 ? fileList[3] : 0;
-                    var IdList5 = fileList.Length > 4 ? fileList[4] : 0;
-
-                    var sql = fileList.Length > 5 ?
-                                db.File.Where(x => fileList.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving) :
-                                db.File.Where(x => (x.IdFile == IdList1 || x.IdFile == IdList2 || x.IdFile == IdList3 || x.IdFile == IdList4 || x.IdFile == IdList5) && !x.IsRemoved && !x.IsRemoving);
-
-
-                    if (sql.ForEach(file => file.DateExpire = dateExpires) > 0) db.SaveChanges();
+                    var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).In(fileList, x => x.IdFile);
+                    if (query.ForEach(file => file.DateExpire = dateExpires) > 0) db.SaveChanges();
                 }
 
                 return true;
@@ -412,7 +403,8 @@ namespace OnXap.Modules.FileManager
                 using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.RequiresNew))
                 {
-                    if (db.File.Where(x => fileList.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).ForEach(file =>
+                    var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).In(fileList, x => x.IdFile);
+                    if (query.ForEach(file =>
                     {
                         try
                         {
@@ -454,7 +446,8 @@ namespace OnXap.Modules.FileManager
                 using (var db = new Db.DataContext())
                 using (var scope = db.CreateScope(TransactionScopeOption.Required))
                 {
-                    if (db.File.Where(x => fileList.Contains(x.IdFile) && !x.IsRemoved && !x.IsRemoving).ForEach(file =>
+                    var query = db.File.Where(x => !x.IsRemoved && !x.IsRemoving).In(fileList, x => x.IdFile);
+                    if (query.ForEach(file =>
                     {
                         file.IsRemoving = true;
                     }) > 0)
@@ -576,7 +569,8 @@ namespace OnXap.Modules.FileManager
                             {
                                 if (removeList.Count > 0)
                                 {
-                                    db.FileRemoveQueue.RemoveRange(db.FileRemoveQueue.Where(x => removeList.Contains(x.IdFile)));
+                                    var query = db.FileRemoveQueue.In(removeList, x => x.IdFile);
+                                    db.FileRemoveQueue.RemoveRange(query);
                                     db.SaveChanges<Db.FileRemoveQueue>();
                                 }
 

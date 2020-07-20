@@ -7,6 +7,7 @@ using System.Transactions;
 namespace OnXap.Users
 {
     using Core;
+    using Core.Data;
     using Core.Db;
     using Journaling;
 
@@ -66,9 +67,7 @@ namespace OnXap.Users
 
                         var data = queryRolesWithUsers.ToList().GroupBy(x => x.IdUser, x => x.IdRole).ToDictionary(x => x.Key, x => x.Distinct().ToArray());
 
-                        var queryUsers = from user in db.Users
-                                         where data.Keys.Contains(user.IdUser)
-                                         select user;
+                        var queryUsers = db.Users.In(data.Keys, x => x.IdUser);
 
                         var data2 = queryUsers.ToList().ToDictionary(x => x, x => data[x.IdUser]);
                         return data2;
@@ -119,15 +118,7 @@ namespace OnXap.Users
                     var query = from roleJoin in db.RoleUser
                                 join role in db.Role on roleJoin.IdRole equals role.IdRole
                                 select new { roleJoin.IdUser, role };
-
-                    if (userIdList.Length == 1)
-                    {
-                        query = query.Where(x => x.IdUser == userIdList[0]);
-                    }
-                    else
-                    {
-                        query = query.Where(x => userIdList.Contains(x.IdUser));
-                    }
+                    query = query.In(userIdList, x => x.IdUser);
 
                     return query.ToList().GroupBy(x => x.IdUser).ToDictionary(x => x.Key, x => x.Select(y => y.role).ToList());
                 }
@@ -156,7 +147,8 @@ namespace OnXap.Users
                     var userIdList2 = userIdList?.Distinct()?.ToArray();
                     if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole && !userIdList2.Contains(x.IdUser)));
+                        var query = db.RoleUser.Where(x => x.IdRole == idRole).NotIn(userIdList2, x => x.IdUser);
+                        db.RoleUser.RemoveRange(query);
 
                         var context = AppCore.GetUserContextManager().GetCurrentUserContext();
                         var IdUserChange = context.IdUser;
@@ -208,7 +200,8 @@ namespace OnXap.Users
 
                     if (userIdList2?.Any() == true)
                     {
-                        db.RoleUser.RemoveRange(db.RoleUser.Where(x => x.IdRole == idRole && userIdList2.Contains(x.IdUser)));
+                        var query = db.RoleUser.Where(x => x.IdRole == idRole).In(userIdList2, x => x.IdUser);
+                        db.RoleUser.RemoveRange(query);
                     }
                     else
                     {
@@ -246,7 +239,8 @@ namespace OnXap.Users
 
                     var userIdList2 = userIdList.Distinct().ToArray();
 
-                    var usersToRole = db.Users.Where(x => userIdList2.Contains(x.IdUser)).ToList().Select(x => new RoleUser()
+                    var query = db.Users.In(userIdList2, x => x.IdUser);
+                    var usersToRole = query.ToList().Select(x => new RoleUser()
                     {
                         IdRole = idRole,
                         IdUser = x.IdUser,
@@ -298,8 +292,8 @@ namespace OnXap.Users
                 {
                     using (var db = new CoreContext())
                     {
-                        var sql = (from p in db.Users where listIDForRequest.Contains(p.IdUser) select p);
-                        foreach (var res in sql) users[res.IdUser] = res;
+                        var query = db.Users.In(listIDForRequest, x => x.IdUser);
+                        foreach (var res in query) users[res.IdUser] = res;
                     }
                 }
 

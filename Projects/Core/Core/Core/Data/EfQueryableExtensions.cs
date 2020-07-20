@@ -64,9 +64,9 @@ namespace OnXap.Core.Data
                 throw new ArgumentNullException(nameof(keySelector));
             }
 
-            if (!exclude && !values.Any())
+            if (!values.Any())
             {
-                return queryable.Take(0);
+                return exclude ? queryable : queryable.Take(0);
             }
 
             var distinctValueList = values.Distinct().ToList();

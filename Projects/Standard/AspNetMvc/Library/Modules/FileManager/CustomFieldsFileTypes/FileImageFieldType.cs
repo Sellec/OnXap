@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 {
+    using Core.Data;
     using Db;
     using Modules.ItemsCustomize.Field;
 
@@ -29,7 +30,7 @@ namespace OnXap.Modules.FileManager.CustomFieldsFileTypes
 
             using (var db = new DataContext())
             {
-                var filesFound = db.File.Where(x => valuesPrepared.Contains(x.IdFile)).ToList();
+                var filesFound = db.File.In(valuesPrepared, x => x.IdFile).ToList();
                 if (field.IsValueRequired && filesFound.Count == 0) return CreateResultForEmptyValue(field);
 
                 var filesFoundIds = filesFound.Select(x => x.IdFile).ToList();

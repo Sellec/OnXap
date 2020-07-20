@@ -1,4 +1,5 @@
-﻿using OnXap.Modules.FileManager.Db;
+﻿using OnXap.Core.Data;
+using OnXap.Modules.FileManager.Db;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,7 +53,9 @@ namespace System.ComponentModel.DataAnnotations
 
                 using (var db = new DataContext())
                 {
-                    var filesFromDB = db.File.Where(x => filesGrouped.Contains(x.IdFile)).ToDictionary(x => x.IdFile, x => x);
+                    var filesFromDB = db.File.
+                        In(filesGrouped, x => x.IdFile).
+                        ToDictionary(x => x.IdFile, x => x);
 
                     var filesNotFound = filesGrouped.Where(x => !filesFromDB.ContainsKey(x)).ToList();
                     if (filesNotFound.Count > 0) return new ValidationResult($"Для поля '{validationContext.DisplayName}' следующие файлы не найдены: {string.Join(", ", filesNotFound)}");
