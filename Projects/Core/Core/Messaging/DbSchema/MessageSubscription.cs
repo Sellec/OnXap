@@ -35,8 +35,8 @@ namespace OnXap.Messaging.DbSchema
                 AddColumnIfNotExists(Schema, (DB.MessageSubscription x) => x.UniqueKey, x => x.AsString(200).Nullable());
             }
 
-            if (!Schema.Table<DB.MessageSubscription>().Exists() || !Schema.Table<DB.MessageSubscription>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<DB.MessageSubscription>()).
+            if (!Schema.Table<DB.MessageSubscription>().Exists() || !Schema.Table<DB.MessageSubscription>().Index($"t{GetTableName<DB.MessageSubscription>()}_iUniqueKey").Exists())
+                Create.Index($"t{GetTableName<DB.MessageSubscription>()}_iUniqueKey").OnTable(GetTableName<DB.MessageSubscription>()).
                     OnColumn(GetColumnName((DB.MessageSubscription x) => x.UniqueKey)).Ascending().
                     WithOptions().UniqueNullsNotDistinct();
         }

@@ -15,13 +15,13 @@
                 Create.Table<ItemType>().
                     WithColumn((ItemType x) => x.IdItemType).AsInt32().NotNullable().PrimaryKey().Identity().
                     WithColumn((ItemType x) => x.NameItemType).AsString(200).NotNullable().
-                    WithColumn((ItemType x) => x.UniqueKey).AsString(200).NotNullable().Unique("UniqueKey");
+                    WithColumn((ItemType x) => x.UniqueKey).AsString(200).NotNullable().Unique($"t{GetTableName<ItemType>()}_iUniqueKey");
             }
             else
             {
                 AddColumnIfNotExists(Schema, (ItemType x) => x.IdItemType, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
                 AddColumnIfNotExists(Schema, (ItemType x) => x.NameItemType, x => x.AsString(200).NotNullable());
-                AddColumnIfNotExists(Schema, (ItemType x) => x.UniqueKey, x => x.AsString(200).NotNullable().Unique("UniqueKey"));
+                AddColumnIfNotExists(Schema, (ItemType x) => x.UniqueKey, x => x.AsString(200).NotNullable().Unique($"t{GetTableName<ItemType>()}_iUniqueKey"));
             }
         }
     }

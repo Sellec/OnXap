@@ -18,7 +18,7 @@ namespace OnXap.TaskSheduling.Db
         [MaxLength(200)]
         public string Cron { get; set; }
 
-        public DateTimeOffset? DateTimeFixed { get; set; }
+        public DateTime? DateTimeFixed { get; set; }
 
         public bool IsEnabled { get; set; }
 

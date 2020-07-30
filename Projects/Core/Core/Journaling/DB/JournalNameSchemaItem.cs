@@ -28,8 +28,8 @@ namespace OnXap.Journaling.DB
                 AddColumnIfNotExists(Schema, (JournalNameDAO x) => x.UniqueKey, x => x.AsString(600).Nullable());
             }
 
-            if (!Schema.Table<JournalNameDAO>().Exists() || !Schema.Table<JournalNameDAO>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<JournalNameDAO>()).
+            if (!Schema.Table<JournalNameDAO>().Exists() || !Schema.Table<JournalNameDAO>().Index($"t{GetTableName<JournalNameDAO>()}_iUniqueKey").Exists())
+                Create.Index($"t{GetTableName<JournalNameDAO>()}_iUniqueKey").OnTable(GetTableName<JournalNameDAO>()).
                     OnColumn(GetColumnName((JournalNameDAO x) => x.UniqueKey)).Ascending().
                     WithOptions().UniqueNullsNotDistinct();
 

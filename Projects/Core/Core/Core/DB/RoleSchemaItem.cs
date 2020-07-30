@@ -36,8 +36,8 @@ namespace OnXap.Core.Db
                 AddColumnIfNotExists(Schema, (Role x) => x.UniqueKey, x => x.AsString(100).Nullable());
             }
 
-            if (!Schema.Table<Role>().Exists() || !Schema.Table<Role>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<Role>()).
+            if (!Schema.Table<Role>().Exists() || !Schema.Table<Role>().Index($"t{GetTableName<Role>()}_iUniqueKey").Exists())
+                Create.Index($"t{GetTableName<Role>()}_iUniqueKey").OnTable(GetTableName<Role>()).
                     OnColumn(GetColumnName((Role x) => x.UniqueKey)).Ascending().
                     WithOptions().UniqueNullsNotDistinct();
         }

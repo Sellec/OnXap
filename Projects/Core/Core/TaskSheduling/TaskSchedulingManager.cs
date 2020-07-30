@@ -88,7 +88,7 @@ namespace OnXap.TaskSheduling
                     TaskSchedule taskSchedule = null;
                     if (scheduleDb.DateTimeFixed.HasValue)
                     {
-                        taskSchedule = new TaskFixedTimeSchedule(scheduleDb.DateTimeFixed.Value);
+                        taskSchedule = new TaskFixedTimeSchedule(new DateTimeOffset(scheduleDb.DateTimeFixed.Value.Ticks, TimeSpan.Zero));
                     }
                     else if (!string.IsNullOrEmpty(scheduleDb.Cron))
                     {
@@ -142,7 +142,7 @@ namespace OnXap.TaskSheduling
                                 TaskSchedule taskSchedule = null;
                                 if (scheduleDb.DateTimeFixed.HasValue)
                                 {
-                                    taskSchedule = new TaskFixedTimeSchedule(scheduleDb.DateTimeFixed.Value);
+                                    taskSchedule = new TaskFixedTimeSchedule(new DateTimeOffset(scheduleDb.DateTimeFixed.Value.Ticks, TimeSpan.Zero));
                                 }
                                 else if (!string.IsNullOrEmpty(scheduleDb.Cron))
                                 {
@@ -294,7 +294,7 @@ namespace OnXap.TaskSheduling
                                 {
                                     IdTask = taskDescription2.Id,
                                     IsEnabled = pair.Value.IsEnabled,
-                                    DateTimeFixed = taskFixedTimeSchedule.DateTime
+                                    DateTimeFixed = taskFixedTimeSchedule.DateTime.UtcDateTime
                                 });
                             }
                         }

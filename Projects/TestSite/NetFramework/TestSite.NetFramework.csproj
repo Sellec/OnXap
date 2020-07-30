@@ -57,7 +57,7 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
-      <Version>3.1.3</Version>
+      <Version>3.1.6</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
       <Version>2.0.0</Version>

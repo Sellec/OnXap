@@ -33,9 +33,9 @@ namespace OnXap.Core.Db
 
         private void CheckTableMergeFiltersCache()
         {
-            if (!Schema.Table< InsertOnDuplicate_MergeFiltersCache>().Exists())
+            if (!Schema.Table<InsertOnDuplicate_MergeFiltersCache>().Exists())
             {
-                Create.Table< InsertOnDuplicate_MergeFiltersCache>().
+                Create.Table<InsertOnDuplicate_MergeFiltersCache>().
                     WithColumn((InsertOnDuplicate_MergeFiltersCache x) => x.TableName).AsString(128).NotNullable().Indexed("TableName").
                     WithColumn((InsertOnDuplicate_MergeFiltersCache x) => x.FilterStr).AsString(int.MaxValue).NotNullable();
             }

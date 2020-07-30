@@ -66,13 +66,13 @@ namespace OnXap.Core.Db
                 AddColumnIfNotExists(Schema, (User x) => x.about, x => x.AsString(int.MaxValue).Nullable());
             }
 
-            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<User>()).
+            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index($"t{GetTableName<User>()}_iUniqueKey").Exists())
+                Create.Index($"t{GetTableName<User>()}_iUniqueKey").OnTable(GetTableName<User>()).
                     OnColumn(GetColumnName((User x) => x.UniqueKey)).Ascending().
                     WithOptions().UniqueNullsNotDistinct();
 
-            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index("UniqueEmail").Exists())
-                Create.Index("UniqueEmail").OnTable(GetTableName<User>()).
+            if (!Schema.Table<User>().Exists() || !Schema.Table<User>().Index($"t{GetTableName<User>()}_iUniqueEmail").Exists())
+                Create.Index($"t{GetTableName<User>()}_iUniqueEmail").OnTable(GetTableName<User>()).
                     OnColumn(GetColumnName((User x) => x.email)).Ascending().
                     WithOptions().UniqueNullsNotDistinct();
 

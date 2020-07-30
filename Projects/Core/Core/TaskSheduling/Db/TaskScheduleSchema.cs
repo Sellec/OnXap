@@ -30,7 +30,7 @@ namespace OnXap.TaskSheduling.Db
                     WithColumn((TaskSchedule x) => x.Id).AsInt32().NotNullable().PrimaryKey().Identity().
                     WithColumn((TaskSchedule x) => x.IdTask).AsInt32().NotNullable().
                     WithColumn((TaskSchedule x) => x.Cron).AsString(200).Nullable().
-                    WithColumn((TaskSchedule x) => x.DateTimeFixed).AsDateTimeOffset().Nullable().
+                    WithColumn((TaskSchedule x) => x.DateTimeFixed).AsDateTime().Nullable().
                     WithColumn((TaskSchedule x) => x.IsEnabled).AsBoolean().NotNullable();
 
             }
@@ -39,7 +39,7 @@ namespace OnXap.TaskSheduling.Db
                 AddColumnIfNotExists(Schema, (TaskSchedule x) => x.Id, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
                 AddColumnIfNotExists(Schema, (TaskSchedule x) => x.IdTask, x => x.AsInt32().NotNullable());
                 AddColumnIfNotExists(Schema, (TaskSchedule x) => x.Cron, x => x.AsString(200).Nullable());
-                AddColumnIfNotExists(Schema, (TaskSchedule x) => x.DateTimeFixed, x => x.AsDateTimeOffset().Nullable());
+                AddColumnIfNotExists(Schema, (TaskSchedule x) => x.DateTimeFixed, x => x.AsDateTime().Nullable());
                 AddColumnIfNotExists(Schema, (TaskSchedule x) => x.IsEnabled, x => x.AsBoolean().NotNullable());
             }
 
