@@ -16,10 +16,16 @@ namespace OnXap.Modules.Universal.Pagination
         //непонятный параметр, пока что закомментировал.
         //public int? skip { get; set; }
 
-        public virtual IQueryable<TItem> BuildSortQuery<TItem>(IQueryable<TItem> query) 
+        public virtual IQueryable<SortedQuery<TItem>> BuildSortQuery<TItem>(IQueryable<TItem> query) 
         {
-            return query;//.OrderBy(x => x);
+            return query.Select(x => new SortedQuery<TItem>() { Row = x, RowNumber = 0 });
         }
+    }
+
+    public class SortedQuery<TItem>
+    {
+        public TItem Row { get; set; }
+        public long RowNumber { get; set; }
     }
 
 }

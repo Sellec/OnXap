@@ -47,17 +47,17 @@ namespace OnXap.Modules.Universal.Pagination
         }
 
         /// <summary>
-        /// Обрабатывает данные из запроса <paramref name="sqlBaseQuery"/>, проводит ряд преобразований (сортировка, группировка и т.п.)
+        /// Обрабатывает данные из запроса <paramref name="query"/>, проводит ряд преобразований (сортировка, группировка и т.п.)
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="model"></param>
-        /// <param name="sqlBaseQuery"></param>
+        /// <param name="query"></param>
         /// <param name="listViewOptions"></param>
         /// <param name="IdPage"></param>
         /// <returns></returns>
         public ActionResult ViewPaginatedItemsList<TModel>(
             TModel model,
-            IQueryable<TItemSource> sqlBaseQuery,
+            IQueryable<TItemSource> query,
             ListViewOptions listViewOptions = null,
             int? IdPage = null
         )
@@ -70,25 +70,23 @@ namespace OnXap.Modules.Universal.Pagination
                 if (listViewOptions == null) throw new NullReferenceException("Метод 'UniversalController{TModule, TContext, TItemSource, TItemView}.GetPaginatedItemsListOptions' не должен возвращать null.");
             }
 
-            var sqlBase = listViewOptions.BuildSortQuery(sqlBaseQuery);
-
-            var data_items = this.ViewPrepareItems(sqlBase, out PagedView pages, out InfoCount infoCount, listViewOptions, IdPage ?? 0);
+            var data_items = ViewPrepareItems(query, out PagedView pages, out InfoCount infoCount, listViewOptions, IdPage ?? 0);
             if (!pages.PageFound) throw new ErrorCodeException(HttpStatusCode.NotFound, "Нет такой страницы.");
 
-            return ExecuteView(model, sqlBase, data_items, listViewOptions, pages, infoCount);
+            return ExecuteView(model, data_items, listViewOptions, pages, infoCount);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="sql"></param>
+        /// <param name="query"></param>
         /// <param name="pages"></param>
         /// <param name="infoCount"></param>
         /// <param name="listViewOptions"></param>
         /// <param name="IdPage">Если не задан, то отображается весь список объектов</param>
         /// <returns></returns>
         protected virtual List<TItemView> ViewPrepareItems(
-            IQueryable<TItemSource> sql,
+            IQueryable<TItemSource> query,
             out PagedView pages,
             out InfoCount infoCount,
             ListViewOptions listViewOptions,
@@ -99,7 +97,7 @@ namespace OnXap.Modules.Universal.Pagination
 
             var startPosition = 0;
 
-            var itemsCount = sql.Count();
+            var itemsCount = query.Count();
 
             if (IdPage.HasValue)
             {
@@ -178,15 +176,20 @@ namespace OnXap.Modules.Universal.Pagination
             }
 
             //if (listViewOptions != null && listViewOptions.skip.HasValue) startPosition += listViewOptions.skip.Value;
+            var querySorted = listViewOptions.BuildSortQuery(query);
 
-            var data_items = sql.Skip(infoCount.start - 1).Take(infoCount.objectsPerPage).ToList().Select(x => GetItemSourceToViewConverter()(x)).ToList();
+            var list = querySorted.
+                Skip(infoCount.start - 1).
+                Take(infoCount.objectsPerPage).
+                OrderBy(x => x.RowNumber).
+                ToList().
+                Select(x => GetItemSourceToViewConverter()(x.Row)).ToList();
 
-            return data_items;
+            return list;
         }
 
         protected abstract ActionResult ExecuteView<TModel>(
             TModel model,
-            IQueryable<TItemSource> sqlBaseQueryPrepared,
             List<TItemView> objectsToView,
             ListViewOptions listViewOptions,
             PagedView pages,
