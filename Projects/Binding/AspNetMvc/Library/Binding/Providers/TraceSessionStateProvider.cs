@@ -57,7 +57,7 @@ namespace OnXap.Binding.Providers
                 {
                     _sessionsCache = new ConcurrentDictionary<string, UserSession>();
                     var value = _sessionsSaveContext.Value;
-                    TaskReadFromDB();
+                    //TaskReadFromDB();
                 }
 
                 return _sessionsCache;
@@ -112,9 +112,35 @@ namespace OnXap.Binding.Providers
 
         public static UserSession GetSessionItem(string id)
         {
-            UserSession item = null;
-            if (GetSessionsCache().TryGetValue(id, out item))
+            var item = GetSessionsCache().GetOrAdd(id, k =>
             {
+                using (var db = new Session.SessionContext())
+                {
+                    var itemTmp = db.Sessions.Where(x => x.SessionId == id).FirstOrDefault();
+                    if (itemTmp != null)
+                    {
+                        if (itemTmp.Expires > DateTime.UtcNow)
+                        {
+                            return itemTmp;
+                        }
+                        else
+                        {
+                            // Сессия найдена, но она истекла
+                            _deleteQueue.TryAdd(id, id);
+                            SaveChanges();
+                        }
+                    }
+                }
+                return null;
+            });
+
+            if (item == null)
+            {
+                GetSessionsCache().TryRemove(id, out item);
+                return null;
+            }
+            else
+            { 
                 if (item.Expires < DateTime.UtcNow)
                 {
                     // Сессия найдена, но она истекла
@@ -123,10 +149,6 @@ namespace OnXap.Binding.Providers
                     return null;
                 }
                 return item;
-            }
-            else
-            {
-                return null;
             }
         }
 
