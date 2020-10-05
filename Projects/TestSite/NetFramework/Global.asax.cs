@@ -73,6 +73,8 @@ namespace OnXap.Site
                     paths.Add(Path.GetFullPath(Path.Combine(physicalApplicationPath, "../../Standard/AspNetMvc/SourceHelper/bin/ExternalSources")));
 
                 resourceManager.SourceDevelopmentPathList.AddRange(paths);
+
+                //AppCore.Get<Journaling.JournalingManager>().SetJournalOptionsDefault(new Journaling.JournalOptions() { LimitByLastNDays = 30 });
             }
             catch (Exception ex)
             {

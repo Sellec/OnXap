@@ -38,11 +38,12 @@ namespace OnXap
         /// </summary>
         /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
         /// <param name="nameJournal">См. <see cref="JournalNameDAO.Name"/>.</param>
+        /// <param name="journalOptions">Дополнительные параметры журнала.</param>
         /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="nameJournal"/> представляет пустую строку или null.</exception>
-        public static ExecutionResult<Journaling.Model.JournalInfo> RegisterJournal(this IComponentSingleton component, string nameJournal)
+        public static ExecutionResult<Journaling.Model.JournalInfo> RegisterJournal(this IComponentSingleton component, string nameJournal, JournalOptions journalOptions = null)
         {
-            return component.GetAppCore().Get<JournalingManager>().RegisterJournalTyped(component.GetType(), nameJournal);
+            return component.GetAppCore().Get<JournalingManager>().RegisterJournalTypedInternal(component.GetType(), nameJournal, journalOptions);
         }
 
         #region RegisterEvent

@@ -1,10 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OnUtils.Tasks;
+using NCrontab;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OnXap.TaskSheduling
 {
@@ -16,6 +19,12 @@ namespace OnXap.TaskSheduling
         private static TaskSchedulingManager _this;
         private ConcurrentDictionary<string, TaskDescription> _taskList = new ConcurrentDictionary<string, TaskDescription>();
         private Types.ConcurrentFlagLocker<string> _executeFlags = new Types.ConcurrentFlagLocker<string>();
+
+        private Timer _jobsTimer = null;
+        private object _jobsSyncRoot = new object();
+        private List<JobInternal> _jobsList = new List<JobInternal>();
+        private Guid _unique = Guid.NewGuid();
+        private List<Action> _delayedTaskRegistration = new List<Action>();
 
         #region Управление задачами.
         /// <summary>
@@ -192,17 +201,20 @@ namespace OnXap.TaskSheduling
 
                 if (!schedule.IsEnabled)
                 {
-                    TasksManager.RemoveTask(uniqueKey);
+                    lock (_jobsSyncRoot)
+                    {
+                        _jobsList.RemoveAll(x => x.JobName == uniqueKey);
+                    }
                     continue;
                 }
 
                 if (schedule is TaskCronSchedule taskCronSchedule)
                 {
-                    TasksManager.SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                    SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
                 else if (schedule is TaskFixedTimeSchedule taskFixedTimeSchedule)
                 {
-                    TasksManager.SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                    SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
             }
             foreach (var schedule in taskDescription.Schedules)
@@ -212,11 +224,11 @@ namespace OnXap.TaskSheduling
 
                 if (schedule is TaskCronSchedule taskCronSchedule)
                 {
-                    TasksManager.SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                    SetTask(uniqueKey, taskCronSchedule.CronExpression, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
                 else if (schedule is TaskFixedTimeSchedule taskFixedTimeSchedule)
                 {
-                    TasksManager.SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
+                    SetTask(uniqueKey, taskFixedTimeSchedule.DateTime, () => ExecuteTaskStatic(taskDescription.UniqueKey, scheduleUniqueKey));
                 }
             }
         }
@@ -328,6 +340,7 @@ namespace OnXap.TaskSheduling
         protected sealed override void OnStarted()
         {
             _this = this;
+            _jobsTimer = new Timer(new TimerCallback(state => CheckTasks()), null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
         }
 
         /// <summary>
@@ -335,6 +348,109 @@ namespace OnXap.TaskSheduling
         protected sealed override void OnStop()
         {
             if (_this == this) _this = null;
+
+            lock (_jobsSyncRoot)
+            {
+                try { _jobsList.Clear(); }
+                catch { }
+
+                try
+                {
+                    var timer = _jobsTimer;
+                    _jobsTimer = null;
+                    timer?.Change(Timeout.Infinite, Timeout.Infinite);
+                }
+                catch { }
+            }
+        }
+
+        private void CheckTasks()
+        {
+            lock (_jobsSyncRoot)
+            {
+                if (AppCore.GetState() != OnUtils.Architecture.AppCore.CoreComponentState.Started) return;
+
+                var list = _delayedTaskRegistration;
+                _delayedTaskRegistration = null;
+                list?.ForEach(x => x());
+
+                var offset = AppCore.Get<Modules.CoreModule.CoreModule>().ApplicationTimeZoneInfo.BaseUtcOffset;
+                var appTime = DateTime.UtcNow.Add(offset);
+
+                var jobsListSnapshot = _jobsList.Where(job => job.ClosestOccurrence <= appTime).ToList();
+                _jobsList.RemoveAll(job => job.CronSchedule == null && job.ClosestOccurrence <= appTime);
+                _jobsList.Where(job => job.CronSchedule != null).ForEach(job => job.ClosestOccurrence = job.CronSchedule.GetNextOccurrence(appTime));
+
+                jobsListSnapshot.ForEach(job => Task.Factory.StartNew(() => job.ExecutionDelegate()));
+            }
+        }
+
+        void SetTask(string name, string cronExpression, Expression<Action> taskDelegate)
+        {
+            lock (_jobsSyncRoot)
+            {
+                if (_jobsList.Any(x => x.JobName == name))
+                    _jobsList.RemoveAll(x => x.JobName == name);
+
+                var schedule = CrontabSchedule.Parse(cronExpression);
+                var executionDelegate = taskDelegate.Compile();
+                var baseTime = DateTime.UtcNow;
+
+                if (_delayedTaskRegistration != null)
+                {
+                    _delayedTaskRegistration.Add(() => _jobsList.Add(new JobInternal()
+                    {
+                        CronSchedule = schedule,
+                        JobName = name,
+                        ExecutionDelegate = executionDelegate,
+                        ClosestOccurrence = schedule.GetNextOccurrence(baseTime.Add(AppCore.Get<Modules.CoreModule.CoreModule>().ApplicationTimeZoneInfo.BaseUtcOffset))
+                    }));
+                }
+                else
+                {
+                    _jobsList.Add(new JobInternal()
+                    {
+                        CronSchedule = schedule,
+                        JobName = name,
+                        ExecutionDelegate = executionDelegate,
+                        ClosestOccurrence = schedule.GetNextOccurrence(baseTime.Add(AppCore.Get<Modules.CoreModule.CoreModule>().ApplicationTimeZoneInfo.BaseUtcOffset))
+                    });
+                }
+            }
+        }
+
+        void SetTask(string name, DateTimeOffset startTime, Expression<Action> taskDelegate)
+        {
+            lock (_jobsSyncRoot)
+            {
+                if (_jobsList.Any(x => x.JobName == name))
+                    _jobsList.RemoveAll(x => x.JobName == name);
+
+                if (startTime < DateTimeOffset.Now) return;
+
+                var executionDelegate = taskDelegate.Compile();
+
+                if (_delayedTaskRegistration != null)
+                {
+                    _delayedTaskRegistration.Add(() => _jobsList.Add(new JobInternal()
+                    {
+                        CronSchedule = null,
+                        JobName = name,
+                        ExecutionDelegate = executionDelegate,
+                        ClosestOccurrence = startTime.UtcDateTime.Add(AppCore.Get<Modules.CoreModule.CoreModule>().ApplicationTimeZoneInfo.BaseUtcOffset)
+                    }));
+                }
+                else
+                {
+                    _jobsList.Add(new JobInternal()
+                    {
+                        CronSchedule = null,
+                        JobName = name,
+                        ExecutionDelegate = executionDelegate,
+                        ClosestOccurrence = startTime.UtcDateTime.Add(AppCore.Get<Modules.CoreModule.CoreModule>().ApplicationTimeZoneInfo.BaseUtcOffset)
+                    });
+                }
+            }
         }
 
         private void ExecuteTask(string taskUniqueKey, string scheduleUniqueKey)

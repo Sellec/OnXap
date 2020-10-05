@@ -157,10 +157,10 @@ namespace OnXap.Binding.Providers
 
             HttpContext.Current.Response.Cookies.Remove("VerificationKey");
 
-            HttpContext.Current.Session["authorized"] = false;
             HttpContext.Current.Session["UserId"] = 0;
             HttpContext.Current.Session.Remove("Timestamp");
             HttpContext.Current.Session.Remove("VerificationKey");
+            HttpContext.Current.Session.Remove("authorized");
         }
 
     }

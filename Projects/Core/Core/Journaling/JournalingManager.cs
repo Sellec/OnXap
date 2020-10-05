@@ -10,6 +10,7 @@ namespace OnXap.Journaling
     using Core;
     using Core.Items;
     using Utils;
+    using TaskSheduling;
     using ExecutionRegisterResult = ExecutionResult<int?>;
     using ExecutionResultJournalData = ExecutionResult<Model.JournalData>;
     using ExecutionResultJournalDataList = ExecutionResult<List<Model.JournalData>>;
@@ -26,20 +27,91 @@ namespace OnXap.Journaling
         internal const int EventCodeDefault = 0;
         //Список журналов, основанных на определенном типе объектов.
         private ConcurrentDictionary<Type, ExecutionResultJournalName> _typedJournalsList = new ConcurrentDictionary<Type, ExecutionResultJournalName>();
+        private JournalOptions _journalOptionsDefault = new JournalOptions();
+        private ConcurrentDictionary<int, JournalOptions> _journalsOptions = new ConcurrentDictionary<int, JournalOptions>();
+        private TaskDescription _taskDescriptionClear = null;
 
         #region CoreComponentBase
         /// <summary>
         /// </summary>
         protected sealed override void OnStarting()
         {
+            _journalOptionsDefault = new JournalOptions();
             DatabaseAccessor = AppCore.Get<DB.JournalingManagerDatabaseAccessor>();
             RegisterJournalTyped<JournalingManager>("Менеджер журналов");
         }
 
         /// <summary>
         /// </summary>
+        protected sealed override void OnStarted()
+        {
+            _taskDescriptionClear = AppCore.Get<TaskSchedulingManager>().RegisterTask(new TaskRequest()
+            {
+                Name = "Менеджер журналов: очистка старых записей",
+                IsEnabled = true,
+                UniqueKey = typeof(JournalingManager).FullName + "_ClearLastNDays",
+                Schedules = new List<TaskSchedule>()
+                {
+                    new TaskCronSchedule(Cron.Hourly()) { IsEnabled = true }
+                },
+                ExecutionLambda = () => ClearLastNDays(),
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution
+            });
+        }
+
+        /// <summary>
+        /// </summary>
         protected sealed override void OnStop()
         {
+            _taskDescriptionClear = null;
+        }
+        #endregion
+
+        #region Обслуживание журналов
+        private void ClearLastNDays()
+        {
+            try
+            {
+                if (_taskDescriptionClear == null) return;
+
+                foreach (var pair in _journalsOptions)
+                {
+                    var lastNDaysValue = pair.Value.LimitByLastNDays ?? _journalOptionsDefault.LimitByLastNDays;
+                    if (!lastNDaysValue.HasValue || lastNDaysValue.Value < 0) continue;
+
+                    var dateLimit = DateTimeOffset.UtcNow.AddDays(-lastNDaysValue.Value);
+
+                    using (var db = new DB.DataContext())
+                    {
+                        var hasRecords = true;
+                        while (hasRecords)
+                        {
+                            for (int i = 0; i <= 2; i++)
+                            {
+                                try
+                                {
+                                    var rows = db.Journal.Where(x => x.IdJournal == pair.Key && x.DateEvent < dateLimit).OrderBy(x => x.DateEvent).Take(1000).ToList();
+                                    hasRecords = rows.Count > 0;
+                                    if (hasRecords)
+                                    {
+                                        db.Journal.RemoveRange(rows);
+                                        db.SaveChanges();
+                                    }
+                                    break;
+                                }
+                                catch
+                                {
+                                    if (i == 2) hasRecords = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RegisterEvent<JournalingManager>(EventType.Error, "Ошибка очистки старых записей журналов", null, exception: ex);
+            }
         }
         #endregion
 
@@ -50,10 +122,11 @@ namespace OnXap.Journaling
         /// <param name="idType">См. <see cref="DB.JournalNameDAO.IdJournalType"/>.</param>
         /// <param name="name">См. <see cref="DB.JournalNameDAO.Name"/>.</param>
         /// <param name="uniqueKey">См. <see cref="DB.JournalNameDAO.UniqueKey"/>.</param>
+        /// <param name="journalOptions">Дополнительные параметры журнала.</param>
         /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="name"/> представляет пустую строку или null.</exception>
         [ApiIrreversible]
-        public ExecutionResultJournalName RegisterJournal(int idType, string name, string uniqueKey = null)
+        public ExecutionResultJournalName RegisterJournal(int idType, string name, string uniqueKey = null, JournalOptions journalOptions = null)
         {
             try
             {
@@ -112,6 +185,8 @@ namespace OnXap.Journaling
                     scope.Complete();
                 }
 
+                _journalsOptions[data.IdJournal] = journalOptions ?? new JournalOptions();
+
                 var info = new Model.JournalInfo();
                 Model.JournalInfo.Fill(info, data);
                 return new ExecutionResultJournalName(true, null, info);
@@ -133,14 +208,40 @@ namespace OnXap.Journaling
         [ApiIrreversible]
         public ExecutionResultJournalName RegisterJournalTyped<TJournalTyped>(string name)
         {
-            return RegisterJournalTyped(typeof(TJournalTyped), name);
+            return RegisterJournalTypedInternal(typeof(TJournalTyped), name, null);
         }
 
-        internal ExecutionResultJournalName RegisterJournalTyped(Type typedType, string name)
+        /// <summary>
+        /// Регистрирует новый журнал или обновляет старый на основе типа <typeparamref name="TJournalTyped"/>.
+        /// </summary>
+        /// <param name="name">См. <see cref="DB.JournalNameDAO.Name"/>.</param>
+        /// <param name="journalOptions">Дополнительные параметры журнала.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="name"/> представляет пустую строку или null.</exception>
+        [ApiIrreversible]
+        public ExecutionResultJournalName RegisterJournalTyped<TJournalTyped>(string name, JournalOptions journalOptions)
+        {
+            return RegisterJournalTypedInternal(typeof(TJournalTyped), name, journalOptions);
+        }
+
+        internal ExecutionResultJournalName RegisterJournalTypedInternal(Type typedType, string name, JournalOptions journalOptions)
         {
             typedType = ManagerExtensions.GetJournalType(typedType);
             var fullName = TypeNameHelper.GetFullNameCleared(typedType);
             return RegisterJournal(JournalingConstants.IdSystemJournalType, name, JournalingConstants.TypedJournalsPrefix + fullName);
+        }
+        #endregion
+
+        #region Настройки журналов
+        /// <summary>
+        /// Устанавливает свойства всех журналов по-умолчанию, если для журналов не заданы собственные значения свойств.
+        /// </summary>
+        /// <param name="journalOptions">Параметры журналов по-умолчанию.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="journalOptions"/> равен null.</exception>
+        public void SetJournalOptionsDefault(JournalOptions journalOptions)
+        {
+            if (journalOptions == null) throw new ArgumentNullException(nameof(journalOptions));
+            _journalOptionsDefault = journalOptions;
         }
         #endregion
 

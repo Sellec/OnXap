@@ -89,6 +89,7 @@ namespace OnXap.Modules.Adminmain
                     var cfgApp = AppCore.GetModulesManager().GetModule<CoreModule>().GetConfigurationManipulator().GetEditable<CoreConfiguration>();
                     cfgApp.RoleGuest = model.AppCoreConfiguration.RoleGuest;
                     cfgApp.RoleUser = model.AppCoreConfiguration.RoleUser;
+                    cfgApp.ApplicationTimezoneId = model.AppCoreConfiguration.ApplicationTimezoneId;
 
                     var applyResult = AppCore.GetModulesManager().GetModule<CoreModule>().GetConfigurationManipulator().ApplyConfiguration(cfgApp);
                     switch (applyResult.Item1)

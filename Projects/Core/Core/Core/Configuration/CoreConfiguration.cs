@@ -22,6 +22,16 @@ namespace OnXap.Core.Configuration
         }
 
         /// <summary>
+        /// Часовой пояс, в котором работает приложение.
+        /// </summary>
+        [Display(Name = "Часовой пояс приложения")]
+        public string ApplicationTimezoneId
+        {
+            get => Get("ApplicationTimezoneId", "UTC");
+            set => Set("ApplicationTimezoneId", value);
+        }
+
+        /// <summary>
         /// Настройки компонентов сервисов обработки сообщений.
         /// </summary>
         /// <seealso cref="Messaging.Components.MessageServiceComponent{TMessage}"/>

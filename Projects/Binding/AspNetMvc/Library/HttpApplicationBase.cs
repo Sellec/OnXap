@@ -365,7 +365,6 @@ namespace OnXap
 
         internal void Application_End(Object sender, EventArgs e)
         {
-            try { OnUtils.Tasks.TasksManager.DeleteAllTasks(); } catch { }
             try { OnApplicationStopping(); } catch { }
 
             try
@@ -380,7 +379,6 @@ namespace OnXap
             }
 
             try { OnApplicationStopped(); } catch { }
-            try { OnUtils.Tasks.TasksManager.DeleteAllTasks(); } catch { }
         }
         #endregion
 

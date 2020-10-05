@@ -171,7 +171,6 @@
     <Compile Include="Modules\AdminForModules\Menu\MenuAction.cs" />
     <Compile Include="Modules\Sitemap\Design\Model\Sitemap.cs" />
     <Compile Include="Modules\Sitemap\ISitemapProvider.cs" />
-    <Compile Include="Modules\Sitemap\Services\SitemapGeneration.cs" />
     <Compile Include="Modules\Auth\ViewModels\SignIn.cs" />
     <Compile Include="Modules\Auth\ViewModels\ModuleSettings.cs" />
     <Compile Include="Modules\Auth\ViewModels\PasswordRestoreSend.cs" />

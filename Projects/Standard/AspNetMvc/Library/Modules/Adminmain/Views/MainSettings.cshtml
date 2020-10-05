@@ -16,7 +16,8 @@
         constructor(source) {
             this.AppCoreConfiguration = {
                 RoleGuest: source.App.RoleGuest,
-                RoleUser: source.App.RoleUser
+                RoleUser: source.App.RoleUser,
+                ApplicationTimezoneId: source.App.ApplicationTimezoneId
             };
             this.WebCoreConfiguration = {
                 SiteFullName: source.Web.SiteFullName,
@@ -41,6 +42,7 @@
                 App: {
                     RoleGuest: Number(source.AppCoreConfiguration.RoleGuest),
                     RoleUser: Number(source.AppCoreConfiguration.RoleUser),
+                    ApplicationTimezoneId: String(source.AppCoreConfiguration.ApplicationTimezoneId)
                 },
                 Web: {
                     SiteFullName: String(source.@Html.NameOf(x => x.WebCoreConfiguration.SiteFullName)),
@@ -61,6 +63,9 @@
 
             var modules = source.@Html.NameOf(x => x.Modules);
             this.Modules = modules ? modules.map(x => ({ Id: x.@nameof(MainSettingsModule.Id), Caption: x.@nameof(MainSettingsModule.Caption) })) : new Array();
+
+            var timezones = @TimeZoneInfo.GetSystemTimeZones().jsobject();
+            this.Timezones = timezones ? timezones.map(x => ({ Id: x.@nameof(TimeZoneInfo.Id), Caption: x.@nameof(TimeZoneInfo.DisplayName) })) : new Array();
 
             var roles = source.@Html.NameOf(x => x.Roles);
             this.Roles = roles ? roles.map(x => ({ Id: x.@nameof(Role.IdRole), Name: x.@nameof(Role.NameRole) })) : new Array();
@@ -122,6 +127,12 @@
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.IdModuleDefault):<br>
                     <pvl-dropdown v-model="Model.Web.IdModuleDefault" :options="Modules" option-label="Caption" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.IdModuleDefault)
+                </div>
+
+                <div class="block-setting">
+                    @htmlHelper.LabelFor(x => x.AppCoreConfiguration.ApplicationTimezoneId):<br>
+                    <pvl-dropdown v-model="Model.App.ApplicationTimezoneId" :options="Timezones" option-label="Caption" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.ApplicationTimezoneId)
                 </div>
 
                 <div class="block-setting">

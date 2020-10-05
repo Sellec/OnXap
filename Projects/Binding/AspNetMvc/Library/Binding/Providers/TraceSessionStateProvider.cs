@@ -87,8 +87,8 @@ namespace OnXap.Binding.Providers
         {
             if (GetSessionsCache().TryAdd(sessionItem.SessionId, sessionItem))
             {
-                _upsertQueue.TryAdd(sessionItem.SessionId, sessionItem);
-                SaveChanges();
+                //_upsertQueue.TryAdd(sessionItem.SessionId, sessionItem);
+                //SaveChanges();
             }
         }
 
@@ -363,7 +363,8 @@ namespace OnXap.Binding.Providers
                         sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
                         sessionItem.Locked = false;
                         sessionItem.DateLastChanged = DateTime.Now;
-                        TraceSessionStorage.MarkSessionUpdated(sessionItem);
+                        if (!newItem || (newItem && itemContent != null))
+                            TraceSessionStorage.MarkSessionUpdated(sessionItem);
                     }
                 }
             }
@@ -415,9 +416,13 @@ namespace OnXap.Binding.Providers
 
             lock (sessionItem.SyncRoot)
             {
-                sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
-                sessionItem.DateLastChanged = DateTime.Now;
-                TraceSessionStorage.MarkSessionUpdated(sessionItem);
+                // Обновляем время жизни только если есть данные в сессии. Пустым сессиям положено умирать.
+                if (sessionItem.ItemContent != null)
+                {
+                    sessionItem.Expires = DateTime.UtcNow.AddMinutes(_timeoutSession);
+                    sessionItem.DateLastChanged = DateTime.Now;
+                    TraceSessionStorage.MarkSessionUpdated(sessionItem);
+                }
             }
         }
 
@@ -469,6 +474,8 @@ namespace OnXap.Binding.Providers
 
         private byte[] Serialize(SessionStateItemCollection items)
         {
+            if (items.IsNullOrEmpty()) return null;
+
             var ms = new MemoryStream();
             var writer = new BinaryWriter(ms);
 

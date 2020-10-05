@@ -20,7 +20,6 @@ namespace OnXap
     {
         public OnXApplicationAspNetMvc(string physicalApplicationPath, IDbConfigurationBuilder dbConfigurationBuilder) : base(physicalApplicationPath, dbConfigurationBuilder)
         {
-            OnUtils.Tasks.TasksManager.SetDefaultService(new OnUtils.Tasks.MomentalThreading.TasksService());
         }
 
         /// <summary>

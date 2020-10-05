@@ -1,6 +1,5 @@
 ﻿using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.ObjectPool;
-using OnUtils.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +40,7 @@ namespace OnXap.Messaging
         private Types.ConcurrentFlagLocker<string> _executingFlags = new Types.ConcurrentFlagLocker<string>();
         private QueuePositionInfo _outcomingQueueInfo = new QueuePositionInfo();
         private QueuePositionInfo _incomingHandleQueueInfo = new QueuePositionInfo();
+        private TaskDescription _taskOutcomingMessages = null;
 
         private const int JournalEventBase = 10000;
 
@@ -75,7 +75,7 @@ namespace OnXap.Messaging
         /// </summary>
         protected sealed override void OnStarting()
         {
-            AppCore.Get<Journaling.JournalingManager>().RegisterJournalTyped(GetType(), ServiceName);
+            AppCore.Get<Journaling.JournalingManager>().RegisterJournalTypedInternal(GetType(), ServiceName, null);
             this.RegisterServiceState(ServiceStatus.RunningIdeal, "Сервис запущен.");
 
             var type = GetType();
@@ -101,7 +101,7 @@ namespace OnXap.Messaging
                 ExecutionLambda = () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
             });
-            taskSchedulingManager.RegisterTask(new TaskRequest()
+            _taskOutcomingMessages = taskSchedulingManager.RegisterTask(new TaskRequest()
             {
                 Name = $"Сервис '{GetType().FullName}': отправка исходящих сообщений",
                 Description = "",
@@ -130,14 +130,7 @@ namespace OnXap.Messaging
 
             var type = GetType();
 
-            TasksManager.RemoveTask(TasksOutcomingSend + "_minutely1");
-            TasksManager.RemoveTask(TasksOutcomingSend + "_immediately");
-
-            TasksManager.RemoveTask(TasksIncomingReceive + "_minutely1");
-
-            TasksManager.RemoveTask(TasksIncomingHandle + "_minutely1");
-            TasksManager.RemoveTask(TasksIncomingHandle + "_immediately");
-
+            _taskOutcomingMessages = null;
             OnServiceStop();
         }
 
@@ -190,12 +183,8 @@ namespace OnXap.Messaging
                     db.MessageQueue.Add(mess);
                     db.SaveChanges();
 
-                    //todo закомментировано до момента доработки планировщика задач, нужна возможность добавлять пункт в расписание.
-                    //if (_executingFlags.TryLock(nameof(RegisterOutcomingMessage)))
-                    //{
-                    //    var type = GetType();
-                    //    TasksManager.SetTask(TasksOutcomingSend + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)));
-                    //}
+                    var taskOutcomingMessages = _taskOutcomingMessages;
+                    if (taskOutcomingMessages != null) AppCore.Get<TaskSchedulingManager>()?.ExecuteTask(taskOutcomingMessages);
 
                     messageInfo = new MessageInfo<TMessage>(new IntermediateStateMessage<TMessage>(message, mess));
                     return true;
@@ -234,13 +223,6 @@ namespace OnXap.Messaging
 
                     db.MessageQueue.Add(mess);
                     db.SaveChanges();
-
-                    //todo закомментировано до момента доработки планировщика задач, нужна возможность добавлять пункт в расписание.
-                    //if (_executingFlags.TryLock(nameof(RegisterIncomingMessage)))
-                    //{
-                    //    var type = GetType();
-                    //    TasksManager.SetTask(TasksIncomingHandle + "_immediately", DateTime.Now.AddSeconds(5), () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)));
-                    //}
 
                     return true;
                 }

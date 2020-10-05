@@ -1,6 +1,7 @@
 @using OnXap.Modules.Admin
 @using OnXap.Modules.Adminmain
 @using OnXap.Modules.Adminmain.ViewModels
+@using OnXap.Modules.CoreModule
 @using OnXap.TaskSheduling
 @model TaskSheduling
 @{ var moduleAdmin = this.GetAppCore().Get<ModuleAdmin>(); }
@@ -9,7 +10,10 @@
 <script type="text/javascript" src="/Design/UI/jqCron/jqCron.ru.js"></script>
 <link rel="stylesheet" href="/Design/UI/jqCron/jqCron.css">
 <style>
-    .task-disabled { background-color: gray !important }
+    .task-disabled {
+        background-color: gray !important
+    }
+
     .task-actions .p-component + .p-component:before {
         margin: 0 5px 5px 0;
     }
@@ -202,7 +206,7 @@
                     component.taskDescriptionCurrent.isSaving = true;
                     component.taskDescriptionCurrent.requestId = $.requestJSON(
                         "@(Url.CreateRoute<Module, ModuleController>(x => x.TaskShedulingTaskSave(null)))",
-                        { 
+                        {
                             Id: component.taskDescriptionCurrent.data.id,
                             IsEnabled: component.taskDescriptionCurrent.data.isEnabled,
                             ManualScheduleList: component.taskDescriptionCurrent.data.manualScheduleList.map(x => new TaskScheduleSave(x))
@@ -228,6 +232,7 @@
 </script>
 
 <h2>Планировщик задач</h2>
+<h4>Расчет времени запуска задач рассчитывается, исходя из часового пояса, настроенного в приложении.<br />Текущий часовой пояс: @(this.GetAppCore().Get<CoreModule>().ApplicationTimeZoneInfo.DisplayName) </h4>
 
 <div id="js-tasksheduling">
     <pvl-tabview>
