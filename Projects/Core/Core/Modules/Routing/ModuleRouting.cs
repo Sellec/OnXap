@@ -172,7 +172,20 @@ namespace OnXap.Modules.Routing
                 }
 
                 var IdItemType = ItemTypeAttribute.GetValueFromType(type);
-                GetForQuery(IdItemType, type, items);
+
+                int start = 0;
+                List<ItemBase> subItems = null;
+
+                do
+                {
+                    subItems = items.Skip(start).Take(500).ToList();
+                    start += 500;
+                    if (subItems.Count() > 0)
+                    {
+                        GetForQuery(IdItemType, type, subItems);
+                    }
+                    else break;
+                } while (subItems.Count() > 0);
             }
         }
 
