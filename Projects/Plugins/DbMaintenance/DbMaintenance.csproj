@@ -14,7 +14,7 @@
   <Import Project="..\..\Common\Common.props" />
 
   <ItemGroup>
-    <PackageReference Include="OnUtils" Version="2.0.0" />
+    <PackageReference Include="OnUtils" Version="2.0.1" />
     <PackageReference Include="OnXap.Core" Version="2.5.29" />
   </ItemGroup>
   

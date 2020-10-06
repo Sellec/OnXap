@@ -57,10 +57,10 @@
       <Version>1.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer">
-      <Version>3.1.6</Version>
+      <Version>3.1.8</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>2.0.0</Version>
+      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations">
       <Version>4.7.0</Version>

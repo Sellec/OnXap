@@ -96,10 +96,10 @@
       <Version>3.2.7</Version>
     </PackageReference>
     <PackageReference Include="OnUtils">
-      <Version>2.0.0</Version>
+      <Version>2.0.1</Version>
     </PackageReference>
     <PackageReference Include="StrongNamer">
-      <Version>0.0.8</Version>
+      <Version>0.2.5</Version>
     </PackageReference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />

@@ -12,7 +12,7 @@ namespace ConsoleApp
         {
             void IDbConfigurationBuilder.OnConfigureEntityFrameworkCore(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=TestWeb;Integrated Security=true;");
+             //   optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=TestWeb;Integrated Security=true;");
             }
 
             bool IDbConfigurationBuilder.OnConfigureFluentMigrator(IMigrationRunnerBuilder runnerBuilder)

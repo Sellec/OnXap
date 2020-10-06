@@ -14,8 +14,8 @@
   <Import Project="..\..\Common\Common.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
-    <PackageReference Include="OnUtils" Version="2.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.8" />
+    <PackageReference Include="OnUtils" Version="2.0.1" />
     <PackageReference Include="OnXap.Core" Version="2.5.29" />
   </ItemGroup>
 
