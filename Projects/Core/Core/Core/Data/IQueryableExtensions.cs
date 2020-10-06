@@ -7,10 +7,12 @@ using System.Reflection;
 
 namespace System.Linq
 {
+    /// <summary>
+    /// </summary>
     public static class IQueryableExtensions
     {
         /// <summary>
-        /// Generates debug view of query.
+        /// Генерирует текст sql-запроса.
         /// </summary>
         public static string ToSql<TEntity>(this IQueryable<TEntity> query) where TEntity : class
         {
@@ -19,7 +21,7 @@ namespace System.Linq
         }
 
         /// <summary>
-        /// Generates debug view of query.
+        /// Генерирует текст sql-запроса.
         /// </summary>
         public static (string, IEnumerable<SqlParameter>) ToParametrizedSql<TEntity>(this IQueryable<TEntity> query) where TEntity : class
         {
