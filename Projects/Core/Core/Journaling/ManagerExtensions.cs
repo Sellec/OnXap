@@ -144,6 +144,20 @@ namespace OnXap
         /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
         /// <param name="relatedItem">См. <see cref="JournalDAO.ItemLinkId"/>.</param>
         /// <param name="eventType">См. <see cref="JournalDAO.EventType"/>.</param>
+        /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
+        /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
+        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null)
+        {
+            return ManagerExtensions.RegisterEventForItem(component, relatedItem, eventType, 0, eventInfo, eventInfoDetailed, null);
+        }
+
+        /// <summary>
+        /// Регистрирует новое событие в журнале на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <param name="relatedItem">См. <see cref="JournalDAO.ItemLinkId"/>.</param>
+        /// <param name="eventType">См. <see cref="JournalDAO.EventType"/>.</param>
         /// <param name="eventCode">См. <see cref="JournalDAO.EventCode"/>.</param>
         /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
@@ -151,6 +165,20 @@ namespace OnXap
         public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, relatedItem, eventType, eventCode, eventInfo, eventInfoDetailed, null);
+        }
+
+        /// <summary>
+        /// Регистрирует новое событие в журнале на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <param name="itemKey">См. <see cref="JournalDAO.ItemLinkId"/>.</param>
+        /// <param name="eventType">См. <see cref="JournalDAO.EventType"/>.</param>
+        /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
+        /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
+        /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
+        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, string eventInfo, string eventInfoDetailed = null)
+        {
+            return ManagerExtensions.RegisterEventForItem(component, itemKey, eventType, 0, eventInfo, eventInfoDetailed, null);
         }
 
         /// <summary>

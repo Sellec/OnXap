@@ -487,12 +487,15 @@ namespace OnXap.TaskSheduling
 
             try
             {
-                this.RegisterEvent(Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
+                var idItemType = Core.Items.ItemTypeFactory.GetItemType<Db.Task>().IdItemType;
+                var itemKey = new Core.Items.ItemKey(idItemType, taskDescription.Id);
+
+                this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
                 var timeStart = DateTime.Now;
 
                 taskDescription.ExecutionLambda.Compile().Invoke();
 
-                this.RegisterEvent(Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
+                this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
             }
             catch (Exception ex)
             {
@@ -514,10 +517,10 @@ namespace OnXap.TaskSheduling
         /// </summary>
         /// <param name="taskDescription">Запускаемая задача.</param>
         /// <return>Возвращает объект <see cref="System.Threading.Tasks.Task"/>.</return>
-        public System.Threading.Tasks.Task ExecuteTask(TaskDescription taskDescription)
+        public Task ExecuteTask(TaskDescription taskDescription)
         {
             if (!_taskList.Any(x => x.Value == taskDescription)) throw new InvalidOperationException("Задача не зарегистрирована.");
-            return System.Threading.Tasks.Task.Factory.StartNew(() => ExecuteTaskInternal(taskDescription));
+            return Task.Factory.StartNew(() => ExecuteTaskInternal(taskDescription));
         }
         #endregion
     }
