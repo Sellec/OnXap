@@ -139,6 +139,7 @@ namespace OnXap.Core.Modules
             if (exception is ErrorCodeException exc) code = (int)exc.Code;
 
             Response.StatusCode = code;
+            Response.TrySkipIisCustomErrors = true;
 
             if (Types.RequestAnswerType.GetAnswerType() == Types.RequestAnswerType.Types.Json)
             {
