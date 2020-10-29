@@ -15,6 +15,7 @@ namespace OnXap.Journaling
     using ExecutionResultJournalData = ExecutionResult<Model.JournalData>;
     using ExecutionResultJournalDataList = ExecutionResult<List<Model.JournalData>>;
     using ExecutionResultJournalName = ExecutionResult<Model.JournalInfo>;
+    using ExecutionResultJournalOptions = ExecutionResult<JournalOptions>;
 
     /// <summary>
     /// Представляет менеджер системных журналов. Позволяет создавать журналы, как привязанные к определенным типам, так и вручную, и регистрировать в них события.
@@ -233,6 +234,7 @@ namespace OnXap.Journaling
         #endregion
 
         #region Настройки журналов
+        #region Установка настроек
         /// <summary>
         /// Устанавливает свойства всех журналов по-умолчанию, если для журналов не заданы собственные значения свойств.
         /// </summary>
@@ -243,6 +245,133 @@ namespace OnXap.Journaling
             if (journalOptions == null) throw new ArgumentNullException(nameof(journalOptions));
             _journalOptionsDefault = journalOptions;
         }
+
+        /// <summary>
+        /// Устанавливает свойства журнала.
+        /// </summary>
+        /// <param name="idJournal">Идентификатор журнала. См. <see cref="GetJournal(int)"/>.</param>
+        /// <param name="journalOptions">Параметры журнала.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="journalOptions"/> равен null.</exception>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResult SetJournalOptions(int idJournal, JournalOptions journalOptions)
+        {
+            var journalResult = GetJournal(idJournal);
+            if (!journalResult.IsSuccess) return new ExecutionResult(false, journalResult.Message);
+            return SetJournalOptionsInternal(journalResult.Result.IdJournal, journalOptions);
+        }
+
+        /// <summary>
+        /// Устанавливает свойства журнала.
+        /// </summary>
+        /// <param name="uniqueKey">Уникальный ключ журнала. См. <see cref="GetJournal(string)"/>.</param>
+        /// <param name="journalOptions">Параметры журнала.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="journalOptions"/> равен null.</exception>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResult SetJournalOptions(string uniqueKey, JournalOptions journalOptions)
+        {
+            var journalResult = GetJournal(uniqueKey);
+            if (!journalResult.IsSuccess) return new ExecutionResult(false, journalResult.Message);
+            return SetJournalOptionsInternal(journalResult.Result.IdJournal, journalOptions);
+        }
+
+        /// <summary>
+        /// Устанавливает свойства журнала.
+        /// </summary>
+        /// <typeparam name="TJournalTyped">Тип для определения журнала. См. <see cref="GetJournalTyped{TJournalTyped}"/>.</typeparam>
+        /// <param name="journalOptions">Параметры журнала.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="journalOptions"/> равен null.</exception>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResult SetJournalOptions<TJournalTyped>(JournalOptions journalOptions)
+        {
+            var journalResult = GetJournalTyped<TJournalTyped>();
+            if (!journalResult.IsSuccess) return new ExecutionResult(false, journalResult.Message);
+            return SetJournalOptionsInternal(journalResult.Result.IdJournal, journalOptions);
+        }
+
+        /// <summary>
+        /// Устанавливает свойства журнала.
+        /// </summary>
+        /// <param name="journalType">Тип для определения журнала. См. <see cref="GetJournalTyped(Type)"/>.</param>
+        /// <param name="journalOptions">Параметры журнала.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="journalOptions"/> равен null.</exception>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResult SetJournalOptions(Type journalType, JournalOptions journalOptions)
+        {
+            var journalResult = GetJournalTyped(journalType);
+            if (!journalResult.IsSuccess) return new ExecutionResult(false, journalResult.Message);
+            return SetJournalOptionsInternal(journalResult.Result.IdJournal, journalOptions);
+        }
+
+        internal ExecutionResult SetJournalOptionsInternal(int idJournal, JournalOptions journalOptions)
+        {
+            if (journalOptions == null) throw new ArgumentNullException(nameof(journalOptions));
+            _journalsOptions[idJournal] = journalOptions;
+            return new ExecutionResult(true);
+        }
+        #endregion
+
+        #region Получение настроек
+        /// <summary>
+        /// Возвращает свойства всех журналов по-умолчанию.
+        /// </summary>
+        public JournalOptions GetJournalOptionsDefault()
+        {
+            return _journalOptionsDefault ?? new JournalOptions();
+        }
+
+        /// <summary>
+        /// Возвращает свойства журнала.
+        /// </summary>
+        /// <param name="idJournal">Идентификатор журнала. См. <see cref="GetJournal(int)"/>.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultJournalOptions GetJournalOptions(int idJournal)
+        {
+            var journalResult = GetJournal(idJournal);
+            if (!journalResult.IsSuccess) return new ExecutionResultJournalOptions(false, journalResult.Message);
+            return GetJournalOptionsInternal(journalResult.Result.IdJournal);
+        }
+
+        /// <summary>
+        /// Возвращает свойства журнала.
+        /// </summary>
+        /// <param name="uniqueKey">Уникальный ключ журнала. См. <see cref="GetJournal(string)"/>.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultJournalOptions GetJournalOptions(string uniqueKey)
+        {
+            var journalResult = GetJournal(uniqueKey);
+            if (!journalResult.IsSuccess) return new ExecutionResultJournalOptions(false, journalResult.Message);
+            return GetJournalOptionsInternal(journalResult.Result.IdJournal);
+        }
+
+        /// <summary>
+        /// Возвращает свойства журнала.
+        /// </summary>
+        /// <typeparam name="TJournalTyped">Тип для определения журнала. См. <see cref="GetJournalTyped{TJournalTyped}"/>.</typeparam>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultJournalOptions GetJournalOptions<TJournalTyped>()
+        {
+            var journalResult = GetJournalTyped<TJournalTyped>();
+            if (!journalResult.IsSuccess) return new ExecutionResultJournalOptions(false, journalResult.Message);
+            return GetJournalOptionsInternal(journalResult.Result.IdJournal);
+        }
+
+        /// <summary>
+        /// Возвращает свойства журнала.
+        /// </summary>
+        /// <param name="journalType">Тип для определения журнала. См. <see cref="GetJournalTyped(Type)"/>.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultJournalOptions GetJournalOptions(Type journalType)
+        {
+            var journalResult = GetJournalTyped(journalType);
+            if (!journalResult.IsSuccess) return new ExecutionResultJournalOptions(false, journalResult.Message);
+            return GetJournalOptionsInternal(journalResult.Result.IdJournal);
+        }
+
+        internal ExecutionResultJournalOptions GetJournalOptionsInternal(int idJournal)
+        {
+            return new ExecutionResultJournalOptions(true, null, _journalsOptions.TryGetValue(idJournal, out var journalOptions) ? journalOptions : new JournalOptions());
+        }
+        #endregion
         #endregion
 
         #region Получить журналы

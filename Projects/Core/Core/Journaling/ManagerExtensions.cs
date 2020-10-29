@@ -9,6 +9,7 @@ namespace OnXap
     using Journaling;
     using Journaling.DB;
     using ExecutionResultJournalName = ExecutionResult<Journaling.DB.JournalNameDAO>;
+    using ExecutionResultJournalOptions = ExecutionResult<Journaling.JournalOptions>;
 
     /// <summary>
     /// Методы расширений для <see cref="JournalingManager"/>.
@@ -26,7 +27,7 @@ namespace OnXap
         /// <summary>
         /// Возвращает журнал на основе компонента <paramref name="component"/>.
         /// </summary>
-        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого необходимо получить журнал.</param>
         /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
         public static ExecutionResult<Journaling.Model.JournalInfo> GetJournal(this IComponentSingleton component)
         {
@@ -34,9 +35,30 @@ namespace OnXap
         }
 
         /// <summary>
-        /// Регистрирует новый журнал или обновляет старый на основе компонента <paramref name="component"/>.
+        /// Устанавливает свойства журнала на основе компонента <paramref name="component"/>.
         /// </summary>
         /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <param name="journalOptions">Параметры журнала.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public static ExecutionResult SetJournalOptions(this IComponentSingleton component, JournalOptions journalOptions)
+        {
+            return component.GetAppCore().Get<JournalingManager>().SetJournalOptions(component.GetType(), journalOptions);
+        }
+
+        /// <summary>
+        /// Возвращает свойства журнала на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется событие.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public static ExecutionResultJournalOptions GetJournalOptions(this IComponentSingleton component)
+        {
+            return component.GetAppCore().Get<JournalingManager>().GetJournalOptions(component.GetType());
+        }
+
+        /// <summary>
+        /// Регистрирует новый журнал или обновляет старый на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется журнал.</param>
         /// <param name="nameJournal">См. <see cref="JournalNameDAO.Name"/>.</param>
         /// <param name="journalOptions">Дополнительные параметры журнала.</param>
         /// <returns>Возвращает объект <see cref="ExecutionResultJournalName"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
