@@ -86,23 +86,31 @@
     <div class="wrapper">
         <!-- (main-header) -->
         <div class="main-header">
-            <img src="~/Data/img/logo/logo-rounded.png" class="main-header-logo p-menubar" />
+            @RenderSection("MainHeaderLogo", false)
+            @if (!IsSectionDefined("MainHeaderLogo"))
+            {
+                <a href="/"><img src="~/Data/img/logo/logo-rounded.png" class="main-header-logo p-menubar" /></a>
+            }
+            <!-- (breadcrumbs) -->
             <div>
                 <div id="js-main-header"
-                     data-user-signin-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>())"
-                     data-user-signout-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.SignOut()))"
-                     data-user-profile-url="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())"
-                     data-user-image-template-url="@(Url.CreateRoute<FileManager, FileManagerController>(x => x.FileImageCrop(1234567890, 100, 100)))"
-                     data-controlpanel-url="@(Url.CreateRoute<ModuleAdmin, ModuleAdminController>())">
+                        data-user-signin-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>())"
+                        data-user-signout-url="@(Url.CreateRoute<ModuleAuth, ModuleAuthController>(x => x.SignOut()))"
+                        data-user-profile-url="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())"
+                        data-user-image-template-url="@(Url.CreateRoute<FileManager, FileManagerController>(x => x.FileImageCrop(1234567890, 100, 100)))"
+                        data-controlpanel-url="@(Url.CreateRoute<ModuleAdmin, ModuleAdminController>())">
                     <pvl-menubar>
+                        <template #start>
+                            @RenderSection("MainHeaderStart", false)
+                        </template>
                         <template #end>
+                            @RenderSection("MainHeaderEnd", false)
                             <pvl-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pvl-button>
                             <img :src="userImageUrl" v-show="user.logged" class="user-image-header p-button" @@click="OnToggleUserMenu" />
                             <pvl-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
                         </template>
                     </pvl-menubar>
                 </div>
-                <!-- (breadcrumbs) -->
                 @RenderSection("breadcrumbs", false)
                 @if (!IsSectionDefined("breadcrumbs"))
                 {
@@ -128,12 +136,8 @@
     <!-- (popup-dialog) -->
     <div class="none">
         <div class="popup popup-dialog" id="popup-dialog">
-            <div class="popup__content">
-
-            </div>
-            <div class="popup__buttons">
-
-            </div>
+            <div class="popup__content"></div>
+            <div class="popup__buttons"></div>
         </div>
     </div>
     <!-- End (popup-dialog) -->
