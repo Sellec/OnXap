@@ -338,7 +338,7 @@ namespace OnXap.Modules.Customer
                         var errors = new List<string>();
 
                         if (ModelState.ContainsKeyCorrect("User.email")) data.email = model.User.email?.ToLower();
-                        if (ModelState.ContainsKeyCorrect("User.phone")) data.phone = UsersExtensions.preparePhone(model.User.phone);
+                        if (ModelState.ContainsKeyCorrect("User.phone")) data.phone = model.User.phone;
 
                         if (ModelState.ContainsKeyCorrect("User.name")) data.name = model.User.name;
                         if (Request.Form.HasKey("login") && !string.IsNullOrEmpty(Request.Form["login"]))

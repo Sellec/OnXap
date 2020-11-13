@@ -23,15 +23,20 @@
 
         $('form#form_ae').requestJSON({
             before: function () {
-                stAnim($("#action_result"));
+                stAnim($("#js_action_result_user"));
+                $("#js_action_result_user").css("background-color", "");
                 return true;
             },
             after: function(result, message, id){
                 if (id > 0 && id != @Model.User.IdUser) window.location = "/admin/mnadmin/@this.GetModule().UrlName/userEdit/" + id;
-                $("#action_result").html(message);
-                endAnim($("#action_result"));
-
-                if (result == JsonResult.OK) $('form#form_ae').attr('action', '/admin/madmin/@this.GetModule().UrlName/usersSave/' + id);
+                if (message.length > 0) $("#js_action_result_user").html(message);
+                endAnim($("#js_action_result_user"));
+                if (result == JsonResult.OK) {
+                    $('form#form_ae').attr('action', '/admin/madmin/@this.GetModule().UrlName/usersSave/' + id);
+                }
+                else {
+                    $("#js_action_result_user").css("background-color", "red");
+                }
             }
         });
 
@@ -171,7 +176,7 @@ else
                 </table>
 
                 <br>
-                <div id='action_result' style="padding:0 0 10px 10px;font-size:14px;"></div>
+                <div id='js_action_result_user' style="padding:0 0 10px 10px;font-size:14px;display:none;"></div>
 
                 <div style="width:750px">
                     @if (Model.User.IdUser > 0)
