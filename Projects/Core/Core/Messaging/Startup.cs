@@ -1,13 +1,10 @@
-﻿using OnUtils.Architecture.AppCore;
-using OnUtils.Architecture.AppCore.DI;
-
-namespace OnXap.Messaging
+﻿namespace OnXap.Messaging
 {
     using Subscriptions;
 
-    class Startup : IConfigureBindings
+    class Startup : StartupBase
     {
-        void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
+        protected override void ConfigureBindings(BindingsCollection bindingsCollection)
         {
             bindingsCollection.SetSingleton<ISubscriptionsManager, SubscriptionsManager>();
             bindingsCollection.SetTransient<DbSchema.MessageSubscriptionRole>();

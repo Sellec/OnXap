@@ -1,12 +1,8 @@
-﻿using OnUtils.Architecture.AppCore;
-
-namespace OnXap.Modules.Customer
+﻿namespace OnXap.Modules.Customer
 {
-    using Core.Db;
-
-    class Startup : IExecuteStart
+    class Startup : StartupBase
     {
-        void IExecuteStart<OnXApplication>.ExecuteStart(OnXApplication core)
+        protected override void ExecuteStart(OnXApplication core)
         {
         }
     }

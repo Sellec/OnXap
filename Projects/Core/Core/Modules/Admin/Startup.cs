@@ -1,11 +1,8 @@
-﻿using OnUtils.Architecture.AppCore;
-using OnUtils.Architecture.AppCore.DI;
-
-namespace OnXap.Modules.Admin
+﻿namespace OnXap.Modules.Admin
 {
-    class Startup : IConfigureBindings
+    class Startup : StartupBase
     {
-        void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
+        protected override void ConfigureBindings(BindingsCollection bindingsCollection)
         {
             bindingsCollection.SetSingleton<ModuleAdmin>();
         }
