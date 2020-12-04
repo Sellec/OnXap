@@ -131,7 +131,7 @@ namespace OnXap.Core.Modules
         /// </summary>
         /// <param name="exception">Возникшее исключение.</param>
         /// <returns></returns>
-        protected virtual ActionResult ErrorHandled(Exception exception)
+        public virtual ActionResult ErrorHandled(Exception exception)
         {
             var exceptionType = exception.GetType();
 

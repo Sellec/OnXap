@@ -71,7 +71,7 @@ namespace OnXap.Modules.Universal.Pagination
             }
 
             var data_items = ViewPrepareItems(query, out PagedView pages, out InfoCount infoCount, listViewOptions, IdPage ?? 0);
-            if (!pages.PageFound) throw new ErrorCodeException(HttpStatusCode.NotFound, "Нет такой страницы.");
+            if (!pages.PageFound) return Controller.ErrorHandled(new ErrorCodeException(HttpStatusCode.NotFound, "Нет такой страницы."));
 
             return ExecuteView(model, data_items, listViewOptions, pages, infoCount);
         }

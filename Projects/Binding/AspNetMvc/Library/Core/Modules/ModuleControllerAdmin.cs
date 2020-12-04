@@ -132,7 +132,7 @@ namespace OnXap.Core.Modules
 
         /// <summary>
         /// </summary>
-        protected sealed override ActionResult ErrorHandled(Exception exception)
+        public sealed override ActionResult ErrorHandled(Exception exception)
         {
             return base.ErrorHandled(exception);
         }

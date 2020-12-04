@@ -52,6 +52,32 @@ namespace OnXap.Binding.Providers
 
             IModuleCore module = null;
 
+            var lambda = new Func<Exception, IController>(ex =>
+            {
+                try
+                {
+                    if (module == null)
+                    {
+                        var moduleTmp = new ModuleInternalErrors();
+                        ((IComponentStartable)moduleTmp).Start(AppCore);
+                        module = moduleTmp;
+                    }
+
+                    var type = typeof(ModuleControllerInternalErrors<>).MakeGenericType(module.QueryType);
+                    var controller = CreateController(module, type, requestContext.RouteData.Values);
+                    (controller as IModuleControllerInternalErrors).SetException(ex);
+                    // todo (controller as Modules.ModuleController).IsAdminController = isErrorAdmin;
+
+                    HttpContext.Current.Items["RequestContextController"] = controller;
+                    return controller;
+                }
+                catch (Exception ex2)
+                {
+                    Debug.WriteLine("Throw: {0}", ex2.ToString());
+                    throw ex;
+                }
+            });
+
             try
             {
                 /*
@@ -79,7 +105,7 @@ namespace OnXap.Binding.Providers
                 if (moduleName == _routingModuleNotFound.ToString())
                 {
                     var error = requestContext.HttpContext.Items[_routingModuleNotFound.ToString() + "_RoutingError"] as string;
-                    throw new ErrorCodeException(HttpStatusCode.NotFound, error);
+                    return lambda(new ErrorCodeException(HttpStatusCode.NotFound, error));
                 }
                 else
                 {
@@ -93,7 +119,7 @@ namespace OnXap.Binding.Providers
                     else
                         module = (IModuleCore)AppCore.GetModulesManager().GetModule(moduleName);
 
-                    if (module == null) throw new ErrorCodeException(HttpStatusCode.NotFound, $"Адрес '{moduleName}' не найден.");
+                    if (module == null) return lambda(new ErrorCodeException(HttpStatusCode.NotFound, $"Адрес '{moduleName}' не найден."));
                 }
 
                 /*
@@ -118,28 +144,7 @@ namespace OnXap.Binding.Providers
             }
             catch (Exception ex)
             {
-                try
-                {
-                    if (module == null)
-                    {
-                        var moduleTmp = new ModuleInternalErrors();
-                        ((IComponentStartable)moduleTmp).Start(AppCore);
-                        module = moduleTmp;
-                    }
-
-                    var type = typeof(ModuleControllerInternalErrors<>).MakeGenericType(module.QueryType);
-                    var controller = CreateController(module, type, requestContext.RouteData.Values);
-                    (controller as IModuleControllerInternalErrors).SetException(ex);
-                    // todo (controller as Modules.ModuleController).IsAdminController = isErrorAdmin;
-
-                    HttpContext.Current.Items["RequestContextController"] = controller;
-                    return controller;
-                }
-                catch (Exception ex2)
-                {
-                    Debug.WriteLine("Throw: {0}", ex2.ToString());
-                    throw ex;
-                }
+                return lambda(ex);
             }
         }
 

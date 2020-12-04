@@ -24,7 +24,7 @@ namespace OnXap.Core.Modules.Internal
             return base.ErrorHandled(_ex);
         }
 
-        protected override ActionResult ErrorHandled(Exception exception)
+        public override ActionResult ErrorHandled(Exception exception)
         {
             return base.ErrorHandled(_ex);
         }

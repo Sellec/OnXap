@@ -127,9 +127,9 @@ namespace OnXap.Modules.Register
         {
             //todo перенести из php.
 
-            if (idUser <= 0) throw new ErrorCodeException(HttpStatusCode.BadRequest, "Неправильно указан пользователь.");
-            if (string.IsNullOrEmpty(confirmationCode)) throw new ErrorCodeException(HttpStatusCode.BadRequest, "Не указан код подтверждения.");
-            if (confirmationCode.Length >= 60) throw new ErrorCodeException(HttpStatusCode.BadRequest, "Некорректный код подтверждения.");
+            if (idUser <= 0) return ErrorHandled(new ErrorCodeException(HttpStatusCode.BadRequest, "Неправильно указан пользователь."));
+            if (string.IsNullOrEmpty(confirmationCode)) return ErrorHandled(new ErrorCodeException(HttpStatusCode.BadRequest, "Не указан код подтверждения."));
+            if (confirmationCode.Length >= 60) return ErrorHandled(new ErrorCodeException(HttpStatusCode.BadRequest, "Некорректный код подтверждения."));
 
             try
             {
@@ -173,7 +173,7 @@ namespace OnXap.Modules.Register
             catch (Exception ex)
             {
                 this.RegisterEventWithCode(HttpStatusCode.InternalServerError, "Неизвестная ошибка при активации пользователя.", null, ex);
-                throw;
+                return ErrorHandled(ex);
             }
         }
     }
