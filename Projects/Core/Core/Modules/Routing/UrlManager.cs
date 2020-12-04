@@ -257,9 +257,10 @@ namespace OnXap.Modules.Routing
                     else
                         db.Routing.RemoveRange(db.Routing.Where(x => x.IdItem == idItem && x.IdItemType == idItemType && x.Action == action && x.UniqueKey == uniqueKey));
 
+                    db.SaveChanges();
                     scope.Complete();
                 }
-
+                 
                 return new ExecutionResult(true);
             }
             catch (Exception ex)
