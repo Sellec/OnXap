@@ -88,7 +88,7 @@ namespace OnXap
     /// <summary>
     /// Базовый класс для регистрации привязок типов и выполнения операций во время запуска приложения.
     /// </summary>
-    abstract class StartupBase : IConfigureBindings, IConfigureBindingsLazy, IExecuteStart, IExecuteStartLazy
+    public abstract class StartupBase : IConfigureBindings, IConfigureBindingsLazy, IExecuteStart, IExecuteStartLazy
     {
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {

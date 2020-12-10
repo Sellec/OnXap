@@ -1,6 +1,7 @@
 ﻿using OnUtils;
 using OnUtils.Architecture.AppCore;
 using System;
+using System.Collections.Generic;
 
 namespace OnXap
 {
@@ -8,6 +9,7 @@ namespace OnXap
     using Core.Items;
     using Journaling;
     using Journaling.DB;
+    using ExecutionResultJournalDataList = ExecutionResult<List<Journaling.Model.JournalData>>;
     using ExecutionResultJournalName = ExecutionResult<Journaling.DB.JournalNameDAO>;
     using ExecutionResultJournalOptions = ExecutionResult<Journaling.JournalOptions>;
 
@@ -283,6 +285,32 @@ namespace OnXap
         {
             return component.GetAppCore().Get<JournalingManager>().RegisterEventForItem(component.GetType(), itemKey, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
+        #endregion
+
+        #region GetJournalData
+        /// <summary>
+        /// Возвращает события на основании параметров поиска, указанных в <paramref name="dataFilterOptions"/> в журнале на основе компонента <paramref name="component"/>.
+        /// </summary>
+        /// <param name="component">Компонент приложения (см. <see cref="IComponentSingleton{TAppCore}"/>) для которого регистрируется журнал.</param>
+        /// <param name="dataFilterOptions">Параметры поиска записей.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalDataList"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        /// <remarks>Любое значение, указанное в <see cref="DataFilterOptions.IdJournal"/>/<see cref="DataFilterOptions.JournalComponentType"/>, будет игнорироваться.</remarks>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="dataFilterOptions"/> равен null.</exception>
+        public static ExecutionResultJournalDataList GetJournalData(this IComponentSingleton component, DataFilterOptions dataFilterOptions)
+        {
+            if (dataFilterOptions != null)
+                dataFilterOptions = new DataFilterOptions()
+                {
+                    IdJournal = null,
+                    JournalComponentType = component.GetType(),
+                    EventCode = dataFilterOptions.EventCode,
+                    DateMin = dataFilterOptions.DateMin,
+                    DateMax = dataFilterOptions.DateMax,
+                    Limit = dataFilterOptions.Limit
+                };
+            return component.GetAppCore().Get<JournalingManager>().GetJournalData(dataFilterOptions);
+        }
+
         #endregion
     }
 }

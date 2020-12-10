@@ -530,6 +530,49 @@ namespace OnXap.Journaling
                 return new ExecutionResultJournalData(false, $"Возникла ошибка во время получения события. Смотрите информацию в системном текстовом журнале.");
             }
         }
+
+        /// <summary>
+        /// Возвращает события на основании параметров поиска, указанных в <paramref name="dataFilterOptions"/>.
+        /// </summary>
+        /// <param name="dataFilterOptions">Параметры поиска записей.</param>
+        /// <returns>Возвращает объект <see cref="ExecutionResultJournalDataList"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="dataFilterOptions"/> равен null.</exception>
+        [ApiIrreversible]
+        public ExecutionResultJournalDataList GetJournalData(DataFilterOptions dataFilterOptions)
+        {
+            if (dataFilterOptions == null) throw new ArgumentNullException(nameof(dataFilterOptions));
+
+            int? idJournal = dataFilterOptions.IdJournal;
+            if (dataFilterOptions.JournalComponentType != null)
+            {
+                var journalResult = GetJournalTyped(dataFilterOptions.JournalComponentType);
+                if (!journalResult.IsSuccess) return new ExecutionResultJournalDataList(false, journalResult.Message);
+            }
+
+            try
+            {
+                using (var db = new DB.DataContext())
+                using (var scope = db.CreateScope(TransactionScopeOption.Suppress))
+                {
+                    var query = DatabaseAccessor.CreateQueryJournalData(db);
+                    if (idJournal.HasValue) query = query.Where(x => x.JournalName.IdJournal == idJournal);
+                    if (dataFilterOptions.EventCode.HasValue) query = query.Where(x => x.JournalData.EventCode == dataFilterOptions.EventCode.Value);
+                    if (dataFilterOptions.DateMin.HasValue) query = query.Where(x => x.JournalData.DateEvent >= dataFilterOptions.DateMin.Value);
+                    if (dataFilterOptions.DateMax.HasValue) query = query.Where(x => x.JournalData.DateEvent <= dataFilterOptions.DateMax.Value);
+                    if (dataFilterOptions.Limit.HasValue) query = query.Take(dataFilterOptions.Limit.Value);
+                    var queryFinal = query.OrderByDescending(x => x.JournalData.DateEvent);
+                    var data = DatabaseAccessor.FetchQueryJournalData(queryFinal);
+
+                    return new ExecutionResultJournalDataList(true, null, data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"{typeof(JournalingManager).FullName}.{nameof(JournalingManager.GetJournalData)}: {ex.ToString()}");
+                return new ExecutionResultJournalDataList(false, $"Возникла ошибка во время получения событий. Смотрите информацию в системном текстовом журнале.");
+            }
+        }
+
         #endregion
 
         #region Записать в журнал
