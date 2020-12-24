@@ -76,7 +76,7 @@ namespace OnXap.Modules.Sitemap
 
                 var code = WebUtils.RazorRenderHelper.RenderView(module, "SitemapXml.cshtml", linksAll);
 
-                var path = System.IO.Path.Combine(OnUtils.LibraryEnumeratorFactory.LibraryDirectory, "sitemap.xml");
+                var path = System.IO.Path.Combine(OnUtils.LibraryEnumeratorFactory.LibraryDirectory, "data/sitemap.xml");
                 System.IO.File.WriteAllText(path, code);
             }
             catch(Exception ex)
