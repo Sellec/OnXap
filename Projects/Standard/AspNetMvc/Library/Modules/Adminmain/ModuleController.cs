@@ -14,10 +14,10 @@ namespace OnXap.Modules.Adminmain
     using Core.Modules;
     using Journaling;
     using Modules.CoreModule;
+    using OnXap.TaskSheduling;
     using Routing.Db;
     using WebCoreModule;
     using JournalingDB = Journaling.DB;
-    using OnXap.TaskSheduling;
 
     /// <summary>
     /// Представляет контроллер для панели управления.
@@ -101,7 +101,7 @@ namespace OnXap.Modules.Adminmain
 
                         case ApplyConfigurationResult.Failed:
                             var journalData = AppCore.Get<JournalingManager>().GetJournalData(applyResult.Item2.Value);
-                            result.Message = $"Возникла ошибка при сохранении настроек: {(journalData?.Message ?? "текст ошибки не найден")}.";
+                            result.Message = $"Возникла ошибка при сохранении настроек: {(journalData.Message ?? "текст ошибки не найден")}.";
                             result.Success = false;
                             break;
 
@@ -141,7 +141,7 @@ namespace OnXap.Modules.Adminmain
 
                             case ApplyConfigurationResult.Failed:
                                 var journalData = AppCore.Get<JournalingManager>().GetJournalData(applyResult.Item2.Value);
-                                result.Message = $"Возникла ошибка при сохранении настроек: {(journalData?.Message ?? "текст ошибки не найден")}.";
+                                result.Message = $"Возникла ошибка при сохранении настроек: {(journalData.Message ?? "текст ошибки не найден")}.";
                                 result.Success = false;
                                 break;
 

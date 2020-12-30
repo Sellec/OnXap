@@ -7,7 +7,7 @@
     <RootNamespace>OnXap</RootNamespace>
     <IncludeSymbols>True</IncludeSymbols>
     <IncludeSource>True</IncludeSource>
-    <Version>2.5.40</Version>
+    <Version>2.6.1</Version>
     <NoDefaultExcludes>true</NoDefaultExcludes>
     <Description>Ядро веб-движка для работы с ASP.NET MVC.</Description>
     <PackageId>OnXap.Binding.AspNetMvc</PackageId>

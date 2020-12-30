@@ -1,18 +1,28 @@
-﻿using OnUtils;
-
-namespace OnXap.Users
+﻿namespace OnXap.Users
 {
     /// <summary>
     /// Представляет результат выполнения операции проверки реквизитов или авторизации.
     /// </summary>
-    public class ExecutionAuthResult : ExecutionResult
+    public struct ExecutionAuthResult
     {
         /// <summary>
         /// </summary>
-        public ExecutionAuthResult(eAuthResult authResult, string message = null) : base(authResult == eAuthResult.Success, message)
+        public ExecutionAuthResult(eAuthResult authResult, string message = null)
         {
+            IsSuccess = authResult == eAuthResult.Success;
+            Message = message;
             AuthResult = authResult;
         }
+
+        /// <summary>
+        /// Признак успешности выполнения.
+        /// </summary>
+        public bool IsSuccess { get; }
+
+        /// <summary>
+        /// Текстовое сообщение об ошибке или об успехе. Может быть пустым.
+        /// </summary>
+        public string Message { get; }
 
         /// <summary>
         /// Дополнительная информация о результате выполнения.
@@ -20,22 +30,4 @@ namespace OnXap.Users
         public eAuthResult AuthResult { get; }
     }
 
-    /// <summary>
-    /// Представляет результат выполнения операции проверки реквизитов или авторизации с данными, полученными в процессе выполнения.
-    /// </summary>
-    /// <typeparam name="TResult">Тип данных, полученных в процессе выполнения.</typeparam>
-    public class ExecutionAuthResult<TResult> : ExecutionResult<TResult>
-    {
-        /// <summary>
-        /// </summary>
-        public ExecutionAuthResult(eAuthResult authResult, string message = null, TResult result = default(TResult)) : base(authResult == eAuthResult.Success, message, result)
-        {
-            AuthResult = authResult;
-        }
-
-        /// <summary>
-        /// Дополнительная информация о результате выполнения.
-        /// </summary>
-        public eAuthResult AuthResult { get; }
-    }
 }
