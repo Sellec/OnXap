@@ -45,6 +45,30 @@ namespace OnXap.Modules.CoreModule
         }
 
         /// <summary>
+        /// Возвращает структуру <see cref="DateTimeOffset"/> с базовой датой-временем <paramref name="dateTime"/> в часовом поясе сервера.
+        /// </summary>
+        /// <remarks>Для <paramref name="dateTime"/> с <see cref="DateTime.Kind"/> равным <see cref="DateTimeKind.Unspecified"/> принимается, что передано <see cref="DateTimeKind.Utc"/>.</remarks>
+        /// <seealso cref="Core.Configuration.CoreConfiguration.ApplicationTimezoneId"/>
+        /// <seealso cref="ApplicationTimeZoneInfo"/>
+        public DateTimeOffset ToServerDateTime(DateTime dateTime)
+        {
+            switch (dateTime.Kind)
+            {
+                case DateTimeKind.Utc:
+                    return ToServerDateTime(DateTime.SpecifyKind(dateTime, DateTimeKind.Unspecified));
+
+                case DateTimeKind.Unspecified:
+                    return new DateTimeOffset(dateTime.Add(ApplicationTimeZoneInfo.BaseUtcOffset));
+
+                case DateTimeKind.Local:
+                    return ToServerDateTime(DateTime.SpecifyKind(dateTime.ToUniversalTime(), DateTimeKind.Unspecified));
+
+                default:
+                    throw new InvalidProgramException();
+            }
+        }
+
+        /// <summary>
         /// Возвращает часовой пояс, в котором работает приложение.
         /// </summary>
         /// <seealso cref="Core.Configuration.CoreConfiguration.ApplicationTimezoneId"/>
