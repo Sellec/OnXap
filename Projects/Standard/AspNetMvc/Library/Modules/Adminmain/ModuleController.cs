@@ -34,7 +34,7 @@ namespace OnXap.Modules.Adminmain
         {
             try
             {
-                if (Module.CheckPermission(Module.PERM_RESTART) != CheckPermissionResult.Allowed)
+                if (Module.CheckPermission(Module.PERM_RESTART) != CheckPermissionVariant.Allowed)
                 {
                     RegisterEventWithCode(HttpStatusCode.Forbidden, "Попытка перезагрузки.", "Недостаточно прав");
                     return ReturnJson(false, "Недостаточно прав для перезагрузки системы.");

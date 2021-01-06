@@ -9,6 +9,7 @@ namespace OnXap.Core.Modules
     using Core.Items;
     using Journaling;
     using Users;
+    using OnXap.Modules.Routing;
 
     /// <summary>
     /// Базовый класс для всех модулей. Обязателен при реализации любых модулей, т.к. при задании привязок в DI проверяется наследование именно от этого класса.
@@ -164,13 +165,24 @@ namespace OnXap.Core.Modules
             if (context == null) throw new ArgumentNullException(nameof(context));
 
             Permission permData = null;
-            if (!_permissions.TryGetValue(key, out permData) && key != ModulesConstants.PermissionAccessUser) return CheckPermissionResult.PermissionNotFound;
-            if (key == ModulesConstants.PermissionAccessUser) return context.IsGuest ? CheckPermissionResult.Denied : CheckPermissionResult.Allowed;
-            if (!permData.IgnoreSuperuser && context.IsSuperuser) return CheckPermissionResult.Allowed;
+            if (!_permissions.TryGetValue(key, out permData) && key != ModulesConstants.PermissionAccessUser)
+            {
+                return new CheckPermissionResult(CheckPermissionVariant.PermissionNotFound);
+            }
+            if (key == ModulesConstants.PermissionAccessUser)
+            {
+                return new CheckPermissionResult(context.IsGuest ? CheckPermissionVariant.Denied : CheckPermissionVariant.Allowed);
+            }
+            if (!permData.IgnoreSuperuser && context.IsSuperuser)
+            {
+                return new CheckPermissionResult(CheckPermissionVariant.Allowed);
+            }
 
             Permissions userPermissionsInModule = null;
-            return (context.Permissions?.TryGetValue(ModuleID, out userPermissionsInModule) == true && userPermissionsInModule?.Contains(key) == true)
-                ? CheckPermissionResult.Allowed : CheckPermissionResult.Denied;
+            return new CheckPermissionResult(
+                (context.Permissions?.TryGetValue(ModuleID, out userPermissionsInModule) == true && userPermissionsInModule?.Contains(key) == true) ?
+                CheckPermissionVariant.Allowed :
+                CheckPermissionVariant.Denied);
         }
         #endregion
 

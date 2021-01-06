@@ -108,7 +108,7 @@ namespace OnXap.Modules.ItemsCustomize
 
         protected bool AllowSchemeManage
         {
-            get => CheckPermission(PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionResult.Allowed;
+            get => CheckPermission(PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionVariant.Allowed;
         }
         #endregion
 

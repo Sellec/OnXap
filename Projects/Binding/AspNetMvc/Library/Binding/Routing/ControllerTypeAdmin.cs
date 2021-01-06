@@ -49,7 +49,7 @@ namespace OnXap.Binding.Routing
             var moduleAdmin = AppCore.GetModulesManager().GetModule<Modules.Admin.ModuleAdmin>();
             if (moduleAdmin != null)
             {
-                if (moduleAdmin.CheckPermission(ModulesConstants.PermissionManage) != CheckPermissionResult.Allowed)
+                if (moduleAdmin.CheckPermission(ModulesConstants.PermissionManage) != CheckPermissionVariant.Allowed)
                     return false;
             }
 

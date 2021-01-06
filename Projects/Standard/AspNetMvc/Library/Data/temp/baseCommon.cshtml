@@ -29,7 +29,7 @@
         isGuest = currentUserContext.IsGuest,
         access = new
         {
-            controlPanel = moduleAdmin.CheckPermission(currentUserContext, ModulesConstants.PermissionManage) == CheckPermissionResult.Allowed
+            controlPanel = moduleAdmin.CheckPermission(currentUserContext, ModulesConstants.PermissionManage)
         },
         idImage = currentUserContext.GetData().IdPhoto
     };

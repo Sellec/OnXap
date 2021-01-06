@@ -23,7 +23,7 @@ namespace OnXap.Modules.Admin
 
             foreach (var module in modulesList)
             {
-                if (module.CheckPermission(userContext, ModulesConstants.PermissionManage) != CheckPermissionResult.Allowed)
+                if (module.CheckPermission(userContext, ModulesConstants.PermissionManage) != CheckPermissionVariant.Allowed)
                 {
                     mods_errors[module] = "Недостаточно прав";
                 }
@@ -34,7 +34,7 @@ namespace OnXap.Modules.Admin
 
                     if (links.Count > 0)
                     {
-                        if (module.CheckPermission(userContext, ModulesConstants.PermissionManage) == CheckPermissionResult.Allowed)
+                        if (module.CheckPermission(userContext, ModulesConstants.PermissionManage) == CheckPermissionVariant.Allowed)
                         {
                             mods[module] = links;
                         }

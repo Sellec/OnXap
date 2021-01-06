@@ -179,7 +179,7 @@ namespace OnXap.Core.Modules
             var moduleActionAttribute = (filterContext?.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo?.GetCustomAttributes<ModuleActionAttribute>(true).FirstOrDefault();
             if (moduleActionAttribute != null && moduleActionAttribute.Permission != Guid.Empty)
             {
-                isAllowed = ModuleBase.CheckPermission(ModuleBase.GetAppCore().GetUserContextManager().GetCurrentUserContext(), moduleActionAttribute.Permission) == CheckPermissionResult.Allowed;
+                isAllowed = ModuleBase.CheckPermission(ModuleBase.GetAppCore().GetUserContextManager().GetCurrentUserContext(), moduleActionAttribute.Permission) == CheckPermissionVariant.Allowed;
             }
 
             if (!isAllowed)
