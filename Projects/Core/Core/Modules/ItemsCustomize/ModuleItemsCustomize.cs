@@ -407,18 +407,19 @@ namespace OnXap.Modules.ItemsCustomize
                     {
                         var _ids = ids.ToArray();
                         var values = from p in db.CustomFieldsDatas.AsNoTracking()
-                                      join fi in db.CustomFieldsFields.AsNoTracking() on p.IdField equals fi.IdField
-                                      where p.IdItemType == IdItemTypeFirst.Value && fi.Block == 0
-                                      select p;
+                                     join fi in db.CustomFieldsFields.AsNoTracking() on p.IdField equals fi.IdField
+                                     where p.IdItemType == IdItemTypeFirst.Value && fi.Block == 0
+                                     select p;
                         if (_ids.Length == 1) values = values.Where(x => x.IdItem == _ids[0]);
                         else values = values.In(_ids, x => x.IdItem);
+                        var values2 = values.Select(x => new { x.IdItem, x.IdField, x.IdFieldValue, x.FieldValue });
 
-                        foreach (var res in values)
+                        foreach (var res in values2)
                         {
                             items2[res.IdItem].ForEach(item =>
                             {
                                 var field = collection[item][res.IdField];
-                                if (field != null) field.AddValue(res);
+                                if (field != null) field.AddValue(res.IdFieldValue, res.FieldValue);
                             });
                         }
                     }
@@ -467,10 +468,11 @@ namespace OnXap.Modules.ItemsCustomize
                 using (var db = new Context())
                 using (var scope = db.CreateScope())
                 {
-                    db.CustomFieldsDatas.RemoveRange(from d in db.CustomFieldsDatas
-                     join f in db.CustomFieldsFields on d.IdField equals f.IdField
-                     where d.IdItem == item.ID && d.IdItemType == IdItemType
-                     select d);
+                    var dataOld = (from d in db.CustomFieldsDatas
+                                   join f in db.CustomFieldsFields on d.IdField equals f.IdField
+                                   where d.IdItem == item.ID && d.IdItemType == IdItemType
+                                   select d).ToList();
+                    //db.CustomFieldsDatas.RemoveRange(dataOld);
 
                     foreach (var field in item._fields.Values)
                     {
@@ -479,18 +481,40 @@ namespace OnXap.Modules.ItemsCustomize
                             {
                                 int IdFieldValue = 0;
                                 if (!int.TryParse(value.ToString(), out IdFieldValue)) IdFieldValue = 0;
+                                var idFieldValueTmp = field.IdValueType == Field.FieldValueType.KeyFromSource ? IdFieldValue : 0;
+                                var fieldValueTmp = field.IdValueType == Field.FieldValueType.KeyFromSource ? "" : value.ToString();
 
-                                db.CustomFieldsDatas.Add(new CustomFieldsData()
+                                var rowOld = dataOld.Where(x =>
+                                    x.IdField == field.IdField &&
+                                    x.IdItem == item.ID &&
+                                    x.IdItemType == IdItemType &&
+                                    x.IdFieldValue == idFieldValueTmp).FirstOrDefault();
+                                if (rowOld == null)
                                 {
-                                    IdField = field.IdField,
-                                    IdFieldValue = field.IdValueType == Field.FieldValueType.KeyFromSource ? IdFieldValue : 0,
-                                    FieldValue = field.IdValueType == Field.FieldValueType.KeyFromSource ? "" : value.ToString(),
-                                    IdItem = item.ID,
-                                    IdItemType = IdItemType,
-                                    DateChange = DateTime.Now.Timestamp()
-                                });
+                                    db.CustomFieldsDatas.Add(new CustomFieldsData()
+                                    {
+                                        IdField = field.IdField,
+                                        IdFieldValue = idFieldValueTmp,
+                                        FieldValue = fieldValueTmp,
+                                        IdItem = item.ID,
+                                        IdItemType = IdItemType,
+                                        DateChange = DateTime.Now.Timestamp()
+                                    });
+                                }
+                                else
+                                {
+                                    dataOld.Remove(rowOld);
+                                    if (rowOld.FieldValue != fieldValueTmp)
+                                    {
+                                        rowOld.FieldValue = fieldValueTmp;
+                                        rowOld.DateChange = DateTime.Now.Timestamp();
+                                    }
+                                }
                             }
                     }
+
+                    if (dataOld.Count > 0)
+                        db.CustomFieldsDatas.RemoveRange(dataOld);
 
                     db.SaveChanges<CustomFieldsData>();
 
