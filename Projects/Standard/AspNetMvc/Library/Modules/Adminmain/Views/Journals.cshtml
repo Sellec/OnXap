@@ -62,6 +62,9 @@
                             if (result == JsonResult.OK) {
                                 component.journalCurrent.data = journalData;
                             }
+                            else {
+                                console.log($(this));
+                            }
                         }
                     );
                 }
@@ -80,11 +83,14 @@
                            :filters="filters"
                            style="width:1000px;">
                 <template #header>
-                    <div style='height:20px'>Всего журналов: {{ dataList ? dataList.length : 0 }}</div>
+                    <div style='height:20px'>
+                        Всего журналов: {{ dataList ? dataList.length : 0 }}
+                    </div>
                 </template>
                 <pvl-column field="nameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
                     <template #filter>
                         <pvl-inputtext type="text" v-model="filters['nameJournal']" class="p-column-filter"></pvl-inputtext>
+                        <pvl-button label="Показать события всех журналов" @@click.stop="onShow({ idJournal : -1 })"></pvl-button>
                     </template>
                 </pvl-column>
                 <pvl-column field="eventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pvl-column>

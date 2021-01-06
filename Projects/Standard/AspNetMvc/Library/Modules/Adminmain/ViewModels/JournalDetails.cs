@@ -6,7 +6,9 @@ namespace OnXap.Modules.Adminmain.ViewModels
 
     public class JournalDetails
     {
-        public JournalInfo JournalName { get; set; }
+        public int IdJournal { get; set; }
+
+        public string NameJournal { get; set; }
 
         public int JournalDataCountAll { get; set; }
 

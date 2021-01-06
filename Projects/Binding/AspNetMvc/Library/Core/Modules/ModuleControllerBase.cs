@@ -429,8 +429,8 @@ namespace OnXap.Core.Modules
 
         #region Json
         /// <summary>
-        /// Создает шаблон ответа для <see cref="ReturnJson{TData}(Types.ResultWData{TData})"/>. 
-        /// Им можно пользоваться во время выполнения функции и в конце передать в вызов <see cref="ReturnJson{TData}(Types.ResultWData{TData})"/>.
+        /// Создает шаблон ответа для <see cref="ReturnJson{TData}(Types.ResultWData{TData}, HttpStatusCode)"/>. 
+        /// Им можно пользоваться во время выполнения функции и в конце передать в вызов <see cref="ReturnJson{TData}(Types.ResultWData{TData}, HttpStatusCode)"/>.
         /// </summary>
         /// <typeparam name="TData">См. <see cref="Types.ResultWData{TData}"/>.</typeparam>
         /// <returns></returns>
@@ -452,11 +452,12 @@ namespace OnXap.Core.Modules
         /// Возвращает результат выполнения в стандартизированном json-формате TraceEngine.
         /// </summary>
         /// <typeparam name="TData"></typeparam>
+        /// <param name="httpStatusCode">Статус http-ответа.</param>
         /// <param name="result"></param>
         /// <returns></returns>
-        protected internal JsonResult ReturnJson<TData>(Types.ResultWData<TData> result)
+        protected internal JsonResult ReturnJson<TData>(Types.ResultWData<TData> result, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
-            return ReturnJsonInternal(result.Success, result.Message, result.Data, result.ModelState != null && !result.ModelState.IsValid ? result.ModelState : null);
+            return ReturnJsonInternal(result.Success, result.Message, result.Data, result.ModelState != null && !result.ModelState.IsValid ? result.ModelState : null, httpStatusCode);
         }
 
         /// <summary>
@@ -465,13 +466,14 @@ namespace OnXap.Core.Modules
         /// <param name="success">Результат выполнения скрипта - true или false.</param>
         /// <param name="message">Возвращаемый текст сообщения.</param>
         /// <param name="data">Дополнительные возвращаемые данные.</param>
+        /// <param name="httpStatusCode">Статус http-ответа.</param>
         /// <returns></returns>
-        protected internal JsonResult ReturnJson(bool success, string message, object data = null)
+        protected internal JsonResult ReturnJson(bool success, string message, object data = null, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
-            return ReturnJsonInternal(success, message, data, ModelState);
+            return ReturnJsonInternal(success, message, data, ModelState, httpStatusCode);
         }
 
-        private JsonResult ReturnJsonInternal(bool success, string message, object data, ModelStateDictionary modelState)
+        private JsonResult ReturnJsonInternal(bool success, string message, object data, ModelStateDictionary modelState, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
         {
             object modelStateObject = null;
             if (modelState != null && !modelState.IsValid)
@@ -487,6 +489,7 @@ namespace OnXap.Core.Modules
                 }
             }
 
+            Response.StatusCode = (int)httpStatusCode;
             return Json(new { success = success, result = string.IsNullOrEmpty(message) ? "" : message, data = data, modelState = modelStateObject }, JsonRequestBehavior.AllowGet);
         }
 

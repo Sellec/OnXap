@@ -4,6 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Transactions;
 using System.Web.Mvc;
+using OnUtils;
+using OnUtils.Types;
 
 namespace OnXap.Modules.Adminmain
 {
@@ -352,18 +354,23 @@ namespace OnXap.Modules.Adminmain
             {
                 using (var scope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
-                    var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
-                    if (!result.IsSuccess) throw new Exception(result.Message);
+                    var result = IdJournal.Value != -1 ? AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value) : new ExecutionResult<Journaling.Model.JournalInfo>();
+                    if (IdJournal.Value != -1 && !result.IsSuccess) throw new Exception(result.Message);
 
                     var dbAccessor = AppCore.Get<JournalingDB.JournalingManagerDatabaseAccessor>();
 
                     using (var db = new JournalingDB.DataContext())
                     {
-                        var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal);
+                        var query = dbAccessor.CreateQueryJournalData(db);
+                        if (IdJournal.Value != -1)
+                        {
+                            query = query.Where(x => x.JournalData.IdJournal == IdJournal.Value);
+                        }
                         var count = query.Count();
                         return View("JournalDetails.cshtml", new ViewModels.JournalDetails()
                         {
-                            JournalName = result.Result,
+                            IdJournal = IdJournal.Value,
+                            NameJournal = IdJournal.Value != -1 ? result.Result.Name : "Все журналы",
                             JournalDataCountAll = count
                         });
                     }
@@ -373,7 +380,7 @@ namespace OnXap.Modules.Adminmain
             {
                 var answer = JsonAnswer();
                 answer.FromException(ex);
-                return ReturnJson(answer);
+                return ReturnJson(answer, HttpStatusCode.BadRequest);
             }
         }
 
@@ -386,15 +393,19 @@ namespace OnXap.Modules.Adminmain
             {
                 using (var scope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
-                    var result = AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value);
-                    if (!result.IsSuccess) throw new Exception(result.Message);
+                    var result = IdJournal.Value != -1 ? AppCore.Get<JournalingManager>().GetJournal(IdJournal.Value) : new ExecutionResult<Journaling.Model.JournalInfo>();
+                    if (IdJournal.Value != -1 && !result.IsSuccess) throw new Exception(result.Message);
 
                     var dbAccessor = AppCore.Get<JournalingDB.JournalingManagerDatabaseAccessor>();
 
                     using (var db = new JournalingDB.DataContext())
                     {
                         var sorted = false;
-                        var query = dbAccessor.CreateQueryJournalData(db).Where(x => x.JournalData.IdJournal == result.Result.IdJournal);
+                        var query = dbAccessor.CreateQueryJournalData(db);
+                        if (IdJournal.Value != -1)
+                        {
+                            query = query.Where(x => x.JournalData.IdJournal == IdJournal.Value);
+                        }
                         if (requestOptions != null)
                         {
                             if (requestOptions.FilterFields != null)
@@ -494,6 +505,19 @@ namespace OnXap.Modules.Adminmain
                                             }
                                             break;
 
+                                        case "JournalName":
+                                            switch (filter.MatchType)
+                                            {
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    query = query.Where(x => x.JournalName.Name.Contains(filter.Value));
+                                                    break;
+
+                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    query = query.Where(x => x.JournalName.Name.StartsWith(filter.Value));
+                                                    break;
+                                            }
+                                            break;
+
                                         default:
                                             throw new HandledException($"Фильтр по полю '{filter.FieldName}' не поддерживается.");
 
@@ -549,6 +573,13 @@ namespace OnXap.Modules.Adminmain
                                         query = requestOptions.SortByAcsending ?
                                             query.OrderBy(x => x.JournalData.EventInfoDetailed).ThenBy(x => x.JournalData.ExceptionDetailed) :
                                             query.OrderByDescending(x => x.JournalData.EventInfoDetailed).ThenByDescending(x => x.JournalData.ExceptionDetailed);
+                                        break;
+
+                                    case "JournalName":
+                                        sorted = true;
+                                        query = requestOptions.SortByAcsending ?
+                                            query.OrderBy(x => x.JournalName.Name) :
+                                            query.OrderByDescending(x => x.JournalName.Name);
                                         break;
 
                                 }
