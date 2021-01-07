@@ -407,7 +407,8 @@ namespace OnXap.Modules.FileManager
                     {
                         try
                         {
-                            File.Delete(Path.Combine(rootDirectory, file.PathFile));
+                            var pathCombined = Path.Combine(rootDirectory, file.PathFile);
+                            if (File.Exists(pathCombined)) File.Delete(pathCombined);
                         }
                         catch (IOException) { return; }
                         catch (UnauthorizedAccessException) { return; }
@@ -545,8 +546,8 @@ namespace OnXap.Modules.FileManager
                                 }
                                 else
                                 {
-                                    if (File.Exists(Path.Combine(rootDirectory, row.File.PathFile)))
-                                        File.Delete(Path.Combine(rootDirectory, row.File.PathFile));
+                                    var pathCombined = Path.Combine(rootDirectory, row.File.PathFile);
+                                    if (File.Exists(pathCombined)) File.Delete(pathCombined);
 
                                     removeList.Add(row.FileRemoveQueue.IdFile);
 

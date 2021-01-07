@@ -718,7 +718,20 @@ namespace OnXap.Modules.Adminmain
                 if (waitForCompletion)
                 {
                     task.Wait();
-                    return ReturnJson(true, "Задача запущена и завершена.");
+                    switch(task.Result)
+                    {
+                        case TaskExecuted.Executed:
+                            return ReturnJson(true, "Задача запущена и завершена.");
+
+                        case TaskExecuted.Faulted:
+                            return ReturnJson(false, "Задача запущена и завершена с необработанной ошибкой.");
+
+                        case TaskExecuted.ParallelPrevented:
+                            return ReturnJson(false, "Запуск задачи отменен, так как есть другой выполняемый в данный момент экземпляр задачи.");
+
+                        default:
+                            throw new InvalidProgramException();
+                    }
                 }
                 else
                 {
