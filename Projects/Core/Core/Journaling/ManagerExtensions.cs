@@ -303,7 +303,7 @@ namespace OnXap
                 {
                     IdJournal = null,
                     JournalComponentType = component.GetType(),
-                    EventCode = dataFilterOptions.EventCode,
+                    EventCodes = dataFilterOptions.EventCodes,
                     DateMin = dataFilterOptions.DateMin,
                     DateMax = dataFilterOptions.DateMax,
                     Limit = dataFilterOptions.Limit

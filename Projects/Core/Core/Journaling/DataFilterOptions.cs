@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OnXap.Journaling
 {
@@ -22,9 +18,9 @@ namespace OnXap.Journaling
         public Type JournalComponentType { get; set; }
 
         /// <summary>
-        /// Код события для поиска записей в журнале/журналах.
+        /// Коды событий для поиска записей в журнале/журналах.
         /// </summary>
-        public int? EventCode { get; set; }
+        public int[] EventCodes { get; set; }
 
         /// <summary>
         /// Ограничивает количество получаемых записей журнала/журналов, которые будут выбраны.
