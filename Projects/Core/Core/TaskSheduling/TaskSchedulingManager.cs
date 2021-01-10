@@ -23,7 +23,6 @@ namespace OnXap.TaskSheduling
         private Timer _jobsTimer = null;
         private object _jobsSyncRoot = new object();
         private List<JobInternal> _jobsList = new List<JobInternal>();
-        private Guid _unique = Guid.NewGuid();
         private List<Action> _delayedTaskRegistration = new List<Action>();
 
         #region Управление задачами.
@@ -129,7 +128,7 @@ namespace OnXap.TaskSheduling
         /// <summary>
         /// Возвращает список задач.
         /// </summary>
-        /// <param name="onlyConfirmed">Если равено true, то возвращает только подтвержденные задачи (см. <see cref="TaskDescription.IsConfirmed"/>.</param>
+        /// <param name="onlyConfirmed">Если равно true, то возвращает только подтвержденные задачи (см. <see cref="TaskDescription.IsConfirmed"/>.</param>
         public List<TaskDescription> GetTaskList(bool onlyConfirmed)
         {
             try
