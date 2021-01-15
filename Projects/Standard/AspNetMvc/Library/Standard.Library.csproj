@@ -45,7 +45,6 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
-    <MvcBuildViews>true</MvcBuildViews>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -286,10 +285,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="..\JS\dist\**\*" Exclude="..\JS\dist\main.js;..\JS\dist\primevuelibrary\primevuelibrary.css;..\JS\dist\primevuelibrary\primevuelibrary.js;">
-      <Link>Design\UI\%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Compile Include="Design\Model\Message.cs" />
     <None Include="Data\css\admin.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -547,13 +542,16 @@
     <Content Include="Data\img\share-signature-2.svg" />
     <Content Include="Data\img\share-signature-3.svg" />
     <Content Include="Data\img\white-load-icon.svg" />
+    <Content Include="Data\Modules\Common\StandardUI.js" />
     <Content Include="Design\UI\jqCron\jqCron.css" />
     <Content Include="Design\UI\jqCron\jqCron.js" />
     <Content Include="Design\UI\jqCron\jqCron.ru.js" />
     <Content Include="Design\UI\momentjs\moment-with-locales.min.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="gulpfile.js" />
     <Content Include="Modules\Adminmain\Views\SystemState.cshtml" />
+    <Content Include="Modules\Common\SourceJs\StandardUI.js" />
     <Content Include="Modules\Default\Views\Index.cshtml" />
     <Content Include="Modules\FileManager\Views\ModuleSettings.cshtml" />
     <Content Include="Modules\Adminmain\Views\TaskSheduling.cshtml" />
@@ -660,6 +658,7 @@
     <Content Include="app.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Binding\AspNetMvc\Library\Binding.AspNetMvc.csproj">
@@ -701,9 +700,11 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <Target Name="BuildViews" Condition="'$(MvcBuildViews)'=='true'" AfterTargets="Build">
-    <Message Importance="normal" Text="Precompiling views" />
-    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  <PropertyGroup>
+    <MvcBuildViews>true</MvcBuildViews>
+  </PropertyGroup>
+  <Target Name="MvcBuildViewsCustom" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <Exec Command="$(MSBuildFrameworkToolsPath)aspnet_compiler.exe -v temp2 -p $(WebProjectOutputDir) -x node_modules -x obj -x bin" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>

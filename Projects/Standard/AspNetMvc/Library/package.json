@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "Name": "ASP.NET",
+  "private": true,
+  "dependencies": {
+    "jquery": "^2.2.4",
+    "jqueryui": "^1.11.1",
+    "primevuelibrary": "^0.7.0",
+    "vue": "^2.6.11"
+  },
+  "browser": {
+    "vue": "vue/dist/vue.common.js"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "watchify": "^3.7.0",
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7",
+    "gulp-uglify": "^2.0.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "fs-path": "^0.0.22",
+    "vinyl-source-stream": "^1.1.0",
+    "vinyl-buffer": "^1.0.0",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-core": "6.26.3",
+    "babelify": "8.0.0"
+  }
+}
