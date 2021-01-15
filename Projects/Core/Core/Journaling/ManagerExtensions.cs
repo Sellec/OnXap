@@ -171,7 +171,7 @@ namespace OnXap
         /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, string eventInfo, string eventInfoDetailed = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, relatedItem, eventType, 0, eventInfo, eventInfoDetailed, null);
         }
@@ -186,7 +186,7 @@ namespace OnXap
         /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, relatedItem, eventType, eventCode, eventInfo, eventInfoDetailed, null);
         }
@@ -200,7 +200,7 @@ namespace OnXap
         /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, string eventInfo, string eventInfoDetailed = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, string eventInfo, string eventInfoDetailed = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, itemKey, eventType, 0, eventInfo, eventInfoDetailed, null);
         }
@@ -215,7 +215,7 @@ namespace OnXap
         /// <param name="eventInfo">См. <see cref="JournalDAO.EventInfo"/>.</param>
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, itemKey, eventType, eventCode, eventInfo, eventInfoDetailed, null);
         }
@@ -231,7 +231,7 @@ namespace OnXap
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <param name="exception">См. <see cref="JournalDAO.ExceptionDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, Exception exception = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, Exception exception = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, relatedItem, eventType, eventCode, eventInfo, eventInfoDetailed, null, exception);
         }
@@ -247,7 +247,7 @@ namespace OnXap
         /// <param name="eventInfoDetailed">См. <see cref="JournalDAO.EventInfoDetailed"/>.</param>
         /// <param name="exception">См. <see cref="JournalDAO.ExceptionDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, Exception exception = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, Exception exception = null)
         {
             return ManagerExtensions.RegisterEventForItem(component, itemKey, eventType, eventCode, eventInfo, eventInfoDetailed, null, exception);
         }
@@ -264,7 +264,7 @@ namespace OnXap
         /// <param name="eventTime">См. <see cref="JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
         /// <param name="exception">См. <see cref="JournalDAO.ExceptionDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemBase relatedItem, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
             return component.GetAppCore().Get<JournalingManager>().RegisterEventForItem(component.GetType(), relatedItem, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
@@ -281,7 +281,7 @@ namespace OnXap
         /// <param name="eventTime">См. <see cref="JournalDAO.DateEvent"/>. Если передано значение null, то событие записывается на момент вызова метода.</param>
         /// <param name="exception">См. <see cref="JournalDAO.ExceptionDetailed"/>.</param>
         /// <returns>Возвращает объект с результатом выполнения операции. Если во время добавления события в журнал возникла ошибка, она будет отражена в сообщении <see cref="ExecutionResult.Message"/>.</returns>
-        public static ExecutionResult RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
+        public static ExecutionResult<int?> RegisterEventForItem(this IComponentSingleton component, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)
         {
             return component.GetAppCore().Get<JournalingManager>().RegisterEventForItem(component.GetType(), itemKey, eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
@@ -303,7 +303,7 @@ namespace OnXap
                 {
                     IdJournal = null,
                     JournalComponentType = component.GetType(),
-                    EventCode = dataFilterOptions.EventCode,
+                    EventCodes = dataFilterOptions.EventCodes,
                     DateMin = dataFilterOptions.DateMin,
                     DateMax = dataFilterOptions.DateMax,
                     Limit = dataFilterOptions.Limit

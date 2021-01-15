@@ -8,9 +8,10 @@ using System.Transactions;
 namespace OnXap.Journaling
 {
     using Core;
+    using Core.Data;
     using Core.Items;
-    using Utils;
     using TaskSheduling;
+    using Utils;
     using ExecutionRegisterResult = ExecutionResult<int?>;
     using ExecutionResultJournalData = ExecutionResult<Model.JournalData>;
     using ExecutionResultJournalDataList = ExecutionResult<List<Model.JournalData>>;
@@ -556,7 +557,7 @@ namespace OnXap.Journaling
                 {
                     var query = DatabaseAccessor.CreateQueryJournalData(db);
                     if (idJournal.HasValue) query = query.Where(x => x.JournalName.IdJournal == idJournal);
-                    if (dataFilterOptions.EventCode.HasValue) query = query.Where(x => x.JournalData.EventCode == dataFilterOptions.EventCode.Value);
+                    if (!dataFilterOptions.EventCodes.IsNullOrEmpty()) query = query.In(dataFilterOptions.EventCodes.Distinct(), x => x.JournalData.EventCode);
                     if (dataFilterOptions.DateMin.HasValue) query = query.Where(x => x.JournalData.DateEvent >= dataFilterOptions.DateMin.Value);
                     if (dataFilterOptions.DateMax.HasValue) query = query.Where(x => x.JournalData.DateEvent <= dataFilterOptions.DateMax.Value);
                     if (dataFilterOptions.Limit.HasValue) query = query.Take(dataFilterOptions.Limit.Value);

@@ -172,7 +172,7 @@ namespace OnXap.Modules.ItemsCustomize.Data
         #endregion
 
         #region Values
-        internal void AddValue(CustomFieldsData value)
+        internal void AddValue(int idFieldValue, string fieldValue)
         {
             if (!_field.IsMultipleValues) ClearValue();
 
@@ -180,7 +180,7 @@ namespace OnXap.Modules.ItemsCustomize.Data
 
             if (_field.IdValueType == Field.FieldValueType.KeyFromSource)
             {
-                _values.Add(value.IdFieldValue);
+                _values.Add(idFieldValue);
             }
             else
             {
@@ -188,11 +188,11 @@ namespace OnXap.Modules.ItemsCustomize.Data
                 if (typeToConvert == typeof(bool))
                 {
                     bool valueParsed;
-                    if (bool.TryParse(value.FieldValue, out valueParsed)) _values.Add(valueParsed);
+                    if (bool.TryParse(fieldValue, out valueParsed)) _values.Add(valueParsed);
                     else
                     {
                         decimal valueParsed2;
-                        if (decimal.TryParse(value.FieldValue, out valueParsed2)) _values.Add(valueParsed2 != 0);
+                        if (decimal.TryParse(fieldValue, out valueParsed2)) _values.Add(valueParsed2 != 0);
                     }
 
                     return;
@@ -211,13 +211,13 @@ namespace OnXap.Modules.ItemsCustomize.Data
                     case TypeCode.Decimal:
                     case TypeCode.Double:
                     case TypeCode.Single:
-                        if (string.IsNullOrEmpty(value.FieldValue))
+                        if (string.IsNullOrEmpty(fieldValue))
                         {
                             _values.Add(Convert.ChangeType(0, typeToConvert));
                         }
                         else
                         {
-                            if (decimal.TryParse(value.FieldValue, out var val))
+                            if (decimal.TryParse(fieldValue, out var val))
                             {
                                 switch (Type.GetTypeCode(typeToConvert))
                                 {
@@ -259,7 +259,7 @@ namespace OnXap.Modules.ItemsCustomize.Data
 
                 try
                 {
-                    object val = value.FieldValue;
+                    object val = fieldValue;
                     _values.Add(Convert.ChangeType(val, typeToConvert));
                 }
                 catch (FormatException) { }

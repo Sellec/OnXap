@@ -161,6 +161,17 @@ namespace System
     public static class MonitorExtension
     {
         /// <summary>
+        /// Фиксирует состояние сервиса на момент вызова метода без записи в журнал.
+        /// </summary>
+        /// <param name="service">Сервис, для которого производится регистрация состояния.</param>
+        /// <param name="serviceStatus">Состояние сервиса.</param>
+        /// <param name="serviceStatusDetailed">Детализированное состояние сервиса.</param>
+        public static void RegisterServiceStateWithoutJournal(this ServiceMonitor.IMonitoredService service, ServiceMonitor.ServiceStatus serviceStatus, string serviceStatusDetailed = null)
+        {
+            service.GetAppCore().Get<ServiceMonitor.Monitor>()?.RegisterServiceStateWithoutJournal(service, serviceStatus, serviceStatusDetailed);
+        }
+
+        /// <summary>
         /// Фиксирует состояние сервиса на момент вызова метода.
         /// </summary>
         /// <param name="service">Сервис, для которого производится регистрация состояния.</param>

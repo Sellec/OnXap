@@ -101,7 +101,7 @@ namespace OnXap.Core.Modules
 
                             case ApplyConfigurationResult.Failed:
                                 var journalData = AppCore.Get<JournalingManager>().GetJournalData(result.Item2.Value);
-                                answer.FromFail($"Возникла ошибка при сохранении настроек: {(journalData?.Message ?? "текст ошибки не найден")}. {outputMessage}".Trim());
+                                answer.FromFail($"Возникла ошибка при сохранении настроек: {(journalData.Message ?? "текст ошибки не найден")}. {outputMessage}".Trim());
                                 break;
 
                             case ApplyConfigurationResult.Success:

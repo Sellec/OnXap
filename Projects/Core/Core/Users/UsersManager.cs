@@ -44,28 +44,31 @@ namespace OnXap.Users
         {
             try
             {
-                if (roleIdList == null || roleIdList.Length == 0) return new Dictionary<User, int[]>();
-
+                if (roleIdList.IsNullOrEmpty()) return new Dictionary<User, int[]>();
                 if (orderBy != null) throw new ArgumentException("Параметр не поддерживается.", nameof(orderBy));
 
                 using (var db = new CoreContext())
                 {
-                    var queryBase = db.Users.AsQueryable();
-
-                    if (onlyActive) queryBase = queryBase.Where(x => x.State == 0);
+                    var queryUsersBase = db.Users.AsQueryable();
+                    if (onlyActive) queryUsersBase = queryUsersBase.Where(x => x.State == 0);
 
                     var idRoleUser = AppCore.AppConfig.RoleUser;
                     if (!roleIdList.Contains(idRoleUser))
                     {
-                        var queryRolesWithUsers = exceptSuperuser ? (from user in queryBase
-                                                                     join role in db.RoleUser on user.IdUser equals role.IdUser
-                                                                     where roleIdList.Contains(role.IdRole)
-                                                                     select new { role.IdUser, role.IdRole }) : (from user in queryBase
-                                                                                                                 join role in db.RoleUser on user.IdUser equals role.IdUser
-                                                                                                                 where roleIdList.Contains(role.IdRole) || user.Superuser != 0
-                                                                                                                 select new { role.IdUser, role.IdRole });
+                        var queryRoleUser = db.RoleUser.In(roleIdList, x => x.IdRole);
+                        var queryRolesWithUsers = from user in queryUsersBase
+                                                  join role in queryRoleUser on user.IdUser equals role.IdUser
+                                                  select new { user.IdUser, role.IdRole };
+                        if (!exceptSuperuser)
+                        {
+                            var queryRole = db.Role.In(roleIdList, x => x.IdRole);
+                            queryRolesWithUsers = queryRolesWithUsers.Union(from user in queryUsersBase
+                                                                            from role in queryRole
+                                                                            where user.Superuser != 0
+                                                                            select new { user.IdUser, role.IdRole });
+                        }
 
-                        var data = queryRolesWithUsers.ToList().GroupBy(x => x.IdUser, x => x.IdRole).ToDictionary(x => x.Key, x => x.Distinct().ToArray());
+                        var data = queryRolesWithUsers.Distinct().ToList().GroupBy(x => x.IdUser, x => x.IdRole).ToDictionary(x => x.Key, x => x.Distinct().ToArray());
 
                         var queryUsers = db.Users.In(data.Keys, x => x.IdUser);
 
@@ -74,7 +77,7 @@ namespace OnXap.Users
                     }
                     else
                     {
-                        return queryBase.ToDictionary(x => x, x => new int[] { idRoleUser });
+                        return queryUsersBase.ToDictionary(x => x, x => new int[] { idRoleUser });
                     }
                 }
             }

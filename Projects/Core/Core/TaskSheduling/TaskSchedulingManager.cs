@@ -23,7 +23,6 @@ namespace OnXap.TaskSheduling
         private Timer _jobsTimer = null;
         private object _jobsSyncRoot = new object();
         private List<JobInternal> _jobsList = new List<JobInternal>();
-        private Guid _unique = Guid.NewGuid();
         private List<Action> _delayedTaskRegistration = new List<Action>();
 
         #region Управление задачами.
@@ -129,7 +128,7 @@ namespace OnXap.TaskSheduling
         /// <summary>
         /// Возвращает список задач.
         /// </summary>
-        /// <param name="onlyConfirmed">Если равено true, то возвращает только подтвержденные задачи (см. <see cref="TaskDescription.IsConfirmed"/>.</param>
+        /// <param name="onlyConfirmed">Если равно true, то возвращает только подтвержденные задачи (см. <see cref="TaskDescription.IsConfirmed"/>.</param>
         public List<TaskDescription> GetTaskList(bool onlyConfirmed)
         {
             try
@@ -480,10 +479,10 @@ namespace OnXap.TaskSheduling
             ExecuteTaskInternal(taskDescription);
         }
 
-        private void ExecuteTaskInternal(TaskDescription taskDescription)
+        private TaskExecuted ExecuteTaskInternal(TaskDescription taskDescription)
         {
             if (!_executeFlags.TryLock(taskDescription.UniqueKey) && taskDescription.TaskOptions.HasFlag(TaskOptions.PreventParallelExecution))
-                return;
+                return TaskExecuted.ParallelPrevented;
 
             try
             {
@@ -496,10 +495,13 @@ namespace OnXap.TaskSheduling
                 taskDescription.ExecutionLambda.Compile().Invoke();
 
                 this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
+
+                return TaskExecuted.Executed;
             }
             catch (Exception ex)
             {
                 this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
+                return TaskExecuted.Faulted;
             }
             finally
             {
@@ -513,11 +515,11 @@ namespace OnXap.TaskSheduling
         }
 
         /// <summary>
-        /// Позволяет инициировать немедленный запуск задачи в отдельном объекте <see cref="System.Threading.Tasks.Task"/>.
+        /// Позволяет инициировать немедленный запуск задачи в отдельном объекте <see cref="Task"/>.
         /// </summary>
         /// <param name="taskDescription">Запускаемая задача.</param>
-        /// <return>Возвращает объект <see cref="System.Threading.Tasks.Task"/>.</return>
-        public Task ExecuteTask(TaskDescription taskDescription)
+        /// <return>Возвращает объект <see cref="Task"/>.</return>
+        public Task<TaskExecuted> ExecuteTask(TaskDescription taskDescription)
         {
             if (!_taskList.Any(x => x.Value == taskDescription)) throw new InvalidOperationException("Задача не зарегистрирована.");
             return Task.Factory.StartNew(() => ExecuteTaskInternal(taskDescription));

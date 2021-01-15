@@ -15,6 +15,7 @@
     class JournalDetailsDataRow {
         constructor(source) {
             this.idJournalData = Number(source.@Html.NameOf(x => x.JournalData.First().IdJournalData));
+            this.journalName = String(source.@Html.NameOf(x => x.JournalData.First().JournalInfo.Name));
             this.eventType = Number(source.@Html.NameOf(x => x.JournalData.First().EventType));
             this.dateEvent = new moment(source.@Html.NameOf(x => x.JournalData.First().DateEvent));
             this.eventCode = Number(source.@Html.NameOf(x => x.JournalData.First().EventCode));
@@ -73,6 +74,9 @@
                         case 'eventInfoFull':
                             return 'EventInfoFull';
 
+                        case 'journalName':
+                            return 'JournalName';
+
                         default:
                             return x;
                     }
@@ -97,7 +101,7 @@
                     var component = this;
                     component.isLoading = true;
 
-                    component.requestId = $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.JournalName.IdJournal, null)))", this.requestOptions, function (result, message, data, requestId) {
+                    component.requestId = $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalDetailsList(Model.IdJournal, null)))", this.requestOptions, function (result, message, data, requestId) {
                         if (component.requestId != requestId) return;
                         component.isLoading = false;
                         if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
@@ -112,7 +116,7 @@
                     var component = this;
                     component.isDeleting = true;
 
-                    $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.JournalName.IdJournal)))", null, function (result, message) {
+                    $.requestJSON("@(Url.CreateRoute<Module, ModuleController>(x => x.JournalClear(Model.IdJournal)))", null, function (result, message) {
                         component.isDeleting = false;
                         if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
                         if (result == JsonResult.OK) component.onLazy();
@@ -134,7 +138,7 @@
             },
             mounted() {
                 this.$toast.removeAllGroups();
-                
+
                 this.requestOptions.ApplyPagination({ first: 0, rows: this.paginatorRows });
                 this.requestOptions.ApplySort({ sortField: this.sortField, sortOrder: this.sortOrder });
                 this.onLazy();
@@ -145,30 +149,51 @@
 
 <div id="js-events-list__table">
     <pvl-datatable :value="dataList" :paginator="true" :rows="paginatorRows" :row-class="rowClass"
-               :lazy="true" :total-records="dataCountAll" :loading="isLoading" 
-               @@page="onPage($event)" @@sort="onSort($event)" @@filter="onFilter($event)"
-               :filters="filters"
-               sort-field="dateEvent" sort-order="-1">
+                   :lazy="true" :total-records="dataCountAll" :loading="isLoading"
+                   @@page="onPage($event)" @@sort="onSort($event)" @@filter="onFilter($event)"
+                   :filters="filters"
+                   sort-field="dateEvent" sort-order="-1">
         <template #header>
-            <div style="height:30px">@Model.JournalName.Name / <pvl-button label="Очистить журнал" :icon="['pi', 'pi-times', {'pi-spinner' : isDeleting}]" @@click="onClear"></pvl-button></div>
+            <div style="height:30px">
+                @Model.NameJournal @if (Model.IdJournal != -1)
+                {<span> / </span> <pvl-button label="Очистить журнал" :icon="['pi', 'pi-times', {'pi-spinner' : isDeleting}]" @@click="onClear"></pvl-button>}
+            </div>
         </template>
         <pvl-column field="eventType" header="Тип события" sortable="true" resizable="false" header-style="width:150px;" filter-match-mode="contains">
             <template #filter>
                 <pvl-dropdown v-model="filters['eventType']" :options="eventTypes" option-label="caption" option-value="id" class="p-column-filter"></pvl-dropdown>
             </template>
-            <template #body="slotProps">{{ findEventTypeCaption(slotProps.data.eventType) }}</template>
+            <template #body="slotProps">
+                {{ findEventTypeCaption(slotProps.data.eventType) }}
+            </template>
         </pvl-column>
-        <pvl-column field="eventCode" header="Код события" sortable="true" resizable="false" header-style="width:120px;" filter-match-mode="contains">
-            <template #filter><pvl-InputText type="text" v-model="filters['eventCode']" class="p-column-filter" /></template>
+        <pvl-column field="eventCode" header="Код события" sortable="true" resizable="false" header-style="width:90px;" filter-match-mode="contains">
+            <template #filter>
+                <pvl-InputText type="text" v-model="filters['eventCode']" class="p-column-filter" style="width:90px;" />
+            </template>
         </pvl-column>
-        <pvl-column field="dateEvent" header="Дата" sortable="true" resizable="false" header-style="width:150px;">
-            <template #body="slotProps">{{ slotProps.data.dateEvent ? slotProps.data.dateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}</template>
+        <pvl-column field="dateEvent" header="Дата" sortable="true" resizable="false" header-style="width:120px;">
+            <template #body="slotProps">
+                {{ slotProps.data.dateEvent ? slotProps.data.dateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}
+            </template>
         </pvl-column>
+        @if (Model.IdJournal == -1)
+        {
+        <pvl-column field="journalName" header="Журнал" sortable="true" header-style="width:200px;" filter-match-mode="contains" body-style="white-space: pre-wrap;">
+            <template #filter>
+                <pvl-InputText type="text" v-model="filters['journalName']" class="p-column-filter" />
+            </template>
+        </pvl-column>
+        }
         <pvl-column field="eventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;">
-            <template #filter><pvl-InputText type="text" v-model="filters['eventInfo']" class="p-column-filter" /></template>
+            <template #filter>
+                <pvl-InputText type="text" v-model="filters['eventInfo']" class="p-column-filter" />
+            </template>
         </pvl-column>
         <pvl-column field="eventInfoFull" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
-            <template #filter><pvl-InputText type="text" v-model="filters['eventInfoFull']" class="p-column-filter" /></template>
+            <template #filter>
+                <pvl-InputText type="text" v-model="filters['eventInfoFull']" class="p-column-filter" />
+            </template>
             <template #body="slotProps">{{ slotProps.data.eventInfoFull }}</template>
         </pvl-column>
     </pvl-datatable>

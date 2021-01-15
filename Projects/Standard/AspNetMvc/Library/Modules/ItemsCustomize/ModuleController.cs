@@ -47,7 +47,7 @@ namespace OnXap.Modules.ItemsCustomize
                     FieldsList = fields,
                     SchemeItems = schemeItems,
                     Schemes = schemes,
-                    AllowSchemesManage = Module.CheckPermission(ModuleItemsCustomize.PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionResult.Allowed
+                    AllowSchemesManage = Module.CheckPermission(ModuleItemsCustomize.PERM_EXTFIELDS_ALLOWMANAGE) == CheckPermissionVariant.Allowed
                 });
             }
         }

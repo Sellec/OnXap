@@ -16,9 +16,9 @@ namespace OnXap.Users
 
         public ExecutionResult Init(int idEntity, string tag, string data = null)
         {
-            this.IdEntity = idEntity;
-            this.Tag = tag;
-            return this.OnInit(data) ?? new ExecutionResult(false, $"Инициализатор {nameof(OnInit)} типа '{this.GetType().FullName}' не вернул ответ.");
+            IdEntity = idEntity;
+            Tag = tag;
+            return OnInit(data);
         }
 
         protected abstract ExecutionResult OnInit(string data);

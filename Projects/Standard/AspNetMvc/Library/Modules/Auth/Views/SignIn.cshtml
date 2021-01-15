@@ -39,7 +39,7 @@
 
                     <div class="reg_info">
                         <ul class="user-login-panel">
-                            @if (moduleAdmin?.CheckPermission(this.GetCurrentUserContext(), ModulesConstants.PermissionManage) == CheckPermissionResult.Allowed)
+                            @if (moduleAdmin?.CheckPermission(this.GetCurrentUserContext(), ModulesConstants.PermissionManage) ?? false)
                             {
                                 <li><a href="/@moduleAdmin.UrlName" title="Панель администратора" target="_blank"><strong>Управление сайтом</strong></a></li> }
                             @* <li><img src="/data/img/design/man.png" alt=""><a href='/profilepchange_usual' title='Сменить пароль'>Сменить пароль</a></li> *@

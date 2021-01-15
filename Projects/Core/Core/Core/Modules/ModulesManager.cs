@@ -354,7 +354,7 @@ namespace OnXap.Core.Modules
             var context = AppCore.GetUserContextManager().GetCurrentUserContext();
 
             var permissionCheck = module.CheckPermission(context, ModulesConstants.PermissionSaveConfiguration);
-            if (permissionCheck == CheckPermissionResult.Denied) return ApplyConfigurationResult.PermissionDenied;
+            if (permissionCheck == CheckPermissionVariant.Denied) return ApplyConfigurationResult.PermissionDenied;
 
             var moduleType = typeof(TModule);
             var moduleCoreAttribute = moduleType.GetCustomAttribute<ModuleCoreAttribute>();

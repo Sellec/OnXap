@@ -42,7 +42,13 @@ namespace OnXap
             {
                 if (string.IsNullOrEmpty(physicalApplicationPath)) physicalApplicationPath = Environment.CurrentDirectory;
 
-                LibraryEnumeratorFactory.GlobalAssemblyFilter = (name) => !name.ToLower().Contains("sni.dll");
+                LibraryEnumeratorFactory.GlobalAssemblyFilter = (name) =>
+                {
+                    if (name.ToLower().Contains("sni.dll")) return false;
+                    if (name.ToLower().Contains("e_sqlite3.dll")) return false;
+                    
+                    return true;
+                };
 
                 LibraryEnumeratorFactory.LibraryDirectory = physicalApplicationPath;
                 ApplicationWorkingFolder = physicalApplicationPath;
