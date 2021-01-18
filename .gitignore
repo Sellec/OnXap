@@ -30,11 +30,13 @@
 /Projects/**/obj
 /Projects/**/FodyWeavers.xsd
 /Projects/**/*proj.user
+/Projects/**/package-lock.json
 
 /Projects/CoreBind/NetFramework/objMVC
 /Projects/TestSite/NetFramework/Symlinks
 
-/Projects/TestSite/NetFramework/sitemap.xml
+/Projects/TestSite/NetFramework/data/sitemap.xml
+/Projects/TestSite/NetFramework/logs
 /Projects/Standard/AspNetMvc/Package/Linked
 /Projects/Standard/AspNetMvc/Library/node_modules
 /Projects/TestSite/WebApplication2/Data

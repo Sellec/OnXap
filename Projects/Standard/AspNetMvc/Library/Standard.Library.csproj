@@ -286,6 +286,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Design\Model\Message.cs" />
+    <Content Include="webpack.config.js" />
     <None Include="Data\css\admin.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

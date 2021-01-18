@@ -86,6 +86,8 @@ namespace OnXap.Core.Storage
             AddResourceDir("data/{resource}/{language}");
             AddResourceDir("data/{resource}/");
 
+            AddResourceDir("data");
+
             AddResourceDir("");
 
             OnStartProvider();
