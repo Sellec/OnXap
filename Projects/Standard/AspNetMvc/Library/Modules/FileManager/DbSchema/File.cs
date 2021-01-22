@@ -71,6 +71,12 @@ namespace OnXap.Modules.FileManager.DbSchema
                     OnColumn(GetColumnName((Db.File x) => x.IsRemoving)).Ascending().
                     OnColumn(GetColumnName((Db.File x) => x.IsRemoved)).Ascending().
                     Include(GetColumnName((Db.File x) => x.DateExpire));
+
+            if (!isTableExists || !Schema.Table<Db.File>().Index("File_IsRemoved_IsRemoving_with_IdFile").Exists())
+                Create.Index("File_IsRemoved_IsRemoving_with_IdFile").OnTable(GetTableName<Db.File>()).
+                    OnColumn(GetColumnName((Db.File x) => x.IsRemoved)).Ascending().
+                    OnColumn(GetColumnName((Db.File x) => x.IsRemoving)).Ascending().
+                    Include(GetColumnName((Db.File x) => x.IdFile));
         }
 
         private void CheckProcedurePlaceFileIntoQueue()
@@ -95,7 +101,7 @@ AS BEGIN
 	SELECT f.[{GetColumnName((Db.File x) => x.IdFile)}] 
 	FROM [{GetTableName<Db.File>()}] f
 	LEFT JOIN [{GetTableName<Db.FileRemoveQueue>()}] q ON f.[{GetColumnName((Db.File x) => x.IdFile)}] = q.[{GetColumnName((Db.FileRemoveQueue x) => x.IdFile)}]
-	WHERE f.[{GetColumnName((Db.File x) => x.IsRemoved)}] = 0 AND f.[{GetColumnName((Db.File x) => x.IsRemoving)}] <> 0 AND q.[{GetColumnName((Db.FileRemoveQueue x) => x.IdFile)}] IS NULL;
+	WHERE f.[{GetColumnName((Db.File x) => x.IsRemoved)}] = 0 AND f.[{GetColumnName((Db.File x) => x.IsRemoving)}] = 1 AND q.[{GetColumnName((Db.FileRemoveQueue x) => x.IdFile)}] IS NULL;
 
 	PRINT 'В очередь на удаление помещено ' + convert(nvarchar(10), @@ROWCOUNT) + ' файлов.'
 END

@@ -66,6 +66,13 @@ namespace OnXap.Journaling.DB
                     ToTable(GetTableName<ItemLink>()).PrimaryColumn(GetColumnName((ItemLink x) => x.LinkId)).
                     OnDelete(System.Data.Rule.Cascade);
 
+            if (!isTableExists || !Schema.Table<JournalDAO>().Index("Journal_IdJournal_EventCode_with_IdJournalData").Exists())
+                Create.Index("Journal_IdJournal_EventCode_with_IdJournalData").OnTable(GetTableName<JournalDAO>()).
+                    OnColumn(GetColumnName((JournalDAO x) => x.IdJournal)).Descending().
+                    OnColumn(GetColumnName((JournalDAO x) => x.EventCode)).Ascending().
+                    Include(GetColumnName((JournalDAO x) => x.IdJournalData));
+
+
         }
     }
 }
