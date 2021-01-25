@@ -14,6 +14,8 @@ namespace OnXap.Modules.Materials
             bindingsCollection.AddTransient<IModuleController<ModuleMaterials>, ModuleController>();
             bindingsCollection.AddTransient<IModuleController<ModuleMaterials>, ModuleMaterialsAdminController>();
             bindingsCollection.SetTransient<MaterialsSitemapProvider>();
+            bindingsCollection.SetTransient<DbSchema.News>();
+            bindingsCollection.SetTransient<DbSchema.Page>();
         }
 
         void IExecuteStart<OnXApplication>.ExecuteStart(OnXApplication core)

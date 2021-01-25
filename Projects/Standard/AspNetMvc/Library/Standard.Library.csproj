@@ -135,6 +135,8 @@
     <Compile Include="Modules\FileManager\Model\Configuration.cs" />
     <Compile Include="Modules\FileManager\FileManagerControllerAdmin.cs" />
     <Compile Include="Modules\FileManager\ViewModels\ModuleSettings.cs" />
+    <Compile Include="Modules\Materials\DbSchema\Page.cs" />
+    <Compile Include="Modules\Materials\DbSchema\News.cs" />
     <Compile Include="Modules\Materials\Models\NewsSave.cs" />
     <Compile Include="System\Drawing\ImageExtension.cs" />
     <Compile Include="Users\Db\DataContext.cs" />
