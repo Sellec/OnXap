@@ -114,6 +114,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Modules\Customer\SourceJs\" />
     <Folder Include="Modules\EditableMenu\Model\" />
     <Folder Include="Modules\Materials\ViewModels\" />
     <Folder Include="WebUtils\" />
@@ -288,6 +289,25 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Design\Model\Message.cs" />
+    <Content Include="Data\Modules\Adminmain\Adminmain.js" />
+    <Content Include="Design\UI\jqueryui\jquery-ui.min.css" />
+    <Content Include="Design\UI\jqueryui\jquery-ui.min.js" />
+    <Content Include="Design\UI\jquery\jquery.min.js" />
+    <Content Include="Design\UI\primevuelibrary\fonts\primeicons.svg" />
+    <Content Include="Design\UI\primevuelibrary\images\color.png" />
+    <Content Include="Design\UI\primevuelibrary\images\hue.png" />
+    <Content Include="Design\UI\primevuelibrary\images\password-meter.png" />
+    <Content Include="Design\UI\primevuelibrary\primevuelibrary.css" />
+    <Content Include="Design\UI\primevuelibrary\primevuelibrary.js" />
+    <Content Include="Design\UI\primevuelibrary\primevuelibrary.min.css" />
+    <Content Include="Design\UI\primevuelibrary\primevuelibrary.min.js" />
+    <Content Include="Design\UI\primevuelibrary\quill.min.js" />
+    <Content Include="Design\UI\primevuelibrary\themes\nova-accent\theme.css" />
+    <Content Include="Design\UI\tools\polyfill.min.js" />
+    <Content Include="Design\UI\vue\vue.min.js" />
+    <Content Include="Modules\Adminmain\SourceJs\Adminmain.js" />
+    <Content Include="Modules\Adminmain\ViewModels\TaskSchedulingTaskOptions.js" />
+    <Content Include="Modules\Adminmain\ViewModels\JournalEventTypes.js" />
     <Content Include="webpack.config.js" />
     <None Include="Data\css\admin.css">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
@@ -558,6 +578,14 @@
     <Content Include="Modules\Default\Views\Index.cshtml" />
     <Content Include="Modules\FileManager\Views\ModuleSettings.cshtml" />
     <Content Include="Modules\Adminmain\Views\TaskSheduling.cshtml" />
+    <Content Include="Modules\Adminmain\Views\Journals.vue" />
+    <Content Include="Modules\Adminmain\Views\JournalDetails.vue" />
+    <Content Include="Modules\Adminmain\Views\MainSettings.vue" />
+    <Content Include="Modules\Adminmain\Views\Modules.vue" />
+    <Content Include="Modules\Adminmain\Views\TaskSheduling.vue" />
+    <Content Include="Design\UI\primevuelibrary\fonts\primeicons.eot" />
+    <Content Include="Design\UI\primevuelibrary\fonts\primeicons.ttf" />
+    <Content Include="Design\UI\primevuelibrary\fonts\primeicons.woff" />
     <None Include="Modules\ItemsCustomize\Design\FieldEdit.cshtml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

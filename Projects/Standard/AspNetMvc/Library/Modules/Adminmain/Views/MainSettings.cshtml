@@ -11,103 +11,19 @@
     var roleList = Model.Roles.OrderBy(x => x.IsHidden).ThenBy(x => x.NameRole).Select(x => new SelectListItem() { Value = x.IdRole.ToString(), Text = x.NameRole, Group = x.IsHidden ? groupHidden : groupOpen });
     var htmlHelper = this.CreateHtmlHelper<MainSettingsSave>();
 }
+<script type='text/javascript' src="~/Data/Modules/Adminmain/Adminmain.js"></script>
 <script type='text/javascript'>
-    class MainSettingsSave {
-        constructor(source) {
-            this.AppCoreConfiguration = {
-                RoleGuest: source.App.RoleGuest,
-                RoleUser: source.App.RoleUser,
-                ApplicationTimezoneId: source.App.ApplicationTimezoneId
-            };
-            this.WebCoreConfiguration = {
-                SiteFullName: source.Web.SiteFullName,
-                IdModuleDefault: source.Web.IdModuleDefault,
-                ContactEmail: source.Web.ContactEmail,
-                ReturnEmail: source.Web.ReturnEmail,
-                DeveloperEmail: source.Web.DeveloperEmail,
-                CriticalMessagesEmail: source.Web.CriticalMessagesEmail,
-                register_mode: source.Web.register_mode,
-                userAuthorizeAllowed: source.Web.userAuthorizeAllowed,
-                site_reginfo: source.Web.site_reginfo,
-                site_loginfo: source.Web.site_loginfo,
-                help_info: source.Web.help_info,
-                site_descr: source.Web.site_descr,
-                site_keys: source.Web.site_keys
-            };
-        }
-    }
-    class MainSettings {
-        constructor(source) {
-            this.Model = {
-                App: {
-                    RoleGuest: Number(source.AppCoreConfiguration.RoleGuest),
-                    RoleUser: Number(source.AppCoreConfiguration.RoleUser),
-                    ApplicationTimezoneId: String(source.AppCoreConfiguration.ApplicationTimezoneId)
-                },
-                Web: {
-                    SiteFullName: String(source.@Html.NameOf(x => x.WebCoreConfiguration.SiteFullName)),
-                    IdModuleDefault: Number(source.WebCoreConfiguration.IdModuleDefault),
-                    ContactEmail: String(source.WebCoreConfiguration.ContactEmail),
-                    ReturnEmail: String(source.WebCoreConfiguration.ReturnEmail),
-                    DeveloperEmail: String(source.WebCoreConfiguration.DeveloperEmail),
-                    CriticalMessagesEmail: String(source.WebCoreConfiguration.CriticalMessagesEmail),
-                    register_mode: Number(source.WebCoreConfiguration.register_mode),
-                    userAuthorizeAllowed: Number(source.WebCoreConfiguration.userAuthorizeAllowed),
-                    site_reginfo: String(source.WebCoreConfiguration.site_reginfo),
-                    site_loginfo: String(source.WebCoreConfiguration.site_loginfo),
-                    help_info: String(source.WebCoreConfiguration.help_info),
-                    site_descr: String(source.WebCoreConfiguration.site_descr),
-                    site_keys: String(source.WebCoreConfiguration.site_keys)
-                }
-            };
-
-            var modules = source.@Html.NameOf(x => x.Modules);
-            this.Modules = modules ? modules.map(x => ({ Id: x.@nameof(MainSettingsModule.Id), Caption: x.@nameof(MainSettingsModule.Caption) })) : new Array();
-
-            var timezones = @TimeZoneInfo.GetSystemTimeZones().jsobject();
-            this.Timezones = timezones ? timezones.map(x => ({ Id: x.@nameof(TimeZoneInfo.Id), Caption: x.@nameof(TimeZoneInfo.DisplayName) })) : new Array();
-
-            var roles = source.@Html.NameOf(x => x.Roles);
-            this.Roles = roles ? roles.map(x => ({ Id: x.@nameof(Role.IdRole), Name: x.@nameof(Role.NameRole) })) : new Array();
-        }
-    }
-
     $(document).ready(function () {
         $("#block").hide();
-
         changeTitle('Информация');
 
-        new Vue({
-            el: "#js-core-settings",
-            data: $.extend(
-                new MainSettings(@Model.jsobject()),
-                {
-                    IsSaving: false,
-                    LazyRequestIdLatest: null,
-                }
-            ),
-            methods: {
-                OnSave: function () {
-                    var component = this;
-                    component.IsSaving = true;
-                    component.LazyRequestIdLatest = $.requestJSON("@(Url.CreateRoute<OnXap.Modules.Adminmain.Module, ModuleController>(x => x.MainSettingsSave(null)))", new MainSettingsSave(this.Model), function (result, message, data, requestId) {
-                        if (component.LazyRequestIdLatest != requestId) return;
-                        component.IsSaving = false;
-                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
-                    });
-
-                }
-            }
-        });
+        Adminmain.MainSettings.Init(new Adminmain.MainSettings.ViewModel(
+            @Model.jsobject(),
+            @TimeZoneInfo.GetSystemTimeZones().jsobject(),
+            "@(Url.CreateRoute<OnXap.Modules.Adminmain.Module, ModuleController>(x => x.MainSettingsSave(null)))")
+        );
     });
 </script>
-<style>
-    div.block-setting {
-        margin-bottom: 5px;
-        padding: 5px 0px 10px 0px;
-    }
-</style>
-
 <table width='100%'>
     <tr>
         <td>
@@ -117,29 +33,29 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.SiteFullName):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.SiteFullName, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.SiteFullName"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.SiteFullName"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 150 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.SiteFullName)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.IdModuleDefault):<br>
-                    <pvl-dropdown v-model="Model.Web.IdModuleDefault" :options="Modules" option-label="Caption" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    <pvl-dropdown v-model="viewModel.Model.Web.IdModuleDefault" :options="viewModel.Modules" option-label="Caption" option-value="Id" :disabled="isSaving" style="width:400px;"></pvl-dropdown>
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.IdModuleDefault)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.AppCoreConfiguration.ApplicationTimezoneId):<br>
-                    <pvl-dropdown v-model="Model.App.ApplicationTimezoneId" :options="Timezones" option-label="Caption" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    <pvl-dropdown v-model="viewModel.Model.App.ApplicationTimezoneId" :options="viewModel.Timezones" option-label="Caption" option-value="Id" :disabled="isSaving" style="width:400px;"></pvl-dropdown>
                     @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.ApplicationTimezoneId)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.ContactEmail):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.ContactEmail, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.ContactEmail"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.ContactEmail"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 50 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.ContactEmail)
                 </div>
@@ -147,8 +63,8 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.ReturnEmail):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.ReturnEmail, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.ReturnEmail"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.ReturnEmail"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 50 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.ReturnEmail)
                 </div>
@@ -156,8 +72,8 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.DeveloperEmail):<br>
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.DeveloperEmail, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.DeveloperEmail"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.DeveloperEmail"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 50 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.DeveloperEmail)
                 </div>
@@ -165,8 +81,8 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.CriticalMessagesEmail):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.CriticalMessagesEmail, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.CriticalMessagesEmail"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.CriticalMessagesEmail"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 50 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.CriticalMessagesEmail)
                 </div>
@@ -174,8 +90,8 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.register_mode):<br>
                     @htmlHelper.PvlDropdownEnumFor(x => x.WebCoreConfiguration.register_mode, new PvlDropdownProperties() {
-                        Value = new VueBinding("Model.Web.register_mode"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.register_mode"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { style="width:400px;" })<br />
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.register_mode)
                 </div>
@@ -183,35 +99,35 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.userAuthorizeAllowed):<br>
                     @htmlHelper.PvlDropdownEnumFor(x => x.WebCoreConfiguration.userAuthorizeAllowed, new PvlDropdownProperties() {
-                        Value = new VueBinding("Model.Web.userAuthorizeAllowed"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.userAuthorizeAllowed"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { style="width:400px;" })<br />
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.userAuthorizeAllowed)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_reginfo):<br />
-                    <pvl-editor v-model="Model.Web.site_reginfo"></pvl-editor>
+                    <pvl-editor v-model="viewModel.Model.Web.site_reginfo"></pvl-editor>
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_reginfo)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_loginfo):<br />
-                    <pvl-editor v-model="Model.Web.site_loginfo"></pvl-editor>
+                    <pvl-editor v-model="viewModel.Model.Web.site_loginfo"></pvl-editor>
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_loginfo)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.help_info):<br />
-                    <pvl-editor v-model="Model.Web.help_info"></pvl-editor>
+                    <pvl-editor v-model="viewModel.Model.Web.help_info"></pvl-editor>
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.help_info)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_descr):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.site_descr, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.site_descr"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.site_descr"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 250 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_descr)
                 </div>
@@ -219,25 +135,25 @@
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.WebCoreConfiguration.site_keys):<br />
                     @htmlHelper.PvlInputTextFor(x => x.WebCoreConfiguration.site_keys, new PvlInputTextProperties() {
-                        Value = new VueBinding("Model.Web.site_keys"),
-                        Disabled = new VueBinding("IsSaving")
+                        Value = new VueBinding("viewModel.Model.Web.site_keys"),
+                        Disabled = new VueBinding("isSaving")
                     }, new { size = 250 })
                     @htmlHelper.ValidationMessageFor(x => x.WebCoreConfiguration.site_keys)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.AppCoreConfiguration.RoleGuest):<br />
-                    <pvl-dropdown v-model="Model.App.RoleGuest" :options="Roles" option-label="Name" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    <pvl-dropdown v-model="viewModel.Model.App.RoleGuest" :options="viewModel.Roles" option-label="Name" option-value="Id" :disabled="isSaving" style="width:400px;"></pvl-dropdown>
                     @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.RoleGuest)
                 </div>
 
                 <div class="block-setting">
                     @htmlHelper.LabelFor(x => x.AppCoreConfiguration.RoleUser):<br />
-                    <pvl-dropdown v-model="Model.App.RoleUser" :options="Roles" option-label="Name" option-value="Id" :disabled="IsSaving" style="width:400px;"></pvl-dropdown>
+                    <pvl-dropdown v-model="viewModel.Model.App.RoleUser" :options="viewModel.Roles" option-label="Name" option-value="Id" :disabled="isSaving" style="width:400px;"></pvl-dropdown>
                     @htmlHelper.ValidationMessageFor(x => x.AppCoreConfiguration.RoleUser)
                 </div>
 
-                <pvl-button label="Сохранить" :icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave" :disabled="IsSaving"></pvl-button>
+                <pvl-button label="Сохранить" :icon="['pi', 'pi-spinner', {'pi-spin' : isSaving}]" @@click="OnSave" :disabled="isSaving"></pvl-button>
             </div>
         </td>
     </tr>

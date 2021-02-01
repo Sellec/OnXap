@@ -69,6 +69,7 @@ gulp.task('copyResources', function () {
     gulp.src('node_modules/jqueryui/jquery-ui.min.css').pipe(gulp.dest('Design/UI/jqueryui'));
     gulp.src('node_modules/jqueryui/jquery-ui.min.js').pipe(gulp.dest('Design/UI/jqueryui'));
     gulp.src('node_modules/jquery/dist/jquery.min.js').pipe(gulp.dest('Design/UI/jquery'));
+    gulp.src('node_modules/@babel/polyfill/dist/polyfill.min.js').pipe(gulp.dest('Design/UI/tools'));
 });
 
 // Default task

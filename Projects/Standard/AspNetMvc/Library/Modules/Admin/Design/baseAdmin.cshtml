@@ -63,33 +63,38 @@ else
 
         <script type="text/javascript" src="~/Design/UI/momentjs/moment-with-locales.min.js"></script>
 
-        <link rel="stylesheet" type="text/css" href="/data/css/admin.css">
-        <link rel="stylesheet" type="text/css" href="/data/img/flick/jquery-ui-1.8.custom.css">
+        <link rel="stylesheet" type="text/css" href="~/data/css/admin.css">
+        <link rel="stylesheet" type="text/css" href="~/data/img/flick/jquery-ui-1.8.custom.css">
 
         <script src='https://code.jquery.com/jquery-migrate-1.2.1.min.js'></script>
 
-        <script type='text/javascript' src='/data/js/jquery.wysiwyg.js'></script>
+        <script type='text/javascript' src='~/data/js/jquery.wysiwyg.js'></script>
 
-        <script type="text/javascript" src="/data/libs/jquery.tablesorter/jquery.tablesorter.min.js"></script>
-        <script type="text/javascript" src="/data/libs/jquery.tablesorter/jquery.tablesorter.pager.js"></script>
-        <script type="text/javascript" src="/data/libs/jquery.tablesorter/jquery.tablesorter.widgets.js"></script>
-        <link rel="stylesheet" type="text/css" href="/data/libs/jquery.tablesorter/themes/theme.default.css" />
+        <script type="text/javascript" src="~/data/libs/jquery.tablesorter/jquery.tablesorter.min.js"></script>
+        <script type="text/javascript" src="~/data/libs/jquery.tablesorter/jquery.tablesorter.pager.js"></script>
+        <script type="text/javascript" src="~/data/libs/jquery.tablesorter/jquery.tablesorter.widgets.js"></script>
+        <link rel="stylesheet" type="text/css" href="~/data/libs/jquery.tablesorter/themes/theme.default.css" />
 
-        <script type="text/javascript" src="/data/js/jquery.tablefill.js "></script>
-        <script type='text/javascript' src='/data/js/jquery.cookie.js'></script>
+        <script type="text/javascript" src="~/data/js/jquery.tablefill.js "></script>
+        <script type='text/javascript' src='~/data/js/jquery.cookie.js'></script>
 
-        <script type='text/javascript' src='/data/js/admin.js'></script>
-        <script type='text/javascript' src='/data/js/work.js'></script>
-        <script type="text/javascript" src="/data/js/common.js"></script>
+        <script type='text/javascript' src='~/data/js/admin.js'></script>
+        <script type='text/javascript' src='~/data/js/work.js'></script>
+        <script type="text/javascript" src="~/data/js/common.js"></script>
 
-        <script type='text/javascript' src='/data/js/jquery.fancybox.pack.js?v=2.1.3'></script>
+        <script type='text/javascript' src='~/data/js/jquery.fancybox.pack.js?v=2.1.3'></script>
 
-        <link href="/data/libs/jquery.uploadfile/uploadfile.css" rel="stylesheet">
-        <script src="/data/libs/jquery.uploadfile/jquery.uploadfile.js"></script>
+        <link href="~/data/libs/jquery.uploadfile/uploadfile.css" rel="stylesheet">
+        <script src="~/data/libs/jquery.uploadfile/jquery.uploadfile.js"></script>
 
-        <script type="text/javascript" src="/data/js/arcticmodal/jquery.arcticmodal-0.3.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/jquery.arcticmodal-0.3.css" />
-        <link rel="stylesheet" type="text/css" href="/data/js/arcticmodal/themes/simple.css" />
+        <script type="text/javascript">
+            if (/MSIE \d|Trident.*rv:/.test(navigator.userAgent))
+                document.write('<script src="/Design/UI/tools/polyfill.min.js"><\/script>');
+        </script>
+
+        <script type="text/javascript" src="~/data/js/arcticmodal/jquery.arcticmodal-0.3.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="~/data/js/arcticmodal/jquery.arcticmodal-0.3.css" />
+        <link rel="stylesheet" type="text/css" href="~/data/js/arcticmodal/themes/simple.css" />
         <script type="text/javascript" src="~/Data/Modules/Common/StandardUI.js"></script>
 
         <script type='text/javascript'>
@@ -154,7 +159,7 @@ else
         <div id="item_result"></div>
         <div id='action_result'></div>
         <div id="js-notification"><pvl-toast position="topright" /></div>
-        <div id="block"><p><img src="/data/img/loading.gif" alt=""> Загрузка...</p></div>
+        <div id="block"><p><img src="~/data/img/loading.gif" alt=""> Загрузка...</p></div>
 
         <div id="top_panel">
             <ul>

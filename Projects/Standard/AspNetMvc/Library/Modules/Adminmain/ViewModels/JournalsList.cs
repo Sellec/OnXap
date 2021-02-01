@@ -11,8 +11,8 @@ namespace OnXap.Modules.Adminmain.ViewModels
 
         public int EventsCount { get; set; }
 
-        public DateTime? EventLastDate { get; set; }
+        public DateTime? LatestEventDate { get; set; }
 
-        public EventType? EventLastType { get; set; }
+        public EventType? LatestEventType { get; set; }
     }
 }

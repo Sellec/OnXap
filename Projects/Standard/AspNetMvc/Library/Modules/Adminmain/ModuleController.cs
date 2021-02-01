@@ -338,8 +338,8 @@ namespace OnXap.Modules.Adminmain
                     {
                         JournalName = x.JournalInfo,
                         EventsCount = x.Count,
-                        EventLastDate = x.DateEvent,
-                        EventLastType = x.EventType
+                        LatestEventType = x.EventType,
+                        LatestEventDate = x.DateEvent
                     }).ToList();
 
                 return View("Journals.cshtml", data);

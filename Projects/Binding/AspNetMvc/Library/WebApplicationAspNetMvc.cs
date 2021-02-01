@@ -40,9 +40,8 @@ namespace OnXap
         }
 
         /// <summary>
-        /// См. <see cref="ApplicationCore.OnApplicationStart"/>.
         /// </summary>
-        protected override void OnApplicationStart()
+        protected sealed override void OnApplicationStart()
         {
             if (!(ModelMetadataProviders.Current is TraceModelMetadataProvider))
                 ModelMetadataProviders.Current = new TraceModelMetadataProvider();

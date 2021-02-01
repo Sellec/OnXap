@@ -339,3 +339,9 @@ input.button_red:active {color:#fff;text-shadow:1px 1px 0 #2d2d2d;background: -m
 body .p-component {
     font-size: 12px;
 }
+
+.content-valign-center {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
