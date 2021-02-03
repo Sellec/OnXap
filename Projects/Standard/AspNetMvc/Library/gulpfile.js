@@ -45,6 +45,7 @@ function compileJS(target) {
         filename: target.output.filename,
         library: target.output.standalone
     };
+    //webpackConfig.mode = 'development';
     return gulp.src(target.input)
         .pipe(webpackStream(webpackConfig, webpack))
         .pipe(sourcemaps.init({ loadMaps: true }))
@@ -56,7 +57,6 @@ function compileJS(target) {
 
 gulp.task('build', function () {
     var targets = getTargets();
-    gutil.log(targets);
     targets.map(function (target) {
         compileJS(target);
     });
@@ -64,11 +64,17 @@ gulp.task('build', function () {
 
 gulp.task('copyResources', function () {
     gulp.src('node_modules/vue/dist/vue.min.js').pipe(gulp.dest('Design/UI/vue'));
-    gulp.src(['node_modules/primevuelibrary/dist/**/*', '!**/themes/**/*']).pipe(gulp.dest('Design/UI/primevuelibrary'));
-    gulp.src('node_modules/primevuelibrary/dist/themes/nova-accent/**/*').pipe(gulp.dest('Design/UI/primevuelibrary/themes/nova-accent'));
+
+    gulp.src(['node_modules/primevue/resources/**/*', '!**/themes/**/*', '!**/primevue.css']).pipe(gulp.dest('Design/UI/primevue'));
+    gulp.src('node_modules/primevue/resources/themes/nova-accent/**/*').pipe(gulp.dest('Design/UI/primevue/themes/nova-accent'));
+
+    gulp.src('node_modules/primeicons/fonts/**/*').pipe(gulp.dest('Design/UI/primeicons/fonts'));
+    gulp.src('node_modules/primeicons/primeicons.css').pipe(gulp.dest('Design/UI/primeicons'));
+
     gulp.src('node_modules/jqueryui/jquery-ui.min.css').pipe(gulp.dest('Design/UI/jqueryui'));
     gulp.src('node_modules/jqueryui/jquery-ui.min.js').pipe(gulp.dest('Design/UI/jqueryui'));
     gulp.src('node_modules/jquery/dist/jquery.min.js').pipe(gulp.dest('Design/UI/jquery'));
+
     gulp.src('node_modules/@babel/polyfill/dist/polyfill.min.js').pipe(gulp.dest('Design/UI/tools'));
 });
 

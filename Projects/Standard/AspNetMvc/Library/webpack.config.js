@@ -1,13 +1,13 @@
 ﻿const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
-    mode: 'development',
     entry: null,
     output: null,
+    mode: 'production',
     //watch: true,
     externals: {
-        vue: 'Vue',
-        quill: 'Quill'
+        vue: 'Vue'
+        //quill: 'Quill'
     },
     resolve: {
         alias: {
@@ -43,5 +43,8 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin()
-    ]
+    ],
+    performance: {
+        hints: false
+    }
 };

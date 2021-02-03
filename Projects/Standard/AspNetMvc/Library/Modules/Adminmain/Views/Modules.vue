@@ -1,57 +1,65 @@
 ﻿<template>
     <div>
-        <pvl-tabview>
-            <pvl-tabpanel header="Список модулей">
-                <pvl-datatable :value="dataList" :row-class="rowClass"
+        <pv-tabview>
+            <pv-tabpanel header="Список модулей">
+                <pv-datatable :value="dataList" :row-class="rowClass"
                                sort-field="caption" sort-order="1"
                                :filters="filters"
                                style="width:1200px;">
                     <template #header>
                         <div style='height:20px'>Всего модулей: {{ dataList ? dataList.length : 0 }}</div>
                     </template>
-                    <pvl-column field="id" header="№" sortable="true" header-style="width:50px;" filter-match-mode="contains">
+                    <pv-column field="id" header="№" sortable="true" header-style="width:50px;" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['id']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['id']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column field="caption" header="Название" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    </pv-column>
+                    <pv-column field="caption" header="Название" sortable="true" header-style="width:200px;" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['caption']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['caption']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column field="type" header="Query-тип модуля" sortable="true" filter-match-mode="contains">
+                    </pv-column>
+                    <pv-column field="type" header="Query-тип модуля" sortable="true" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['type']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['type']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column field="uniqueName" header="Уникальное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    </pv-column>
+                    <pv-column field="uniqueName" header="Уникальное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['uniqueName']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['uniqueName']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column field="urlName" header="URL-доступное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
+                    </pv-column>
+                    <pv-column field="urlName" header="URL-доступное имя модуля" sortable="true" header-style="width:200px;" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['urlName']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['urlName']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column column-key="Actions" header="Действия" header-style="width:100px;">
+                    </pv-column>
+                    <pv-column column-key="Actions" header="Действия" header-style="width:100px;">
                         <template #body="slotProps">
-                            <pvl-button label="Настройки" @click.stop="onConfigure(slotProps.data)" v-show="slotProps.data.configAllowed"></pvl-button>
+                            <pv-button label="Настройки" @click.stop="onConfigure(slotProps.data)" v-show="slotProps.data.configAllowed"></pv-button>
                         </template>
-                    </pvl-column>
-                </pvl-datatable>
-            </pvl-tabpanel>
-            <pvl-tabpanel :active.sync="moduleCurrent.tabActive" :disabled="!moduleCurrent.data || moduleCurrent.loading">
+                    </pv-column>
+                </pv-datatable>
+            </pv-tabpanel>
+            <pv-tabpanel :active.sync="moduleCurrent.tabActive" :disabled="!moduleCurrent.data || moduleCurrent.loading">
                 <template slot="header">
                     <span>Настройки модуля</span>
                 </template>
-                <pvl-progressspinner :class="[{'hidden' : !moduleCurrent.loading}]"></pvl-progressspinner>
+                <pv-progressspinner v-if="moduleCurrent.loading"></pv-progressspinner>
                 <div id="containerForLoading" :class="[{'hidden' : moduleCurrent.loading}]"></div>
-            </pvl-tabpanel>
-        </pvl-tabview>
+            </pv-tabpanel>
+        </pv-tabview>
     </div>
 </template>
 <script type='text/javascript'>
+    import Button from 'primevue/button';
+    import Column from 'primevue/column';
+    import DataTable from 'primevue/datatable';
+    import InputText from 'primevue/inputtext';
+    import ProgressSpinner from 'primevue/progressspinner';
+    import TabPanel from 'primevue/tabpanel';
+    import TabView from 'primevue/tabview';
+
     export class ViewModel {
         constructor() {
             this.rows = new Array();
@@ -76,6 +84,15 @@
                 type: ViewModel,
                 required: true
             }
+        },
+        components: {
+            'pv-button': Button,
+            'pv-column': Column,
+            'pv-datatable': DataTable,
+            'pv-inputtext': InputText,
+            'pv-progressspinner': ProgressSpinner,
+            'pv-tabpanel': TabPanel,
+            'pv-tabview': TabView
         },
         data: function () {
             return {

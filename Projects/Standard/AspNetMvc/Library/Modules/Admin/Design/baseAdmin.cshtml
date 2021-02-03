@@ -51,11 +51,10 @@ else
         <link rel="shortcut icon" href="~/Data/img/logo/favicon.ico" type="image/x-icon">
 
         <script src="~/Design/UI/vue/vue.min.js"></script>
-        <script src="~/Design/UI/primevuelibrary/quill.min.js"></script>
-        <script src="~/Design/UI/primevuelibrary/primevuelibrary.min.js"></script>
 
-        <link href="~/Design/UI/primevuelibrary/primevuelibrary.min.css " rel="stylesheet">
-        <link href="~/Design/UI/primevuelibrary/themes/nova-accent/theme.css " rel="stylesheet">
+        <link href="~/Design/UI/primevue/primevue.min.css " rel="stylesheet">
+        <link href="~/Design/UI/primevue/themes/nova-accent/theme.css " rel="stylesheet">
+        <link href="~/Design/UI/primeicons/primeicons.css " rel="stylesheet">
 
         <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
         <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
@@ -96,6 +95,7 @@ else
         <link rel="stylesheet" type="text/css" href="~/data/js/arcticmodal/jquery.arcticmodal-0.3.css" />
         <link rel="stylesheet" type="text/css" href="~/data/js/arcticmodal/themes/simple.css" />
         <script type="text/javascript" src="~/Data/Modules/Common/StandardUI.js"></script>
+        <script type="text/javascript" src="~/Data/Modules/Admin/Admin.js"></script>
 
         <script type='text/javascript'>
             function changeTitle(new_title) {
@@ -109,9 +109,7 @@ else
             }
 
             $(document).ready(function () {
-                PrimeVueLibrary.registerGlobalTags();
-
-                new Vue({ el: "#js-notification" });
+                Admin.Notifications.Init();
 
                 moment.locale('ru-RU');
 
@@ -158,7 +156,7 @@ else
     <body>
         <div id="item_result"></div>
         <div id='action_result'></div>
-        <div id="js-notification"><pvl-toast position="topright" /></div>
+        <div id="js-notification"></div>
         <div id="block"><p><img src="~/data/img/loading.gif" alt=""> Загрузка...</p></div>
 
         <div id="top_panel">

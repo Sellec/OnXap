@@ -9,128 +9,142 @@
 </style>
 <template>
     <div>
-        <pvl-tabview>
-            <pvl-tabpanel header="Список задач">
-                <pvl-datatable :value="taskList" :row-class="rowClass"
+        <pv-tabview>
+            <pv-tabpanel header="Список задач">
+                <pv-datatable :value="taskList" :row-class="rowClass"
                                sort-field="name" sort-order="1"
                                :filters="filters"
                                style="width:1000px;">
                     <template #header>
                         <div style='height:20px'>Всего задач: {{ taskList ? taskList.length : 0 }}</div>
                     </template>
-                    <pvl-column field="name" header="Название задачи" sortable="true" filter-match-mode="contains">
+                    <pv-column field="name" header="Название задачи" sortable="true" filter-match-mode="contains">
                         <template #filter>
-                            <pvl-inputtext type="text" v-model="filters['name']" class="p-column-filter"></pvl-inputtext>
+                            <pv-inputtext type="text" v-model="filters['name']" class="p-column-filter"></pv-inputtext>
                         </template>
-                    </pvl-column>
-                    <pvl-column field="isEnabled" header="Состояние" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
+                    </pv-column>
+                    <pv-column field="isEnabled" header="Состояние" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
                         <template #filter>
-                            <pvl-tristatecheckbox v-model="filters['isEnabled']" class="p-column-filter"></pvl-tristatecheckbox>
+                            <pv-tristatecheckbox v-model="filters['isEnabled']" class="p-column-filter"></pv-tristatecheckbox>
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isEnabled ? 'Включена' : 'Выключена' }}
                         </template>
-                    </pvl-column>
-                    <pvl-column field="isConfirmed" header="Подтверждена" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
+                    </pv-column>
+                    <pv-column field="isConfirmed" header="Подтверждена" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
                         <template #filter>
-                            <pvl-tristatecheckbox v-model="filters['isConfirmed']" class="p-column-filter"></pvl-tristatecheckbox>
+                            <pv-tristatecheckbox v-model="filters['isConfirmed']" class="p-column-filter"></pv-tristatecheckbox>
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isConfirmed ? 'Подтверждена' : 'Не подтверждена' }}
                         </template>
-                    </pvl-column>
-                    <pvl-column column-key="Actions" header="Действия" header-style="width:150px;" header-class="task-actions">
+                    </pv-column>
+                    <pv-column column-key="Actions" header="Действия" header-style="width:150px;" header-class="task-actions">
                         <template #body="slotProps">
-                            <pvl-button label="Подробно" @click.stop="onShow(slotProps.data)" style="margin:0 5px 5px 0;"></pvl-button>
-                            <pvl-splitbutton label="Выполнить" icon="pi pi-caret-right" :model="taskScheduleRunOptions" @click.stop="onExecute(slotProps.data, true)"></pvl-splitbutton>
+                            <pv-button label="Подробно" @click.stop="onShow(slotProps.data)" style="margin:0 5px 5px 0;"></pv-button>
+                            <pv-splitbutton label="Выполнить" icon="pi pi-caret-right" :model="taskScheduleRunOptions" @click.stop="onExecute(slotProps.data, true)"></pv-splitbutton>
                         </template>
-                    </pvl-column>
-                </pvl-datatable>
-            </pvl-tabpanel>
-            <pvl-tabpanel :active.sync="taskDescriptionCurrent.tabActive" :hidden="!taskDescriptionCurrent.data">
+                    </pv-column>
+                </pv-datatable>
+            </pv-tabpanel>
+            <pv-tabpanel :active.sync="taskDescriptionCurrent.tabActive" :hidden="!taskDescriptionCurrent.data">
                 <template slot="header">
                     <span>Подробности задачи</span>
                 </template>
                 <div v-if="taskDescriptionCurrent.data">
                     <div>
                         <h4>Название задачи</h4>
-                        <pvl-inputtext type="text" v-model="taskDescriptionCurrent.data.name" style="width:600px;" disabled></pvl-inputtext>
+                        <pv-inputtext type="text" v-model="taskDescriptionCurrent.data.name" style="width:600px;" disabled></pv-inputtext>
                     </div>
                     <div>
                         <h4>Описание задачи</h4>
-                        <pvl-textarea v-model="taskDescriptionCurrent.data.description" style="width:600px;" :autoResize="true" rows="5" cols="30" disabled></pvl-textarea>
+                        <pv-textarea v-model="taskDescriptionCurrent.data.description" style="width:600px;" :autoResize="true" rows="5" cols="30" disabled></pv-textarea>
                     </div>
                     <div>
                         <h4>Состояние (включена или выключена)</h4>
-                        <pvl-checkbox :binary="true" v-model="taskDescriptionCurrent.data.isEnabled" :disabled="taskDescriptionCurrent.isSaving || !taskDescriptionCurrent.data.isConfirmed || !taskDescriptionCurrent.data.allowDisabling"></pvl-checkbox>
+                        <pv-checkbox :binary="true" v-model="taskDescriptionCurrent.data.isEnabled" :disabled="taskDescriptionCurrent.isSaving || !taskDescriptionCurrent.data.isConfirmed || !taskDescriptionCurrent.data.allowDisabling"></pv-checkbox>
                     </div>
                     <div>
                         <h4>Неизменяемые правила запуска (созданные при регистрации задачи):</h4>
-                        <pvl-datatable :value="taskDescriptionCurrent.data.scheduleList" :row-class="rowClassSchedule"
+                        <pv-datatable :value="taskDescriptionCurrent.data.scheduleList" :row-class="rowClassSchedule"
                                        style="width:1000px;">
-                            <pvl-column field="type" header="Тип правила" header-style="width:250px;">
+                            <pv-column field="type" header="Тип правила" header-style="width:250px;">
                                 <template #body="slotProps">
                                     {{ slotProps.data.type == 1 ? "Cron" : "Фиксированные дата и время" }}
                                 </template>
-                            </pvl-column>
-                            <pvl-column header="Правило">
+                            </pv-column>
+                            <pv-column header="Правило">
                                 <template #body="slotProps">
                                     <div class="schedule-designer-cron-readonly" :data-cronvalue="slotProps.data.cron" v-show="slotProps.data.type == 1">
                                         { {{slotProps.data.cron}} }
                                     </div>
                                     <div class="schedule-designer-datetimefixed" v-if="slotProps.data.type == 2">
-                                        <pvl-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" />
+                                        <pv-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" />
                                     </div>
                                 </template>
-                            </pvl-column>
-                        </pvl-datatable>
+                            </pv-column>
+                        </pv-datatable>
                     </div>
                     <div>
-                        <h4>Изменяемые правила запуска (созданные вручную): / <pvl-button icon="pi pi-plus" label="Добавить правило" @click="onNewSchedule" :disabled="!c_allowManualSchedule"></pvl-button></h4>
-                        <pvl-datatable :value="taskDescriptionCurrent.data.manualScheduleList" :row-class="rowClassSchedule"
+                        <h4>Изменяемые правила запуска (созданные вручную): / <pv-button icon="pi pi-plus" label="Добавить правило" @click="onNewSchedule" :disabled="!c_allowManualSchedule"></pv-button></h4>
+                        <pv-datatable :value="taskDescriptionCurrent.data.manualScheduleList" :row-class="rowClassSchedule"
                                        style="width:1000px;">
-                            <pvl-column field="type" header="Тип правила" header-style="width:250px;">
+                            <pv-column field="type" header="Тип правила" header-style="width:250px;">
                                 <template #body="slotProps">
-                                    <pvl-dropdown v-model="slotProps.data.type" :options="scheduleTypeList" option-label="label" option-value="value" :disabled="!c_allowManualSchedule"></pvl-dropdown>
+                                    <pv-dropdown v-model="slotProps.data.type" :options="scheduleTypeList" option-label="label" option-value="value" :disabled="!c_allowManualSchedule"></pv-dropdown>
                                 </template>
-                            </pvl-column>
-                            <pvl-column field="isEnabled" header="Состояние" header-style="width:150px;">
+                            </pv-column>
+                            <pv-column field="isEnabled" header="Состояние" header-style="width:150px;">
                                 <template #body="slotProps">
-                                    <pvl-checkbox v-model="slotProps.data.isEnabled" :binary="true" :disabled="!c_allowManualSchedule"></pvl-checkbox>
+                                    <pv-checkbox v-model="slotProps.data.isEnabled" :binary="true" :disabled="!c_allowManualSchedule"></pv-checkbox>
                                 </template>
-                            </pvl-column>
-                            <pvl-column header="Правило">
+                            </pv-column>
+                            <pv-column header="Правило">
                                 <template #body="slotProps">
                                     <div class="schedule-designer-cron" :data-cronvalue="slotProps.data.cron" v-show="slotProps.data.type == 1">
                                         { {{slotProps.data.cron}} } <input type="hidden" v-model.lazy="slotProps.data.cron" />
                                     </div>
                                     <div class="schedule-designer-datetimefixed" v-if="slotProps.data.type == 2">
                                         { {{slotProps.data.dateTimeFixed}} }<br />
-                                        <pvl-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" v-if="!c_allowManualSchedule"></pvl-input>
-                                        <pvl-calendar v-model="slotProps.data.dateTimeFixed" :show-seconds="true" :show-time="true" style="width:100%" v-if="c_allowManualSchedule"></pvl-calendar><br />
+                                        <pv-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" v-if="!c_allowManualSchedule"></pv-input>
+                                        <pv-calendar v-model="slotProps.data.dateTimeFixed" :show-seconds="true" :show-time="true" style="width:100%" v-if="c_allowManualSchedule"></pv-calendar><br />
                                     </div>
                                 </template>
-                            </pvl-column>
-                            <pvl-column column-key="Actions" header="Действия" header-style="width:150px;">
+                            </pv-column>
+                            <pv-column column-key="Actions" header="Действия" header-style="width:150px;">
                                 <template #body="slotProps">
-                                    <pvl-button icon="pi pi-trash" label="Удалить" @click.stop="onScheduleRemove(slotProps.data)" :disabled="!c_allowManualSchedule"></pvl-button>
+                                    <pv-button icon="pi pi-trash" label="Удалить" @click.stop="onScheduleRemove(slotProps.data)" :disabled="!c_allowManualSchedule"></pv-button>
                                 </template>
-                            </pvl-column>
-                        </pvl-datatable>
+                            </pv-column>
+                        </pv-datatable>
                     </div>
                     <div>
                         <br />
-                        <pvl-button label="Сохранить изменения" :icon="['pi', 'pi-save', {'pi-spin' : taskDescriptionCurrent.isSaving}]" v-if="taskDescriptionCurrent.data.isConfirmed && (taskDescriptionCurrent.data.allowDisabling || taskDescriptionCurrent.data.allowManualSchedule)" @click="onSaveChanges"></pvl-button>
-                        <pvl-button label="Задача не подтверждена - изменения запрещены" icon="pi pi-times" v-if="!taskDescriptionCurrent.data.isConfirmed" :disabled="true"></pvl-button>
-                        <pvl-button label="Задача подтверждена, но изменения запрещены в настройках задачи" icon="pi pi-times" v-if="taskDescriptionCurrent.data.isConfirmed && !taskDescriptionCurrent.data.allowDisabling && !taskDescriptionCurrent.data.allowManualSchedule" :disabled="true"></pvl-button>
+                        <pv-button label="Сохранить изменения" :icon="['pi', 'pi-save', {'pi-spin' : taskDescriptionCurrent.isSaving}]" v-if="taskDescriptionCurrent.data.isConfirmed && (taskDescriptionCurrent.data.allowDisabling || taskDescriptionCurrent.data.allowManualSchedule)" @click="onSaveChanges"></pv-button>
+                        <pv-button label="Задача не подтверждена - изменения запрещены" icon="pi pi-times" v-if="!taskDescriptionCurrent.data.isConfirmed" :disabled="true"></pv-button>
+                        <pv-button label="Задача подтверждена, но изменения запрещены в настройках задачи" icon="pi pi-times" v-if="taskDescriptionCurrent.data.isConfirmed && !taskDescriptionCurrent.data.allowDisabling && !taskDescriptionCurrent.data.allowManualSchedule" :disabled="true"></pv-button>
                     </div>
                 </div>
-            </pvl-tabpanel>
-        </pvl-tabview>
+            </pv-tabpanel>
+        </pv-tabview>
     </div>
 </template>
 <script type='text/javascript'>
     import { TaskOptions } from '../ViewModels/TaskSchedulingTaskOptions';
+    import Button from 'primevue/button';
+    import Calendar from 'primevue/calendar';
+    import Checkbox from 'primevue/checkbox';
+    import Column from 'primevue/column';
+    import DataTable from 'primevue/datatable';
+    import Dropdown from 'primevue/dropdown';
+    //import Input from 'primevue/input';
+    import InputText from 'primevue/inputtext';
+    import ProgressSpinner from 'primevue/progressspinner';
+    import SplitButton from 'primevue/splitbutton';
+    import TabPanel from 'primevue/tabpanel';
+    import TabView from 'primevue/tabview';
+    import Textarea from 'primevue/textarea';
+    import TriStateCheckbox from 'primevue/tristatecheckbox';
 
     class TaskScheduleSave {
         constructor(source) {
@@ -198,6 +212,22 @@
                 type: ViewModel,
                 required: true
             }
+        },
+        components: {
+            'pv-button': Button,
+            'pv-calendar': Calendar,
+            'pv-checkbox': Checkbox,
+            'pv-column': Column,
+            'pv-datatable': DataTable,
+            'pv-dropdown': Dropdown,
+            //'pv-input': Input,
+            'pv-inputtext': InputText,
+            'pv-progressspinner': ProgressSpinner,
+            'pv-splitbutton': SplitButton,
+            'pv-tabpanel': TabPanel,
+            'pv-tabview': TabView,
+            'pv-textarea': Textarea,
+            'pv-tristatecheckbox': TriStateCheckbox
         },
         data: function () {
             return {

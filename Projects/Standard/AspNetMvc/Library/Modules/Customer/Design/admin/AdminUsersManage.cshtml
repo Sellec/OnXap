@@ -12,154 +12,25 @@
     };
 }
 
+<script src="~/Data/Modules//Customer/CustomerAdmin.js"></script>
 <script type='text/javascript'>
-    class AdminUsersManageDataRow {
-        constructor(source) {
-            this.IdUser = Number(source.@Html.NameOf(x => x.DataList.First().IdUser));
-            this.name = source.@Html.NameOf(x => x.DataList.First().name) ? String(source.@Html.NameOf(x => x.DataList.First().name)) : null;
-            this.email = source.@Html.NameOf(x => x.DataList.First().email) ? String(source.@Html.NameOf(x => x.DataList.First().email)) : null;
-            this.phone = source.@Html.NameOf(x => x.DataList.First().phone) ? String(source.@Html.NameOf(x => x.DataList.First().phone)) : null;
-            this.Superuser = Number(source.@Html.NameOf(x => x.DataList.First().Superuser));
-            this.State = Number(source.@Html.NameOf(x => x.DataList.First().State));
-            this.CommentAdmin = source.@Html.NameOf(x => x.DataList.First().CommentAdmin) ? String(source.@Html.NameOf(x => x.DataList.First().CommentAdmin)) : null;
-            this.Requisites = ((this.name ? this.name + "\n" : '') + (this.email ? this.email + "\n" : '') + (this.phone ? this.phone + "\n" : '')).trimRight();
-        }
-    }
-
-    class AdminUsersManageModel {
-        constructor(source) {
-            var dataList = source.@Html.NameOf(x => x.DataList);
-            this.DataList = dataList ? dataList.map(x => new AdminUsersManageDataRow(x)) : null;
-            this.DataCountAll = Number(source.@Html.NameOf(x => x.DataCountAll));
-        }
-    }
-
-    var userStateList = @stateList.jsobject();
-
     $(document).ready(function () {
         $("#block").hide();
         changeTitle('Пользователи');
-
-        var model = new AdminUsersManageModel(@Model.jsobject());
-
-        new Vue({
-            el: "#js-users-list__table",
-            data: {
-                filters: {},
-                IsLoading: false,
-                DataCountAll: 0,
-                DataList: null,
-                LazyRequestOptions: new StandardUI.PrimeVueDataTableSourceRequest(),
-                paginatorRows: 50,
-                lazyRequestIdLatest: null
-            },
-            methods:
-            {
-                OnPage: function (event) {
-                    this.LazyRequestOptions.ApplyPagination(event);
-                    this.OnLazy();
-                },
-                OnSort: function (event) {
-                    this.LazyRequestOptions.ApplySort(event);
-                    this.OnLazy();
-                },
-                OnLazy: function () {
-                    var component = this;
-                    component.IsLoading = true;
-
-                    component.lazyRequestIdLatest = $.requestJSON("@(Url.CreateRoute<ModuleCustomer, ModuleControllerAdminCustomer>(x => x.UsersList(Model.RequestedState, null)))", this.LazyRequestOptions, function (result, message, data, requestId) {
-                        if (component.lazyRequestIdLatest != requestId) return;
-                        component.IsLoading = false;
-                        if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
-                        if (result == JsonResult.OK) {
-                            var data = new AdminUsersManageModel(data);
-                            component.DataCountAll = data.DataCountAll;
-                            component.DataList = data.DataList;
-                        }
-                    });
-                },
-                OnDeleteUser: function (row) {
-                    var _this = this;
-                    if (row != null && confirm('Вы действительно хотите удалить пользователя №' + row.IdUser + ' "' + row.email + '"?')) {
-                        $.requestJSON("@(Url.CreateRoute<ModuleCustomer, ModuleControllerAdminCustomer>(x => x.UserDelete(-321098)))".replace("-321098", row.IdUser), null, function (result, message) {
-                            if (result == JsonResult.OK) {
-                                var a = new Array();
-                                for (var i in _this.DataList) {
-                                    if (_this.DataList[i].IdUser == row.IdUser) _this.DataCountAll--;
-                                    else a[a.length] = _this.DataList[i];
-                                }
-                                _this.DataList = a;
-                            }
-                            if (message.length > 0) _this.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
-                        });
-                    }
-                }
-            },
-            watch: {
-                'filters': {
-                    handler: function (v1, v2) {
-                        this.LazyRequestOptions.ApplyFilter(this.filters);
-                        this.OnLazy();
-                    },
-                    deep: true
-                }
-            },
-            mounted() {
-                var component = this;
-                component.$toast.removeAllGroups();
-
-                this.LazyRequestOptions.ApplyPagination({ first: 0, rows: this.paginatorRows });
-                this.LazyRequestOptions.ApplySort({ sortField: this.sortField, sortOrder: this.sortOrder });
-                this.OnLazy();
-            }
-        });
-
+        CustomerAdmin.AdminUsersManage.Init(new CustomerAdmin.AdminUsersManage.ViewModel(
+            @Model.jsobject(),
+            @stateList.jsobject(),
+            @this.GetCurrentUserContext().IsSuperuser.ToString().ToLower(),
+            "@(Url.CreateRoute<ModuleCustomer, ModuleControllerAdminCustomer>(x => x.UsersList(Model.RequestedState, null)))",
+            function (idUser) { return "@(Url.CreateRoute<ModuleCustomer, ModuleControllerAdminCustomer>(x => x.UserDelete(-321098)))".replace("-321098", idUser); },
+            function (idUser) { return '/admin/mnadmin/@this.GetModule().UrlName/users_edit/' + idUser; },
+            function (idUser) { return '/admin/mnadmin/@this.GetModule().UrlName/rolesDelegate/' + idUser; },
+            function (idUser) { return '/admin/madmin/@this.GetModule().UrlName/userAs/' + idUser; }
+        ));
     });
 </script>
 
 <h2>Список пользователей</h2>
 <div id='del_res'></div>
-
-<div id="js-users-list__table" style="width:1100px;">
-    <pvl-datatable :value="DataList" :paginator="true" :rows="paginatorRows"
-               :lazy="true" :total-records="DataCountAll" :loading="IsLoading"
-               @@page="OnPage($event)" @@sort="OnSort($event)" @@filter="OnFilter($event)"
-               :filters="filters"
-               sort-field="IdUser" sort-order="1">
-        <pvl-column field="IdUser" header="#" sortable="true" resizable="false" header-style="width:50px;" filter-match-mode="contains">
-            <template #filter>
-                <pvl-InputText type="text" v-model="filters['IdUser']" class="p-column-filter" />
-            </template>
-        </pvl-column>
-        <pvl-column field="Requisites" header="Реквизиты" sortable="true" resizable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;">
-            <template #filter>
-                <pvl-InputText type="text" v-model="filters['Requisites']" class="p-column-filter" />
-            </template>
-        </pvl-column>
-        <pvl-column field="Superuser" header="Права" sortable="true" resizable="false" header-style="width:130px;" filter-match-mode="contains">
-            <template #body="slotProps">
-                {{ slotProps.data.Superuser > 0 ? 'Суперпользователь' : 'Пользователь' }}
-            </template>
-        </pvl-column>
-        <pvl-column field="State" header="Состояние" sortable="true" resizable="false" header-style="width:250px;" filter-match-mode="contains">
-            <template #body="slotProps">
-                {{ userStateList[slotProps.data.State] }}
-            </template>
-        </pvl-column>
-        <pvl-column column-key="Actions" header="Действия" resizable="false" header-style="width:200px;">
-            <template #body="slotProps">
-                <a :href="'/admin/mnadmin/@this.GetModule().UrlName/users_edit/' + slotProps.data.IdUser" target='_blank' class='user_link'>Редактировать</a> / 
-                <a :href="'/admin/mnadmin/@this.GetModule().UrlName/rolesDelegate/' + slotProps.data.IdUser" target='_blank' class='user_link'>Права доступа</a><br>
-                <a href="#" @@click.prevent="OnDeleteUser(slotProps.data)">Удалить</a> /
-                @if (this.GetCurrentUserContext().IsSuperuser == true)
-                {<a :href="'/admin/madmin/@this.GetModule().UrlName/userAs/' + slotProps.data.IdUser" class='user_link'>Зайти от имени</a><br>}
-            </template>
-        </pvl-column>
-        <pvl-column field="CommentAdmin" header="Комментарий" sortable="true" resizable="true" header-style="width:200px;" filter-match-mode="contains">
-            <template #filter>
-                <pvl-InputText type="text" v-model="filters['CommentAdmin']" class="p-column-filter" />
-            </template>
-        </pvl-column>
-    </pvl-datatable>
-</div>
+<div id="js-users-list__table"></div>
 

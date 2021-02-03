@@ -8,7 +8,7 @@
 
 <template>
     <div>
-        <pvl-datatable :value="dataList" :paginator="true" :rows="paginatorRows" :row-class="rowClass"
+        <pv-datatable :value="dataList" :paginator="true" :rows="paginatorRows" :row-class="rowClass"
                        :lazy="true" :total-records="dataCountAll" :loading="isLoading"
                        @page="onPage($event)" @sort="onSort($event)" @filter="onFilter($event)"
                        :filters="filters"
@@ -16,50 +16,55 @@
             <template #header>
                 <div class="content-valign-center">
                     <span>{{ viewModel.nameJournal }}</span>
-                    <span v-if="viewModel.idJournal != -1" style="margin-left:5px;">/</span> <pvl-button label="Очистить журнал" v-if="viewModel.idJournal != -1" :icon="['pi', 'pi-times', {'pi-spinner' : isDeleting}]" @click="onClear"></pvl-button>
+                    <span v-if="viewModel.idJournal != -1" style="margin-left:5px;">/</span> <pv-button label="Очистить журнал" v-if="viewModel.idJournal != -1" :icon="['pi', 'pi-times', {'pi-spinner' : isDeleting}]" @click="onClear"></pv-button>
                 </div>
             </template>
-            <pvl-column field="eventType" header="Тип события" sortable="true" resizable="false" header-style="width:150px;" filter-match-mode="contains">
+            <pv-column field="eventType" header="Тип события" sortable="true" resizable="false" header-style="width:150px;" filter-match-mode="contains">
                 <template #filter>
-                    <pvl-dropdown v-model="filters['eventType']" :options="eventTypes" option-label="caption" option-value="id" class="p-column-filter"></pvl-dropdown>
+                    <pv-dropdown v-model="filters['eventType']" :options="eventTypes" option-label="caption" option-value="id" class="p-column-filter"></pv-dropdown>
                 </template>
                 <template #body="slotProps">
                     {{ findEventTypeCaption(slotProps.data.eventType) }}
                 </template>
-            </pvl-column>
-            <pvl-column field="eventCode" header="Код события" sortable="true" resizable="false" header-style="width:90px;" filter-match-mode="contains">
+            </pv-column>
+            <pv-column field="eventCode" header="Код события" sortable="true" resizable="false" header-style="width:90px;" filter-match-mode="contains">
                 <template #filter>
-                    <pvl-InputText type="text" v-model="filters['eventCode']" class="p-column-filter" style="width:90px;" />
+                    <pv-inputtext type="text" v-model="filters['eventCode']" class="p-column-filter" style="width:90px;" />
                 </template>
-            </pvl-column>
-            <pvl-column field="dateEvent" header="Дата" sortable="true" resizable="false" header-style="width:120px;">
+            </pv-column>
+            <pv-column field="dateEvent" header="Дата" sortable="true" resizable="false" header-style="width:120px;">
                 <template #body="slotProps">
                     {{ slotProps.data.dateEvent ? slotProps.data.dateEvent.format("YYYY-MM-DD HH:mm:ss") : null }}
                 </template>
-            </pvl-column>
+            </pv-column>
 
-            <pvl-column v-on="viewModel.idJournal != -1" field="journalName" header="Журнал" sortable="true" header-style="width:200px;" filter-match-mode="contains" body-style="white-space: wrap;">
+            <pv-column v-on="viewModel.idJournal != -1" field="journalName" header="Журнал" sortable="true" header-style="width:200px;" filter-match-mode="contains" body-style="white-space: wrap;">
                 <template #filter>
-                    <pvl-InputText type="text" v-model="filters['journalName']" class="p-column-filter" />
+                    <pv-inputtext type="text" v-model="filters['journalName']" class="p-column-filter" />
                 </template>
-            </pvl-column>
+            </pv-column>
 
-            <pvl-column field="eventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;">
+            <pv-column field="eventInfo" header="Информация" sortable="true" header-style="width:300px;" filter-match-mode="contains" body-style="white-space: pre-wrap;">
                 <template #filter>
-                    <pvl-InputText type="text" v-model="filters['eventInfo']" class="p-column-filter" />
+                    <pv-inputtext type="text" v-model="filters['eventInfo']" class="p-column-filter" />
                 </template>
-            </pvl-column>
-            <pvl-column field="eventInfoFull" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
+            </pv-column>
+            <pv-column field="eventInfoFull" header="Информация с детализацией" sortable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;" header-style="width:500px;">
                 <template #filter>
-                    <pvl-InputText type="text" v-model="filters['eventInfoFull']" class="p-column-filter" />
+                    <pv-inputtext type="text" v-model="filters['eventInfoFull']" class="p-column-filter" />
                 </template>
                 <template #body="slotProps">{{ slotProps.data.eventInfoFull }}</template>
-            </pvl-column>
-        </pvl-datatable>
+            </pv-column>
+        </pv-datatable>
     </div>
 </template>
 <script type='text/javascript'>
     import { EventType } from '../ViewModels/JournalEventTypes';
+    import Button from 'primevue/button';
+    import Column from 'primevue/column';
+    import DataTable from 'primevue/datatable';
+    import Dropdown from 'primevue/dropdown';
+    import InputText from 'primevue/inputtext';
 
     export class ViewModel {
         constructor() {
@@ -96,6 +101,13 @@
                 type: ViewModel,
                 required: true
             }
+        },
+        components: {
+            'pv-button': Button,
+            'pv-column': Column,
+            'pv-datatable': DataTable,
+            'pv-dropdown': Dropdown,
+            'pv-inputtext': InputText
         },
         data: function () {
             return {

@@ -5,6 +5,12 @@
     }
 </style>
 <script type='text/javascript'>
+    import Quill from 'quill';
+    import Button from 'primevue/button';
+    import Dropdown from 'primevue/dropdown';
+    import Editor from 'primevue/editor';
+    import InputText from 'primevue/inputtext';
+
     class MainSettingsSave {
         constructor(source) {
             this.AppCoreConfiguration = {
@@ -71,6 +77,12 @@
     }
 
     export default {
+        components: {
+            'pv-button': Button,
+            'pv-dropdown': Dropdown,
+            'pv-editor': Editor,
+            'pv-inputtext': InputText,
+        },
         data: {
             isSaving: false,
             lazyRequestIdLatest: null,
@@ -88,7 +100,6 @@
                     component.isSaving = false;
                     if (message.length > 0) component.$toast.add({ severity: result == JsonResult.OK ? 'success' : 'error', summary: message, life: result == JsonResult.OK ? 3000 : null });
                 });
-
             }
         }
     };

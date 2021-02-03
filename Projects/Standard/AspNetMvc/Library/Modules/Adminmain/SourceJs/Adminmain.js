@@ -1,4 +1,7 @@
-﻿import * as JournalsSource from '../Views/Journals.vue';
+﻿import PrimeVue from 'primevue/config';
+Vue.use(PrimeVue);
+
+import * as JournalsSource from '../Views/Journals.vue';
 import * as JournalDetailsSource from '../Views/JournalDetails.vue';
 import * as MainSettingsSource from '../Views/MainSettings.vue';
 import * as ModulesSource from '../Views/Modules.vue';
@@ -34,7 +37,6 @@ export const MainSettings = {
         var opts = MainSettingsSource.default;
         opts.el = "#js-core-settings";
         opts.data = Object.assign(opts.data, { viewModel: model });
-        console.log(opts);
         new Vue(opts);
     }
 };

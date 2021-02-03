@@ -8,6 +8,7 @@
     var idEl = "material-" + DateTime.Now.Ticks.ToString();
 }
 
+<script type="text/javascript" src="~/Data/Modules/Materials/MaterialsAdmin.js"></script>
 <script type='text/javascript'>
     class NewsEdit {
         constructor(source) {
@@ -39,6 +40,7 @@
                 LatestRequestId: null,
                 Data: new NewsEdit(@Model.jsobject()),
             },
+            components: MaterialsAdmin.NewsEdit.Init().components,
             methods: {
                 GetCaption: function () {
                     return this.Data.IdMaterial == 0 ? "Добавление новости '" + this.Data.NameMaterial + "'" : "Редактирование новости №" + String(this.Data.IdMaterial) + " '" + this.Data.NameMaterial + "'";
@@ -69,25 +71,25 @@
 <div id="@idEl">
     <h4>
         {{ GetCaption() }}
-        / <pvl-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pvl-button>
+        / <pv-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pv-button>
     </h4>
     <table id="items_results" width="600">
         <tr></tr>
         <tr>
             <td width='400'>
-                Заголовок:&nbsp;<pvl-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></pvl-inputtext>
+                Заголовок:&nbsp;<pv-inputtext v-model="Data.NameMaterial" size="100" maxlength="200"></pv-inputtext>
 
                 <br><br>
 
-                Краткое содержимое (для списка): <pvl-editor @@text-change="BodyShortChanged($event)" value="@(Model.short_text?.Replace("\"", "\\\""))" editor-style="width:800px;height:200px;"></pvl-editor>
+                Краткое содержимое (для списка): <pv-editor @@text-change="BodyShortChanged($event)" value="@(Model.short_text?.Replace("\"", "\\\""))" editor-style="width:800px;height:200px;"></pv-editor>
 
                 <br><br />
 
-                Основное содержимое: <pvl-editor @@text-change="BodyFullChanged($event)" value="@(Model.text?.Replace("\"", "\\\""))" editor-style="width:800px;height:500px;"></pvl-editor>
+                Основное содержимое: <pv-editor @@text-change="BodyFullChanged($event)" value="@(Model.text?.Replace("\"", "\\\""))" editor-style="width:800px;height:500px;"></pv-editor>
 
                 <br>
 
-                <pvl-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pvl-button>
+                <pv-button label="Сохранить" v-bind:icon="['pi', 'pi-spinner', {'pi-spin' : IsSaving}]" @@click="OnSave()"></pv-button>
             </td>
         </tr>
     </table>

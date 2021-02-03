@@ -52,12 +52,10 @@
     <link rel="shortcut icon" href="~/Data/img/logo/favicon.ico" type="image/x-icon">
 
     <script src="~/Design/UI/vue/vue.min.js"></script>
-    <script src="~/Design/UI/primevuelibrary/quill.min.js"></script>
-    <!--<script src="~/primevuelibrary/primevuelibrary.js"></script>-->
-    <script src="~/Design/UI/primevuelibrary/primevuelibrary.min.js"></script>
 
-    <link href="~/Design/UI/primevuelibrary/primevuelibrary.min.css " rel="stylesheet">
-    <link href="~/Design/UI/primevuelibrary/themes/nova-accent/theme.css " rel="stylesheet">
+    <link href="~/Design/UI/primevue/primevue.min.css " rel="stylesheet">
+    <link href="~/Design/UI/primevue/themes/nova-accent/theme.css " rel="stylesheet">
+    <link href="~/Design/UI/primeicons/primeicons.css " rel="stylesheet">
 
     <script type="text/javascript" src="~/Design/UI/jquery/jquery.min.js"></script>
     <link rel="stylesheet" href="~/Design/UI/jqueryui/jquery-ui.min.css" />
@@ -99,17 +97,17 @@
                         data-user-profile-url="@(Url.CreateRoute<ModuleCustomer, ModuleControllerCustomer>())"
                         data-user-image-template-url="@(Url.CreateRoute<FileManager, FileManagerController>(x => x.FileImageCrop(1234567890, 100, 100)))"
                         data-controlpanel-url="@(Url.CreateRoute<ModuleAdmin, ModuleAdminController>())">
-                    <pvl-menubar>
+                    <pv-menubar>
                         <template #start>
                             @RenderSection("MainHeaderStart", false)
                         </template>
                         <template #end>
                             @RenderSection("MainHeaderEnd", false)
-                            <pvl-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pvl-button>
+                            <pv-button label="Вход" icon="pi pi-power-off" v-show="!user.logged" @@click="onRoute('userSigninUrl')"></pv-button>
                             <img :src="userImageUrl" v-show="user.logged" class="user-image-header p-button" @@click="OnToggleUserMenu" />
-                            <pvl-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
+                            <pv-menu ref="userMenu" :model="userMenuItems" :popup="true" class="main-header-user-menu" />
                         </template>
-                    </pvl-menubar>
+                    </pv-menubar>
                 </div>
                 @RenderSection("breadcrumbs", false)
                 @if (!IsSectionDefined("breadcrumbs"))
@@ -145,7 +143,8 @@
     @RenderSection("scripts", false)
     <script type="text/javascript" src="~/Data/Modules/Common/standardui.js"></script>
     <script type="text/javascript">
-        StandardUI.MainHeader.userUpdate(@userUpdate.jsobject());
+        StandardUI.MainHeader.Init();
+        StandardUI.MainHeader.Instance.userUpdate(@userUpdate.jsobject());
     </script>
 </body>
 </html>
