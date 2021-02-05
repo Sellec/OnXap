@@ -79,5 +79,5 @@ gulp.task('copyResources', function () {
 });
 
 // Default task
-gulp.task('default', ['build']);
+gulp.task('default', ['build', 'copyResources']);
 
