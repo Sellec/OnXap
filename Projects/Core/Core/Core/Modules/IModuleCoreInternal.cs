@@ -7,7 +7,7 @@ namespace OnXap.Core.Modules
 
     interface IModuleCoreInternal
     {
-        IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items);
+        IReadOnlyList<KeyValuePair<ItemBase, Uri>> GenerateLinks(IEnumerable<ItemBase> items);
 
         int IdModule { get; }
     }

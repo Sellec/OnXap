@@ -272,9 +272,9 @@ namespace OnXap.Core.Modules
         /// Вызывается для объектов, для которых не был найден адрес в системе маршрутизации по ключу <see cref="RoutingConstants.MAINKEY"/>.
         /// </summary>
         /// <returns></returns>
-        public virtual IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items)
+        public virtual IReadOnlyList<KeyValuePair<ItemBase, Uri>> GenerateLinks(IEnumerable<ItemBase> items)
         {
-            return items.ToDictionary(x => x, x => GenerateLink(x));
+            return items.Select(x => new KeyValuePair<ItemBase, Uri>(x, GenerateLink(x))).ToList();
         }
 
         /// <summary>

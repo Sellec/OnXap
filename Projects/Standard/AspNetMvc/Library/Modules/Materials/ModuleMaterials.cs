@@ -10,12 +10,12 @@ namespace OnXap.Modules.Materials
     [ModuleCore("Контент", DefaultUrlName = "Content")]
     public class ModuleMaterials : ModuleCore<ModuleMaterials>
     {
-        public override IReadOnlyDictionary<ItemBase, Uri> GenerateLinks(IEnumerable<ItemBase> items)
+        public override IReadOnlyList<KeyValuePair<ItemBase, Uri>> GenerateLinks(IEnumerable<ItemBase> items)
         {
             var news = items.Where(x => x is DB.News).ToDictionary(x => x, x => new Uri("/" + UrlName + "/news/" + x.ID, UriKind.Relative));
             var pages = items.Where(x => x is DB.Page).ToDictionary(x => x, x => new Uri("/" + UrlName + "/page/" + x.ID, UriKind.Relative));
 
-            return news.Union(pages).ToDictionary(x => x.Key, x => x.Value);
+            return news.Union(pages).ToList();
         }
 
         public IList<DB.Page> getPagesList()
