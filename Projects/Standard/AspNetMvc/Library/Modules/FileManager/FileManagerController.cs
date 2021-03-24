@@ -327,7 +327,12 @@ namespace OnXap.Modules.FileManager
                 {
                     var ratio = lInitialImageWidth / lInitialImageHeight;
                     if (aNewImageWidth == 0) aNewImageWidth = (int)(aNewImageHeight * ratio);
-                    if (aNewImageHeight == 0) aNewImageHeight = (int)(aNewImageWidth / ratio);
+                    else if (aNewImageHeight == 0) aNewImageHeight = (int)(aNewImageWidth / ratio);
+                    else
+                    {
+                        aNewImageWidth = lInitialImageHeight;
+                        aNewImageWidth = lInitialImageWidth;
+                    }
                 }
 
                 var lImageExtensionId = image.RawFormat;

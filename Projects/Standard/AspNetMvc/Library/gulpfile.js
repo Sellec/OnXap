@@ -1,5 +1,4 @@
-﻿/// <binding BeforeBuild='build, copyResources' ProjectOpened='default' />
-
+/// <binding BeforeBuild='copyResources' ProjectOpened='default' />
 const gulp = require('gulp');
 const gutil = require('gulp-util');
 const connect = require('gulp-connect');
