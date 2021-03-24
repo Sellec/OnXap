@@ -330,8 +330,8 @@ namespace OnXap.Modules.FileManager
                     else if (aNewImageHeight == 0) aNewImageHeight = (int)(aNewImageWidth / ratio);
                     else
                     {
-                        aNewImageWidth = lInitialImageHeight;
-                        aNewImageWidth = lInitialImageWidth;
+                        aNewImageWidth = (int)lInitialImageHeight;
+                        aNewImageWidth = (int)lInitialImageWidth;
                     }
                 }
 
