@@ -323,7 +323,7 @@ namespace OnXap.Modules.FileManager
                 decimal lInitialImageWidth = image.Width;
                 decimal lInitialImageHeight = image.Height;
 
-                if (aNewImageWidth == 0 || aNewImageWidth == 0)
+                if (aNewImageWidth == 0 || aNewImageHeight == 0)
                 {
                     var ratio = lInitialImageWidth / lInitialImageHeight;
                     if (aNewImageWidth == 0) aNewImageWidth = (int)(aNewImageHeight * ratio);
