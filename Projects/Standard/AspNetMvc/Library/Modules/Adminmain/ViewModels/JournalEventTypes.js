@@ -2,8 +2,8 @@
  * Описывает тип события журнала.
  * */
 export const EventType = {
-    CriticalError: 1,
-    Error: 2,
-    Warning: 3,
-    Info: 4
+    CriticalError: 4,
+    Error: 3,
+    Warning: 2,
+    Info: 1
 };
