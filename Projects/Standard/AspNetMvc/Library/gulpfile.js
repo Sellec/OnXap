@@ -27,7 +27,7 @@ function getTargets() {
                         input: path.join(moduleSourceFolderPath, sourceJsFile),
                         output: {
                             directory: path.join("Data//Modules", moduleFolder),
-                            filename: sourceJsFile,
+                            filename: sourceJsFile.toLowerCase(),
                             standalone: sourceJsFile.replace(".js", "").replace(".", "_")
                         }
                     };
