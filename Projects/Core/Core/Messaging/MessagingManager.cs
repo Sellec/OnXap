@@ -184,7 +184,7 @@ namespace OnXap.Messaging
         {
             if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResult(false, "Указанный сервис обработки сообщений не найден.");
 
-            var type = TypeHelpers.ExtractGenericType(typeof(MessageServiceBase<>), typeof(TMessageServiceType));
+            var type = TypeHelpers.ExtractGenericType(typeof(TMessageServiceType), typeof(MessageServiceBase<>));
             var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
 
             return SetMessageServiceOptionsInternal(messageType.IdItemType, messageServiceOptions);
@@ -217,7 +217,7 @@ namespace OnXap.Messaging
         {
             if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResultMessageServiceOptions(false, "Указанный сервис обработки сообщений не найден.");
 
-            var type = TypeHelpers.ExtractGenericType(typeof(MessageServiceBase<>), typeof(TMessageServiceType));
+            var type = TypeHelpers.ExtractGenericType(typeof(TMessageServiceType), typeof(MessageServiceBase<>));
             var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
 
             return GetMessageServiceOptionsInternal(messageType.IdItemType);
