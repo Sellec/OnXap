@@ -1,8 +1,10 @@
 ﻿using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.AppCore.DI;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using OnUtils;
 
 namespace OnXap.Messaging
 {
@@ -11,6 +13,8 @@ namespace OnXap.Messaging
     using Journaling;
     using Messages;
     using OnUtils.Types;
+    using TaskSheduling;
+    using ExecutionResultMessageServiceOptions = ExecutionResult<MessageServiceOptions>;
 
     /// <summary>
     /// Представляет менеджер, управляющий обменом сообщениями - уведомления, электронная почта, смс и прочее.
@@ -48,6 +52,10 @@ namespace OnXap.Messaging
         private List<IComponentTransient> _activeComponents = null;
         private List<IComponentTransient> _registeredComponents = null;
 
+        private MessageServiceOptions _messageServiceOptionsDefault = new MessageServiceOptions();
+        private ConcurrentDictionary<int, MessageServiceOptions> _messageServiceOptions = new ConcurrentDictionary<int, MessageServiceOptions>();
+        private TaskDescription _taskDescriptionClear = null;
+
         /// <summary>
         /// </summary>
         public MessagingManager()
@@ -72,7 +80,20 @@ namespace OnXap.Messaging
         /// </summary>
         protected sealed override void OnStarted()
         {
-            // Попытка инициализировать все сервисы отправки сообщений, наследующиеся от IMessagingService.
+            _taskDescriptionClear = AppCore.Get<TaskSchedulingManager>().RegisterTask(new TaskRequest()
+            {
+                Name = "Менеджер сообщений: очистка старых записей",
+                IsEnabled = true,
+                UniqueKey = typeof(MessagingManager).FullName + "_ClearLastNDays",
+                Schedules = new List<TaskSchedule>()
+                {
+                    new TaskCronSchedule(Cron.Hourly()) { IsEnabled = true }
+                },
+                ExecutionLambda = () => ClearLastNDays(),
+                TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution
+            });
+
+            // Попытка инициализировать все сервисы обработки сообщений, наследующиеся от IMessagingService.
             var types = AppCore.GetQueryTypes().Where(x => x.GetInterfaces().Contains(typeof(IMessageServiceInternal))).ToList();
             foreach (var type in types)
             {
@@ -90,6 +111,123 @@ namespace OnXap.Messaging
         protected sealed override void OnStop()
         {
         }
+        #endregion
+
+        #region Настройки журналов
+        private void ClearLastNDays()
+        {
+            try
+            {
+                if (_taskDescriptionClear == null) return;
+
+                foreach (var pair in _messageServiceOptions)
+                {
+                    var lastNDaysValue = pair.Value.LimitByLastNDays ?? _messageServiceOptionsDefault.LimitByLastNDays;
+                    if (!lastNDaysValue.HasValue || lastNDaysValue.Value < 0) continue;
+
+                    var dateLimit = DateTimeOffset.UtcNow.AddDays(-lastNDaysValue.Value);
+
+                    using (var db = new DB.DataContext())
+                    {
+                        var hasRecords = true;
+                        while (hasRecords)
+                        {
+                            for (int i = 0; i <= 2; i++)
+                            {
+                                try
+                                {
+                                    var rows = db.MessageQueue.Where(x => x.IdMessageType == pair.Key && x.DateCreate < dateLimit).OrderBy(x => x.DateCreate).Take(500).ToList();
+                                    hasRecords = rows.Count > 0;
+                                    if (hasRecords)
+                                    {
+                                        db.MessageQueue.RemoveRange(rows);
+                                        db.SaveChanges();
+                                    }
+                                    break;
+                                }
+                                catch
+                                {
+                                    if (i == 2) hasRecords = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.RegisterEvent(EventType.Error, "Ошибка очистки старых сообщений сервисов обработки сообщений", null, ex);
+            }
+        }
+
+        #region Установка настроек
+        /// <summary>
+        /// Устанавливает свойства по-умолчанию для всех сервисов обработки сообщений, если для сервисов не заданы собственные значения свойств.
+        /// </summary>
+        /// <param name="messageServiceOptions">Параметры сервисов обработки сообщений по-умолчанию.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messageServiceOptions"/> равен null.</exception>
+        public void SetMessageServiceOptionsDefault(MessageServiceOptions messageServiceOptions)
+        {
+            if (messageServiceOptions == null) throw new ArgumentNullException(nameof(messageServiceOptions));
+            _messageServiceOptionsDefault = messageServiceOptions;
+        }
+
+        /// <summary>
+        /// Устанавливает свойства сервиса обработки сообщений.
+        /// </summary>
+        /// <typeparam name="TMessageServiceType">Тип сервиса обработки сообщений.</typeparam>
+        /// <param name="messageServiceOptions">Параметры сервиса обработки сообщений.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messageServiceOptions"/> равен null.</exception>
+        /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResult SetMessageServiceOptions<TMessageServiceType>(MessageServiceOptions messageServiceOptions)
+            where TMessageServiceType : IMessageService
+        {
+            if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResult(false, "Указанный сервис обработки сообщений не найден.");
+
+            var type = TypeHelpers.ExtractGenericType(typeof(MessageServiceBase<>), typeof(TMessageServiceType));
+            var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
+
+            return SetMessageServiceOptionsInternal(messageType.IdItemType, messageServiceOptions);
+        }
+
+        internal ExecutionResult SetMessageServiceOptionsInternal(int idMessageType, MessageServiceOptions messageServiceOptions)
+        {
+            if (messageServiceOptions == null) throw new ArgumentNullException(nameof(messageServiceOptions));
+            _messageServiceOptions[idMessageType] = messageServiceOptions;
+            return new ExecutionResult(true);
+        }
+        #endregion
+
+        #region Получение настроек
+        /// <summary>
+        /// Возвращает свойства по-умолчанию для всех сервисов обработки сообщений.
+        /// </summary>
+        public MessageServiceOptions GetMessageServiceOptionsDefault()
+        {
+            return _messageServiceOptionsDefault ?? new MessageServiceOptions();
+        }
+
+        /// <summary>
+        /// Возвращает свойства сервиса обработки сообщений.
+        /// </summary>
+        /// <typeparam name="TMessageServiceType">Тип сервиса обработки сообщений.</typeparam>
+        /// <returns>Возвращает объект <see cref="ExecutionResultMessageServiceOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultMessageServiceOptions GetMessageServiceOptions<TMessageServiceType>()
+            where TMessageServiceType : IMessageService
+        {
+            if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResultMessageServiceOptions(false, "Указанный сервис обработки сообщений не найден.");
+
+            var type = TypeHelpers.ExtractGenericType(typeof(MessageServiceBase<>), typeof(TMessageServiceType));
+            var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
+
+            return GetMessageServiceOptionsInternal(messageType.IdItemType);
+        }
+
+        internal ExecutionResultMessageServiceOptions GetMessageServiceOptionsInternal(int idMessageType)
+        {
+            return new ExecutionResultMessageServiceOptions(true, null, _messageServiceOptions.TryGetValue(idMessageType, out var options) ? options : new MessageServiceOptions());
+        }
+        #endregion
         #endregion
 
         #region Методы
