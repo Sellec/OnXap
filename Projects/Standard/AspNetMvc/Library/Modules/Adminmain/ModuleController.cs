@@ -629,9 +629,21 @@ namespace OnXap.Modules.Adminmain
                 if (!result.IsSuccess) throw new Exception(result.Message);
 
                 using (var db = new JournalingDB.DataContext())
-                using (var scope = db.CreateScope())
+                using (var scope = db.CreateScope(TransactionScopeOption.Required, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }))
                 {
-                    db.ExecuteQuery("DELETE FROM Journal WHERE IdJournal=@IdJournal", new { IdJournal = result.Result.IdJournal });
+                    int cntDeleted = 1;
+                    while (cntDeleted > 0)
+                    {
+                        cntDeleted = db.ExecuteQuery(@"
+                            DELETE T FROM (
+                                SELECT TOP (1000) IdJournalData
+                                FROM Journal
+                                WHERE IdJournal=@IdJournal
+                                ORDER BY DateEvent
+                            ) T",
+                            new { IdJournal = result.Result.IdJournal }
+                        );
+                    }
                     scope.Complete();
                 }
                 answer.FromSuccess(null);
