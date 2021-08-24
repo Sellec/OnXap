@@ -166,6 +166,24 @@ namespace OnXap.Core.Configuration
                     }
                     catch { }
 
+                    try
+                    {
+                        if (type.IsValueType)
+                        {
+                            var underlyingType = Nullable.GetUnderlyingType(type);
+                            if (underlyingType != null)
+                            {
+                                var converterValue = System.ComponentModel.TypeDescriptor.GetConverter(value.GetType());
+                                if (converterValue.CanConvertTo(underlyingType))
+                                {
+                                    var valConverted = converterValue.ConvertTo(value, underlyingType);
+                                    return (T)valConverted;
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+
                     var converter = System.ComponentModel.TypeDescriptor.GetConverter(type);
                     if (converter.CanConvertFrom(value.GetType()))
                     {
@@ -178,8 +196,11 @@ namespace OnXap.Core.Configuration
 
                     try
                     {
-                        var tt = Convert.ChangeType(value, type);
-                        return (T)tt;
+                        if (value is IConvertible)
+                        {
+                            var tt = Convert.ChangeType(value, type);
+                            return (T)tt;
+                        }
                     }
                     catch { }
 
