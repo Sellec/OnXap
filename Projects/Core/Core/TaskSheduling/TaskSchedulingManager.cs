@@ -490,21 +490,21 @@ namespace OnXap.TaskSheduling
                 var idItemType = Core.Items.ItemTypeFactory.GetItemType<Db.Task>().IdItemType;
                 var itemKey = new Core.Items.ItemKey(idItemType, taskDescription.Id);
 
-                if ((taskDescription.JournalOptions?.LimitByLastNDays?? 0) > 0)
+                if (!(taskDescription.JournalOptions != null && taskDescription.JournalOptions.LimitByLastNDays.HasValue && taskDescription.JournalOptions.LimitByLastNDays <= 0))
                     this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
 
                 var timeStart = DateTime.Now;
 
                 taskDescription.ExecutionLambda.Compile().Invoke();
 
-                if ((taskDescription.JournalOptions?.LimitByLastNDays ?? 0) > 0)
+                if (!(taskDescription.JournalOptions != null && taskDescription.JournalOptions.LimitByLastNDays.HasValue && taskDescription.JournalOptions.LimitByLastNDays <= 0))
                     this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
 
                 return TaskExecuted.Executed;
             }
             catch (Exception ex)
             {
-                if ((taskDescription.JournalOptions?.LimitByLastNDays ?? 0) > 0)
+                if (!(taskDescription.JournalOptions != null && taskDescription.JournalOptions.LimitByLastNDays.HasValue && taskDescription.JournalOptions.LimitByLastNDays <= 0))
                     this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
                 return TaskExecuted.Faulted;
             }
