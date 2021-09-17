@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OnUtils;
+using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -198,12 +199,12 @@ namespace OnXap.Modules.FileManager
             try
             {
                 var rootDirectory = System.Web.Hosting.HostingEnvironment.MapPath("/");
-                var filePath = string.Empty;
+                var filePathRelative = string.Empty;
                 var fileName = string.Empty;
                 DateTime? dbChangeTime = null;
                 var mimeType = MediaTypeNames.Application.Octet;
 
-                if (!IdFile.HasValue) filePath = "data/img/files/argumentzero.jpg"; //Не указан номер файла.
+                if (!IdFile.HasValue) filePathRelative = "data/img/files/argumentzero.jpg"; //Не указан номер файла.
                 else
                 {
                     using (var db = new Db.DataContext())
@@ -215,14 +216,14 @@ namespace OnXap.Modules.FileManager
 
                         if (file == null)
                         {
-                            filePath = "data/img/files/notfound.jpg"; //Файл не найден.
+                            filePathRelative = "data/img/files/notfound.jpg"; //Файл не найден.
                             IdFile = null; // сбрасывается для формирования правильного пути временного изображения.
                         }
                         else
                         {
                             if (!System.IO.File.Exists(Path.Combine(rootDirectory, file.PathFile)) && !System.IO.File.Exists(Path.Combine(rootDirectory, "bin", file.PathFile)))
                             {
-                                filePath = "data/img/files/notfound.jpg"; //Файл не найден.
+                                filePathRelative = "data/img/files/notfound.jpg"; //Файл не найден.
                                 if (Module.ExternalFileSourceDomain != null)
                                 {
                                     var paramss = string.Join("&", new List<string>() { !MaxWidth.HasValue ? null : "MaxWidth=" + MaxWidth.Value, !MaxHeight.HasValue ? null : "MaxHeight=" + MaxHeight.Value }.
@@ -234,7 +235,7 @@ namespace OnXap.Modules.FileManager
                             }
                             else
                             {
-                                filePath = file.PathFile;
+                                filePathRelative = file.PathFile;
                                 fileName = file.NameFile;
                                 dbChangeTime = file.DateChange.FromTimestamp();
                                 if (!string.IsNullOrEmpty(file.TypeConcrete)) mimeType = file.TypeConcrete;
@@ -243,81 +244,89 @@ namespace OnXap.Modules.FileManager
                     }
                 }
 
-                string path = null;
+                string filePathFull = null;
 
-                if (System.IO.File.Exists(Path.Combine(rootDirectory, filePath))) path = Path.Combine(rootDirectory, filePath);
-                if (System.IO.File.Exists(Path.Combine(rootDirectory, "bin", filePath))) path = Path.Combine(rootDirectory, "bin", filePath);
+                if (System.IO.File.Exists(Path.Combine(rootDirectory, filePathRelative))) filePathFull = Path.Combine(rootDirectory, filePathRelative);
+                if (System.IO.File.Exists(Path.Combine(rootDirectory, "bin", filePathRelative))) filePathFull = Path.Combine(rootDirectory, "bin", filePathRelative);
 
-                if (path == null && Debug.IsDeveloper)
+                if (filePathFull == null && Debug.IsDeveloper)
                 {
-                    var filePathVirtual = AppCore.Get<Core.Storage.ResourceProvider>().GetFilePath(null, filePath, true, out var searchLocations);
+                    var filePathVirtual = AppCore.Get<Core.Storage.ResourceProvider>().GetFilePath(null, filePathRelative, true, out var searchLocations);
                     if (filePathVirtual != null)
                     {
-                        var filePathFull = Server.MapPath(filePathVirtual);
-                        if (System.IO.File.Exists(filePathFull)) path = filePathFull;
+                        var filePathFullTmp = Server.MapPath(filePathVirtual);
+                        if (System.IO.File.Exists(filePathFullTmp)) filePathFull = filePathFullTmp;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(path))
+                if (!string.IsNullOrEmpty(filePathFull))
                 {
                     var isNeedResize = MaxWidth.HasValue || MaxHeight.HasValue;
                     if (!isNeedResize)
                     {
-                        var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePath) : fileName;
+                        var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePathRelative) : fileName;
                         Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
                         Response.Cache.SetCacheability(HttpCacheability.Public);
                         if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
-                        return base.File(path, mimeType);
+                        return base.File(filePathFull, mimeType);
                     }
-                    else
+                    else 
                     {
-                        var name = $"cropped_{(MaxWidth.HasValue ? MaxWidth.Value : 0)}_{(MaxHeight.HasValue ? MaxHeight.Value : 0)}_" + (IdFile.HasValue ? IdFile.Value + Path.GetExtension(path) : Path.GetFileName(path));
-                        var filePathRelative = Path.Combine("data/filesModified/", name);
-                        var filePath2 = Path.Combine(rootDirectory, filePathRelative);
-                        Directory.CreateDirectory(Path.GetDirectoryName(filePath2));
-
-                        var isNeedUpdateFile = false;
-                        var isFileExists = System.IO.File.Exists(filePath2);
-                        if (isFileExists)
+                        var isAllowed = IsFileImageCropAllowed(IdFile, MaxWidth, MaxHeight, filePathRelative, filePathFull);
+                        if (!isAllowed.IsSuccess)
                         {
-                            var fileChangeTime = System.IO.File.GetLastWriteTimeUtc(filePath2);
-                            if (dbChangeTime.HasValue && dbChangeTime.Value > fileChangeTime) isNeedUpdateFile = true;
+                            return base.Content(isAllowed.Message);
                         }
                         else
                         {
-                            isNeedUpdateFile = true;
-                        }
+                            var name = (IdFile.HasValue ? IdFile.Value + Path.GetExtension(filePathFull) : Path.GetFileName(filePathFull));
+                            var filePathRelativeNew = Path.Combine($"data/filesModified/cropped", $"{(MaxWidth ?? 0)}_{(MaxHeight ?? 0)}", name);
+                            var filePathFullNew = Path.Combine(rootDirectory, filePathRelativeNew);
+                            Directory.CreateDirectory(Path.GetDirectoryName(filePathFullNew));
 
-                        if (isNeedUpdateFile)
-                        {
-                            var image = CropImage(path, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
-                            for (int i = 0; i < 3; i++)
+                            var isNeedUpdateFile = false;
+                            var isFileExists = System.IO.File.Exists(filePathFullNew);
+                            if (isFileExists)
                             {
-                                try
+                                var fileChangeTime = System.IO.File.GetLastWriteTimeUtc(filePathFullNew);
+                                if (dbChangeTime.HasValue && dbChangeTime.Value > fileChangeTime) isNeedUpdateFile = true;
+                            }
+                            else
+                            {
+                                isNeedUpdateFile = true;
+                            }
+
+                            if (isNeedUpdateFile)
+                            {
+                                var image = CropImage(filePathFull, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
+                                for (int i = 0; i < 3; i++)
                                 {
-                                    using (var fileStream = new FileStream(filePath2, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                                    try
                                     {
-                                        fileStream.SetLength(0);
-                                        image.Item1.Save(fileStream, image.Item2);
-                                        fileStream.Dispose();
+                                        using (var fileStream = new FileStream(filePathFullNew, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                                        {
+                                            fileStream.SetLength(0);
+                                            image.Item1.Save(fileStream, image.Item2);
+                                            fileStream.Dispose();
+                                        }
+                                        if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePathFullNew, dbChangeTime.Value);
+                                        break;
                                     }
-                                    if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePath2, dbChangeTime.Value);
-                                    break;
-                                }
-                                catch
-                                {
-                                    System.Threading.Thread.Sleep(500);
+                                    catch
+                                    {
+                                        System.Threading.Thread.Sleep(500);
+                                    }
                                 }
                             }
-                        }
 
-                        if (isFileExists)
-                        {
-                            var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePath) : fileName;
-                            Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
-                            Response.Cache.SetCacheability(HttpCacheability.Public);
-                            if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
-                            return base.File(filePath2, mimeType);
+                            if (isFileExists)
+                            {
+                                var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePathRelative) : fileName;
+                                Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
+                                Response.Cache.SetCacheability(HttpCacheability.Public);
+                                if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
+                                return base.File(filePathFullNew, mimeType);
+                            }
                         }
                     }
                 }
@@ -401,5 +410,26 @@ namespace OnXap.Modules.FileManager
                 return new Tuple<Image, ImageFormat>(newImage, lImageExtensionId);
             }
         }
+
+        /// <summary>
+        /// Позволяет управлять разрешением на изменение размера изображения.
+        /// </summary>
+        /// <param name="idFile"></param>
+        /// <param name="maxWidth"></param>
+        /// <param name="maxHeight"></param>
+        /// <param name="filePathRelative"></param>
+        /// <param name="filePathFull"></param>
+        /// <returns></returns>
+        protected ExecutionResult IsFileImageCropAllowed(
+            int? idFile,
+            int? maxWidth,
+            int? maxHeight,
+            string filePathRelative,
+            string filePathFull
+        )
+        {
+            return new ExecutionResult(true);
+        }
+
     }
 }
