@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -275,22 +276,42 @@ namespace OnXap.Modules.FileManager
                         var filePath2 = Path.Combine(rootDirectory, filePathRelative);
                         Directory.CreateDirectory(Path.GetDirectoryName(filePath2));
 
-                        if (System.IO.File.Exists(filePath2))
+                        var isNeedUpdateFile = false;
+                        var isFileExists = System.IO.File.Exists(filePath2);
+                        if (isFileExists)
                         {
                             var fileChangeTime = System.IO.File.GetLastWriteTimeUtc(filePath2);
-                            if (dbChangeTime.HasValue && dbChangeTime.Value > fileChangeTime) System.IO.File.Delete(filePath2);
+                            if (dbChangeTime.HasValue && dbChangeTime.Value > fileChangeTime) isNeedUpdateFile = true;
+                        }
+                        else
+                        {
+                            isNeedUpdateFile = true;
                         }
 
-                        if (!System.IO.File.Exists(filePath2))
+                        if (isNeedUpdateFile)
                         {
                             var image = CropImage(path, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
+                            for (int i = 0; i < 3; i++)
                             {
-                                image.Item1.Save(filePath2, image.Item2);
-                                if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePath2, dbChangeTime.Value);
+                                try
+                                {
+                                    using (var fileStream = new FileStream(filePath2, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                                    {
+                                        fileStream.SetLength(0);
+                                        image.Item1.Save(fileStream, image.Item2);
+                                        fileStream.Dispose();
+                                    }
+                                    if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePath2, dbChangeTime.Value);
+                                    break;
+                                }
+                                catch
+                                {
+                                    System.Threading.Thread.Sleep(500);
+                                }
                             }
                         }
 
-                        if (System.IO.File.Exists(filePath2))
+                        if (isFileExists)
                         {
                             var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePath) : fileName;
                             Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
