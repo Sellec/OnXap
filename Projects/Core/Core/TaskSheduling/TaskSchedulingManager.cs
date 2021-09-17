@@ -121,6 +121,7 @@ namespace OnXap.TaskSheduling
                 taskDescription.TaskOptions = taskRequest.TaskOptions;
                 taskDescription.Schedules = new ReadOnlyCollection<TaskSchedule>(taskRequest.Schedules ?? new List<TaskSchedule>());
                 taskDescription.ManualSchedules = new ReadOnlyCollection<TaskSchedule>(schedules.GroupBy(x => x.GetUniqueKey()).Select(x=>x.First()).ToList());
+                taskDescription.JournalOptions = taskRequest.JournalOptions;
             }
             return taskDescription;
         }
@@ -489,18 +490,22 @@ namespace OnXap.TaskSheduling
                 var idItemType = Core.Items.ItemTypeFactory.GetItemType<Db.Task>().IdItemType;
                 var itemKey = new Core.Items.ItemKey(idItemType, taskDescription.Id);
 
-                this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
+                if ((taskDescription.JournalOptions?.LimitByLastNDays?? 0) > 0)
+                    this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");
+
                 var timeStart = DateTime.Now;
 
                 taskDescription.ExecutionLambda.Compile().Invoke();
 
-                this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
+                if ((taskDescription.JournalOptions?.LimitByLastNDays ?? 0) > 0)
+                    this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
 
                 return TaskExecuted.Executed;
             }
             catch (Exception ex)
             {
-                this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
+                if ((taskDescription.JournalOptions?.LimitByLastNDays ?? 0) > 0)
+                    this.RegisterEvent(Journaling.EventType.Info, "Ошибка выполнения", $"Неожиданная ошибка выполнения задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').", ex);
                 return TaskExecuted.Faulted;
             }
             finally

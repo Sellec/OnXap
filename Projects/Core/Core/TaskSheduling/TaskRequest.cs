@@ -4,6 +4,8 @@ using System.Linq.Expressions;
 
 namespace OnXap.TaskSheduling
 {
+    using Journaling;
+
     /// <summary>
     /// Запрос для регистрации задачи.
     /// </summary>
@@ -46,5 +48,9 @@ namespace OnXap.TaskSheduling
         /// </summary>
         public TaskOptions TaskOptions { get; set; }
 
+        /// <summary>
+        /// Дополнительные параметры журналирования событий, связанных с задачей.
+        /// </summary>
+        public JournalOptions JournalOptions { get; set; }
     }
 }

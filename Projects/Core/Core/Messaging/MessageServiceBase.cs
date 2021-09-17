@@ -89,7 +89,8 @@ namespace OnXap.Messaging
                 TaskOptions = TaskOptions.PreventParallelExecution,
                 UniqueKey = "CallServiceIncomingReceive_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceIncomingReceive(type, TimeSpan.FromMinutes(4)),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) },
+                JournalOptions = new Journaling.JournalOptions() { LimitByLastNDays = 0 }
             });
             taskSchedulingManager.RegisterTask(new TaskRequest()
             {
@@ -99,7 +100,8 @@ namespace OnXap.Messaging
                 TaskOptions = TaskOptions.PreventParallelExecution,
                 UniqueKey = "CallServiceIncomingHandle_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceIncomingHandle(type, TimeSpan.FromMinutes(4)),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) },
+                JournalOptions = new Journaling.JournalOptions() { LimitByLastNDays = 0 }
             });
             _taskOutcomingMessages = taskSchedulingManager.RegisterTask(new TaskRequest()
             {
@@ -109,7 +111,8 @@ namespace OnXap.Messaging
                 TaskOptions = TaskOptions.PreventParallelExecution,
                 UniqueKey = "CallServiceOutcoming_" + GetType().FullName,
                 ExecutionLambda = () => MessagingManager.CallServiceOutcoming(type, TimeSpan.FromMinutes(4)),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) },
+                JournalOptions = new Journaling.JournalOptions() { LimitByLastNDays = 0 }
             });
 
             OnServiceStarting();
