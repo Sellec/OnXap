@@ -102,6 +102,12 @@ namespace OnXap.Modules.Routing.DbSchema
                     WHERE ([{GetColumnName((Db.Routing x) => x.UniqueKey)}] IS NOT NULL AND [{GetColumnName((Db.Routing x) => x.IdRoutingType)}]<>(2))
                 ".Replace("                    ", ""));
 
+            if (!isTableExists || !Schema.Table<Db.Routing>().Index("IdItem_IdItemType_UniqueKey").Exists())
+                Create.Index("IdItem_IdItemType_UniqueKey").OnTable(GetTableName<Db.Routing>()).
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItem)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.IdItemType)).Ascending().
+                    OnColumn(GetColumnName((Db.Routing x) => x.UniqueKey)).Ascending();
+
             if (!isTableExists || !Schema.Table<Db.Routing>().Constraint("FK_Routing_ItemType").Exists())
                 Create.ForeignKey("FK_Routing_ItemType").
                     FromTable(GetTableName<Db.Routing>()).ForeignColumn(GetColumnName((Db.Routing x) => x.IdItemType)).
