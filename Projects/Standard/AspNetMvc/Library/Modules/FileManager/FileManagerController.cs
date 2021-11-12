@@ -309,6 +309,7 @@ namespace OnXap.Modules.FileManager
                                             image.Item1.Save(fileStream, image.Item2);
                                             fileStream.Dispose();
                                         }
+                                        isFileExists = true;
                                         if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePathFullNew, dbChangeTime.Value);
                                         break;
                                     }
