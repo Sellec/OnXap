@@ -208,7 +208,7 @@ namespace OnXap.Modules.Subscriptions
                 rowDb.IdGroup = subscriptionGroupDescription.Id;
                 db.SaveChanges();
 
-                subscriptionDescription.Id = rowDb.IdGroup;
+                subscriptionDescription.Id = rowDb.IdSubscription;
                 subscriptionDescription.Name = subscriptionRequest.Name;
                 subscriptionDescription.IsConfirmed = true;
                 subscriptionDescription.UniqueKey = subscriptionRequest.UniqueKey;
