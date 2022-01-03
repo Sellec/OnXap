@@ -1,14 +1,13 @@
-﻿using OnXap.Messaging;
-using OnXap.Messaging.Messages;
+﻿using OnXap.Messaging.Messages;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace OnXap.Modules.MessagingEmail
 {
-    using Messaging;
     using Core.Items;
+    using Messaging;
     using Messaging.DB;
 
     /// <summary>
@@ -163,16 +162,19 @@ namespace OnXap.Modules.MessagingEmail
 
         void ICriticalMessagesReceiver.SendToAdmin(string subject, string body)
         {
-            SendMail(
-                "Почтовый робот сайта",
-                GetNoReplyAddress(),
-                "admin",
-                AppCore.WebConfig.CriticalMessagesEmail,
-                null, null,
-                subject,
-                body,
-                ContentType.Text
-            );
+            if (!string.IsNullOrEmpty(AppCore.WebConfig.CriticalMessagesEmail))
+            {
+                SendMail(
+                    "Почтовый робот сайта",
+                    GetNoReplyAddress(),
+                    "admin",
+                    AppCore.WebConfig.CriticalMessagesEmail,
+                    null, null,
+                    subject,
+                    body,
+                    ContentType.Text
+                );
+            }
         }
 
         #endregion

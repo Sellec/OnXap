@@ -32,6 +32,7 @@ namespace OnXap.Journaling
         private JournalOptions _journalOptionsDefault = new JournalOptions();
         private ConcurrentDictionary<int, JournalOptions> _journalsOptions = new ConcurrentDictionary<int, JournalOptions>();
         private TaskDescription _taskDescriptionClear = null;
+        internal Guid _subscriptionEventCritical = Guid.Empty;
 
         #region CoreComponentBase
         /// <summary>
@@ -58,6 +59,14 @@ namespace OnXap.Journaling
                 },
                 ExecutionLambda = () => ClearLastNDays(),
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution
+            });
+            var subscriptionManager = AppCore.Get<Modules.Subscriptions.SubscriptionsManager>();
+            _subscriptionEventCritical = $"{typeof(EventType).FullName}.{nameof(EventType.CriticalError)}".GenerateGuid();
+            subscriptionManager.RegisterSubscription(new Modules.Subscriptions.SubscriptionRequest()
+            {
+                Name = "Журнал: уведомление о критических событиях",
+                SubscriptionGroup = subscriptionManager.SubscriptionGroupSystem,
+                UniqueKey = _subscriptionEventCritical
             });
         }
 
@@ -857,6 +866,7 @@ namespace OnXap.Journaling
                         if (!string.IsNullOrEmpty(data.ExceptionDetailed)) body += $"Исключение: {data.ExceptionDetailed}\r\n";
 
                         AppCore.Get<Messaging.MessagingManager>().GetCriticalMessagesReceivers().ForEach(x => x.SendToAdmin(journalForCritical != null ? $"Критическая ошибка в журнале '{journalForCritical.Name}'" : "Критическая ошибка", body));
+                        AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().TrySendFromSubscriptionUniversal(_subscriptionEventCritical, body);
                     }
 
                 }

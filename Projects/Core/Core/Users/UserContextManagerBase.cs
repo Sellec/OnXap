@@ -43,7 +43,8 @@ namespace OnXap.Users
         {
             this.RegisterJournal("Менеджер контекстов пользователей");
 
-            var authJournalResult = AppCore.Get<JournalingManager>().RegisterJournal(1, "Журнал авторизации пользователей", "UsersAuthJournal");
+            var journalingManager = AppCore.Get<JournalingManager>();
+            var authJournalResult = journalingManager.RegisterJournal(1, "Журнал авторизации пользователей", "UsersAuthJournal");
             if (authJournalResult.IsSuccess)
             {
                 _journalAuthId = authJournalResult.Result.IdJournal;
@@ -74,6 +75,7 @@ namespace OnXap.Users
                             UniqueKey = systemUserKey
                         };
                         db.Users.Add(user);
+                        db.SaveChanges();
                     }
                     else
                     {
@@ -96,6 +98,11 @@ namespace OnXap.Users
             var systemUserContext = new UserContext(systemUser, true);
             ((IComponentStartable)systemUserContext).Start(AppCore);
             _systemUserContext = systemUserContext;
+
+            AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().UpdateSubscribers(
+                journalingManager._subscriptionEventCritical, 
+                Modules.Subscriptions.ChangeType.Append, 
+                new int[] { _systemUserContext.IdUser });
 
             // В момент запуска для запускающего потока устанавливается системный пользователь для выполнения инициализирующих действий с максимальными правами доступа.
             _currentUserContext.Value = _systemUserContext;
