@@ -5,7 +5,7 @@
     /// <summary>
     /// Описывает сервис отправки/приема сообщений.
     /// </summary>
-    public interface IMessageService : ServiceMonitor.IMonitoredService, IComponentSingleton
+    public interface IMessagingService : ServiceMonitor.IMonitoredService, IComponentSingleton
     {
 
     }

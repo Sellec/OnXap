@@ -77,9 +77,9 @@ namespace OnXap.Modules.MessagingEmail.Components
         }
 
         /// <summary>
-        /// См. <see cref="OutcomingMessageSender{TMessage}.OnSend(MessageInfo{TMessage}, MessageServiceBase{TMessage})"/>.
+        /// См. <see cref="OutcomingMessageSender{TMessage}.OnSend(MessageInfo{TMessage}, MessagingServiceBase{TMessage})"/>.
         /// </summary>
-        internal protected override ComponentResult OnSend(MessageInfo<EmailMessage> message, MessageServiceBase<EmailMessage> service)
+        internal protected override ComponentResult OnSend(MessageInfo<EmailMessage> message, MessagingServiceBase<EmailMessage> service)
         {
             try
             {

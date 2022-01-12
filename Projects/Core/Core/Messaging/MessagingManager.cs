@@ -14,7 +14,7 @@ namespace OnXap.Messaging
     using Messages;
     using OnUtils.Types;
     using TaskSheduling;
-    using ExecutionResultMessageServiceOptions = ExecutionResult<MessageServiceOptions>;
+    using ExecutionResultMessagingServiceOptions = ExecutionResult<MessagingServiceOptions>;
 
     /// <summary>
     /// Представляет менеджер, управляющий обменом сообщениями - уведомления, электронная почта, смс и прочее.
@@ -36,7 +36,7 @@ namespace OnXap.Messaging
 
             void IInstanceActivatingHandler.OnInstanceActivating<TRequestedType>(object instance)
             {
-                if (instance is IMessageServiceInternal service)
+                if (instance is IMessagingServiceInternal service)
                 {
                     if (!_manager._services.Contains(service)) _manager._services.Add(service);
                 }
@@ -46,14 +46,14 @@ namespace OnXap.Messaging
         private static OnXApplication _appCore = null;
 
         private readonly InstanceActivatingHandlerImpl _instanceActivatingHandler = null;
-        private List<IMessageServiceInternal> _services = new List<IMessageServiceInternal>();
+        private List<IMessagingServiceInternal> _services = new List<IMessagingServiceInternal>();
 
         private object _activeComponentsSyncRoot = new object();
         private List<IComponentTransient> _activeComponents = null;
         private List<IComponentTransient> _registeredComponents = null;
 
-        private MessageServiceOptions _messageServiceOptionsDefault = new MessageServiceOptions();
-        private ConcurrentDictionary<int, MessageServiceOptions> _messageServiceOptions = new ConcurrentDictionary<int, MessageServiceOptions>();
+        private MessagingServiceOptions _messagingServiceOptionsDefault = new MessagingServiceOptions();
+        private ConcurrentDictionary<int, MessagingServiceOptions> _messagingServiceOptions = new ConcurrentDictionary<int, MessagingServiceOptions>();
         private TaskDescription _taskDescriptionClear = null;
 
         /// <summary>
@@ -94,12 +94,12 @@ namespace OnXap.Messaging
             });
 
             // Попытка инициализировать все сервисы обработки сообщений, наследующиеся от IMessagingService.
-            var types = AppCore.GetQueryTypes().Where(x => x.GetInterfaces().Contains(typeof(IMessageServiceInternal))).ToList();
+            var types = AppCore.GetQueryTypes().Where(x => x.GetInterfaces().Contains(typeof(IMessagingServiceInternal))).ToList();
             foreach (var type in types)
             {
                 try
                 {
-                    var instance = AppCore.Get<IMessageServiceInternal>(type);
+                    var instance = AppCore.Get<IMessagingServiceInternal>(type);
                     if (instance != null && !_services.Contains(instance)) _services.Add(instance);
                 }
                 catch { }
@@ -120,9 +120,9 @@ namespace OnXap.Messaging
             {
                 if (_taskDescriptionClear == null) return;
 
-                foreach (var pair in _messageServiceOptions)
+                foreach (var pair in _messagingServiceOptions)
                 {
-                    var lastNDaysValue = pair.Value.LimitByLastNDays ?? _messageServiceOptionsDefault.LimitByLastNDays;
+                    var lastNDaysValue = pair.Value.LimitByLastNDays ?? _messagingServiceOptionsDefault.LimitByLastNDays;
                     if (!lastNDaysValue.HasValue || lastNDaysValue.Value < 0) continue;
 
                     var dateLimit = DateTimeOffset.UtcNow.AddDays(-lastNDaysValue.Value);
@@ -164,36 +164,36 @@ namespace OnXap.Messaging
         /// <summary>
         /// Устанавливает свойства по-умолчанию для всех сервисов обработки сообщений, если для сервисов не заданы собственные значения свойств.
         /// </summary>
-        /// <param name="messageServiceOptions">Параметры сервисов обработки сообщений по-умолчанию.</param>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messageServiceOptions"/> равен null.</exception>
-        public void SetMessageServiceOptionsDefault(MessageServiceOptions messageServiceOptions)
+        /// <param name="messagingServiceOptions">Параметры сервисов обработки сообщений по-умолчанию.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messagingServiceOptions"/> равен null.</exception>
+        public void SetMessagingServiceOptionsDefault(MessagingServiceOptions messagingServiceOptions)
         {
-            if (messageServiceOptions == null) throw new ArgumentNullException(nameof(messageServiceOptions));
-            _messageServiceOptionsDefault = messageServiceOptions;
+            if (messagingServiceOptions == null) throw new ArgumentNullException(nameof(messagingServiceOptions));
+            _messagingServiceOptionsDefault = messagingServiceOptions;
         }
 
         /// <summary>
         /// Устанавливает свойства сервиса обработки сообщений.
         /// </summary>
-        /// <typeparam name="TMessageServiceType">Тип сервиса обработки сообщений.</typeparam>
-        /// <param name="messageServiceOptions">Параметры сервиса обработки сообщений.</param>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messageServiceOptions"/> равен null.</exception>
+        /// <typeparam name="TMessagingServiceType">Тип сервиса обработки сообщений.</typeparam>
+        /// <param name="messagingServiceOptions">Параметры сервиса обработки сообщений.</param>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="messagingServiceOptions"/> равен null.</exception>
         /// <returns>Возвращает объект <see cref="ExecutionResult"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
-        public ExecutionResult SetMessageServiceOptions<TMessageServiceType>(MessageServiceOptions messageServiceOptions)
-            where TMessageServiceType : IMessageService
+        public ExecutionResult SetMessagingServiceOptions<TMessagingServiceType>(MessagingServiceOptions messagingServiceOptions)
+            where TMessagingServiceType : IMessagingService
         {
-            if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResult(false, "Указанный сервис обработки сообщений не найден.");
+            if (!_services.Any(x => x.GetType() == typeof(TMessagingServiceType))) return new ExecutionResult(false, "Указанный сервис обработки сообщений не найден.");
 
-            var type = TypeHelpers.ExtractGenericType(typeof(TMessageServiceType), typeof(MessageServiceBase<>));
+            var type = TypeHelpers.ExtractGenericType(typeof(TMessagingServiceType), typeof(MessagingServiceBase<>));
             var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
 
-            return SetMessageServiceOptionsInternal(messageType.IdItemType, messageServiceOptions);
+            return SetMessagingServiceOptionsInternal(messageType.IdItemType, messagingServiceOptions);
         }
 
-        internal ExecutionResult SetMessageServiceOptionsInternal(int idMessageType, MessageServiceOptions messageServiceOptions)
+        internal ExecutionResult SetMessagingServiceOptionsInternal(int idMessageType, MessagingServiceOptions messagingServiceOptions)
         {
-            if (messageServiceOptions == null) throw new ArgumentNullException(nameof(messageServiceOptions));
-            _messageServiceOptions[idMessageType] = messageServiceOptions;
+            if (messagingServiceOptions == null) throw new ArgumentNullException(nameof(messagingServiceOptions));
+            _messagingServiceOptions[idMessageType] = messagingServiceOptions;
             return new ExecutionResult(true);
         }
         #endregion
@@ -202,30 +202,30 @@ namespace OnXap.Messaging
         /// <summary>
         /// Возвращает свойства по-умолчанию для всех сервисов обработки сообщений.
         /// </summary>
-        public MessageServiceOptions GetMessageServiceOptionsDefault()
+        public MessagingServiceOptions GetMessagingServiceOptionsDefault()
         {
-            return _messageServiceOptionsDefault ?? new MessageServiceOptions();
+            return _messagingServiceOptionsDefault ?? new MessagingServiceOptions();
         }
 
         /// <summary>
         /// Возвращает свойства сервиса обработки сообщений.
         /// </summary>
-        /// <typeparam name="TMessageServiceType">Тип сервиса обработки сообщений.</typeparam>
-        /// <returns>Возвращает объект <see cref="ExecutionResultMessageServiceOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
-        public ExecutionResultMessageServiceOptions GetMessageServiceOptions<TMessageServiceType>()
-            where TMessageServiceType : IMessageService
+        /// <typeparam name="TMessagingServiceType">Тип сервиса обработки сообщений.</typeparam>
+        /// <returns>Возвращает объект <see cref="ExecutionResultMessagingServiceOptions"/> со свойством <see cref="ExecutionResult.IsSuccess"/> в зависимости от успешности выполнения операции. В случае ошибки свойство <see cref="ExecutionResult.Message"/> содержит сообщение об ошибке.</returns>
+        public ExecutionResultMessagingServiceOptions GetMessagingServiceOptions<TMessagingServiceType>()
+            where TMessagingServiceType : IMessagingService
         {
-            if (!_services.Any(x => x.GetType() == typeof(TMessageServiceType))) return new ExecutionResultMessageServiceOptions(false, "Указанный сервис обработки сообщений не найден.");
+            if (!_services.Any(x => x.GetType() == typeof(TMessagingServiceType))) return new ExecutionResultMessagingServiceOptions(false, "Указанный сервис обработки сообщений не найден.");
 
-            var type = TypeHelpers.ExtractGenericType(typeof(TMessageServiceType), typeof(MessageServiceBase<>));
+            var type = TypeHelpers.ExtractGenericType(typeof(TMessagingServiceType), typeof(MessagingServiceBase<>));
             var messageType = Core.Items.ItemTypeFactory.GetItemType(type.GenericTypeArguments[0]);
 
-            return GetMessageServiceOptionsInternal(messageType.IdItemType);
+            return GetMessagingServiceOptionsInternal(messageType.IdItemType);
         }
 
-        internal ExecutionResultMessageServiceOptions GetMessageServiceOptionsInternal(int idMessageType)
+        internal ExecutionResultMessagingServiceOptions GetMessagingServiceOptionsInternal(int idMessageType)
         {
-            return new ExecutionResultMessageServiceOptions(true, null, _messageServiceOptions.TryGetValue(idMessageType, out var options) ? options : new MessageServiceOptions());
+            return new ExecutionResultMessagingServiceOptions(true, null, _messagingServiceOptions.TryGetValue(idMessageType, out var options) ? options : new MessagingServiceOptions());
         }
         #endregion
         #endregion
@@ -252,7 +252,7 @@ namespace OnXap.Messaging
         /// <summary>
         /// Регистрирует новый компонент сервиса обработки сообщений.
         /// </summary>
-        public void RegisterComponent<TMessage>(MessageServiceComponent<TMessage> component)
+        public void RegisterComponent<TMessage>(MessagingServiceComponent<TMessage> component)
             where TMessage : MessageBase, new()
         {
             if (component == null) return;
@@ -282,38 +282,30 @@ namespace OnXap.Messaging
         /// <summary>
         /// Возвращает список компонентов, поддерживающих обмен сообщениями указанного типа <typeparamref name="TMessage"/>.
         /// </summary>
-        public IEnumerable<MessageServiceComponent<TMessage>> GetComponentsByMessageType<TMessage>() where TMessage : MessageBase, new()
+        public IEnumerable<MessagingServiceComponent<TMessage>> GetComponentsByMessageType<TMessage>() where TMessage : MessageBase, new()
         {
             lock (_activeComponentsSyncRoot)
                 if (_activeComponents == null)
                     UpdateComponentsFromSettings();
 
-            var active = _activeComponents.OfType<MessageServiceComponent<TMessage>>();
-            var registered = _registeredComponents.OfType<MessageServiceComponent<TMessage>>();
+            var active = _activeComponents.OfType<MessagingServiceComponent<TMessage>>();
+            var registered = _registeredComponents.OfType<MessagingServiceComponent<TMessage>>();
 
             return active.Union(registered);
         }
 
         /// <summary>
-        /// Возвращает список сервисов-получателей критических сообщений.
-        /// </summary>
-        public IEnumerable<ICriticalMessagesReceiver> GetCriticalMessagesReceivers()
-        {
-            return _services.OfType<ICriticalMessagesReceiver>();
-        }
-
-        /// <summary>
         /// Возвращает список сервисов обмена сообщениями.
         /// </summary>
-        public IEnumerable<IMessageService> GetMessagingServices()
+        public IEnumerable<IMessagingService> GetMessagingServices()
         {
-            return _services.OfType<IMessageService>().ToList();
+            return _services.OfType<IMessagingService>().ToList();
         }
 
         /// <summary>
         /// Пересоздает текущий используемый список компонентов с учетом настроек. Рекомендуется к использованию в случае изменения настроек.
         /// </summary>
-        /// <see cref="Core.Configuration.CoreConfiguration.MessageServicesComponentsSettings"/>
+        /// <see cref="Core.Configuration.CoreConfiguration.MessagingServicesComponentsSettings"/>
         public void UpdateComponentsFromSettings()
         {
             lock (_activeComponentsSyncRoot)
@@ -333,12 +325,12 @@ namespace OnXap.Messaging
 
                 _activeComponents = new List<IComponentTransient>();
 
-                var settings = AppCore.AppConfig.MessageServicesComponentsSettings;
+                var settings = AppCore.AppConfig.MessagingServicesComponentsSettings;
                 if (settings != null)
                 {
                     var types = AppCore.
                         GetQueryTypes().
-                        Select(x => new { Type = x, Extracted = TypeHelpers.ExtractGenericType(x, typeof(MessageServiceComponent<>)) }).
+                        Select(x => new { Type = x, Extracted = TypeHelpers.ExtractGenericType(x, typeof(MessagingServiceComponent<>)) }).
                         Where(x => x.Extracted != null).
                         Select(x => new { x.Type, MessageType = x.Extracted.GetGenericArguments()[0] }).
                         ToList();

@@ -15,7 +15,7 @@ namespace OnXap.Modules.MessagingEmail
     /// </summary>
     /// <remarks>
     /// </remarks>
-    public class EmailService : MessageServiceBase<EmailMessage>, ICriticalMessagesReceiver, IDebugSupported
+    public class EmailService : MessagingServiceBase<EmailMessage>, IDebugSupported
     {
         private bool _debugIsEnabled = false;
         private string _debugRecipient = null;
@@ -94,62 +94,7 @@ namespace OnXap.Modules.MessagingEmail
             SendMail("Почтовый робот сайта", GetNoReplyAddress(), AppCore.WebConfig.DeveloperEmail, AppCore.WebConfig.DeveloperEmail, null, null, subject, body, contentType, files);
         }
 
-        /// <summary>
-        /// Производит рассылку письма всем подписчикам указанной подписки.
-        /// </summary>
-        /// <param name="idSubscription">Идентификатор подписки.</param>
-        /// <param name="subject">Тема письма.</param>
-        /// <param name="body">Тело письма.</param>
-        /// <param name="contentType">Тип содержимого письма.</param>
-        /// <param name="availableUserStates">Письма будут отправлены пользователям с указанными состояниями учетных записей. Если параметр не задан, то в качестве значения по-умолчанию используется <see cref="Core.Db.UserState.Active"/>.</param>
-        public void SendMailSubscription(int idSubscription, string subject, string body, ContentType contentType, Core.Db.UserState[] availableUserStates = null)
-        {
-            var itemKey = new ItemKey(ItemTypeFactory.GetItemType<MessageSubscription>().IdItemType, idSubscription);
-
-            try
-            {
-                using (var db = new DataContext())
-                {
-                    var subscription = db.MessageSubscription.Where(x => x.IdSubscription == idSubscription).FirstOrDefault();
-                    if (subscription == null)
-                    {
-                        this.RegisterEventForItem(itemKey, Journaling.EventType.Error, 0, "Ошибка рассылки электронной почты", $"Рассылка №{idSubscription} не найдена.");
-                        return;
-                    }
-
-                    if (!subscription.IsEnabled)
-                    {
-                        this.RegisterEventForItem(itemKey, Journaling.EventType.Warning, 0, "Попытка рассылки электронной почты по неактивной рассылке", $"Рассылка №{idSubscription} неактивна.");
-                        return;
-                    }
-
-                    var availableUserStatesInternal = availableUserStates?.Distinct().ToArray() ?? new Core.Db.UserState[] { Core.Db.UserState.Active };
-
-                    var query = from MessageSubscriptionRole in db.MessageSubscriptionRole
-                                join Role in db.Role on MessageSubscriptionRole.IdRole equals Role.IdRole
-                                join RoleUser in db.RoleUser on Role.IdRole equals RoleUser.IdRole
-                                join User in db.User on RoleUser.IdUser equals User.IdUser
-                                where MessageSubscriptionRole.IdSubscription == idSubscription && User.Block == 0 && availableUserStatesInternal.Contains(User.State) && !string.IsNullOrEmpty(User.email)
-                                select new
-                                {
-                                    User.name,
-                                    User.email
-                                };
-
-                    var list = query.ToList();
-                    foreach (var user in list)
-                    {
-                        SendMailFromSite(user.name, user.email, subject, body, contentType);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                this.RegisterEventForItem(new ItemKey(ItemTypeFactory.GetItemType<MessageSubscription>().IdItemType, idSubscription), Journaling.EventType.Error, 0, "Ошибка рассылки электронной почты", $"Неожиданная ошибка при выполнении рассылки №{idSubscription}.", ex);
-            }
-        }
-
-        private string GetNoReplyAddress()
+        public string GetNoReplyAddress()
         {
             var address = AppCore.WebConfig.ReturnEmail;
             if (!string.IsNullOrEmpty(address)) return address;
@@ -158,23 +103,6 @@ namespace OnXap.Modules.MessagingEmail
             if (AppCore.ServerUrl != null) address = "no-reply@" + AppCore.ServerUrl.Host;
 
             return address;
-        }
-
-        void ICriticalMessagesReceiver.SendToAdmin(string subject, string body)
-        {
-            if (!string.IsNullOrEmpty(AppCore.WebConfig.CriticalMessagesEmail))
-            {
-                SendMail(
-                    "Почтовый робот сайта",
-                    GetNoReplyAddress(),
-                    "admin",
-                    AppCore.WebConfig.CriticalMessagesEmail,
-                    null, null,
-                    subject,
-                    body,
-                    ContentType.Text
-                );
-            }
         }
 
         #endregion

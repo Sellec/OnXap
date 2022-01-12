@@ -7,7 +7,7 @@ namespace OnXap.Messaging.Components
     /// <summary>
     /// Базовый класс компонента для обработки зарегистрированных входящих сообщений определенного типа.
     /// </summary>
-    public abstract class IncomingMessageHandler<TMessage> : MessageServiceComponent<TMessage>
+    public abstract class IncomingMessageHandler<TMessage> : MessagingServiceComponent<TMessage>
         where TMessage : MessageBase, new()
     {
         /// <summary>
@@ -35,7 +35,7 @@ namespace OnXap.Messaging.Components
         /// <returns>Если возвращает true, то сообщение считается обработанным (см. <see cref="MessageStateType.Completed"/>).</returns>
         /// <remarks>Дополнительные типы исключений, которые могут возникнуть во время отправки сообщения, могут быть описаны в документации компонента.</remarks>
         [ApiIrreversible]
-        internal protected abstract ComponentResult OnPrepare(MessageInfo<TMessage> messageInfo, MessageServiceBase<TMessage> service);
+        internal protected abstract ComponentResult OnPrepare(MessageInfo<TMessage> messageInfo, MessagingServiceBase<TMessage> service);
         #endregion
     }
 

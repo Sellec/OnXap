@@ -34,9 +34,9 @@ namespace OnXap.Core.Configuration
         /// <summary>
         /// Настройки компонентов сервисов обработки сообщений.
         /// </summary>
-        /// <seealso cref="Messaging.Components.MessageServiceComponent{TMessage}"/>
+        /// <seealso cref="Messaging.Components.MessagingServiceComponent{TMessage}"/>
         /// <seealso cref="Messaging.MessagingManager"/>
-        public List<Messaging.Components.ComponentSettings> MessageServicesComponentsSettings
+        public List<Messaging.Components.ComponentSettings> MessagingServicesComponentsSettings
         {
             get => JsonConvert.DeserializeObject<List<Messaging.Components.ComponentSettings>>(Get("MessageServicesComponentsSettings", "")) ?? new List<Messaging.Components.ComponentSettings>();
             set => Set("MessageServicesComponentsSettings", value == null ? "" : JsonConvert.SerializeObject(value));

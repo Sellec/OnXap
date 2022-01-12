@@ -9,12 +9,8 @@ namespace OnXap.Messaging.DB
         public DbSet<MessageQueue> MessageQueue { get; set; }
         public DbSet<MessageQueueHistory> MessageQueueHistory { get; set; }
 
-        public DbSet<MessageSubscription> MessageSubscription { get; set; }
-        public DbSet<MessageSubscriptionRole> MessageSubscriptionRole { get; set; }
-
         public DbSet<Role> Role { get; set; }
         public DbSet<RoleUser> RoleUser { get; set; }
         public DbSet<User> User { get; set; }
-
     }
 }

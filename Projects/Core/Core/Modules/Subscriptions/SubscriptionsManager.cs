@@ -1,10 +1,9 @@
-﻿using OnUtils;
+﻿using Microsoft.EntityFrameworkCore;
+using OnUtils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using FlexLabs.EntityFrameworkCore;
 
 namespace OnXap.Modules.Subscriptions
 {
@@ -17,7 +16,7 @@ namespace OnXap.Modules.Subscriptions
     {
         private ConcurrentDictionary<Guid, SubscriptionGroupDescription> _subscriptionGroups = new ConcurrentDictionary<Guid, SubscriptionGroupDescription>();
         private ConcurrentDictionary<Guid, SubscriptionDescription> _subscriptions = new ConcurrentDictionary<Guid, SubscriptionDescription>();
-        private ConcurrentDictionary<Type, MessagingServiceConnectorInternal> _messagingServiceConnectors = new ConcurrentDictionary<Type, MessagingServiceConnectorInternal>();
+        private ConcurrentDictionary<Type, MessagingServiceSendAsUniversalConnectorInternal> _messagingServiceConnectors = new ConcurrentDictionary<Type, MessagingServiceSendAsUniversalConnectorInternal>();
 
         #region Запуск задач
         /// <summary>
@@ -36,7 +35,7 @@ namespace OnXap.Modules.Subscriptions
         /// </summary>
         protected sealed override void OnStarted()
         {
-            //AppCore.Get<SubscriptionsManager>().ConnectMessagingService(new ec());
+            AppCore.Get<SubscriptionsManager>().SetMessagingServiceSendAsUniversalConnector(new MessagingServiceSendAsUniversalConnectorDefault());
         }
 
         /// <summary>
@@ -333,27 +332,27 @@ namespace OnXap.Modules.Subscriptions
 
         #region Подключение сервисов отправки/получения сообщений.
         [ApiIrreversible]
-        public void ConnectMessagingService<T>(MessagingServiceConnector<T> messagingServiceConnector) where T : IMessageService
+        public void SetMessagingServiceSendAsUniversalConnector<T>(MessagingServiceSendAsUniversalConnector<T> messagingServiceConnector) where T : IMessagingService
         {
             _messagingServiceConnectors.AddOrUpdate(typeof(T), messagingServiceConnector, (t, old) => messagingServiceConnector);
         }
 
         [ApiIrreversible]
-        public void SendFromSubscriptionUniversal(SubscriptionDescription subscriptionDescription, string message)
+        public void SendAsUniversal(SubscriptionDescription subscriptionDescription, string message)
         {
             if (subscriptionDescription == null) throw new ArgumentNullException(nameof(subscriptionDescription));
-            SendFromSubscriptionUniversal(subscriptionDescription.UniqueKey, message);
+            SendAsUniversal(subscriptionDescription.UniqueKey, message);
         }
 
         [ApiIrreversible]
-        public void SendFromSubscriptionUniversal(Guid subscriptionUniqueKey, string message)
+        public void SendAsUniversal(Guid subscriptionUniqueKey, string message)
         {
             var result = SendFromSubscriptionUniversalInternal(subscriptionUniqueKey, message);
             if (!result.IsSuccess) throw result.Result;
         }
 
         [ApiIrreversible]
-        public ExecutionResult TrySendFromSubscriptionUniversal(Guid subscriptionUniqueKey, string message)
+        public ExecutionResult TrySendAsUniversal(Guid subscriptionUniqueKey, string message)
         {
             var result = SendFromSubscriptionUniversalInternal(subscriptionUniqueKey, message);
             return new ExecutionResult(result.IsSuccess, result.Message);
@@ -384,7 +383,7 @@ namespace OnXap.Modules.Subscriptions
                 {
                     try
                     {
-                        var messagingService = AppCore.Get<IMessageService>(connector.Key);
+                        var messagingService = AppCore.Get<IMessagingService>(connector.Key);
                         if (messagingService == null)
                         {
                             var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
@@ -393,7 +392,7 @@ namespace OnXap.Modules.Subscriptions
                         }
                         else
                         {
-                            connector.Value.SendUniversal(new SendInfoUniversal<IMessageService>()
+                            connector.Value.Send(new SendAsUniversalInfo<IMessagingService>()
                             {
                                 Message = message,
                                 MessagingService = messagingService,
@@ -414,6 +413,137 @@ namespace OnXap.Modules.Subscriptions
             catch (Exception ex)
             {
                 var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
+                return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
+            }
+        }
+               
+        [ApiIrreversible]
+        public SendExecutionChain Send(Guid subscriptionUniqueKey)
+        {
+            return new SendExecutionChain(this, subscriptionUniqueKey);
+        }
+
+        /// <summary>
+        /// Вызывается перед началом обработки команд из набора <paramref name="sendExecutionChain"/>.
+        /// </summary>
+        /// <param name="subscriptionDescription">Содержит информацию о подписке, для которой создавался набор команд (См. <see cref="Send(Guid)"/>).</param>
+        /// <param name="sendExecutionChain">Вызываемый набор команд.</param>
+        /// <param name="userIdList">Список подписчиков-получателей информации.</param>
+        protected virtual void OnSendExecuteBefore(SubscriptionDescription subscriptionDescription, SendExecutionChain sendExecutionChain, List<int> userIdList)
+        {
+
+        }
+
+        internal ExecutionResult<Exception> SendExecuteInternal(SendExecutionChain sendExecutionChain)
+        {
+            if (!_subscriptions.TryGetValue(sendExecutionChain._subscriptionUniqueKey, out var subscriptionDescription2))
+                return new ExecutionResult<Exception>(
+                    false,
+                    "Указанная подписка не найдена среди подтвержденных",
+                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(sendExecutionChain)));
+
+            try
+            {
+                var userIdList = new List<int>();
+                using (var db = new Db.DataContext())
+                {
+                    var query = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription2.Id).Select(x => new { x.IdUser });
+                    var data = query.ToList();
+                    userIdList = data.Select(x => x.IdUser).ToList();
+                }
+
+                OnSendExecuteBefore(subscriptionDescription2, sendExecutionChain, userIdList);
+
+                foreach (var pair in sendExecutionChain._services)
+                {
+                    try
+                    {
+                        var isUniversal = pair.Key == typeof(SubscriptionsManager);
+                        var messagingService = isUniversal ? null : AppCore.Get<IMessagingService>(pair.Key);
+                        if (!isUniversal && messagingService == null)
+                        {
+                            var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                            msg += $"Коннектор: '{pair.Key.FullName}' / '{pair.Value.GetType().FullName}'.";
+                            this.RegisterEvent(Journaling.EventType.Error, "Ошибка поиска сервиса отправки/получения сообщений для рассылки", msg);
+                        }
+                        pair.Value(messagingService, subscriptionDescription2, userIdList);
+                    }
+                    catch (Exception ex)
+                    {
+                        var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                        msg += $"Коннектор: '{pair.Key.FullName}' / '{pair.Value.GetType().FullName}'.";
+                        this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
+                    }
+                }
+                return new ExecutionResult<Exception>(true);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
+                return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
+            }
+        }
+
+        /// <summary>
+        /// Возвращает список
+        /// </summary>
+        /// <param name="subscriptionDescription"></param>
+        /// <returns></returns>
+        protected virtual List<int> GetSubscribersList(SubscriptionDescription subscriptionDescription)
+        {
+            using (var db = new Db.DataContext())
+            {
+                var query = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription.Id).Select(x => new { x.IdUser });
+                var data = query.ToList();
+                return data.Select(x => x.IdUser).ToList();
+            }
+        }
+
+        internal ExecutionResult<Exception> SendInternal(SubscriptionDescription subscriptionDescription, List<int> userIdList, string message, List<IMessagingService> messagingServicesIgnored)
+        {
+            try
+            {
+                var connectorsSnapshot = _messagingServiceConnectors.ToList();
+                if (connectorsSnapshot.IsNullOrEmpty()) return new ExecutionResult<Exception>(true);
+
+                foreach (var connector in connectorsSnapshot)
+                {
+                    try
+                    {
+                        var messagingService = AppCore.Get<IMessagingService>(connector.Key);
+                        if (messagingServicesIgnored.Contains(messagingService)) continue;
+
+                        if (messagingService == null)
+                        {
+                            var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
+                            msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
+                            this.RegisterEvent(Journaling.EventType.Error, "Ошибка поиска сервиса отправки/получения сообщений для рассылки", msg);
+                        }
+                        else
+                        {
+                            connector.Value.Send(new SendAsUniversalInfo<IMessagingService>()
+                            {
+                                Message = message,
+                                MessagingService = messagingService,
+                                SubscriptionDescription = subscriptionDescription,
+                                UserIdList = userIdList
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
+                        msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
+                        this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
+                    }
+                }
+                return new ExecutionResult<Exception>(true);
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
                 this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
                 return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
             }

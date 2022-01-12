@@ -860,13 +860,14 @@ namespace OnXap.Journaling
 
                     if (eventType == EventType.CriticalError)
                     {
-                        var body = $"Дата события: {data.DateEvent.ToString("dd.MM.yyyy HH:mm:ss")}\r\n";
+                        var body = "";
+                        body += $"Критическая ошибка в журнале '{journalForCritical.Name}'.\r\n";
+                        body += $"Дата события: {data.DateEvent.ToString("dd.MM.yyyy HH:mm:ss")}.\r\n";
                         body += $"Сообщение: {data.EventInfo}\r\n";
                         if (!string.IsNullOrEmpty(data.EventInfoDetailed)) body += $"Подробная информация: {data.EventInfoDetailed}\r\n";
                         if (!string.IsNullOrEmpty(data.ExceptionDetailed)) body += $"Исключение: {data.ExceptionDetailed}\r\n";
 
-                        AppCore.Get<Messaging.MessagingManager>().GetCriticalMessagesReceivers().ForEach(x => x.SendToAdmin(journalForCritical != null ? $"Критическая ошибка в журнале '{journalForCritical.Name}'" : "Критическая ошибка", body));
-                        AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().TrySendFromSubscriptionUniversal(_subscriptionEventCritical, body);
+                        AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().TrySendAsUniversal(_subscriptionEventCritical, body);
                     }
 
                 }

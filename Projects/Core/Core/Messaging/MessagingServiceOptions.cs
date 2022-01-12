@@ -3,7 +3,7 @@
     /// <summary>
     /// Описывает дополнительные свойства сервиса обработки сообщений.
     /// </summary>
-    public class MessageServiceOptions
+    public class MessagingServiceOptions
     {
         /// <summary>
         /// Ограничивает хранение сообщений за последние N дней.

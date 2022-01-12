@@ -255,7 +255,7 @@ namespace OnXap.Users
                 }
                 else if (query.Count > 1)
                 {
-                    AppCore.Get<MessagingManager>().GetCriticalMessagesReceivers().ForEach(x => x.SendToAdmin("Одинаковые реквизиты входа!", "Найдено несколько пользователей с логином '" + login + "'"));
+                    AppCore.Get<MessagingManager>().RegisterEvent(EventType.CriticalError, "Одинаковые реквизиты входа!", $"Найдено несколько пользователей с логином '{login}'");
                     return new ExecutionAuthResult(eAuthResult.MultipleFound, "Найдено несколько пользователей с логином '" + login + "'. Обратитесь к администратору для решения проблемы.");
                 }
                 else

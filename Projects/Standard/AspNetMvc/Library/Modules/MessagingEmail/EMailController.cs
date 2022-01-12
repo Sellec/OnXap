@@ -15,7 +15,7 @@ namespace OnXap.Modules.MessagingEmail
         {
             viewName = "ModuleSettings.cshtml";
 
-            var handlers = AppCore.AppConfig.MessageServicesComponentsSettings.
+            var handlers = AppCore.AppConfig.MessagingServicesComponentsSettings.
                 Where(x => x.TypeFullName.StartsWith(typeof(Components.SmtpServer).Namespace)).
                 Select(x => new { x.TypeFullName, Settings = JsonConvert.DeserializeObject<Components.SmtpServerSettings>(x.SettingsSerialized) }).
                 ToList();
@@ -27,7 +27,7 @@ namespace OnXap.Modules.MessagingEmail
 
         protected override ModuleConfiguration<EMailModule> ConfigurationSaveCustom(Configuration formData, out string outputMessage)
         {
-            var handlers = AppCore.AppConfig.MessageServicesComponentsSettings.ToDictionary(x => x.TypeFullName, x => x);
+            var handlers = AppCore.AppConfig.MessagingServicesComponentsSettings.ToDictionary(x => x.TypeFullName, x => x);
 
             handlers.Remove(typeof(Components.SmtpServer).FullName);
             if (formData.IsUseSmtp)
@@ -49,7 +49,7 @@ namespace OnXap.Modules.MessagingEmail
 
             var cfg = AppCore.Get<CoreModule>().GetConfigurationManipulator().GetEditable<CoreConfiguration>();
 
-            cfg.MessageServicesComponentsSettings = handlers.Values.ToList();
+            cfg.MessagingServicesComponentsSettings = handlers.Values.ToList();
 
             AppCore.Get<CoreModule>().GetConfigurationManipulator().ApplyConfiguration(cfg);
             AppCore.Get<MessagingManager>().UpdateComponentsFromSettings();

@@ -1,17 +1,12 @@
 ﻿using System.Linq;
 
-namespace OnXap.Modules.MessagingEmail
+namespace OnXap.Modules.Subscriptions
 {
     using Core.Data;
-    using Subscriptions;
+    using MessagingEmail;
 
-    /// <summary>
-    /// Коннектор для упрощенной отправки любых уведомлений через EMail.
-    /// </summary>
-    public class SubscriptionsServiceConnector : MessagingServiceSendAsUniversalConnector<EmailService>
+    class MessagingServiceSendAsUniversalConnectorDefault : MessagingServiceSendAsUniversalConnector<EmailService>
     {
-        /// <summary>
-        /// </summary>
         protected override void OnSend(SendAsUniversalInfo<EmailService> sendInfoUniversal)
         {
             using (var db = new Core.Db.CoreContext())

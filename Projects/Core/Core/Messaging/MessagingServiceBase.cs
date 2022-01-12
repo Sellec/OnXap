@@ -20,10 +20,10 @@ namespace OnXap.Messaging
     /// Предпочтительная базовая реализация сервиса обработки сообщений для приложения.
     /// </summary>
     /// <typeparam name="TMessage">Тип сообщения, с которым работает сервис.</typeparam>
-    public abstract class MessageServiceBase<TMessage> : 
+    public abstract class MessagingServiceBase<TMessage> : 
         CoreComponentBase,
-        IMessageService,
-        IMessageServiceInternal,
+        IMessagingService,
+        IMessagingServiceInternal,
         IAutoStart
         where TMessage : MessageBase, new()
     {
@@ -54,7 +54,7 @@ namespace OnXap.Messaging
         /// </summary>
         /// <param name="serviceName">Текстовое название сервиса.</param>
         /// <param name="serviceID">Уникальный идентификатор сервиса.</param>
-        protected MessageServiceBase(string serviceName, Guid serviceID)
+        protected MessagingServiceBase(string serviceName, Guid serviceID)
         {
             var type = GetType();
             TasksOutcomingSend = type.FullName + "_" + nameof(TasksOutcomingSend);
@@ -343,8 +343,8 @@ namespace OnXap.Messaging
         /// <summary>
         /// Возвращает список активных компонентов, работающих с типом сообщений сервиса.
         /// </summary>
-        /// <seealso cref="Core.Configuration.CoreConfiguration.MessageServicesComponentsSettings"/>
-        protected List<MessageServiceComponent<TMessage>> GetComponents()
+        /// <seealso cref="Core.Configuration.CoreConfiguration.MessagingServicesComponentsSettings"/>
+        protected List<MessagingServiceComponent<TMessage>> GetComponents()
         {
             return AppCore.Get<MessagingManager>().GetComponentsByMessageType<TMessage>().ToList();
         }
@@ -364,7 +364,7 @@ namespace OnXap.Messaging
         #endregion
 
         #region IInternalForTasks
-        void IMessageServiceInternal.PrepareOutcoming(TimeSpan executeInterval)
+        void IMessagingServiceInternal.PrepareOutcoming(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 
@@ -502,7 +502,7 @@ namespace OnXap.Messaging
             }
         }
 
-        void IMessageServiceInternal.PrepareIncomingReceive(TimeSpan executeInterval)
+        void IMessagingServiceInternal.PrepareIncomingReceive(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 
@@ -675,7 +675,7 @@ namespace OnXap.Messaging
             }
         }
 
-        void IMessageServiceInternal.PrepareIncomingHandle(TimeSpan executeInterval)
+        void IMessagingServiceInternal.PrepareIncomingHandle(TimeSpan executeInterval)
         {
             if (AppCore.GetState() != CoreComponentState.Started) return;
 

@@ -4,7 +4,7 @@ namespace OnXap.Messaging
 {
     using Core;
 
-    interface IMessageServiceInternal : IComponentSingleton
+    interface IMessagingServiceInternal : IComponentSingleton
     {
         void PrepareIncomingReceive(TimeSpan executeInterval);
         void PrepareIncomingHandle(TimeSpan executeInterval);

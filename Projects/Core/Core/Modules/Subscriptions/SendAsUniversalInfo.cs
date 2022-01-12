@@ -5,11 +5,11 @@ namespace OnXap.Modules.Subscriptions
     using Messaging;
 
     /// <summary>
-    /// Информация о событии подписки.
+    /// Информация о событии подписки для отправки универсальным способом.
     /// </summary>
     /// <typeparam name="TMessagingService"></typeparam>
-    public struct SendInfoUniversal<TMessagingService>
-        where TMessagingService : IMessageService
+    public struct SendAsUniversalInfo<TMessagingService>
+        where TMessagingService : IMessagingService
     {
         /// <summary>
         /// Список идентификаторов пользователей-получателей сообщения.
