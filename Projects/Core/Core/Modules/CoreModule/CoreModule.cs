@@ -4,6 +4,7 @@ using System;
 namespace OnXap.Modules.CoreModule
 {
     using Core.Modules;
+    using Subscriptions;
 
     /// <summary>
     /// Интерфейс ядра системы для управления основными функциями.
@@ -13,6 +14,7 @@ namespace OnXap.Modules.CoreModule
     {
         internal static readonly Guid PermissionConfigurationSave = "perm_configSave".GenerateGuid();
         private TimeZoneInfo _systemTimezone = TimeZoneInfo.Utc;
+        internal SubscriptionDescription _subscriptionEventCritical = null;
 
         /// <summary>
         /// </summary>
@@ -25,6 +27,12 @@ namespace OnXap.Modules.CoreModule
         /// </summary>
         protected internal override void OnModuleStarted()
         {
+            var subscriptionManager = AppCore.Get<SubscriptionsManager>();
+            _subscriptionEventCritical = subscriptionManager.RegisterSubscription(
+                "Журнал: уведомление о критических событиях",
+                subscriptionManager.SubscriptionGroupSystem,
+                new Journaling.CriticalJournalEventSubscription());
+
             OnConfigurationApplied();
         }
 

@@ -13,35 +13,23 @@
         });
 
         function InitSettings(className) {
-            $("input[type=checkbox]." + className).first().addClass(blockCheckerClass);
-
-            if ($("input[type=checkbox]." + className + "." + blockCheckerClass).is(":checked")) {
-                $("." + className).not("." + blockCheckerClass).each(function () {
-                    $(this).closest('tr').show();
-                });
-            }
-            else {
-                $("." + className).not("." + blockCheckerClass).each(function () {
-                    $(this).val("-");
-                    $(this).closest('tr').hide();
-                });
-            }
             $("select." + className).attr("size", 1);
 
-            $("input[type=checkbox]." + className + "." + blockCheckerClass).change(function () {
-                if ($(this).is(":checked")) {
-                    $("." + className).not("." + blockCheckerClass).each(function () {
-                        $(this).val("");
+            $("input[type=checkbox][name='@Html.NameFor(x => x.IsUseSmtp)']").change(function () {
+                var isChecked = $(this).is(":checked");
+                $("." + className).not("[name='@Html.NameFor(x => x.IsUseSmtp)']").each(function () {
+                    if (isChecked) {
                         $(this).closest('tr').show();
-                    });
-                }
-                else {
-                    $("." + className).not("." + blockCheckerClass).each(function () {
-                        $(this).val("-");
+                    }
+                    else {
                         $(this).closest('tr').hide();
-                    });
-                }
-            });
+                    }
+                });
+            }).change();
+
+            $("input[type=checkbox][name='@Html.NameFor(x => x.IsAnonymous)']").change(function () {
+                $("input[name='@Html.NameFor(x => x.Login)'], input[name='@Html.NameFor(x => x.Password)']").prop('disabled', $(this).is(":checked"));
+            }).change();
         }
     </script>
 }
@@ -51,45 +39,66 @@
         <th colspan="2" align="center">@Html.CheckBoxFor(x => x.IsUseSmtp, smtpAttributes) @Html.LabelFor(x => x.IsUseSmtp)</th>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.Server)</td>
+        <td>@Html.LabelFor(x => x.Server)</td>
         <td>
-            @Html.TextBoxFor(x => x.Smtp.Server, smtpAttributes)
-            @Html.ValidationMessageFor(x => x.Smtp.Server)
+            @Html.TextBoxFor(x => x.Server, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.Server)
         </td>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.IsSecure)</td>
+        <td>@Html.LabelFor(x => x.IsSecure)</td>
         <td>
-            @Html.CheckBoxFor(x => x.Smtp.IsSecure, smtpAttributes)
-            @Html.ValidationMessageFor(x => x.Smtp.IsSecure)
+            @Html.CheckBoxFor(x => x.IsSecure, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.IsSecure)
         </td>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.Port)</td>
+        <td>@Html.LabelFor(x => x.Port)</td>
         <td>
-            @Html.TextBoxFor(x => x.Smtp.Port, smtpAttributes)
-            @Html.ValidationMessageFor(x => x.Smtp.Port)
+            @Html.TextBoxFor(x => x.Port, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.Port)
         </td>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.Login)</td>
+        <td>@Html.LabelFor(x => x.IsIgnoreCertificateErrors)</td>
         <td>
-            @Html.TextBoxFor(x => x.Smtp.Login, smtpAttributes)
-            @Html.ValidationMessageFor(x => x.Smtp.Login)
+            @Html.CheckBoxFor(x => x.IsIgnoreCertificateErrors, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.IsIgnoreCertificateErrors)
         </td>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.Password, smtpAttributes)</td>
+        <td>@Html.LabelFor(x => x.OutgoingAddress)</td>
         <td>
-            @Html.TextBoxFor(x => x.Smtp.Password)
-            @Html.ValidationMessageFor(x => x.Smtp.Password)
+            @Html.TextBoxFor(x => x.OutgoingAddress, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.OutgoingAddress)
         </td>
     </tr>
     <tr>
-        <td>@Html.LabelFor(x => x.Smtp.IsIgnoreCertificateErrors)</td>
+        <td>@Html.LabelFor(x => x.OutgoingName)</td>
         <td>
-            @Html.CheckBoxFor(x => x.Smtp.IsIgnoreCertificateErrors, smtpAttributes)
-            @Html.ValidationMessageFor(x => x.Smtp.IsIgnoreCertificateErrors)
+            @Html.TextBoxFor(x => x.OutgoingName, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.OutgoingName)
+        </td>
+    </tr>
+    <tr>
+        <th colspan="2" align="center">
+            @Html.CheckBoxFor(x => x.IsAnonymous, smtpAttributes) 
+            @Html.LabelFor(x => x.IsAnonymous)
+            @Html.ValidationMessageFor(x => x.IsAnonymous)
+        </th>
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(x => x.Login)</td>
+        <td>
+            @Html.TextBoxFor(x => x.Login, smtpAttributes)
+            @Html.ValidationMessageFor(x => x.Login)
+        </td>
+    </tr>
+    <tr>
+        <td>@Html.LabelFor(x => x.Password, smtpAttributes)</td>
+        <td>
+            @Html.TextBoxFor(x => x.Password)
+            @Html.ValidationMessageFor(x => x.Password)
         </td>
     </tr>
 

@@ -9,8 +9,7 @@ namespace OnXap.Modules.MessagingEmail
     {
         void IConfigureBindings<OnXApplication>.ConfigureBindings(IBindingsCollection<OnXApplication> bindingsCollection)
         {
-            bindingsCollection.SetSingleton<EMailModule>();
-            bindingsCollection.SetTransient<IModuleController<EMailModule>, EMailController>();
+            bindingsCollection.SetTransient<IModuleController<Module>, EMailController>();
         }
     }
 }

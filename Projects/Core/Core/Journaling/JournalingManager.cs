@@ -32,7 +32,6 @@ namespace OnXap.Journaling
         private JournalOptions _journalOptionsDefault = new JournalOptions();
         private ConcurrentDictionary<int, JournalOptions> _journalsOptions = new ConcurrentDictionary<int, JournalOptions>();
         private TaskDescription _taskDescriptionClear = null;
-        internal Guid _subscriptionEventCritical = Guid.Empty;
 
         #region CoreComponentBase
         /// <summary>
@@ -59,14 +58,6 @@ namespace OnXap.Journaling
                 },
                 ExecutionLambda = () => ClearLastNDays(),
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution
-            });
-            var subscriptionManager = AppCore.Get<Modules.Subscriptions.SubscriptionsManager>();
-            _subscriptionEventCritical = $"{typeof(EventType).FullName}.{nameof(EventType.CriticalError)}".GenerateGuid();
-            subscriptionManager.RegisterSubscription(new Modules.Subscriptions.SubscriptionRequest()
-            {
-                Name = "Журнал: уведомление о критических событиях",
-                SubscriptionGroup = subscriptionManager.SubscriptionGroupSystem,
-                UniqueKey = _subscriptionEventCritical
             });
         }
 
@@ -860,14 +851,13 @@ namespace OnXap.Journaling
 
                     if (eventType == EventType.CriticalError)
                     {
-                        var body = "";
-                        body += $"Критическая ошибка в журнале '{journalForCritical.Name}'.\r\n";
-                        body += $"Дата события: {data.DateEvent.ToString("dd.MM.yyyy HH:mm:ss")}.\r\n";
-                        body += $"Сообщение: {data.EventInfo}\r\n";
-                        if (!string.IsNullOrEmpty(data.EventInfoDetailed)) body += $"Подробная информация: {data.EventInfoDetailed}\r\n";
-                        if (!string.IsNullOrEmpty(data.ExceptionDetailed)) body += $"Исключение: {data.ExceptionDetailed}\r\n";
-
-                        AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().TrySendAsUniversal(_subscriptionEventCritical, body);
+                        AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().
+                            AsParametrized(new CriticalJournalEventSubscription.Parameters()
+                            {
+                                JournalInfo = journalForCritical,
+                                EventInfo = data
+                            }).
+                            ExecuteSubscription<CriticalJournalEventSubscription>();
                     }
 
                 }

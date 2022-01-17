@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace OnXap.Modules.Subscriptions
 {
@@ -15,8 +16,7 @@ namespace OnXap.Modules.Subscriptions
     public class SubscriptionsManager : Core.CoreComponentBase, Core.IComponentSingleton
     {
         private ConcurrentDictionary<Guid, SubscriptionGroupDescription> _subscriptionGroups = new ConcurrentDictionary<Guid, SubscriptionGroupDescription>();
-        private ConcurrentDictionary<Guid, SubscriptionDescription> _subscriptions = new ConcurrentDictionary<Guid, SubscriptionDescription>();
-        private ConcurrentDictionary<Type, MessagingServiceSendAsUniversalConnectorInternal> _messagingServiceConnectors = new ConcurrentDictionary<Type, MessagingServiceSendAsUniversalConnectorInternal>();
+        private ConcurrentDictionary<Type, Tuple<object, SubscriptionDescription>> _subscriptions = new ConcurrentDictionary<Type, Tuple<object, SubscriptionDescription>>();
 
         #region Запуск задач
         /// <summary>
@@ -24,26 +24,9 @@ namespace OnXap.Modules.Subscriptions
         protected sealed override void OnStarting()
         {
             this.RegisterJournal("Журнал менеджера подписок");
-            SubscriptionGroupSystem = RegisterSubscriptionGroup(new SubscriptionGroupRequest()
-            {
-                Name = "Система",
-                UniqueKey = "System".GenerateGuid()
-            });
+            SubscriptionGroupSystem = RegisterSubscriptionGroup("Система", "System".GenerateGuid());
         }
 
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStarted()
-        {
-            AppCore.Get<SubscriptionsManager>().SetMessagingServiceSendAsUniversalConnector(new MessagingServiceSendAsUniversalConnectorDefault());
-        }
-
-        /// <summary>
-        /// </summary>
-        protected sealed override void OnStop()
-        {
-
-        }
         #endregion
 
         #region Управление группами подписок.
@@ -51,21 +34,19 @@ namespace OnXap.Modules.Subscriptions
         /// Позволяет зарегистрировать группу подписок. Если такая группа ранее была зарегистрирована, то обновляет параметры ранее зарегистрированной.
         /// </summary>
         /// <returns>Возвращает описание зарегистрированной группы подписок.</returns>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="subscriptionGroupRequest"/> равен null.</exception>
-        /// <exception cref="ArgumentException">Возникает, если не указано имя группы подписок.</exception>
-        /// <exception cref="ArgumentException">Возникает, если уникальный ключ группы подписок равен <see cref="Guid.Empty"/>.</exception>
+        /// <exception cref="ArgumentException">Возникает, если параметр <paramref name="name"/> задан пустым.</exception>
+        /// <exception cref="ArgumentException">Возникает, если параметр <paramref name="uniqueKey"/> равен <see cref="Guid.Empty"/>.</exception>
         [ApiIrreversible]
-        public SubscriptionGroupDescription RegisterSubscriptionGroup(SubscriptionGroupRequest subscriptionGroupRequest)
+        public SubscriptionGroupDescription RegisterSubscriptionGroup(string name, Guid uniqueKey)
         {
-            if (subscriptionGroupRequest == null) throw new ArgumentNullException(nameof(subscriptionGroupRequest));
-            if (string.IsNullOrEmpty(subscriptionGroupRequest.Name)) throw new ArgumentException("Имя не может быть пустым.", nameof(subscriptionGroupRequest.Name));
-            if (subscriptionGroupRequest.UniqueKey == Guid.Empty) throw new ArgumentException("Уникальный ключ не может быть пустым.", nameof(subscriptionGroupRequest.UniqueKey));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Имя не может быть пустым.", nameof(name));
+            if (uniqueKey == Guid.Empty) throw new ArgumentException("Уникальный ключ не может быть пустым.", nameof(uniqueKey));
 
             try
             {
-                var description = _subscriptionGroups.AddOrUpdate(subscriptionGroupRequest.UniqueKey,
-                    key => UpdateSubscriptionGroup(new SubscriptionGroupDescription(), subscriptionGroupRequest),
-                    (key, old) => UpdateSubscriptionGroup(old, subscriptionGroupRequest)
+                var description = _subscriptionGroups.AddOrUpdate(uniqueKey,
+                    key => UpdateSubscriptionGroup(new SubscriptionGroupDescription(), name, uniqueKey),
+                    (key, old) => UpdateSubscriptionGroup(old, name, uniqueKey)
                 );
                 return description;
             }
@@ -76,30 +57,30 @@ namespace OnXap.Modules.Subscriptions
             }
         }
 
-        private SubscriptionGroupDescription UpdateSubscriptionGroup(SubscriptionGroupDescription subscriptionGroupDescription, SubscriptionGroupRequest subscriptionGroupRequest)
+        private SubscriptionGroupDescription UpdateSubscriptionGroup(SubscriptionGroupDescription subscriptionGroupDescription, string name, Guid uniqueKey)
         {
             using (var db = new Db.DataContext())
             using (var scope = db.CreateScope(System.Transactions.TransactionScopeOption.Suppress))
             {
-                var subscriptionGroupDb = db.SubscriptionGroup.Where(x => x.UniqueKey == subscriptionGroupRequest.UniqueKey).FirstOrDefault();
+                var subscriptionGroupDb = db.SubscriptionGroup.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                 if (subscriptionGroupDb == null)
                 {
                     subscriptionGroupDb = new Db.SubscriptionGroup()
                     {
-                        NameGroup = subscriptionGroupRequest.Name,
-                        UniqueKey = subscriptionGroupRequest.UniqueKey
+                        NameGroup = name,
+                        UniqueKey = uniqueKey
                     };
                     db.SubscriptionGroup.Add(subscriptionGroupDb);
                     db.SaveChanges();
                 }
 
-                subscriptionGroupDb.NameGroup = subscriptionGroupRequest.Name;
+                subscriptionGroupDb.NameGroup = name;
                 db.SaveChanges();
 
                 subscriptionGroupDescription.Id = subscriptionGroupDb.IdGroup;
-                subscriptionGroupDescription.Name = subscriptionGroupRequest.Name;
+                subscriptionGroupDescription.Name = name;
                 subscriptionGroupDescription.IsConfirmed = true;
-                subscriptionGroupDescription.UniqueKey = subscriptionGroupRequest.UniqueKey;
+                subscriptionGroupDescription.UniqueKey = uniqueKey;
             }
             return subscriptionGroupDescription;
         }
@@ -153,30 +134,40 @@ namespace OnXap.Modules.Subscriptions
 
         #region Управление подписками.
         /// <summary>
-        /// Позволяет зарегистрировать подписку. Если такая подписка ранее была зарегистрирована, то обновляет параметры ранее зарегистрированной.
+        /// Позволяет зарегистрировать подписку на базе типа <typeparamref name="TSubscription"/>. Если такая подписка ранее была зарегистрирована, то обновляет параметры ранее зарегистрированной.
         /// </summary>
         /// <returns>Возвращает описание зарегистрированной подписки.</returns>
-        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="subscriptionRequest"/> равен null.</exception>
-        /// <exception cref="ArgumentException">Возникает, если значение свойства <see cref="SubscriptionRequest.Name"/> задано пустым.</exception>
-        /// <exception cref="ArgumentException">Возникает, если значение свойства <see cref="SubscriptionRequest.SubscriptionGroup"/> задано пустым.</exception>
-        /// <exception cref="ArgumentException">Возникает, если группа подписок, указанная в свойстве <see cref="SubscriptionRequest.SubscriptionGroup"/>, не найдена как подтвержденная.</exception>
-        /// <exception cref="ArgumentException">Возникает, если <see cref="SubscriptionRequest.UniqueKey"/> равен <see cref="Guid.Empty"/>.</exception>
+        /// <exception cref="ArgumentNullException">Возникает, если <paramref name="instance"/> равен null.</exception>
+        /// <exception cref="ArgumentException">Возникает, если значение параметра <paramref name="name"/> задано пустым.</exception>
+        /// <exception cref="ArgumentException">Возникает, если значение параметра <paramref name="group"/> равно null.</exception>
+        /// <exception cref="ArgumentException">Возникает, если группа подписок <paramref name="group"/> не найдена как подтвержденная.</exception>
         [ApiIrreversible]
-        public SubscriptionDescription RegisterSubscription(SubscriptionRequest subscriptionRequest)
+        public SubscriptionDescription RegisterSubscription<TSubscription>(string name, SubscriptionGroupDescription group, TSubscription instance)
+            where TSubscription : SubscriptionBase<TSubscription>
         {
-            if (subscriptionRequest == null) throw new ArgumentNullException(nameof(subscriptionRequest));
-            if (string.IsNullOrEmpty(subscriptionRequest.Name)) throw new ArgumentException("Имя не может быть пустым.", nameof(subscriptionRequest.Name));
-            if (subscriptionRequest.SubscriptionGroup == null) throw new ArgumentException("Не указана группа подписок.", nameof(subscriptionRequest.SubscriptionGroup));
-            if (!_subscriptionGroups.TryGetValue(subscriptionRequest.SubscriptionGroup.UniqueKey, out var subscriptionGroupDescription)) throw new ArgumentException("УКазанная группа подписок не найдена.", nameof(subscriptionRequest.SubscriptionGroup));
-            if (subscriptionRequest.UniqueKey == Guid.Empty) throw new ArgumentException("Уникальный ключ не может быть пустым.", nameof(subscriptionRequest.UniqueKey));
+            if (instance == null) throw new ArgumentNullException(nameof(instance));
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Имя не может быть пустым.", nameof(name));
+            if (group == null) throw new ArgumentException("Не указана группа подписок.", nameof(group));
+            if (!_subscriptionGroups.TryGetValue(group.UniqueKey, out var subscriptionGroupDescription)) throw new ArgumentException("Указанная группа подписок не найдена.", nameof(group));
+            var typeInfo = OnUtils.Types.TypeHelpers.ExtractGenericType(typeof(TSubscription), typeof(SubscriptionBase<,>));
+            if (typeInfo == null) throw new ArgumentException($"Тип '{instance.GetType()}' должен реализовывать '{typeof(SubscriptionBase<,>)}'.", nameof(instance));
 
             try
             {
-                var description = _subscriptions.AddOrUpdate(subscriptionRequest.UniqueKey,
-                    key => UpdateSubscription(new SubscriptionDescription(), subscriptionRequest, subscriptionGroupDescription),
-                    (key, old) => UpdateSubscription(old, subscriptionRequest, subscriptionGroupDescription)
+                instance.OnRegisterBase();
+                var uniqueKey = typeof(TSubscription).FullName.GenerateGuid();
+                var result = _subscriptions.AddOrUpdate(typeof(TSubscription),
+                    key => new Tuple<object, SubscriptionDescription>(instance, UpdateSubscription(name, uniqueKey, subscriptionGroupDescription, new SubscriptionDescription())),
+                    (key, old) => new Tuple<object, SubscriptionDescription>(instance, UpdateSubscription(name, uniqueKey, subscriptionGroupDescription, old.Item2))
                 );
-                return description;
+                instance.SubscriptionDescription = result.Item2;
+
+                var types = typeInfo.GetGenericArguments();
+                typeof(SubscriptionsManager).
+                    GetMethod(nameof(OnRegister), BindingFlags.Instance | BindingFlags.NonPublic).
+                    MakeGenericMethod(types[0], types[1]).Invoke(this, new object[] { instance });
+
+                return result.Item2;
             }
             catch (Exception ex)
             {
@@ -185,35 +176,50 @@ namespace OnXap.Modules.Subscriptions
             }
         }
 
-        private SubscriptionDescription UpdateSubscription(SubscriptionDescription subscriptionDescription, SubscriptionRequest subscriptionRequest, SubscriptionGroupDescription subscriptionGroupDescription)
+        private SubscriptionDescription UpdateSubscription(
+            string name,
+            Guid uniqueKey,
+            SubscriptionGroupDescription subscriptionGroupDescription,
+            SubscriptionDescription subscriptionDescription)
         {
             using (var db = new Db.DataContext())
             using (var scope = db.CreateScope(System.Transactions.TransactionScopeOption.Suppress))
             {
-                var rowDb = db.Subscription.Where(x => x.UniqueKey == subscriptionRequest.UniqueKey).FirstOrDefault();
+                var rowDb = db.Subscription.Where(x => x.UniqueKey == uniqueKey).FirstOrDefault();
                 if (rowDb == null)
                 {
                     rowDb = new Db.Subscription()
                     {
-                        NameSubscription = subscriptionRequest.Name,
-                        UniqueKey = subscriptionRequest.UniqueKey,
+                        NameSubscription = name,
+                        UniqueKey = uniqueKey,
                         IdGroup = subscriptionGroupDescription.Id
                     };
                     db.Subscription.Add(rowDb);
                     db.SaveChanges();
                 }
 
-                rowDb.NameSubscription = subscriptionRequest.Name;
+                rowDb.NameSubscription = name;
                 rowDb.IdGroup = subscriptionGroupDescription.Id;
                 db.SaveChanges();
 
                 subscriptionDescription.Id = rowDb.IdSubscription;
-                subscriptionDescription.Name = subscriptionRequest.Name;
+                subscriptionDescription.Name = name;
                 subscriptionDescription.IsConfirmed = true;
-                subscriptionDescription.UniqueKey = subscriptionRequest.UniqueKey;
                 subscriptionDescription.SubscriptionGroup = subscriptionGroupDescription;
             }
             return subscriptionDescription;
+        }
+
+        /// <summary>
+        /// Вызывается в конце регистрациии подписки <typeparamref name="TSubscription"/>.
+        /// </summary>
+        /// <param name="instance">Экземпляр объекта, олицетворяющего подписку.</param>
+        /// <seealso cref="RegisterSubscription{TSubscription}(string, SubscriptionGroupDescription, TSubscription)"/>
+        /// <seealso cref="SubscriptionParametrizedCall{TParameters}.ExecuteSubscription{TSubscription}"/>
+        /// <seealso cref="AsParametrized{TParameters}(TParameters)"/>
+        protected virtual void OnRegister<TSubscription, TParameters>(TSubscription instance)
+            where TSubscription : SubscriptionBase<TSubscription, TParameters>
+        {
         }
 
         /// <summary>
@@ -225,7 +231,7 @@ namespace OnXap.Modules.Subscriptions
         {
             try
             {
-                var list = _subscriptions.Values.ToDictionary(x => x.Id, x => x);
+                var list = _subscriptions.Values.ToDictionary(x => x.Item2.Id, x => x.Item2);
                 if (!onlyConfirmed)
                 {
                     using (var db = new Db.DataContext())
@@ -247,7 +253,6 @@ namespace OnXap.Modules.Subscriptions
                                 Id = rowDb.s.IdSubscription,
                                 Name = rowDb.s.NameSubscription,
                                 IsConfirmed = false,
-                                UniqueKey = rowDb.s.UniqueKey,
                                 SubscriptionGroup = subscriptionGroupDescription
                             };
                             list[rowDb.s.IdSubscription] = description;
@@ -264,33 +269,20 @@ namespace OnXap.Modules.Subscriptions
         }
 
         [ApiIrreversible]
-        public void UpdateSubscribers(SubscriptionDescription subscriptionDescription, ChangeType changeType, int[] userIdList)
+        public ExecutionResult UpdateSubscribers(SubscriptionDescription subscriptionDescription, ChangeType changeType, int[] userIdList)
         {
-            if (subscriptionDescription == null) throw new ArgumentNullException(nameof(subscriptionDescription));
-            UpdateSubscribersInternal(subscriptionDescription.UniqueKey, changeType, userIdList);
-        }
-
-        [ApiIrreversible]
-        public void UpdateSubscribers(Guid subscriptionUniqueKey, ChangeType changeType, int[] userIdList)
-        {
-            var result = UpdateSubscribersInternal(subscriptionUniqueKey, changeType, userIdList);
-            if (!result.IsSuccess) throw result.Result;
-        }
-
-        [ApiIrreversible]
-        public ExecutionResult TryUpdateSubscribers(Guid subscriptionUniqueKey, ChangeType changeType, int[] userIdList)
-        {
-            var result = UpdateSubscribersInternal(subscriptionUniqueKey, changeType, userIdList);
+            var result = UpdateSubscribersInternal(subscriptionDescription, changeType, userIdList);
             return new ExecutionResult(result.IsSuccess, result.Message);
         }
 
-        private ExecutionResult<Exception> UpdateSubscribersInternal(Guid subscriptionUniqueKey, ChangeType changeType, int[] userIdList)
+        private ExecutionResult<Exception> UpdateSubscribersInternal(SubscriptionDescription subscriptionDescription, ChangeType changeType, int[] userIdList)
         {
-            if (!_subscriptions.TryGetValue(subscriptionUniqueKey, out var subscriptionDescription2))
+            var subscriptionInfo = _subscriptions.FirstOrDefault(x => x.Value.Item2.Id == subscriptionDescription.Id).Value.Item2;
+            if (subscriptionInfo != null)
                 return new ExecutionResult<Exception>(
                     false,
                     "Указанная подписка не найдена среди подтвержденных",
-                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(subscriptionUniqueKey)));
+                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(subscriptionDescription)));
 
             try
             {
@@ -299,20 +291,20 @@ namespace OnXap.Modules.Subscriptions
                 {
                     if (changeType == ChangeType.Append || changeType == ChangeType.Replace)
                     {
-                        var list = userIdList.Select(x => new Db.SubscriptionUser() { IdSubscription = subscriptionDescription2.Id, IdUser = x }).ToList();
+                        var list = userIdList.Select(x => new Db.SubscriptionUser() { IdSubscription = subscriptionInfo.Id, IdUser = x }).ToList();
                         db.SubscriptionUser.UpsertRange(list).On(x => new { x.IdUser, x.IdSubscription }).NoUpdate().Run();
                     }
 
                     if (changeType == ChangeType.Replace)
                     {
-                        var list = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription2.Id).ToList().Where(x => !userIdList.Contains(x.IdUser)).ToList();
+                        var list = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionInfo.Id).ToList().Where(x => !userIdList.Contains(x.IdUser)).ToList();
                         db.SubscriptionUser.RemoveRange(list);
                         db.SaveChanges();
                     }
 
                     if (changeType == ChangeType.Remove)
                     {
-                        var list = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription2.Id).ToList().Where(x => userIdList.Contains(x.IdUser)).ToList();
+                        var list = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionInfo.Id).ToList().Where(x => userIdList.Contains(x.IdUser)).ToList();
                         db.SubscriptionUser.RemoveRange(list);
                         db.SaveChanges();
                     }
@@ -323,7 +315,7 @@ namespace OnXap.Modules.Subscriptions
             }
             catch (Exception ex)
             {
-                var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                var msg = $"Рассылка: '{subscriptionInfo.Id}' / '{subscriptionInfo.Name}'.\r\n";
                 this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка обновления списка подписчиков", msg, ex);
                 return new ExecutionResult<Exception>(false, "Неожиданная ошибка обновления списка подписчиков", ex);
             }
@@ -331,147 +323,93 @@ namespace OnXap.Modules.Subscriptions
         #endregion
 
         #region Подключение сервисов отправки/получения сообщений.
-        [ApiIrreversible]
-        public void SetMessagingServiceSendAsUniversalConnector<T>(MessagingServiceSendAsUniversalConnector<T> messagingServiceConnector) where T : IMessagingService
-        {
-            _messagingServiceConnectors.AddOrUpdate(typeof(T), messagingServiceConnector, (t, old) => messagingServiceConnector);
-        }
-
-        [ApiIrreversible]
-        public void SendAsUniversal(SubscriptionDescription subscriptionDescription, string message)
-        {
-            if (subscriptionDescription == null) throw new ArgumentNullException(nameof(subscriptionDescription));
-            SendAsUniversal(subscriptionDescription.UniqueKey, message);
-        }
-
-        [ApiIrreversible]
-        public void SendAsUniversal(Guid subscriptionUniqueKey, string message)
-        {
-            var result = SendFromSubscriptionUniversalInternal(subscriptionUniqueKey, message);
-            if (!result.IsSuccess) throw result.Result;
-        }
-
-        [ApiIrreversible]
-        public ExecutionResult TrySendAsUniversal(Guid subscriptionUniqueKey, string message)
-        {
-            var result = SendFromSubscriptionUniversalInternal(subscriptionUniqueKey, message);
-            return new ExecutionResult(result.IsSuccess, result.Message);
-        }
-
-        private ExecutionResult<Exception> SendFromSubscriptionUniversalInternal(Guid subscriptionUniqueKey, string message)
-        {
-            if (!_subscriptions.TryGetValue(subscriptionUniqueKey, out var subscriptionDescription2))
-                return new ExecutionResult<Exception>(
-                    false, 
-                    "Указанная подписка не найдена среди подтвержденных", 
-                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(subscriptionUniqueKey)));
-
-            var connectorsSnapshot = _messagingServiceConnectors.ToList();
-            if (connectorsSnapshot.IsNullOrEmpty()) return new ExecutionResult<Exception>(true);
-
-            try
-            {
-                var userIdList = new List<int>();
-                using (var db = new Db.DataContext())
-                {
-                    var query = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription2.Id).Select(x => new { x.IdUser });
-                    var data = query.ToList();
-                    userIdList = data.Select(x => x.IdUser).ToList();
-                }
-
-                foreach (var connector in connectorsSnapshot)
-                {
-                    try
-                    {
-                        var messagingService = AppCore.Get<IMessagingService>(connector.Key);
-                        if (messagingService == null)
-                        {
-                            var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
-                            msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
-                            this.RegisterEvent(Journaling.EventType.Error, "Ошибка поиска сервиса отправки/получения сообщений для рассылки", msg);
-                        }
-                        else
-                        {
-                            connector.Value.Send(new SendAsUniversalInfo<IMessagingService>()
-                            {
-                                Message = message,
-                                MessagingService = messagingService,
-                                SubscriptionDescription = subscriptionDescription2,
-                                UserIdList = userIdList
-                            });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
-                        msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
-                        this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
-                    }
-                }
-                return new ExecutionResult<Exception>(true);
-            }
-            catch (Exception ex)
-            {
-                var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
-                this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
-                return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
-            }
-        }
-               
-        [ApiIrreversible]
-        public SendExecutionChain Send(Guid subscriptionUniqueKey)
-        {
-            return new SendExecutionChain(this, subscriptionUniqueKey);
-        }
-
         /// <summary>
-        /// Вызывается перед началом обработки команд из набора <paramref name="sendExecutionChain"/>.
+        /// Позволяет указать параметры выполнения для подписки. Возвращает объект <see cref="SubscriptionParametrizedCall{TParameters}"/>, 
+        /// для которого необходимо выполнить вызов <see cref="SubscriptionParametrizedCall{TParameters}.ExecuteSubscription{TSubscription}"/>.
         /// </summary>
-        /// <param name="subscriptionDescription">Содержит информацию о подписке, для которой создавался набор команд (См. <see cref="Send(Guid)"/>).</param>
-        /// <param name="sendExecutionChain">Вызываемый набор команд.</param>
-        /// <param name="userIdList">Список подписчиков-получателей информации.</param>
-        protected virtual void OnSendExecuteBefore(SubscriptionDescription subscriptionDescription, SendExecutionChain sendExecutionChain, List<int> userIdList)
+        [ApiIrreversible]
+        public SubscriptionParametrizedCall<TParameters> AsParametrized<TParameters>(TParameters parameters)
         {
-
+            return new SubscriptionParametrizedCall<TParameters>()
+            {
+                _manager = this,
+                _parameters = parameters
+            };
         }
 
-        internal ExecutionResult<Exception> SendExecuteInternal(SendExecutionChain sendExecutionChain)
+        [ApiIrreversible]
+        internal ExecutionResult<Exception> ExecuteSubscription<TSubscription, TParameters>(TParameters parameters)
+            where TSubscription : SubscriptionBase<TSubscription, TParameters>
         {
-            if (!_subscriptions.TryGetValue(sendExecutionChain._subscriptionUniqueKey, out var subscriptionDescription2))
+
+            if (!_subscriptions.TryGetValue(typeof(TSubscription), out var info))
                 return new ExecutionResult<Exception>(
                     false,
                     "Указанная подписка не найдена среди подтвержденных",
-                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(sendExecutionChain)));
+                    new ArgumentException("Указанная подписка не найдена среди подтвержденных", nameof(TSubscription)));
+
+            var subscriptionInstance = (TSubscription)info.Item1;
 
             try
             {
-                var userIdList = new List<int>();
+                var messagingContacts = new MessagingContacts();
                 using (var db = new Db.DataContext())
                 {
-                    var query = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription2.Id).Select(x => new { x.IdUser });
-                    var data = query.ToList();
-                    userIdList = data.Select(x => x.IdUser).ToList();
+                    var queryFromUsers = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionInstance.SubscriptionDescription.Id).Select(x => new { x.IdUser });
+                    var dataFromUsers = queryFromUsers.ToList();
+                    var userIdList = dataFromUsers.Select(x => x.IdUser).ToList();
+
+                    var queryFromContacts = from smc in db.SubscriptionMessagingContact
+                                            join mc in db.MessagingContact on smc.IdMessagingContact equals mc.IdMessagingContact
+                                            join mcd in db.MessagingContactData on mc.IdMessagingContact equals mcd.IdMessagingContactData
+                                            where smc.IdSubscription == subscriptionInstance.SubscriptionDescription.Id
+                                            select new
+                                            {
+                                                mc.NameFull,
+                                                mcd.IdMessagingContact,
+                                                mcd.IdMessagingServiceType,
+                                                mcd.Data
+                                            };
+
+                    var types = new Dictionary<int, Type>();
+                    var getType = new Func<int, Type>(idMessagingServiceType =>
+                    {
+                        if (types.TryGetValue(idMessagingServiceType, out var t)) return t;
+                        t = Core.Items.ItemTypeFactory.GetClsType(idMessagingServiceType);
+                        types[idMessagingServiceType] = t;
+                        return t;
+                    });
+
+                    var dataFromContacts = queryFromContacts.
+                        ToList().
+                        GroupBy(x => new { x.IdMessagingContact, x.NameFull }, x => new { x.Data, x.IdMessagingServiceType }).
+                        Select(x => new MessagingContact()
+                        {
+                            Id = x.Key.IdMessagingContact,
+                            NameFull = x.Key.NameFull,
+                            _data = x.GroupBy(y => y.IdMessagingServiceType, y => y.Data).ToDictionary(y => getType(y.Key), y => y.ToList())
+                        });
+                    messagingContacts.AddRange(dataFromContacts);
                 }
 
-                OnSendExecuteBefore(subscriptionDescription2, sendExecutionChain, userIdList);
+                OnSendBeforeExecution(subscriptionInstance, parameters, messagingContacts);
 
-                foreach (var pair in sendExecutionChain._services)
+                foreach (var pair in subscriptionInstance._services)
                 {
                     try
                     {
-                        var isUniversal = pair.Key == typeof(SubscriptionsManager);
-                        var messagingService = isUniversal ? null : AppCore.Get<IMessagingService>(pair.Key);
-                        if (!isUniversal && messagingService == null)
+                        var messagingService = AppCore.Get<IMessagingService>(pair.Key);
+                        if (messagingService == null)
                         {
-                            var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                            var msg = $"Рассылка: '{subscriptionInstance.SubscriptionDescription.Id}' / '{subscriptionInstance.SubscriptionDescription.Name}'.\r\n";
                             msg += $"Коннектор: '{pair.Key.FullName}' / '{pair.Value.GetType().FullName}'.";
                             this.RegisterEvent(Journaling.EventType.Error, "Ошибка поиска сервиса отправки/получения сообщений для рассылки", msg);
                         }
-                        pair.Value(messagingService, subscriptionDescription2, userIdList);
+                        pair.Value(messagingService, subscriptionInstance.SubscriptionDescription, parameters, messagingContacts);
                     }
                     catch (Exception ex)
                     {
-                        var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                        var msg = $"Рассылка: '{subscriptionInstance.SubscriptionDescription.Id}' / '{subscriptionInstance.SubscriptionDescription.Name}'.\r\n";
                         msg += $"Коннектор: '{pair.Key.FullName}' / '{pair.Value.GetType().FullName}'.";
                         this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
                     }
@@ -480,73 +418,23 @@ namespace OnXap.Modules.Subscriptions
             }
             catch (Exception ex)
             {
-                var msg = $"Рассылка: '{subscriptionDescription2.Id}' / '{sendExecutionChain._subscriptionUniqueKey}' / '{subscriptionDescription2.Name}'.\r\n";
+                var msg = $"Рассылка: '{subscriptionInstance.SubscriptionDescription.Id}' / '{subscriptionInstance.SubscriptionDescription.Name}'.\r\n";
                 this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
                 return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
             }
         }
 
         /// <summary>
-        /// Возвращает список
+        /// Вызывается перед началом выполнения команд в рассылке <typeparamref name="TSubscription"/>.
         /// </summary>
-        /// <param name="subscriptionDescription"></param>
-        /// <returns></returns>
-        protected virtual List<int> GetSubscribersList(SubscriptionDescription subscriptionDescription)
+        /// <param name="subscription">Экземпляр объекта, олицетворяющего подписку.</param>
+        /// <param name="parameters">Набор параметров для конкретного вызова подписки.</param>
+        /// <param name="messagingContacts">Список подписчиков-получателей информации.</param>
+        /// <seealso cref="SubscriptionParametrizedCall{TParameters}.ExecuteSubscription{TSubscription}"/>
+        /// <seealso cref="AsParametrized{TParameters}(TParameters)"/>
+        protected virtual void OnSendBeforeExecution<TSubscription, TParameters>(TSubscription subscription, TParameters parameters, MessagingContacts messagingContacts)
+            where TSubscription : SubscriptionBase<TSubscription, TParameters>
         {
-            using (var db = new Db.DataContext())
-            {
-                var query = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionDescription.Id).Select(x => new { x.IdUser });
-                var data = query.ToList();
-                return data.Select(x => x.IdUser).ToList();
-            }
-        }
-
-        internal ExecutionResult<Exception> SendInternal(SubscriptionDescription subscriptionDescription, List<int> userIdList, string message, List<IMessagingService> messagingServicesIgnored)
-        {
-            try
-            {
-                var connectorsSnapshot = _messagingServiceConnectors.ToList();
-                if (connectorsSnapshot.IsNullOrEmpty()) return new ExecutionResult<Exception>(true);
-
-                foreach (var connector in connectorsSnapshot)
-                {
-                    try
-                    {
-                        var messagingService = AppCore.Get<IMessagingService>(connector.Key);
-                        if (messagingServicesIgnored.Contains(messagingService)) continue;
-
-                        if (messagingService == null)
-                        {
-                            var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
-                            msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
-                            this.RegisterEvent(Journaling.EventType.Error, "Ошибка поиска сервиса отправки/получения сообщений для рассылки", msg);
-                        }
-                        else
-                        {
-                            connector.Value.Send(new SendAsUniversalInfo<IMessagingService>()
-                            {
-                                Message = message,
-                                MessagingService = messagingService,
-                                SubscriptionDescription = subscriptionDescription,
-                                UserIdList = userIdList
-                            });
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
-                        msg += $"Коннектор: '{connector.Key.FullName}' / '{connector.Value.GetType().FullName}'.";
-                        this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
-                    }
-                }
-                return new ExecutionResult<Exception>(true);
-            }
-            catch (Exception ex)
-            {
-                var msg = $"Рассылка: '{subscriptionDescription.Id}' / '{subscriptionDescription.UniqueKey}' / '{subscriptionDescription.Name}'.\r\n";
-                this.RegisterEvent(Journaling.EventType.Error, "Неожиданная ошибка рассылки", msg, ex);
-                return new ExecutionResult<Exception>(false, "Неожиданная ошибка рассылки", ex);
-            }
         }
         #endregion
 
@@ -556,5 +444,32 @@ namespace OnXap.Modules.Subscriptions
         /// </summary>
         public SubscriptionGroupDescription SubscriptionGroupSystem { get; private set; }
         #endregion
+    }
+
+    /// <summary>
+    /// Подготовленный запрос с параметрами выполнения для вызова подписки.
+    /// </summary>
+    /// <typeparam name="TParameters"></typeparam>
+    public class SubscriptionParametrizedCall<TParameters>
+    {
+        internal SubscriptionsManager _manager;
+        internal TParameters _parameters;
+
+        /// <summary>
+        /// Выполняет набор команд, заданный для подписки <typeparamref name="TSubscription"/>.
+        /// </summary>
+        public void ExecuteSubscription<TSubscription>()
+            where TSubscription : SubscriptionBase<TSubscription, TParameters>
+        {
+            try
+            {
+                _manager.ExecuteSubscription<TSubscription, TParameters>(_parameters);
+            }
+            finally
+            {
+                _manager = null;
+                _parameters = default(TParameters);
+            }
+        }
     }
 }

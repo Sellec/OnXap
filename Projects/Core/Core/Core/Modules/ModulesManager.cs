@@ -58,7 +58,6 @@ namespace OnXap.Core.Modules
             }
         }
 
-        private readonly bool _isStartModulesOnManagerStart = true;
         private readonly object _syncRoot = new object();
         private List<Tuple<Type, ModuleCore>> _modules = new List<Tuple<Type, ModuleCore>>();
         private readonly InstanceActivatingHandlerImpl _instanceActivatingHandler = null;
@@ -70,7 +69,6 @@ namespace OnXap.Core.Modules
         public ModulesManager()
         {
             DeprecatedSingletonInstances.Set(this);
-            _isStartModulesOnManagerStart = false;
             _instanceActivatingHandler = new InstanceActivatingHandlerImpl(this);
             _instanceActivatedHandler = new InstanceActivatedHandlerImpl(this);
         }
@@ -84,7 +82,6 @@ namespace OnXap.Core.Modules
 
             AppCore.ObjectProvider.RegisterInstanceActivatingHandler(_instanceActivatingHandler);
             AppCore.ObjectProvider.RegisterInstanceActivatedHandler(_instanceActivatedHandler);
-            if (_isStartModulesOnManagerStart) StartModules();
         }
 
         /// <summary>

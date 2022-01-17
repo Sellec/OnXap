@@ -1,4 +1,5 @@
 ﻿using OnXap.Messaging.Messages;
+using System.Net.Mail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 
 namespace OnXap.Modules.MessagingEmail
 {
+    using Core.Data;
     using Core.Items;
     using Messaging;
     using Messaging.DB;
@@ -66,8 +68,11 @@ namespace OnXap.Modules.MessagingEmail
         /// <param name="body">текст письма</param>
         /// <param name="files">Прикрепленные файлы</param>
         /// <returns></returns>
+        /// <exception cref="ArgumentNullException">Возникает, если параметр <paramref name="email_from"/> не содержит значение.</exception>
         public void SendMail(string name_from, string email_from, string name_to, string email_to, Encoding data_charset, Encoding send_charset, string subject, string body, ContentType contentType, List<int> files = null)
         {
+            if (string.IsNullOrEmpty(email_from)) throw new ArgumentNullException(nameof(email_from));
+
             if (contentType == ContentType.Text) body = body.Replace("\n", "\n<br />");
 
             var message = new EmailMessage()
@@ -86,23 +91,29 @@ namespace OnXap.Modules.MessagingEmail
         /// </summary>
         public void SendMailFromSite(string nameTo, string emailTo, string subject, string body, ContentType contentType, List<int> files = null)
         {
-            SendMail("Почтовый робот сайта", GetNoReplyAddress(), nameTo, emailTo, null, null, subject, body, contentType, files);
+            var outgoing = GetDefaultOutgoingAddress();
+            SendMail(outgoing.DisplayName, outgoing.Address, nameTo, emailTo, null, null, subject, body, contentType, files);
         }
 
         public void SendMailToDeveloper(string subject, string body, ContentType contentType, List<int> files = null)
         {
-            SendMail("Почтовый робот сайта", GetNoReplyAddress(), AppCore.WebConfig.DeveloperEmail, AppCore.WebConfig.DeveloperEmail, null, null, subject, body, contentType, files);
+            var outgoing = GetDefaultOutgoingAddress();
+            SendMail(outgoing.DisplayName, outgoing.Address, AppCore.WebConfig.DeveloperEmail, AppCore.WebConfig.DeveloperEmail, null, null, subject, body, contentType, files);
         }
 
-        public string GetNoReplyAddress()
+        /// <summary>
+        /// Возвращает обратный адрес по-умолчанию для писем, для которых отправитель не задан явно.
+        /// </summary>
+        /// <returns></returns>
+        public MailAddress GetDefaultOutgoingAddress()
         {
-            var address = AppCore.WebConfig.ReturnEmail;
-            if (!string.IsNullOrEmpty(address)) return address;
-
-            address = "no-reply@localhost";
+            var address = "no-reply@localhost";
             if (AppCore.ServerUrl != null) address = "no-reply@" + AppCore.ServerUrl.Host;
 
-            return address;
+            var cfg = AppCore.Get<Module>().GetConfiguration<ModuleConfiguration>();
+            if (!string.IsNullOrEmpty(cfg.OutgoingAddress)) address = cfg.OutgoingAddress;
+
+            return new MailAddress(address, cfg.OutgoingName);
         }
 
         #endregion

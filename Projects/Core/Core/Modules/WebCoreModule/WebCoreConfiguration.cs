@@ -27,22 +27,6 @@ namespace OnXap.Modules.WebCoreModule
             set => Set("index_module", value);
         }
 
-        [Display(Name = "Основной контактный email сайта"), Required(ErrorMessage = "Основной контактный email не может быть пустым")]
-        [EmailAddress(ErrorMessage = "Неправильно указан основной контактный email сайта")]
-        public string ContactEmail
-        {
-            get => Get("ContactEmail", "");
-            set => Set("ContactEmail", value);
-        }
-
-        [Display(Name = "Обратный контактный email-адрес"), Required(ErrorMessage = "Обратный контактный email-адрес не может быть пустым")]
-        [EmailAddress(ErrorMessage = "Неправильно указан обратный контактный email-адрес")]
-        public string ReturnEmail
-        {
-            get => Get("ReturnEmail", "");
-            set => Set("ReturnEmail", value);
-        }
-
         [Display(Name = "Email для отправки сообщений о критических ошибках"), Required(ErrorMessage = "Email для отправки сообщений о критических ошибках не может быть пустым")]
         [EmailAddress(ErrorMessage = "Неправильно указан email для отправки сообщений о критических ошибках")]
         public string CriticalMessagesEmail

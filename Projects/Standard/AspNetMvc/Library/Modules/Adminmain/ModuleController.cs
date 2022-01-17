@@ -121,8 +121,6 @@ namespace OnXap.Modules.Adminmain
                         cfg.IdModuleDefault = model.WebCoreConfiguration.IdModuleDefault;
                         cfg.DeveloperEmail = model.WebCoreConfiguration.DeveloperEmail;
                         cfg.SiteFullName = model.WebCoreConfiguration.SiteFullName;
-                        cfg.ContactEmail = model.WebCoreConfiguration.ContactEmail;
-                        cfg.ReturnEmail = model.WebCoreConfiguration.ReturnEmail;
                         cfg.CriticalMessagesEmail = model.WebCoreConfiguration.CriticalMessagesEmail;
                         cfg.register_mode = model.WebCoreConfiguration.register_mode;
                         cfg.site_reginfo = model.WebCoreConfiguration.site_reginfo;

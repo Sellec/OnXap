@@ -58,7 +58,7 @@ namespace OnXap.Modules.ItemsCustomize.Field
         /// Возвращает представление для значения поля в зависимости от типа данных поля (в зависимости от <see cref="GetValueType"/>) и типа вывода.
         /// </summary>
         /// <param name="value">Значение, которое следует преобразовать. Тип значения должен соответствовать типу, возвращаемому методом <see cref="GetValueType"/>.</param>
-        /// <param name="outputType">Тип вывода. Если равен <see cref="OutputType.Text"/>, то возвращается <see cref="string"/>. Если равен <see cref="OutputType.Html"/>, то возвращается <see cref="MvcHtmlString"/> </param>
+        /// <param name="outputType">Тип вывода. Если равен <see cref="OutputType.Text"/>, то возвращается <see cref="string"/>. Если равен <see cref="OutputType.Html"/>, то возвращается Html-код.
         string GetDisplayValue(object value, OutputType outputType);
 
         #endregion

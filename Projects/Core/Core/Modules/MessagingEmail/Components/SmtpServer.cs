@@ -38,7 +38,7 @@ namespace OnXap.Modules.MessagingEmail.Components
             return InitClient();
         }
 
-        private bool InitClient()
+        internal bool InitClient()
         {
             lock (_clientLock)
             {
@@ -46,20 +46,19 @@ namespace OnXap.Modules.MessagingEmail.Components
 
                 try
                 {
-                    var settingsParsed = !string.IsNullOrEmpty(SerializedSettings) ? JsonConvert.DeserializeObject<SmtpServerSettings>(SerializedSettings) : new SmtpServerSettings();
-
-                    if (string.IsNullOrEmpty(settingsParsed.Server)) return false;
+                    var cfg = AppCore.Get<Module>().GetConfiguration<ModuleConfiguration>();
+                    if (!cfg.IsUseSmtp || string.IsNullOrEmpty(cfg.Server)) return false;
 
                     var client = new SmtpClient()
                     {
-                        Host = settingsParsed.Server,
-                        Port = settingsParsed.Port.HasValue ? settingsParsed.Port.Value : (settingsParsed.IsSecure ? 587 : 80),
-                        EnableSsl = settingsParsed.IsSecure,
+                        Host = cfg.Server,
+                        Port = cfg.Port.HasValue ? cfg.Port.Value : (cfg.IsSecure ? 587 : 80),
+                        EnableSsl = cfg.IsSecure,
                         DeliveryMethod = SmtpDeliveryMethod.Network,
-                        Credentials = new NetworkCredential(settingsParsed.Login, settingsParsed.Password),
+                        Credentials = string.IsNullOrEmpty(cfg.Login) ? null : new NetworkCredential(cfg.Login, cfg.Password)
                     };
 
-                    _isIgnoreCertErrors = settingsParsed.IsIgnoreCertificateErrors;
+                    _isIgnoreCertErrors = cfg.IsIgnoreCertificateErrors;
                     if (_isIgnoreCertErrors)
                     {
                         _certCallback = new RemoteCertificateValidationCallback((s, certificate, chain, sslPolicyErrors) => true);

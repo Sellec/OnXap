@@ -49,7 +49,7 @@ namespace OnXap.Modules.Auth
         }
 
         /// <summary>
-        /// Запоминает адрес <paramref name="requestedAddress"/>, запрошенный пользователем, ассоциированным с текущим активным контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>).
+        /// Запоминает адрес <paramref name="requestedAddress"/>, запрошенный пользователем, ассоциированным с текущим активным контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>).
         /// </summary>
         public void RememberUserContextRequestedAddressWhenRedirectedToAuthorization(Uri requestedAddress)
         {
@@ -65,7 +65,7 @@ namespace OnXap.Modules.Auth
         }
 
         /// <summary>
-        /// Возвращает адрес, запомненный модулем во время последнего вызова <see cref="RememberUserContextRequestedAddressWhenRedirectedToAuthorization(IUserContext, Uri)"/> для пользователя, ассоциированного с текущим активным контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>).
+        /// Возвращает адрес, запомненный модулем во время последнего вызова <see cref="RememberUserContextRequestedAddressWhenRedirectedToAuthorization(IUserContext, Uri)"/> для пользователя, ассоциированного с текущим активным контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>).
         /// </summary>
         public Uri GetRememberedUserContextRequestedAddressWhenRedirectedToAuthorization()
         {

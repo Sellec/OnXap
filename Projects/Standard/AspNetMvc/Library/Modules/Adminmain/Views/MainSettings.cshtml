@@ -60,16 +60,6 @@
                     @Html.ValidationMessageFor(x => x.AppCoreConfiguration.ApplicationTimezoneId)
                 </div>
                 <div class="block-setting">
-                    @Html.LabelFor(x => x.WebCoreConfiguration.ContactEmail):<br />
-                    <pv-inputtext type="text" v-model="viewModel.Model.Web.ContactEmail" :disabled="isSaving" size="50" />
-                    @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ContactEmail)
-                </div>
-                <div class="block-setting">
-                    @Html.LabelFor(x => x.WebCoreConfiguration.ReturnEmail):<br />
-                    <pv-inputtext type="text" v-model="viewModel.Model.Web.ReturnEmail" :disabled="isSaving" size="50" />
-                    @Html.ValidationMessageFor(x => x.WebCoreConfiguration.ReturnEmail)
-                </div>
-                <div class="block-setting">
                     @Html.LabelFor(x => x.WebCoreConfiguration.DeveloperEmail):<br>
                     <pv-inputtext type="text" v-model="viewModel.Model.Web.DeveloperEmail" :disabled="isSaving" size="50" />
                     @Html.ValidationMessageFor(x => x.WebCoreConfiguration.DeveloperEmail)

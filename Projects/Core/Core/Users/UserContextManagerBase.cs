@@ -100,7 +100,7 @@ namespace OnXap.Users
             _systemUserContext = systemUserContext;
 
             AppCore.Get<Modules.Subscriptions.SubscriptionsManager>().UpdateSubscribers(
-                journalingManager._subscriptionEventCritical, 
+                AppCore.Get<Modules.CoreModule.CoreModule>()._subscriptionEventCritical, 
                 Modules.Subscriptions.ChangeType.Append, 
                 new int[] { _systemUserContext.IdUser });
 

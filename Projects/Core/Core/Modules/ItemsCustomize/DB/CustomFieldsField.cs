@@ -123,7 +123,7 @@ namespace OnXap.Modules.ItemsCustomize.DB
         /// ¬озвращает представление дл€ значени€ пол€ в зависимости от типа данных пол€ (в зависимости от <see cref="GetValueType"/>) и типа вывода.
         /// </summary>
         /// <param name="value">«начение, которое следует преобразовать. “ип значени€ должен соответствовать типу, возвращаемому методом <see cref="GetValueType"/>.</param>
-        /// <param name="outputType">“ип вывода. ≈сли равен <see cref="Field.OutputType.Text"/>, то возвращаетс€ <see cref="string"/>. ≈сли равен <see cref="Field.OutputType.Html"/>, то возвращаетс€ <see cref="MvcHtmlString"/> </param>
+        /// <param name="outputType">“ип вывода. ≈сли равен <see cref="Field.OutputType.Text"/>, то возвращаетс€ <see cref="string"/>. ≈сли равен <see cref="Field.OutputType.Html"/>, то возвращаетс€ Html-код.
         public string GetDisplayValue(object value, Field.OutputType outputType = Field.OutputType.Text)
         {
             var valueType = GetValueType();

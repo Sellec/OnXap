@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace OnXap.Modules.Subscriptions
+﻿namespace OnXap.Modules.Subscriptions
 {
     using Messaging;
 
@@ -8,18 +6,24 @@ namespace OnXap.Modules.Subscriptions
     /// Информация о событии подписки.
     /// </summary>
     /// <typeparam name="TMessagingService"></typeparam>
-    public struct SendInfo<TMessagingService>
+    /// <typeparam name="TParameters"></typeparam>
+    public struct SendInfo<TMessagingService, TParameters>
         where TMessagingService : IMessagingService
     {
         /// <summary>
-        /// Список идентификаторов пользователей-получателей сообщения.
+        /// Список контактов-получателей сообщения.
         /// </summary>
-        public List<int> UserIdList { get; set; }
+        public MessagingContacts MessagingContacts { get; set; }
 
         /// <summary>
         /// Сервис-отправитель сообщения.
         /// </summary>
         public TMessagingService MessagingService { get; set; }
+
+        /// <summary>
+        /// Параметры вызова для подписки.
+        /// </summary>
+        public TParameters Parameters { get; set; }
 
         /// <summary>
         /// Информация о подписке, в рамках которой происходит отправка сообщения.

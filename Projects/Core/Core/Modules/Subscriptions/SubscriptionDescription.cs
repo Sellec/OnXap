@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OnXap.Modules.Subscriptions
+﻿namespace OnXap.Modules.Subscriptions
 {
     /// <summary>
     /// Описание подписки.
@@ -20,11 +18,6 @@ namespace OnXap.Modules.Subscriptions
         /// Название подписки.
         /// </summary>
         public string Name { get; internal set; }
-
-        /// <summary>
-        /// Уникальный ключ, позволяющий идентифицировать подписку.
-        /// </summary>
-        public Guid UniqueKey { get; internal set; }
 
         /// <summary>
         /// Описание группы подписок, к которой относится подписка.

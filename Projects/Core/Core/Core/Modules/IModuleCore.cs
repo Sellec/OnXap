@@ -41,7 +41,7 @@ namespace OnXap.Core.Modules
 
         #region Разрешения
         /// <summary>
-        /// Проверяет, доступно ли указанное разрешение <paramref name="key"/> пользователю, ассоциированному с текущим контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>).
+        /// Проверяет, доступно ли указанное разрешение <paramref name="key"/> пользователю, ассоциированному с текущим контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>).
         /// </summary>
         /// <param name="key">Уникальный ключ разрешения. См. <see cref="Permission.Key"/>.</param>
         /// <returns>Возвращает результат проверки.</returns>
@@ -57,7 +57,7 @@ namespace OnXap.Core.Modules
         CheckPermissionResult CheckPermission(IUserContext context, string key);
 
         /// <summary>
-        /// Проверяет, доступно ли указанное разрешение <paramref name="key"/> пользователю, ассоциированному с текущим контекстом (см. <see cref="UserContextManager.GetCurrentUserContext"/>).
+        /// Проверяет, доступно ли указанное разрешение <paramref name="key"/> пользователю, ассоциированному с текущим контекстом (см. <see cref="UserContextManagerBase.GetCurrentUserContext"/>).
         /// </summary>
         /// <param name="key">Уникальный ключ разрешения. См. <see cref="Permission.Key"/>.</param>
         /// <returns>Возвращает результат проверки.</returns>

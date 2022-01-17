@@ -248,9 +248,7 @@
     <Compile Include="Modules\Admin\Startup.cs" />
     <Compile Include="Modules\FileManager\Startup.cs" />
     <Compile Include="Modules\MessagingEmail\EMailController.cs" />
-    <Compile Include="Modules\MessagingEmail\EMailModule.cs" />
     <Compile Include="Modules\MessagingEmail\Model\Configuration.cs" />
-    <Compile Include="Modules\MessagingEmail\Model\SmtpServerSettings.cs" />
     <Compile Include="Modules\MessagingEmail\Startup.cs" />
     <Compile Include="Modules\reCAPTCHA\ModuleReCaptchaController.cs" />
     <Compile Include="Modules\reCAPTCHA\ModelAttribute.cs" />

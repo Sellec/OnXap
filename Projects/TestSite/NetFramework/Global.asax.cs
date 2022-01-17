@@ -75,6 +75,7 @@ namespace OnXap.Site
                 resourceManager.SourceDevelopmentPathList.AddRange(paths);
 
                 //AppCore.Get<Journaling.JournalingManager>().SetJournalOptionsDefault(new Journaling.JournalOptions() { LimitByLastNDays = 30 });
+              //  AppCore.Get<OnXap.Modules.MessagingEmail.EmailService>().SendMailFromSite(null, "petrov_d@fabrika-e.ru", "123", "23123123", OnXap.Modules.MessagingEmail.ContentType.Text);
             }
             catch (Exception ex)
             {

@@ -2,6 +2,9 @@
 {
     using Core.Configuration;
 
+    /// <summary>
+    /// Настройки модуля авторизации.
+    /// </summary>
     public class ModuleConfiguration : ModuleConfiguration<ModuleAuth>
     {
         /// <summary>

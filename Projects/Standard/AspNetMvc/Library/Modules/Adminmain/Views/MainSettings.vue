@@ -21,8 +21,6 @@
             this.WebCoreConfiguration = {
                 SiteFullName: source.Web.SiteFullName,
                 IdModuleDefault: source.Web.IdModuleDefault,
-                ContactEmail: source.Web.ContactEmail,
-                ReturnEmail: source.Web.ReturnEmail,
                 DeveloperEmail: source.Web.DeveloperEmail,
                 CriticalMessagesEmail: source.Web.CriticalMessagesEmail,
                 register_mode: source.Web.register_mode,
@@ -47,8 +45,6 @@
                 Web: {
                     SiteFullName: String(source.WebCoreConfiguration.SiteFullName),
                     IdModuleDefault: Number(source.WebCoreConfiguration.IdModuleDefault),
-                    ContactEmail: String(source.WebCoreConfiguration.ContactEmail),
-                    ReturnEmail: String(source.WebCoreConfiguration.ReturnEmail),
                     DeveloperEmail: String(source.WebCoreConfiguration.DeveloperEmail),
                     CriticalMessagesEmail: String(source.WebCoreConfiguration.CriticalMessagesEmail),
                     register_mode: Number(source.WebCoreConfiguration.register_mode),

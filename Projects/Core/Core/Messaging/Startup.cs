@@ -6,6 +6,8 @@
         {
             bindingsCollection.SetTransient<DbSchema.MessageQueue>();
             bindingsCollection.SetTransient<DbSchema.MessageQueueHistory>();
+            bindingsCollection.SetTransient<DbSchema.MessagingContact>();
+            bindingsCollection.SetTransient<DbSchema.MessagingContactData>();
         }
     }
 }

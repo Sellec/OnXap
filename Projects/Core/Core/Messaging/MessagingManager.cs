@@ -1,10 +1,10 @@
-﻿using OnUtils.Architecture.AppCore;
+﻿using OnUtils;
+using OnUtils.Architecture.AppCore;
 using OnUtils.Architecture.AppCore.DI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using OnUtils;
 
 namespace OnXap.Messaging
 {
