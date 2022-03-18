@@ -1,15 +1,61 @@
 ﻿using FluentMigrator;
+using FluentMigrator.Infrastructure;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
 using Microsoft.Extensions.DependencyInjection;
 using OnUtils.Architecture.AppCore;
 using System;
+using FluentMigrator.Runner.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 #pragma warning disable CS0618
 namespace OnXap.Core.DbSchema
 {
+    class d : FluentMigrator.Runner.IMigrationRunnerConventions
+    {
+        Func<Type, bool> IMigrationRunnerConventions.TypeIsMigration => TypeIsMigrationImpl;
+
+        Func<Type, bool> IMigrationRunnerConventions.TypeIsProfile => DefaultMigrationRunnerConventions.Instance.TypeIsProfile;
+
+        Func<Type, MigrationStage?> IMigrationRunnerConventions.GetMaintenanceStage => DefaultMigrationRunnerConventions.Instance.GetMaintenanceStage;
+
+        Func<Type, bool> IMigrationRunnerConventions.TypeIsVersionTableMetaData => DefaultMigrationRunnerConventions.Instance.TypeIsVersionTableMetaData;
+
+        Func<Type, IMigrationInfo> IMigrationRunnerConventions.GetMigrationInfo => DefaultMigrationRunnerConventions.Instance.GetMigrationInfo;
+
+        Func<IMigration, IMigrationInfo> IMigrationRunnerConventions.GetMigrationInfoForMigration => GetMigrationInfoForMigrationImpl;
+
+        Func<Type, bool> IMigrationRunnerConventions.TypeHasTags => DefaultMigrationRunnerConventions.Instance.TypeHasTags;
+
+        Func<Type, IEnumerable<string>, bool> IMigrationRunnerConventions.TypeHasMatchingTags => DefaultMigrationRunnerConventions.Instance.TypeHasMatchingTags;
+
+        private static bool TypeIsMigrationImpl(Type type)
+        {
+            if (typeof(DbSchemaItem).IsAssignableFrom(type)) return true;
+            return typeof(IMigration).IsAssignableFrom(type) && type.GetCustomAttributes<MigrationAttribute>(true).Any();
+        }
+
+        private static long number = long.MinValue;
+
+        private static IMigrationInfo GetMigrationInfoForMigrationImpl(IMigration migration)
+        {
+            if (typeof(DbSchemaItem).IsAssignableFrom(migration.GetType()))
+            {
+                var migrationType = migration.GetType();
+                var migrationAttribute = migrationType.GetCustomAttribute<MigrationAttribute>() ?? new MigrationAttribute(number++, "");
+                var migrationInfo = new MigrationInfo(migrationAttribute.Version, migrationAttribute.Description, migrationAttribute.TransactionBehavior, migrationAttribute.BreakingChange, () => migration);
+
+                foreach (var traitAttribute in migrationType.GetCustomAttributes<MigrationTraitAttribute>(true))
+                    migrationInfo.AddTrait(traitAttribute.Name, traitAttribute.Value);
+
+                return migrationInfo;
+            }
+            return DefaultMigrationRunnerConventions.Instance.GetMigrationInfoForMigration(migration);
+        }
+    }
+
     class DbSchemaManager : CoreComponentBase, IComponentSingleton, ICritical, IFilteringMigrationSource
     {
         private Exception[] _startErrors = null;
@@ -32,6 +78,7 @@ namespace OnXap.Core.DbSchema
                         }).
                         Configure<RunnerOptions>(cfg => cfg.Profile = DbSchemaDefaultProfile.ProfileName).
                         AddSingleton<IMigrationSource>(sp => this).
+                        AddSingleton<IMigrationRunnerConventions>(sp => new d()).
                         AddSingleton<IProfileSource, DbSchemaProfileSource>().
                         BuildServiceProvider(false);
 

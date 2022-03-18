@@ -11,6 +11,10 @@ namespace OnXap.Modules.FileManager.DbSchema
     [Migration(20200306190500, "Исправление длины поля File.TypeConcrete.")]
     public class File20200306 : DbSchemaItem
     {
+        public File20200306():base(typeof(File))
+        {
+        }
+
         public override void Down()
         {
         }

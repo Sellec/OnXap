@@ -14,7 +14,7 @@
             bindingsCollection.SetTransient<DbSchema.DbSchemaDefaultMigration>();
             bindingsCollection.SetTransient<DbSchema.DbSchemaDefaultProfile>();
 
-            bindingsCollection.SetTransient<Db.InsertOnDuplicateUpdateSchemaItem>();
+            //bindingsCollection.SetTransient<Db.InsertOnDuplicateUpdateSchemaItem>();
 
             bindingsCollection.SetTransient<Db.ItemTypeSchemaItem>();
             bindingsCollection.SetTransient<Db.ModuleConfigSchemaItem>();

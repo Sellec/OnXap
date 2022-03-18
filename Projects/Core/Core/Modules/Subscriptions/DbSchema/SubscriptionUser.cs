@@ -4,7 +4,7 @@
 
     class SubscriptionUser : DbSchemaItemRegular
     {
-        public SubscriptionUser() : base(typeof(Subscription))
+        public SubscriptionUser() : base(typeof(Subscription), typeof(Core.Db.UserSchemaItem))
         {
         }
 
