@@ -146,13 +146,8 @@ namespace OnXap.Core.DbSchema
 
             var dbSchemaItemListFiltered = dbSchemaItemList.Where(x => x.GetType() == typeof(DbSchemaDefaultMigration) ||
                                                                        x.GetType() == typeof(DbSchemaDefaultProfile) ||
-                                                                       x.GetType() == typeof(Db.InsertOnDuplicateUpdateSchemaItem) ||
                                                                        dbSchemaManagerConfigure.FilterMigration(x)).ToList();
-
-            var dupl = dbSchemaItemListFiltered.Where(x => x.GetType() == typeof(Db.InsertOnDuplicateUpdateSchemaItem)).ToList();
-            dupl.ForEach(x => dbSchemaItemListFiltered.Remove(x));
-            dupl.ForEach(x => dbSchemaItemListFiltered.Insert(0, x));
-
+          
             return dbSchemaItemListFiltered;
         }
 
