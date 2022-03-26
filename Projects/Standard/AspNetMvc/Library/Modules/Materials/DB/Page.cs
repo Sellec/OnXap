@@ -7,12 +7,12 @@ namespace OnXap.Modules.Materials.DB
     [Table("Page")]
     public partial class Page : ItemBase
     {
-        public override int ID
+        public override int IdBase
         {
             get => id;
         }
 
-        public override string Caption
+        public override string CaptionBase
         {
             get => name;
         }

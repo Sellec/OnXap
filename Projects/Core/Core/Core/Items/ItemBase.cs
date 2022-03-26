@@ -34,7 +34,7 @@ namespace OnXap.Core.Items
         /// Должен быть переопределен в класса-потомке и, для сущностей из БД, привязан к целочисленному свойству-идентификатору.
         /// </summary>
         [NotMapped]
-        public abstract int ID
+        public abstract int IdBase
         {
             get;
         }
@@ -44,7 +44,7 @@ namespace OnXap.Core.Items
         /// Должен быть переопределен в класса-потомке. Например, для сущностей из БД, может возвращать заголовок статьи, логин или никнейм пользователя и т.п.
         /// </summary>
         [NotMapped]
-        public abstract string Caption
+        public abstract string CaptionBase
         {
             get;
         }
@@ -74,11 +74,11 @@ namespace OnXap.Core.Items
         #endregion
 
         /// <summary>
-        /// Возвращает <see cref="Caption"/> при приведении к строке.
+        /// Возвращает <see cref="CaptionBase"/> при приведении к строке.
         /// </summary>
         public override string ToString()
         {
-            return Caption;
+            return CaptionBase;
         }
     }
 }

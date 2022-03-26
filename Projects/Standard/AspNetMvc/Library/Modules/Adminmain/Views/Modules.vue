@@ -1,6 +1,6 @@
 ﻿<template>
     <div>
-        <pv-tabview>
+        <pv-tabview :activeIndex.sync="moduleCurrent.tabActive">
             <pv-tabpanel header="Список модулей">
                 <pv-datatable :value="dataList" :row-class="rowClass"
                                sort-field="caption" sort-order="1"
@@ -41,7 +41,7 @@
                     </pv-column>
                 </pv-datatable>
             </pv-tabpanel>
-            <pv-tabpanel :active.sync="moduleCurrent.tabActive" :disabled="!moduleCurrent.data || moduleCurrent.loading">
+            <pv-tabpanel :disabled="!moduleCurrent.data || moduleCurrent.loading">
                 <template slot="header">
                     <span>Настройки модуля</span>
                 </template>
@@ -100,7 +100,7 @@
                 moduleCurrent: {
                     data: null,
                     loading: false,
-                    tabActive: false,
+                    tabActive: 0,
                     requestId: null,
                 }
             };
@@ -116,7 +116,7 @@
             onConfigure: function (moduleData) {
                 var component = this;
                 component.moduleCurrent.loading = true;
-                component.moduleCurrent.tabActive = true;
+                component.moduleCurrent.tabActive = 1;
                 component.moduleCurrent.requestId = $("#containerForLoading").requestLoad(
                     this.viewModel.moduleConfigUrl.replace('{0}', moduleData.id),
                     null,

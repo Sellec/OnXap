@@ -9,17 +9,33 @@ namespace OnXap.Modules.Universal.Pagination
         Contains = 2,
     }
 
+    public enum PrimeUiDataTableFieldFilterConstraintGroupOperator : int
+    {
+        None = 0,
+        And = 1,
+        Or = 2,
+    }
+
+    public class PrimeUiDataTableFieldConstraint
+    {
+        [Required]
+        public PrimeUiDataTableFieldFilterMatchMode MatchType { get; set; }
+
+        [Required]
+        [MaxLength(2000)]
+        public string Value { get; set; }
+    }
+
     public class PrimeUiDataTableFieldFilter
     {
         [Required]
         [MaxLength(200)]
         public string FieldName { get; set; }
 
-        public PrimeUiDataTableFieldFilterMatchMode MatchType { get; set; }
-
         [Required]
-        [MaxLength(2000)]
-        public string Value { get; set; }
+        public PrimeUiDataTableFieldFilterConstraintGroupOperator Operator { get; set; }
+
+        public PrimeUiDataTableFieldConstraint[] Constraints { get; set; }
     }
 
     public class PrimeUiDataTableSourceRequest
@@ -34,6 +50,5 @@ namespace OnXap.Modules.Universal.Pagination
         public bool SortByAcsending { get; set; }
 
         public PrimeUiDataTableFieldFilter[] FilterFields { get; set; }
-
     }
 }

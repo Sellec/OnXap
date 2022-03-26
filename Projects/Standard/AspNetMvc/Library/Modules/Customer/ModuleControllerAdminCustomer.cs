@@ -88,86 +88,107 @@ namespace OnXap.Modules.Customer
                                     switch (filter.FieldName)
                                     {
                                         case nameof(Core.Db.User.IdUser):
-                                            if (!int.TryParse(filter.Value, out var idUser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => Convert.ToString(x.IdUser).Contains(idUser.ToString()));
-                                                    break;
+                                                if (!int.TryParse(constraint.Value, out var idUser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => Convert.ToString(x.IdUser).Contains(idUser.ToString()));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => Convert.ToString(x.IdUser).StartsWith(idUser.ToString()));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => Convert.ToString(x.IdUser).StartsWith(idUser.ToString()));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(Core.Db.User.Superuser):
-                                            if (!int.TryParse(filter.Value, out var superuser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
-                                            query = query.Where(x => x.Superuser == superuser);
+                                            foreach (var constraint in filter.Constraints)
+                                            {
+                                                if (!int.TryParse(constraint.Value, out var superuser)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                                query = query.Where(x => x.Superuser == superuser);
+                                            }
                                             break;
 
                                         case "Requisites":
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(Core.Db.User.email):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.email.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.email.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.email.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.email.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(Core.Db.User.phone):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.phone.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.phone.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.phone.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.phone.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(Core.Db.User.name):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.name.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.name.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.name.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.name.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(Core.Db.User.CommentAdmin):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.CommentAdmin.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.CommentAdmin.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.CommentAdmin.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.CommentAdmin.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 

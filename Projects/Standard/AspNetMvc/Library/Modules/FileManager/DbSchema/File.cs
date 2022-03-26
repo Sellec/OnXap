@@ -5,7 +5,7 @@ namespace OnXap.Modules.FileManager.DbSchema
     using Core.DbSchema;
     using Modules.ItemsCustomize.DB;
 
-    class File : DbSchemaItemRegular
+    public class File : DbSchemaItemRegular
     {
         public File() : base(typeof(FileRemoveQueue))
         {

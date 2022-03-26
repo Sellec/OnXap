@@ -161,7 +161,7 @@ namespace OnXap.Modules.Routing
         {
             var absoluteUrl = AppCore.ServerUrl;
             var urlManager = AppCore.Get<UrlManager>();
-            var idList = items.Select(x => x.ID).Distinct().ToArray();
+            var idList = items.Select(x => x.IdBase).Distinct().ToArray();
             var result = urlManager.GetUrl(idList, idItemType, RoutingConstants.MAINKEY);
             if (!result.IsSuccess)
             {
@@ -177,7 +177,7 @@ namespace OnXap.Modules.Routing
 
             foreach (var item in items)
             {
-                if (result.Result.TryGetValue(item.ID, out string value) && !string.IsNullOrEmpty(value))
+                if (result.Result.TryGetValue(item.IdBase, out string value) && !string.IsNullOrEmpty(value))
                 {
                     if (Uri.TryCreate(value, UriKind.Absolute, out Uri url))
                     {

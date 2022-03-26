@@ -78,7 +78,7 @@ namespace OnXap.Modules.ItemsCustomize
 
                 if (_items != null && _items.Count() > 0)
                     foreach (var res in _items)
-                        items[new SchemeItem(res.Key.ID, itemType.IdItemType)] = res.Value;
+                        items[new SchemeItem(res.Key.IdBase, itemType.IdItemType)] = res.Value;
                 else
                     items[new SchemeItem(0, itemType.IdItemType)] = "По-умолчанию";
 

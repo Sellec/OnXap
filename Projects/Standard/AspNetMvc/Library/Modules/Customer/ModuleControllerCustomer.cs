@@ -92,7 +92,7 @@ namespace OnXap.Modules.Customer
                 {
                     var data = db.Users.Where(x => x.IdUser == model.IdUser).FirstOrDefault();
                     if (data == null) throw new Exception("Указанный пользователь не найден.");
-                    else Module.CheckPermissionToEditOtherUser(model.ID);
+                    else Module.CheckPermissionToEditOtherUser(model.IdBase);
 
                     if (ModelState.IsValid)
                     {

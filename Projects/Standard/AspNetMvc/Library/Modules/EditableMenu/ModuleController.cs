@@ -53,8 +53,8 @@ namespace OnXap.Modules.EditableMenu
                 var itemsAll = module.GetItemTypes().
                                 SelectMany(x => module.GetItems(x.IdItemType)).
                                 OfType<IItemRouted>().
-                                OrderBy(x => x.Caption).
-                                ToDictionary(x => x.Url.ToString(), x => x.Caption);
+                                OrderBy(x => x.CaptionBase).
+                                ToDictionary(x => x.Url.ToString(), x => x.CaptionBase);
 
 
                 data = itemsAll;

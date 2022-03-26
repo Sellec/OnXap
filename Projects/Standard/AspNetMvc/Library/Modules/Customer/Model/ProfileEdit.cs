@@ -53,12 +53,12 @@ namespace OnXap.Modules.Customer.Model
         [Display(Name = "Комментарий о себе"), DataType(DataType.MultilineText)]
         public string Comment { get; set; }
 
-        public override int ID
+        public override int IdBase
         {
             get => IdUser;
         }
 
-        public override string Caption
+        public override string CaptionBase
         {
             get;
         }

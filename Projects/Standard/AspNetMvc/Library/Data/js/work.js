@@ -20,22 +20,6 @@ $(function () {
     $(".info_table td").hover(function () { $(this).parent().find("td").addClass("hovered") }, function () { $(this).parent().find("td").removeClass("hovered") })
     $(".both tr").each(function () { $(this).find("td:first").addClass("first_td"); })
 
-    $(".item_popup").click(function () {
-        open_popup($(this).attr("href"), "Просмотр продукции", null);
-        var par = $(this).parent().parent("li");
-        if (par.length) {
-            var str = par.find("a:first").attr("name").replace(/prd_/, '');
-            window.location.hash = "#" + str;
-        }
-        //alert($(this).parent("li").find("a:first").attr("name"))
-        return false;
-    })
-
-    if (window.location.hash != '') {
-        jQuery.scrollTo($("a[name='prd_" + window.location.hash.replace('#', '') + "']"), 800);
-        open_popup('/products/item/' + window.location.hash.replace('#', ''), "Просмотр продукции", null);
-    }
-
     var fields = 0;
     $(".field_add").click(function () {
         fields++;

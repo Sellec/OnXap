@@ -468,7 +468,7 @@ namespace OnXap.Journaling
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionResultJournalDataList(false, "Ошибка получения данных о типе объекта.");
 
-            return GetJournalForItemKey(new ItemKey(itemType.IdItemType, relatedItem.ID));
+            return GetJournalForItemKey(new ItemKey(itemType.IdItemType, relatedItem.IdBase));
         }
 
         /// <summary>
@@ -700,7 +700,7 @@ namespace OnXap.Journaling
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionRegisterResult(false, "Ошибка получения данных о типе объекта.");
 
-            return RegisterEventForItem(IdJournal, new ItemKey(itemType.IdItemType, relatedItem.ID), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+            return RegisterEventForItem(IdJournal, new ItemKey(itemType.IdItemType, relatedItem.IdBase), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
 
         /// <summary>
@@ -778,7 +778,7 @@ namespace OnXap.Journaling
             var itemType = ItemTypeFactory.GetItemType(relatedItem.GetType());
             if (itemType == null) return new ExecutionRegisterResult(false, "Ошибка получения данных о типе объекта.");
 
-            return RegisterEventForItem(typedType, new ItemKey(itemType.IdItemType, relatedItem.ID), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
+            return RegisterEventForItem(typedType, new ItemKey(itemType.IdItemType, relatedItem.IdBase), eventType, eventCode, eventInfo, eventInfoDetailed, eventTime, exception);
         }
 
         internal ExecutionRegisterResult RegisterEventForItem(Type typedType, ItemKey itemKey, EventType eventType, int eventCode, string eventInfo, string eventInfoDetailed = null, DateTime? eventTime = null, Exception exception = null)

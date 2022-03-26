@@ -9,7 +9,7 @@ namespace System
     {
         public static IEnumerable<SelectListItem> AsSelectListItem(this IEnumerable<ItemBase> items)
         {
-            return items.Select(x => new SelectListItem() { Text = x.Caption, Value = x.ID.ToString() });
+            return items.Select(x => new SelectListItem() { Text = x.CaptionBase, Value = x.IdBase.ToString() });
         }
 
         public static IEnumerable<SelectListItem> SelectListWithSelected(this IEnumerable<SelectListItem> listSource, object selectedValue)

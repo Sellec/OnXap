@@ -241,7 +241,7 @@ namespace OnXap.Modules.Auth
                                     db.UserPasswordRecovery.Add(new UserPasswordRecovery() { IdUser = user.IdUser, RecoveryKey = code });
 
                                     AppCore.Get<EmailService>().SendMailFromSite(
-                                        user.Caption,
+                                        user.CaptionBase,
                                         user.email,
                                         "Восстановление пароля на сайте",
                                         ViewString("PasswordRestoreNotificationEmail.cshtml", new ViewModels.PasswordRestoreSend() { User = user, Code = code, CodeType = codeType }),

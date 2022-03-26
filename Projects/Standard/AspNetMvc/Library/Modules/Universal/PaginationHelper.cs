@@ -47,19 +47,19 @@ namespace OnXap.Modules.Universal.Pagination
         }
 
         /// <summary>
-        /// Обрабатывает данные из запроса <paramref name="query"/>, проводит ряд преобразований (сортировка, группировка и т.п.)
+        /// Обрабатывает данные из запроса <paramref name="queryBase"/>, проводит ряд преобразований (сортировка, группировка и т.п.)
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="model"></param>
-        /// <param name="query"></param>
+        /// <param name="queryBase"></param>
         /// <param name="listViewOptions"></param>
-        /// <param name="IdPage"></param>
+        /// <param name="pageIndex"></param>
         /// <returns></returns>
         public ActionResult ViewPaginatedItemsList<TModel>(
             TModel model,
-            IQueryable<TItemSource> query,
+            IQueryable<TItemSource> queryBase,
             ListViewOptions listViewOptions = null,
-            int? IdPage = null
+            int? pageIndex = null
         )
             where TModel : class
         {
@@ -70,36 +70,36 @@ namespace OnXap.Modules.Universal.Pagination
                 if (listViewOptions == null) throw new NullReferenceException("Метод 'UniversalController{TModule, TContext, TItemSource, TItemView}.GetPaginatedItemsListOptions' не должен возвращать null.");
             }
 
-            var data_items = ViewPrepareItems(query, out PagedView pages, out InfoCount infoCount, listViewOptions, IdPage ?? 0);
+            var itemsList = GetSortedList(queryBase, out PagedView pages, out InfoCount infoCount, listViewOptions, pageIndex ?? 0);
             if (!pages.PageFound) return Controller.ErrorHandled(new ErrorCodeException(HttpStatusCode.NotFound, "Нет такой страницы."));
 
-            return ExecuteView(model, data_items, listViewOptions, pages, infoCount);
+            return ExecuteView(model, itemsList, listViewOptions, pages, infoCount);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="query"></param>
+        /// <param name="queryBase"></param>
         /// <param name="pages"></param>
         /// <param name="infoCount"></param>
         /// <param name="listViewOptions"></param>
-        /// <param name="IdPage">Если не задан, то отображается весь список объектов</param>
+        /// <param name="pageIndex">Если не задан, то отображается весь список объектов</param>
         /// <returns></returns>
-        protected virtual List<TItemView> ViewPrepareItems(
-            IQueryable<TItemSource> query,
+        public virtual List<TItemView> GetSortedList(
+            IQueryable<TItemSource> queryBase,
             out PagedView pages,
             out InfoCount infoCount,
             ListViewOptions listViewOptions,
-            int? IdPage = null)
+            int? pageIndex = null)
         {
             pages = null;
             infoCount = null;
 
             var startPosition = 0;
 
-            var itemsCount = query.Count();
+            var itemsCount = queryBase.Count();
 
-            if (IdPage.HasValue)
+            if (pageIndex.HasValue)
             {
                 /*
                  * Рассчитываем страницы
@@ -107,16 +107,16 @@ namespace OnXap.Modules.Universal.Pagination
                 pages = new PagedView();
 
                 //Выбираем из настроек или из listViewOptions количество объектов на одной странице.
-                var numberPerPage = listViewOptions != null && listViewOptions.numpage != 0 ? listViewOptions.numpage : 10;
+                var itemsPerPage = listViewOptions != null && listViewOptions.ItemsPerPage != 0 ? listViewOptions.ItemsPerPage : 10;
 
                 //Считаем текущую страницу. Первая страница начинается с 1.
-                var currentPage = Math.Max(1, IdPage.Value);
+                var currentPage = Math.Max(1, pageIndex.Value);
 
                 //Считаем стартовую позицию в списке объектов.
-                startPosition = (currentPage - 1) * numberPerPage;
+                startPosition = (currentPage - 1) * itemsPerPage;
 
                 //Считаем количество страниц.
-                var countPages = itemsCount == 0 ? 0 : Math.Max(1, (int)Math.Ceiling(1.0 * itemsCount / numberPerPage));
+                var countPages = itemsCount == 0 ? 0 : Math.Max(1, (int)Math.Ceiling(1.0 * itemsCount / itemsPerPage));
 
                 if (startPosition >= itemsCount)
                 {
@@ -148,44 +148,49 @@ namespace OnXap.Modules.Universal.Pagination
                     for (int i = currentPage2 + 2; i <= countPages; i++)
                         fnpages[i] = i;
 
-                pages.pages = countPages;
-                pages.curpage = currentPage;
+                pages.PageCount = countPages;
+                pages.PageIndex = currentPage;
                 pages.stpg = stpages;
                 pages.fnpg = fnpages;
                 pages.np = countPages - 3;
 
                 infoCount = new InfoCount()
                 {
-                    all = itemsCount,
-                    start = startPosition + 1,
-                    page = currentPage * numberPerPage,
-                    objectsPerPageTheory = numberPerPage,
-                    objectsPerPage = Math.Min(itemsCount - (currentPage - 1) * numberPerPage, numberPerPage)
+                    ItemsCount = itemsCount,
+                    ItemPositionStart = startPosition + 1,
+                    ItemPositionEnd = currentPage * itemsPerPage,
+                    ItemsPerPageTheory = itemsPerPage,
+                    ItemsPerPage = Math.Min(itemsCount - (currentPage - 1) * itemsPerPage, itemsPerPage)
                 };
             }
             else
             {
                 infoCount = new InfoCount()
                 {
-                    all = itemsCount,
-                    start = 1,
-                    page = 0,
-                    objectsPerPageTheory = itemsCount,
-                    objectsPerPage = itemsCount
+                    ItemsCount = itemsCount,
+                    ItemPositionStart = 1,
+                    ItemPositionEnd = 0,
+                    ItemsPerPageTheory = itemsCount,
+                    ItemsPerPage = itemsCount
                 };
             }
 
-            //if (listViewOptions != null && listViewOptions.skip.HasValue) startPosition += listViewOptions.skip.Value;
-            var querySorted = listViewOptions.BuildSortQuery(query);
+            if (itemsCount > 0)
+            {
+                var querySorted = listViewOptions.BuildSortedQuery(queryBase);
 
-            var list = querySorted.
-                Skip(infoCount.start - 1).
-                Take(infoCount.objectsPerPage).
-                OrderBy(x => x.RowNumber).
-                ToList().
-                Select(x => GetItemSourceToViewConverter()(x.Row)).ToList();
+                var list = querySorted.
+                    Skip(infoCount.ItemPositionStart - 1).
+                    Take(infoCount.ItemsPerPage).
+                    ToList().
+                    Select(x => GetItemSourceToViewConverter()(x.Row)).ToList();
 
-            return list;
+                return list;
+            }
+            else
+            {
+                return new List<TItemView>();
+            }
         }
 
         protected abstract ActionResult ExecuteView<TModel>(

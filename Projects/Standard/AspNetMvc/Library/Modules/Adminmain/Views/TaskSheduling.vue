@@ -9,7 +9,7 @@
 </style>
 <template>
     <div>
-        <pv-tabview>
+        <pv-tabview :activeIndex.sync="taskDescriptionCurrent.tabActive">
             <pv-tabpanel header="Список задач">
                 <pv-datatable :value="taskList" :row-class="rowClass"
                                sort-field="name" sort-order="1"
@@ -19,21 +19,21 @@
                         <div style='height:20px'>Всего задач: {{ taskList ? taskList.length : 0 }}</div>
                     </template>
                     <pv-column field="name" header="Название задачи" sortable="true" filter-match-mode="contains">
-                        <template #filter>
-                            <pv-inputtext type="text" v-model="filters['name']" class="p-column-filter"></pv-inputtext>
+                        <template #filter="{filterModel}">
+                            <pv-inputtext type="text" v-model="filterModel" class="p-column-filter"></pv-inputtext>
                         </template>
                     </pv-column>
                     <pv-column field="isEnabled" header="Состояние" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
-                        <template #filter>
-                            <pv-tristatecheckbox v-model="filters['isEnabled']" class="p-column-filter"></pv-tristatecheckbox>
+                        <template #filter="{filterModel}">
+                            <pv-tristatecheckbox v-model="filterModel" class="p-column-filter"></pv-tristatecheckbox>
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isEnabled ? 'Включена' : 'Выключена' }}
                         </template>
                     </pv-column>
                     <pv-column field="isConfirmed" header="Подтверждена" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
-                        <template #filter>
-                            <pv-tristatecheckbox v-model="filters['isConfirmed']" class="p-column-filter"></pv-tristatecheckbox>
+                        <template #filter="{filterModel}">
+                            <pv-tristatecheckbox v-model="filterModel" class="p-column-filter"></pv-tristatecheckbox>
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isConfirmed ? 'Подтверждена' : 'Не подтверждена' }}
@@ -47,7 +47,7 @@
                     </pv-column>
                 </pv-datatable>
             </pv-tabpanel>
-            <pv-tabpanel :active.sync="taskDescriptionCurrent.tabActive" :hidden="!taskDescriptionCurrent.data">
+            <pv-tabpanel :disabled="!taskDescriptionCurrent.data">
                 <template slot="header">
                     <span>Подробности задачи</span>
                 </template>
@@ -235,14 +235,12 @@
                     { value: 1, label: 'Cron' },
                     { value: 2, label: 'Фиксированные дата и время' },
                 ],
-                filters: {
-                    'isEnabled': null,
-                },
+                filters: {},
                 taskDescriptionCurrent: {
                     data: null,
                     isSaving: false,
                     requestId: null,
-                    tabActive: false,
+                    tabActive: 0,
                 },
                 taskScheduleRunOptions: []
             }
@@ -274,7 +272,7 @@
             rowClassSchedule: row => "",
             onShow: function (taskDescription) {
                 this.taskDescriptionCurrent.data = Object.assign(new TaskDescription(null), taskDescription);
-                this.taskDescriptionCurrent.tabActive = true;
+                this.taskDescriptionCurrent.tabActive = 1;
                 this.$nextTick(function () {
                     $('div.schedule-designer-cron').each(function () {
                         var element = $(this),

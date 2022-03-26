@@ -14,7 +14,7 @@ namespace OnXap.Modules.Register.Model
     {
         /// <summary>
         /// </summary>
-        public override int ID
+        public override int IdBase
         {
             get => 0;
         }
@@ -22,7 +22,7 @@ namespace OnXap.Modules.Register.Model
         /// <summary>
         /// См. <see cref="name"/>. 
         /// </summary>
-        public override string Caption
+        public override string CaptionBase
         {
             get;
         }

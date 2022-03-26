@@ -49,7 +49,7 @@ namespace OnXap.Modules.Customer
         /// </summary>
         public sealed override Uri GenerateLink(ItemBase item)
         {
-            if (item is User) return new Uri(AppCore.ServerUrl, $"{UrlName}/user/{item.ID}");
+            if (item is User) return new Uri(AppCore.ServerUrl, $"{UrlName}/user/{item.IdBase}");
             //else if (item is Register.Model.Register) return new Uri(ApplicationCore.Instance.ServerUrl, $"{Name}/user/{item.ID}");
             //return base.GenerateLink(item);
 

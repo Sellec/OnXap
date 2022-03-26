@@ -413,106 +413,130 @@ namespace OnXap.Modules.Adminmain
                                     switch (filter.FieldName)
                                     {
                                         case nameof(JournalingDB.QueryJournalData.JournalData.IdJournalData):
-                                            if (!int.TryParse(filter.Value, out var idJournalData)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).Contains(idJournalData.ToString()));
-                                                    break;
+                                                if (!int.TryParse(constraint.Value, out var idJournalData)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).Contains(idJournalData.ToString()));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).StartsWith(idJournalData.ToString()));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).StartsWith(idJournalData.ToString()));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(JournalingDB.QueryJournalData.JournalData.EventCode):
-                                            if (!int.TryParse(filter.Value, out var eventCode)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => Convert.ToString(x.JournalData.EventCode).Contains(eventCode.ToString()));
-                                                    break;
+                                                if (!int.TryParse(constraint.Value, out var eventCode)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => Convert.ToString(x.JournalData.EventCode).Contains(eventCode.ToString()));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => Convert.ToString(x.JournalData.EventCode).StartsWith(eventCode.ToString()));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => Convert.ToString(x.JournalData.EventCode).StartsWith(eventCode.ToString()));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(JournalingDB.QueryJournalData.JournalData.EventType):
-                                            if (!Enum.TryParse<EventType>(filter.Value, out var eventType)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalData.EventType == eventType);
-                                                    break;
+                                                if (!Enum.TryParse<EventType>(constraint.Value, out var eventType)) throw new HandledException($"Некорректное значение фильтра для поля '{filter.FieldName}'.");
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalData.EventType == eventType);
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(JournalingDB.QueryJournalData.JournalData.EventInfo):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.JournalData.EventInfo.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.JournalData.EventInfo.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalData.EventInfo.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalData.EventInfo.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(JournalingDB.QueryJournalData.JournalData.EventInfoDetailed):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case nameof(JournalingDB.QueryJournalData.JournalData.ExceptionDetailed):
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.JournalData.ExceptionDetailed.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.JournalData.ExceptionDetailed.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalData.ExceptionDetailed.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalData.ExceptionDetailed.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case "EventInfoFull":
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(filter.Value) || x.JournalData.ExceptionDetailed.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed.Contains(constraint.Value) || x.JournalData.ExceptionDetailed.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(filter.Value) || x.JournalData.ExceptionDetailed.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(constraint.Value) || x.JournalData.ExceptionDetailed.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 
                                         case "JournalName":
-                                            switch (filter.MatchType)
+                                            foreach (var constraint in filter.Constraints)
                                             {
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
-                                                    query = query.Where(x => x.JournalName.Name.Contains(filter.Value));
-                                                    break;
+                                                switch (constraint.MatchType)
+                                                {
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
+                                                        query = query.Where(x => x.JournalName.Name.Contains(constraint.Value));
+                                                        break;
 
-                                                case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
-                                                    query = query.Where(x => x.JournalName.Name.StartsWith(filter.Value));
-                                                    break;
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                        query = query.Where(x => x.JournalName.Name.StartsWith(constraint.Value));
+                                                        break;
+                                                }
                                             }
                                             break;
 

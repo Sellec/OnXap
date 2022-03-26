@@ -6,7 +6,7 @@
 </style>
 <template>
     <div>
-        <pv-tabview>
+        <pv-tabview :activeIndex.sync="journalCurrent.tabActive">
             <pv-tabpanel header="Список журналов">
                 <pv-datatable :value="dataList" :row-class="rowClass"
                                sort-field="nameJournal" sort-order="1"
@@ -36,7 +36,7 @@
                     </pv-column>
                 </pv-datatable>
             </pv-tabpanel>
-            <pv-tabpanel :active.sync="journalCurrent.tabActive" :disabled="!journalCurrent.data || journalCurrent.loading">
+            <pv-tabpanel :disabled="!journalCurrent.data || journalCurrent.loading">
                 <template slot="header">
                     <span>Подробности журнала</span>
                 </template>
@@ -95,7 +95,7 @@
                 journalCurrent: {
                     data: null,
                     loading: false,
-                    tabActive: false,
+                    tabActive: 0,
                     requestId: null,
                 }
             }
@@ -118,7 +118,7 @@
             onShow: function (journalData) {
                 var component = this;
                 component.journalCurrent.loading = true;
-                component.journalCurrent.tabActive = true;
+                component.journalCurrent.tabActive = 1;
                 component.journalCurrent.requestId = $("#containerForLoading").requestLoad(
                     component.viewModel.journalDetailsLoadUrl + journalData.idJournal,
                     null,

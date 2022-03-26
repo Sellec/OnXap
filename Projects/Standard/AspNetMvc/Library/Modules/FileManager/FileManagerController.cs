@@ -23,18 +23,12 @@ namespace OnXap.Modules.FileManager
         }
 
         [HttpPost]
-        public ActionResult UploadFile(string moduleName = null, Guid? uniqueKey = null)
+        public ActionResult UploadFile(Guid? uniqueKey = null)
         {
             var result = JsonAnswer<int>();
 
             try
             {
-                //if (!string.IsNullOrEmpty(uniqueKey) && uniqueKey.Length > 255) throw new ArgumentOutOfRangeException(nameof(uniqueKey), "Длина уникального ключа не может быть больше 255 символов.");
-                if (string.IsNullOrEmpty(moduleName)) throw new ArgumentNullException(nameof(moduleName), "Не указан модуль, для которого загружается файл.");
-
-                var module = AppCore.GetModulesManager().GetModule(moduleName) ?? (int.TryParse(moduleName, out int idModule) ? AppCore.GetModulesManager().GetModule(idModule) : null);
-                if (module == null) throw new Exception("Указанный модуль не найден.");
-
                 var hpf = HttpContext.Request.Files["file"] as HttpPostedFileBase;
                 if (hpf == null) throw new ArgumentNullException("Не найден загружаемый файл.");
 
@@ -59,7 +53,7 @@ namespace OnXap.Modules.FileManager
             }
             catch (Exception ex)
             {
-                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время регистрации файла", $"moduleName='{moduleName}'.\r\nuniqueKey='{uniqueKey}'.", ex);
+                RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время регистрации файла", $"uniqueKey='{uniqueKey}'.", ex);
                 result.FromFail("Неожиданная ошибка во время регистрации файла.");
             }
 

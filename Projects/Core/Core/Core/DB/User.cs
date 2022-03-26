@@ -41,12 +41,12 @@ namespace OnXap.Core.Db
         /// <summary>
         /// См. <see cref="IdUser"/>.
         /// </summary>
-        public override int ID => IdUser;
+        public override int IdBase => IdUser;
 
         /// <summary>
         /// См. <see cref="UserBase.name"/>. 
         /// </summary>
-        public override string Caption => !string.IsNullOrEmpty(name) ? name : !string.IsNullOrEmpty(email) ? email : IdUser.ToString();
+        public override string CaptionBase => !string.IsNullOrEmpty(name) ? name : !string.IsNullOrEmpty(email) ? email : IdUser.ToString();
 
         /// <summary>
         /// Время последнего изменения на основе <see cref="UserBase.DateChange"/>. 

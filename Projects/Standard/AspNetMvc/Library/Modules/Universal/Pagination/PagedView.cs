@@ -10,12 +10,12 @@ namespace OnXap.Modules.Universal.Pagination
         /// <summary>
         /// текущая страница
         /// </summary>
-        public int curpage { get; set; }
+        public int PageIndex { get; set; }
 
         /// <summary>
         /// общее количество страниц
         /// </summary>
-        public int pages { get; set; }
+        public int PageCount { get; set; }
 
         public Dictionary<int, int> stpg { get; set; }
 

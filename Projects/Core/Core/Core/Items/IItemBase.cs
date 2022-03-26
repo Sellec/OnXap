@@ -6,13 +6,13 @@
     public interface IItemBase
     {
         /// <summary>
-        /// См. <see cref="ItemBase.ID"/>.
+        /// См. <see cref="ItemBase.IdBase"/>.
         /// </summary>
-        int ID { get; }
+        int IdBase { get; }
 
         /// <summary>
-        /// См. <see cref="ItemBase.Caption"/>.
+        /// См. <see cref="ItemBase.CaptionBase"/>.
         /// </summary>
-        string Caption { get; }
+        string CaptionBase { get; }
     }
 }

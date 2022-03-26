@@ -45,16 +45,16 @@ namespace OnXap.Messaging.Messages
         /// <summary>
         /// Возвращает идентификатор сообщения.
         /// </summary>
-        public override int ID
+        public override int IdBase
         {
             get => _idMessage;
         }
 
         /// <summary>
         /// </summary>
-        public override string Caption
+        public override string CaptionBase
         {
-            get => $"{ID}";
+            get => $"{IdBase}";
         }
         #endregion
     }

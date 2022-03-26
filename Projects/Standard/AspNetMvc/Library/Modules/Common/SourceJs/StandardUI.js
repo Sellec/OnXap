@@ -4,6 +4,7 @@ Vue.use(PrimeVue);
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 import MenuBar from 'primevue/menubar';
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
 export const MainHeader = {
     Declaration: {
@@ -77,13 +78,52 @@ export const MainHeader = {
     Instance: null
 };
 
-export class PrimeVueDataTableFieldFilter {
+class PrimeVueDataTableFieldFilterConstraint {
     constructor(source) {
-        this.FieldName = source.field;
-        this.MatchType =
-            source.filterMatchMode === "contains" ? 2 :
-                source.filterMatchMode === "startsWith" ? 1 : 0;
+        this.MatchType = "contains";
+        switch (source.matchMode) {
+            case FilterMatchMode.CONTAINS:
+                this.MatchType = 2;
+                break;
+
+            case FilterMatchMode.STARTS_WITH:
+                this.MatchType = 1;
+                break;
+
+            default:
+                throw "Данное условие не поддерживается.";
+        }
+
         this.Value = source.value;
+    }
+}
+
+class PrimeVueDataTableFieldFilter {
+    constructor(field, source) {
+        this.FieldName = field;
+        this.Operator = 1;
+        this.Constraints = new Array();
+
+        if (source) {
+            if (source.operator) {
+                switch (source.operator) {
+                    case FilterOperator.AND:
+                        this.Operator = 1;
+                        break;
+
+                    case FilterOperator.OR:
+                        this.Operator = 2;
+                        break;
+
+                    default:
+                        throw "Данное условие не поддерживается.";
+                }
+                if (source.constraints) this.Constraints = source.constraints.filter(x => x.value).map(x => new PrimeVueDataTableFieldFilterConstraint(x));
+            }
+            else if (source.value) {
+                this.Constraints.push(new PrimeVueDataTableFieldFilterConstraint(source));
+            }
+        }
     }
 }
 
@@ -109,15 +149,12 @@ export class PrimeVueDataTableSourceRequest {
     }
 
     ApplyFilter(source) {
-        this.FilterFields = [];
+        let filterFields = [];
         for (var field in source) {
             if (source[field]) {
-                this.FilterFields[this.FilterFields.length] = new PrimeVueDataTableFieldFilter({
-                    field: this.fieldNameMapper(field),
-                    value: source[field],
-                    filterMatchMode: 'contains'
-                });
+                filterFields.push(new PrimeVueDataTableFieldFilter(this.fieldNameMapper(field), source[field]));
             }
         }
+        this.FilterFields = filterFields.filter(x => x.Constraints.length > 0);
     }
 }

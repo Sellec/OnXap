@@ -393,7 +393,7 @@ namespace OnXap.Modules.ItemsCustomize
                     //}
                     //fieldsData.Schemes = new System.Collections.ObjectModel.ReadOnlyDictionary<int, Data.SchemeWData>(schemes);
 
-                    var id = item.ID;
+                    var id = item.IdBase;
                     collection[item] = fieldsData;
                     if (!items2.ContainsKey(id)) items2[id] = new List<TItem>();
                     items2[id].AddIfNotExists(item);
@@ -470,7 +470,7 @@ namespace OnXap.Modules.ItemsCustomize
                 {
                     var dataOld = (from d in db.CustomFieldsDatas
                                    join f in db.CustomFieldsFields on d.IdField equals f.IdField
-                                   where d.IdItem == item.ID && d.IdItemType == IdItemType
+                                   where d.IdItem == item.IdBase && d.IdItemType == IdItemType
                                    select d).ToList();
                     //db.CustomFieldsDatas.RemoveRange(dataOld);
 
@@ -486,7 +486,7 @@ namespace OnXap.Modules.ItemsCustomize
 
                                 var rowOld = dataOld.Where(x =>
                                     x.IdField == field.IdField &&
-                                    x.IdItem == item.ID &&
+                                    x.IdItem == item.IdBase &&
                                     x.IdItemType == IdItemType &&
                                     x.IdFieldValue == idFieldValueTmp).FirstOrDefault();
                                 if (rowOld == null)
@@ -496,7 +496,7 @@ namespace OnXap.Modules.ItemsCustomize
                                         IdField = field.IdField,
                                         IdFieldValue = idFieldValueTmp,
                                         FieldValue = fieldValueTmp,
-                                        IdItem = item.ID,
+                                        IdItem = item.IdBase,
                                         IdItemType = IdItemType,
                                         DateChange = DateTime.Now.Timestamp()
                                     });

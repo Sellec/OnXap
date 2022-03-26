@@ -7,25 +7,20 @@ namespace OnXap.Modules.Universal.Pagination
 {
     public class ListViewOptions
     {
-        public string Prefix { get; set; }
-
-        public string sorting { get; set; }
-
-        public int numpage { get; set; }
+        public virtual int ItemsPerPage { get; set; }
 
         //непонятный параметр, пока что закомментировал.
         //public int? skip { get; set; }
 
-        public virtual IQueryable<SortedQuery<TItem>> BuildSortQuery<TItem>(IQueryable<TItem> query) 
+        public virtual IOrderedQueryable<SortedQuery<TItem>> BuildSortedQuery<TItem>(IQueryable<TItem> queryBase) 
         {
-            return query.Select(x => new SortedQuery<TItem>() { Row = x, RowNumber = 0 });
+            throw new NotImplementedException();
         }
     }
 
     public class SortedQuery<TItem>
     {
         public TItem Row { get; set; }
-        public long RowNumber { get; set; }
     }
 
 }

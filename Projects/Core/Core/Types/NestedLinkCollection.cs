@@ -50,10 +50,10 @@ namespace OnXap.Types
                     {
                         if (item is NestedLinkGroup group)
                         {
-                            items.Add(new KeyValuePair<IItemRouted, string>(group.SourceItem, parent + item.Caption));
-                            action(item.Caption + _separator, _separator, group.Links);
+                            items.Add(new KeyValuePair<IItemRouted, string>(group.SourceItem, parent + item.CaptionBase));
+                            action(item.CaptionBase + _separator, _separator, group.Links);
                         }
-                        else items.Add(new KeyValuePair<IItemRouted, string>(item, parent + item.Caption));
+                        else items.Add(new KeyValuePair<IItemRouted, string>(item, parent + item.CaptionBase));
                     }
             };
 
@@ -110,14 +110,14 @@ namespace OnXap.Types
         /// </summary>
         public List<IItemRouted> Links { get; } = new List<IItemRouted>();
 
-        public override int ID
+        public override int IdBase
         {
-            get => _groupItem.ID;
+            get => _groupItem.IdBase;
         }
 
-        public override string Caption
+        public override string CaptionBase
         {
-            get => _groupItem.Caption;
+            get => _groupItem.CaptionBase;
         }
 
         public Uri Url
@@ -140,13 +140,13 @@ namespace OnXap.Types
     {
         public NestedLinkSimple(string caption, Uri url = null)
         {
-            Caption = caption;
+            CaptionBase = caption;
             Url = url;
         }
 
-        public override int ID { get; }
+        public override int IdBase { get; }
 
-        public override string Caption { get; }
+        public override string CaptionBase { get; }
 
         public Uri Url { get; }
 

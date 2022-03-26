@@ -37,8 +37,8 @@ namespace OnXap.Core.Db
         public string UniqueKey { get; set; }
 
         #region ItemBase
-        public override int ID => IdRole;
-        public override string Caption => NameRole;
+        public override int IdBase => IdRole;
+        public override string CaptionBase => NameRole;
         #endregion
     }
 }

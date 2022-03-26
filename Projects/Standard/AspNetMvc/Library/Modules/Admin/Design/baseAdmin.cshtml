@@ -12,17 +12,17 @@
                 if (link is NestedLinkGroup)
                 {
                     <li>
-                        <a href='' class='inmenu'>@link.Caption</a>
+                        <a href='' class='inmenu'>@link.CaptionBase</a>
                         @submodule((link as NestedLinkGroup).Links)
                     </li>
                 }
                 else if (link.Url == null)
                 {
-                    <li><span>@link.Caption</span></li>
+                    <li><span>@link.CaptionBase</span></li>
                 }
                 else
                 {
-                    <li><a href='@link.Url'>@link.Caption</a></li>
+                    <li><a href='@link.Url'>@link.CaptionBase</a></li>
                 }
 
             }

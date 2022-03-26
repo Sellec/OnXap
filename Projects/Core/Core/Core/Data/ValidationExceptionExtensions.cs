@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace OnXap.Core.Data
 {
@@ -19,28 +20,14 @@ namespace OnXap.Core.Data
         {
             var error = "";
             var parts = new List<string>();
-            throw new InvalidProgramException();
-            //todo разобраться, как должно работать.
-            //foreach (var _error in exception..EntityValidationErrors)
-            //{
-            //    if (!_error.IsValid)
-            //    {
-            //        foreach (var __error in _error.ValidationErrors)
-            //        {
-            //            var errorMessage = glueBefore + __error.ErrorMessage;
-            //            if (!string.IsNullOrEmpty(glueAfter))
-            //            {
-            //                if (!errorMessage.Last().In('.', ',', ';', '!', '?')) errorMessage += glueAfter;
-            //            }
-
-            //            parts.Add(errorMessage);
-            //        }
-            //    }
-            //}
-
+            var _error = exception.ValidationResult;
+            var errorMessage = glueBefore + _error.ErrorMessage;
+            if (!string.IsNullOrEmpty(glueAfter))
+            {
+                if (!errorMessage.Last().In('.', ',', ';', '!', '?')) errorMessage += glueAfter;
+            }
+            parts.Add(errorMessage);
             error = string.Join("", parts);
-
-
             return error;
         }
     }
