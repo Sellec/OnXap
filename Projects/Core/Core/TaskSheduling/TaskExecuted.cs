@@ -18,6 +18,12 @@
         /// <summary>
         /// Задача уже запущена, параллельное выполнение запрещено флагом <see cref="TaskOptions.PreventParallelExecution"/>.
         /// </summary>
-        ParallelPrevented
+        ParallelPrevented,
+
+        /// <summary>
+        /// Задача выключена.
+        /// </summary>
+        Disabled
+
     }
 }

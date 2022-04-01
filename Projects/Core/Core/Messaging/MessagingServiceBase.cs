@@ -535,7 +535,7 @@ namespace OnXap.Messaging
                             try
                             {
                                 var messages = componentInfo.Component.OnReceive(this);
-                                if (messages != null && messages.Count > 0)
+                                if (!messages.IsNullOrEmpty())
                                 {
                                     int countAdded = 0;
                                     foreach (var message in messages)

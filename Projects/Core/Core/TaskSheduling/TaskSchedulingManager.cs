@@ -489,6 +489,8 @@ namespace OnXap.TaskSheduling
             {
                 var idItemType = Core.Items.ItemTypeFactory.GetItemType<Db.Task>().IdItemType;
                 var itemKey = new Core.Items.ItemKey(idItemType, taskDescription.Id);
+                if (!taskDescription.IsEnabled)
+                    return TaskExecuted.Disabled;
 
                 if (!(taskDescription.JournalOptions != null && taskDescription.JournalOptions.LimitByLastNDays.HasValue && taskDescription.JournalOptions.LimitByLastNDays <= 0))
                     this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Запуск", $"Запуск задачи '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}').");

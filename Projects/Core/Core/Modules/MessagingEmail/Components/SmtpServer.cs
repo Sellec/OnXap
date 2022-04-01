@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using OnXap.Messaging.Messages;
+﻿using OnXap.Messaging.Messages;
 using System;
 using System.Net;
 using System.Net.Mail;
