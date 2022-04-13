@@ -466,6 +466,44 @@ namespace OnXap.Modules.FileManager
             }
         }
 
+        /// <summary>
+        /// Пытается создать копию файла с идентификатором <paramref name="idFile"/>.
+        /// </summary>
+        /// <param name="idFile">Идентификатор файла, для которого необходимо создать копию (см. <see cref="Db.File.IdFile"/>).</param>
+        /// <param name="result">В случае успешной регистрации содержит данные зарегистрированного файла.</param>
+        /// <param name="nameFile">Имя файла. Не должно содержать специальных символов, не разрешенных в именах файлов (см. <see cref="Path.GetInvalidFileNameChars"/>), иначе будет сгенерировано исключение <see cref="ArgumentException"/>.</param>
+        /// <param name="uniqueKey">Уникальный ключ файла, по которому его можно идентифицировать. Один и тот же ключ может быть указан сразу у многих файлов.</param>
+        /// <param name="dateExpires">Дата окончения срока хранения файла, после которой он будет автоматически удален. Если равно null, то устанавливается безлимитный срок хранения.</param>
+        /// <returns>Возвращает результат копирования файла.</returns>
+        [ApiReversible]
+        public RegisterResult TryCopyFile(int idFile, out Db.File result, string nameFile, Guid? uniqueKey = null, DateTime? dateExpires = null)
+        {
+            try
+            {
+                result = null;
+                var rootDirectory = AppCore.ApplicationWorkingFolder;
+
+                using (var db = new Db.DataContext())
+                {
+                    var file = db.File.Where(x => x.IdFile == idFile && !x.IsRemoved && !x.IsRemoving).FirstOrDefault();
+                    if (file == null) return RegisterResult.NotFound;
+                    return Register(
+                        out result,
+                        string.IsNullOrEmpty(nameFile) ? file.NameFile : nameFile,
+                        file.PathFile,
+                        uniqueKey,
+                        dateExpires
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                result = null;
+                this.RegisterEvent(EventType.Error, "Ошибка копирования файла", $"Идентификатор файла: {idFile}.", null, ex);
+                return RegisterResult.Error;
+            }
+        }
+
         [ApiReversible]
         public void UpdateFileCount()
         {
