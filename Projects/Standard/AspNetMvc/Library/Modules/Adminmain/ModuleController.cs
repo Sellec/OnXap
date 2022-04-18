@@ -763,6 +763,9 @@ namespace OnXap.Modules.Adminmain
                         case TaskExecuted.ParallelPrevented:
                             return ReturnJson(false, "Запуск задачи отменен, так как есть другой выполняемый в данный момент экземпляр задачи.");
 
+                        case TaskExecuted.Disabled:
+                            return ReturnJson(true, "Задача отключена.");
+
                         default:
                             throw new InvalidProgramException();
                     }
