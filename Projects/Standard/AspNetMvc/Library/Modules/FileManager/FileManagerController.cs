@@ -1,9 +1,10 @@
 ﻿using OnUtils;
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -160,11 +161,11 @@ namespace OnXap.Modules.FileManager
                     else
                     {
                         using (var image = Image.FromFile(path))
-                        using (var imagePreview = image.Resize(MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0))
+                        using (var imagePreview = Module.Resize(image, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0))
                         {
-                            //using (var stream = new System.IO.MemoryStream())
+                            //using (var stream = new MemoryStream())
                             {
-                                var stream = new System.IO.MemoryStream();
+                                var stream = new MemoryStream();
                                 imagePreview.Save(stream, image.RawFormat);
                                 stream.Position = 0;
 

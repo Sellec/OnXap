@@ -183,7 +183,7 @@ namespace OnXap.Modules.Universal.Pagination
                     Skip(infoCount.ItemPositionStart - 1).
                     Take(infoCount.ItemsPerPage).
                     ToList().
-                    Select(x => GetItemSourceToViewConverter()(x.Row)).ToList();
+                    Select(x => GetItemSourceToViewConverter()(x.SourceRow)).ToList();
 
                 return list;
             }
