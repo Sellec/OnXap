@@ -34,7 +34,7 @@ namespace OnXap.Modules.Universal.Pagination
         /// Используется в случаях, когда невозможно сохранить привязку к типу <see cref="IOrderedQueryable{T}"/> при дальнейшей 
         /// обработке результата выполнения метода <see cref="ListViewOptions.BuildSortedQuery{TItem}(IQueryable{TItem})"/>.
         /// </summary>
-        public int SortedIndex { get; set; }
+        public long? SortedIndex { get; set; }
     }
 
 }
