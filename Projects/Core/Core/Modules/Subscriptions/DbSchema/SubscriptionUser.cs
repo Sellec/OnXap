@@ -37,7 +37,7 @@
 
             if (!isTableExists || !Schema.Table<Db.SubscriptionUser>().Constraint("FK_SubscriptionUser_User").Exists())
                 Create.ForeignKey("FK_SubscriptionUser_User").
-                    FromTable(tableName).ForeignColumn(GetColumnName((Db.SubscriptionUser x) => x.IdSubscription)).
+                    FromTable(tableName).ForeignColumn(GetColumnName((Db.SubscriptionUser x) => x.IdUser)).
                     ToTable(GetTableName<Core.Db.User>()).PrimaryColumn(GetColumnName((Core.Db.User x) => x.IdUser)).
                     OnDelete(System.Data.Rule.Cascade);
 
