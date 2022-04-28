@@ -139,7 +139,7 @@ namespace OnXap.Core.Configuration
                 try
                 {
                     var value = row["Value"];
-                    if (value == null) return defaultValue;
+                    if (value == null || value is DBNull) return defaultValue;
                     if (value is T) return (T)value;
 
                     var type = typeof(T);
