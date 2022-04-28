@@ -10,5 +10,6 @@ namespace OnXap.Modules.Subscriptions.Db
         public DbSet<SubscriptionGroup> SubscriptionGroup { get; set; }
         public DbSet<SubscriptionMessagingContact> SubscriptionMessagingContact { get; set; }
         public DbSet<SubscriptionUser> SubscriptionUser { get; set; }
+        public DbSet<Core.Db.User> User { get; set; }
     }
 }

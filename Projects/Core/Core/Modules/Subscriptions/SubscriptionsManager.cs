@@ -268,6 +268,33 @@ namespace OnXap.Modules.Subscriptions
             }
         }
 
+        /// <summary>
+        /// Позволяет изменить список участников подписки <typeparamref name="TSubscription"/>.
+        /// </summary>
+        /// <typeparam name="TSubscription">Тип, обозначающий подписку.</typeparam>
+        /// <param name="changeType">Вид изменения в списке участников.</param>
+        /// <param name="userIdList">Идентификаторы пользователей, принимающих участие в изменении списка.</param>
+        /// <returns></returns>
+        [ApiIrreversible]
+        public ExecutionResult UpdateSubscribers<TSubscription>(ChangeType changeType, int[] userIdList)
+            where TSubscription : SubscriptionBase<TSubscription>
+        {
+            if (!_subscriptions.TryGetValue(typeof(TSubscription), out var info))
+                return new ExecutionResult(
+                    false,
+                    "Указанная подписка не найдена среди подтвержденных");
+
+            return UpdateSubscribers(info.Item2, changeType, userIdList);
+
+        }
+
+        /// <summary>
+        /// Позволяет изменить список участников подписки <paramref name="subscriptionDescription"/>.
+        /// </summary>
+        /// <param name="subscriptionDescription">Описание подписки.</param>
+        /// <param name="changeType">Вид изменения в списке участников.</param>
+        /// <param name="userIdList">Идентификаторы пользователей, принимающих участие в изменении списка.</param>
+        /// <returns></returns>
         [ApiIrreversible]
         public ExecutionResult UpdateSubscribers(SubscriptionDescription subscriptionDescription, ChangeType changeType, int[] userIdList)
         {
@@ -341,7 +368,6 @@ namespace OnXap.Modules.Subscriptions
         internal ExecutionResult<Exception> ExecuteSubscription<TSubscription, TParameters>(TParameters parameters)
             where TSubscription : SubscriptionBase<TSubscription, TParameters>
         {
-
             if (!_subscriptions.TryGetValue(typeof(TSubscription), out var info))
                 return new ExecutionResult<Exception>(
                     false,
@@ -355,9 +381,15 @@ namespace OnXap.Modules.Subscriptions
                 var messagingContacts = new MessagingContacts();
                 using (var db = new Db.DataContext())
                 {
-                    var queryFromUsers = db.SubscriptionUser.Where(x => x.IdSubscription == subscriptionInstance.SubscriptionDescription.Id).Select(x => new { x.IdUser });
+                    var queryFromUsers = from subscriptionUser in db.SubscriptionUser
+                                         join user in db.User on subscriptionUser.IdUser equals user.IdUser
+                                         where subscriptionUser.IdSubscription == subscriptionInstance.SubscriptionDescription.Id && user.Block == 0
+                                         select new
+                                         {
+                                             user.IdUser,
+                                             user.name
+                                         };
                     var dataFromUsers = queryFromUsers.ToList();
-                    var userIdList = dataFromUsers.Select(x => x.IdUser).ToList();
 
                     var queryFromContacts = from smc in db.SubscriptionMessagingContact
                                             join mc in db.MessagingContact on smc.IdMessagingContact equals mc.IdMessagingContact
@@ -388,8 +420,11 @@ namespace OnXap.Modules.Subscriptions
                             Id = x.Key.IdMessagingContact,
                             NameFull = x.Key.NameFull,
                             _data = x.GroupBy(y => y.IdMessagingServiceType, y => y.Data).ToDictionary(y => getType(y.Key), y => y.ToList())
-                        });
-                    messagingContacts.AddRange(dataFromContacts);
+                        }).ToDictionary(x => x.Id, x => x);
+                    dataFromUsers.
+                        Where(x => !dataFromContacts.ContainsKey(x.IdUser)).
+                        ForEach(x => dataFromContacts[x.IdUser] = new MessagingContact() { Id = x.IdUser, NameFull = x.name });
+                    messagingContacts.AddRange(dataFromContacts.Values);
                 }
 
                 OnSendBeforeExecution(subscriptionInstance, parameters, messagingContacts);

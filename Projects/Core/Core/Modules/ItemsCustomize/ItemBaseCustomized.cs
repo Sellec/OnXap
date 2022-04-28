@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace OnXap.Core.Items
 {
-    [System.Diagnostics.DebuggerDisplay("ItemBase: id={ID}")]
+    [System.Diagnostics.DebuggerDisplay("ItemBase: IdBase={IdBase}")]
     public abstract partial class ItemBase
     {
         [Newtonsoft.Json.JsonIgnore]

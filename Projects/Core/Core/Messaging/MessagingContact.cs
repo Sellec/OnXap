@@ -59,11 +59,13 @@ namespace OnXap.Messaging
         /// <summary>
         /// Задает контактные данные для конкретного сервиса обмена сообщениями <typeparamref name="TMessagingService"/>.
         /// </summary>
-        public void SetData<TMessagingService>(List<string> data)
+        public void SetData<TMessagingService>(params string[] data)
             where TMessagingService : class, IMessagingService
         {
-            _data[typeof(TMessagingService)] = data;
+            if (data.IsNullOrEmpty() && _data.ContainsKey(typeof(TMessagingService)))
+                _data.Remove(typeof(TMessagingService));
+            else if (!data.IsNullOrEmpty())
+                _data[typeof(TMessagingService)] = data.ToList();
         }
-
     }
 }

@@ -30,7 +30,7 @@ namespace OnXap.Core.Db
 
     [Table("users")]
     [DisplayName("Пользователь")]
-    [System.Diagnostics.DebuggerDisplay("User: id={ID}")]
+    [System.Diagnostics.DebuggerDisplay("User: id={IdBase}")]
     public class User : UserBase, IItemCustomized
     {
         [Key]
