@@ -160,21 +160,18 @@ namespace OnXap.Modules.FileManager
                     }
                     else
                     {
-                        using (var image = Image.FromFile(path))
-                        using (var imagePreview = Module.Resize(image, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0))
+                        using (var imageSource = Image.FromFile(path))
+                        using (var imageResized = Module.ImageResize(imageSource, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0))
                         {
-                            //using (var stream = new MemoryStream())
-                            {
-                                var stream = new MemoryStream();
-                                imagePreview.Save(stream, image.RawFormat);
-                                stream.Position = 0;
+                            var stream = new MemoryStream();
+                            imageResized.Save(stream, imageSource.RawFormat);
+                            stream.Position = 0;
 
-                                var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePath) : fileName;
-                                Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
-                                Response.Cache.SetCacheability(HttpCacheability.Public);
-                                if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
-                                return base.File(stream, mimeType);
-                            }
+                            var fileNameFinal = string.IsNullOrEmpty(fileName) ? Path.GetFileName(filePath) : fileName;
+                            Response.Headers["Content-Disposition"] = $"inline; filename={fileNameFinal}";
+                            Response.Cache.SetCacheability(HttpCacheability.Public);
+                            if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
+                            return base.File(stream, mimeType);
                         }
                     }
                 }
@@ -265,7 +262,7 @@ namespace OnXap.Modules.FileManager
                         if (dbChangeTime.HasValue) Response.Cache.SetLastModified(dbChangeTime.Value);
                         return base.File(filePathFull, mimeType);
                     }
-                    else 
+                    else
                     {
                         var isAllowed = IsFileImageCropAllowed(IdFile, MaxWidth, MaxHeight, filePathRelative, filePathFull);
                         if (!isAllowed.IsSuccess)
@@ -293,24 +290,37 @@ namespace OnXap.Modules.FileManager
 
                             if (isNeedUpdateFile)
                             {
-                                var image = CropImage(filePathFull, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
-                                for (int i = 0; i < 3; i++)
+                                using (var imageSource = Image.FromFile(filePathFull))
                                 {
-                                    try
+                                    var imageCropped = Module.ImageCrop(imageSource, MaxWidth.HasValue ? MaxWidth.Value : 0, MaxHeight.HasValue ? MaxHeight.Value : 0);
+                                    if (imageCropped != null)
                                     {
-                                        using (var fileStream = new FileStream(filePathFullNew, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                                        try
                                         {
-                                            fileStream.SetLength(0);
-                                            image.Item1.Save(fileStream, image.Item2);
-                                            fileStream.Dispose();
+                                            for (int i = 0; i < 3; i++)
+                                            {
+                                                try
+                                                {
+                                                    using (var fileStream = new FileStream(filePathFullNew, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+                                                    {
+                                                        fileStream.SetLength(0);
+                                                        imageCropped.Item1.Save(fileStream, imageCropped.Item2);
+                                                        fileStream.Dispose();
+                                                    }
+                                                    isFileExists = true;
+                                                    if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePathFullNew, dbChangeTime.Value);
+                                                    break;
+                                                }
+                                                catch
+                                                {
+                                                    System.Threading.Thread.Sleep(500);
+                                                }
+                                            }
                                         }
-                                        isFileExists = true;
-                                        if (dbChangeTime.HasValue) System.IO.File.SetLastWriteTimeUtc(filePathFullNew, dbChangeTime.Value);
-                                        break;
-                                    }
-                                    catch
-                                    {
-                                        System.Threading.Thread.Sleep(500);
+                                        finally
+                                        {
+                                            imageCropped.Item1.Dispose();
+                                        }
                                     }
                                 }
                             }
@@ -333,77 +343,6 @@ namespace OnXap.Modules.FileManager
             {
                 RegisterEventWithCode(HttpStatusCode.InternalServerError, "Ошибка во время вывода файла", $"FileImageCrop.IdFile='{IdFile}', MaxWidth={MaxWidth}, MaxHeight={MaxHeight}.", ex);
                 return null;
-            }
-        }
-
-        private Tuple<Image, ImageFormat> CropImage(string aInitialImageFilePath, int aNewImageWidth, int aNewImageHeight)
-        {
-            if (aNewImageWidth < 0 || aNewImageHeight < 0) return null;
-
-            // Массив с поддерживаемыми типами изображений
-            var lAllowedExtensions = new List<ImageFormat>() { ImageFormat.Gif, ImageFormat.Jpeg, ImageFormat.Png };
-
-            using (var image = Image.FromFile(aInitialImageFilePath))
-            {
-                // Получаем размеры и тип изображения в виде числа
-                decimal lInitialImageWidth = image.Width;
-                decimal lInitialImageHeight = image.Height;
-
-                if (aNewImageWidth == 0 || aNewImageHeight == 0)
-                {
-                    var ratio = lInitialImageWidth / lInitialImageHeight;
-                    if (aNewImageWidth == 0) aNewImageWidth = (int)(aNewImageHeight * ratio);
-                    else if (aNewImageHeight == 0) aNewImageHeight = (int)(aNewImageWidth / ratio);
-                    else
-                    {
-                        aNewImageWidth = (int)lInitialImageHeight;
-                        aNewImageWidth = (int)lInitialImageWidth;
-                    }
-                }
-
-                var lImageExtensionId = image.RawFormat;
-
-                if (!lAllowedExtensions.Contains(lImageExtensionId)) return null;
-                var lImageExtension = lImageExtensionId;
-
-                // Определяем отображаемую область
-                decimal lCroppedImageWidth = 0;
-                decimal lCroppedImageHeight = 0;
-                decimal lInitialImageCroppingX = 0;
-                decimal lInitialImageCroppingY = 0;
-                if (aNewImageWidth / aNewImageHeight > lInitialImageWidth / lInitialImageHeight)
-                {
-                    lCroppedImageWidth = Math.Floor(lInitialImageWidth);
-                    lCroppedImageHeight = Math.Floor(lInitialImageWidth * aNewImageHeight / aNewImageWidth);
-                    lInitialImageCroppingY = Math.Floor((lInitialImageHeight - lCroppedImageHeight) / 2);
-                }
-                else
-                {
-                    lCroppedImageWidth = Math.Floor(lInitialImageHeight * aNewImageWidth / aNewImageHeight);
-                    lCroppedImageHeight = Math.Floor(lInitialImageHeight);
-                    lInitialImageCroppingX = Math.Floor((lInitialImageWidth - lCroppedImageWidth) / 2);
-                }
-
-                var pixelFormat = image.PixelFormat;
-                switch (pixelFormat)
-                {
-                    case PixelFormat.Format1bppIndexed:
-                    case PixelFormat.Format4bppIndexed:
-                    case PixelFormat.Format8bppIndexed:
-                        pixelFormat = PixelFormat.Format32bppRgb;
-                        break;
-                }
-
-                var newImage = new Bitmap(aNewImageWidth, aNewImageHeight, pixelFormat);
-                using (var gr = Graphics.FromImage(newImage))
-                {
-                    //gr.SmoothingMode = SmoothingMode.HighQuality;
-                    // gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    //gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    gr.DrawImage(image, new Rectangle(0, 0, aNewImageWidth, aNewImageHeight), new Rectangle((int)lInitialImageCroppingX, (int)lInitialImageCroppingY, (int)lCroppedImageWidth, (int)lCroppedImageHeight), GraphicsUnit.Pixel);
-                }
-
-                return new Tuple<Image, ImageFormat>(newImage, lImageExtensionId);
             }
         }
 

@@ -805,46 +805,126 @@ namespace OnXap.Modules.FileManager
         /// <summary>
         /// Создает новое изображение на основе <paramref name="sourceImg"/> и приводит его размеры к ширине <paramref name="newWidth"/> и высоте <paramref name="newHeight"/> пропорционально размерам <paramref name="sourceImg"/>.
         /// </summary>
-        public virtual Image Resize(Image sourceImg, int newWidth, int newHeight)
+        public virtual Image ImageResize(Image sourceImg, int newWidth, int newHeight)
         {
-            if (sourceImg != null)
+            if (sourceImg == null) return null;
+            if (sourceImg.Width < newWidth || newWidth <= 0) newWidth = sourceImg.Width;
+            if (sourceImg.Height < newHeight || newHeight <= 0) newHeight = sourceImg.Height;
+
+            // Массив с поддерживаемыми типами изображений
+            var lAllowedExtensions = new List<ImageFormat>() { ImageFormat.Gif, ImageFormat.Jpeg, ImageFormat.Png };
+
+            var lImageExtensionId = sourceImg.RawFormat;
+            if (!lAllowedExtensions.Contains(lImageExtensionId)) return null;
+            var lImageExtension = lImageExtensionId;
+
+            var coeff = Math.Max(sourceImg.Width / (float)newWidth, sourceImg.Height / (float)newHeight);
+
+            var newWidth2 = (int)(sourceImg.Width / coeff);
+            var newHeight2 = (int)(sourceImg.Height / coeff);
+
+            var pixelFormat = sourceImg.PixelFormat;
+            switch (pixelFormat)
             {
-                if (sourceImg.Width < newWidth || newWidth == 0) newWidth = sourceImg.Width;
-                if (sourceImg.Height < newHeight || newHeight == 0) newHeight = sourceImg.Height;
+                case PixelFormat.Format1bppIndexed:
+                case PixelFormat.Format4bppIndexed:
+                case PixelFormat.Format8bppIndexed:
+                    pixelFormat = PixelFormat.Format32bppRgb;
+                    break;
 
-                var coeff = Math.Max(sourceImg.Width / (float)newWidth, sourceImg.Height / (float)newHeight);
-
-                var newWidth2 = (int)(sourceImg.Width / coeff);
-                var newHeight2 = (int)(sourceImg.Height / coeff);
-
-                var pixelFormat = sourceImg.PixelFormat;
-                switch (pixelFormat)
-                {
-                    case PixelFormat.Format1bppIndexed:
-                    case PixelFormat.Format4bppIndexed:
-                    case PixelFormat.Format8bppIndexed:
+                default:
+                    if ((int)pixelFormat == 8207)
                         pixelFormat = PixelFormat.Format32bppRgb;
-                        break;
-
-                    default:
-                        if ((int)pixelFormat == 8207)
-                            pixelFormat = PixelFormat.Format32bppRgb;
-                        break;
-                }
-
-                var newImage = new Bitmap(newWidth2, newHeight2, pixelFormat);
-                using (var gr = Graphics.FromImage(newImage))
-                {
-                    //gr.SmoothingMode = SmoothingMode.HighQuality;
-                    // gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    //gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    gr.DrawImage(sourceImg, new Rectangle(0, 0, newImage.Width, newImage.Height));
-                }
-
-                return newImage;
+                    break;
             }
 
-            return null;
+            var newImage = new Bitmap(newWidth2, newHeight2, pixelFormat);
+            using (var gr = Graphics.FromImage(newImage))
+            {
+                //gr.SmoothingMode = SmoothingMode.HighQuality;
+                // gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                //gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gr.DrawImage(sourceImg, new Rectangle(0, 0, newImage.Width, newImage.Height));
+            }
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Создает новое изображение на основе <paramref name="sourceImg"/>, обрезая его по указанным ширине <paramref name="newWidth"/> и высоте <paramref name="newHeight"/>.
+        /// </summary>
+        public virtual Tuple<Image, ImageFormat> ImageCrop(Image sourceImg, int newWidth, int newHeight)
+        {
+            if (sourceImg == null) return null;
+            if (newWidth <= 0) newWidth = sourceImg.Width;
+            if (newHeight <= 0) newHeight = sourceImg.Height;
+
+            // Массив с поддерживаемыми типами изображений
+            var lAllowedExtensions = new List<ImageFormat>() { ImageFormat.Gif, ImageFormat.Jpeg, ImageFormat.Png };
+
+            var lImageExtensionId = sourceImg.RawFormat;
+            if (!lAllowedExtensions.Contains(lImageExtensionId)) return null;
+            var lImageExtension = lImageExtensionId;
+
+            // Получаем размеры и тип изображения в виде числа
+            decimal lInitialImageWidth = sourceImg.Width;
+            decimal lInitialImageHeight = sourceImg.Height;
+
+            if (newWidth == 0 || newHeight == 0)
+            {
+                var ratio = lInitialImageWidth / lInitialImageHeight;
+                if (newWidth == 0) newWidth = (int)(newHeight * ratio);
+                else if (newHeight == 0) newHeight = (int)(newWidth / ratio);
+                else
+                {
+                    newWidth = (int)lInitialImageHeight;
+                    newWidth = (int)lInitialImageWidth;
+                }
+            }
+
+            // Определяем отображаемую область
+            decimal lCroppedImageWidth = 0;
+            decimal lCroppedImageHeight = 0;
+            decimal lInitialImageCroppingX = 0;
+            decimal lInitialImageCroppingY = 0;
+            if (newWidth / newHeight > lInitialImageWidth / lInitialImageHeight)
+            {
+                lCroppedImageWidth = Math.Floor(lInitialImageWidth);
+                lCroppedImageHeight = Math.Floor(lInitialImageWidth * newHeight / newWidth);
+                lInitialImageCroppingY = Math.Floor((lInitialImageHeight - lCroppedImageHeight) / 2);
+            }
+            else
+            {
+                lCroppedImageWidth = Math.Floor(lInitialImageHeight * newWidth / newHeight);
+                lCroppedImageHeight = Math.Floor(lInitialImageHeight);
+                lInitialImageCroppingX = Math.Floor((lInitialImageWidth - lCroppedImageWidth) / 2);
+            }
+
+            var pixelFormat = sourceImg.PixelFormat;
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format1bppIndexed:
+                case PixelFormat.Format4bppIndexed:
+                case PixelFormat.Format8bppIndexed:
+                    pixelFormat = PixelFormat.Format32bppRgb;
+                    break;
+
+                default:
+                    if ((int)pixelFormat == 8207)
+                        pixelFormat = PixelFormat.Format32bppRgb;
+                    break;
+            }
+
+            var newImage = new Bitmap(newWidth, newHeight, pixelFormat);
+            using (var gr = Graphics.FromImage(newImage))
+            {
+                //gr.SmoothingMode = SmoothingMode.HighQuality;
+                // gr.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                //gr.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                gr.DrawImage(sourceImg, new Rectangle(0, 0, newWidth, newHeight), new Rectangle((int)lInitialImageCroppingX, (int)lInitialImageCroppingY, (int)lCroppedImageWidth, (int)lCroppedImageHeight), GraphicsUnit.Pixel);
+            }
+
+            return new Tuple<Image, ImageFormat>(newImage, lImageExtensionId);
         }
     }
 }
