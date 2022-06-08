@@ -9,124 +9,125 @@
 </style>
 <template>
     <div>
-        <pv-tabview :activeIndex.sync="taskDescriptionCurrent.tabActive">
-            <pv-tabpanel header="Список задач">
-                <pv-datatable :value="taskList" :row-class="rowClass"
+        <TabView :activeIndex.sync="taskDescriptionCurrent.tabActive">
+            <TabPanel header="Список задач">
+                <DataTable :value="taskList" :row-class="rowClass"
                                sort-field="name" sort-order="1"
-                               :filters="filters"
+                               :filters.sync="filters"
+                              filterDisplay="row"
                                style="width:1000px;">
                     <template #header>
                         <div style='height:20px'>Всего задач: {{ taskList ? taskList.length : 0 }}</div>
                     </template>
-                    <pv-column field="name" header="Название задачи" sortable="true" filter-match-mode="contains">
-                        <template #filter="{filterModel}">
-                            <pv-inputtext type="text" v-model="filterModel" class="p-column-filter"></pv-inputtext>
+                    <Column field="name" header="Название задачи" sortable="true">
+                        <template #filter="{filterModel,filterCallback}">
+                            <InputText type="text" v-model="filterModel.value" @keyup="filterCallback()" @change="filterCallback()" class="p-column-filter" />
                         </template>
-                    </pv-column>
-                    <pv-column field="isEnabled" header="Состояние" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
-                        <template #filter="{filterModel}">
-                            <pv-tristatecheckbox v-model="filterModel" class="p-column-filter"></pv-tristatecheckbox>
+                    </Column>
+                    <Column field="isEnabled" header="Состояние" sortable="true" rezisable="false" header-style="width:150px;">
+                        <template #filter="{filterModel,filterCallback}">
+                            <TriStateCheckbox v-model="filterModel.value" @change="filterCallback()" class="p-column-filter" />
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isEnabled ? 'Включена' : 'Выключена' }}
                         </template>
-                    </pv-column>
-                    <pv-column field="isConfirmed" header="Подтверждена" sortable="true" rezisable="false" header-style="width:150px;" filter-match-mode="equals">
-                        <template #filter="{filterModel}">
-                            <pv-tristatecheckbox v-model="filterModel" class="p-column-filter"></pv-tristatecheckbox>
+                    </Column>
+                    <Column field="isConfirmed" header="Подтверждена" sortable="true" rezisable="false" header-style="width:150px;">
+                        <template #filter="{filterModel,filterCallback}">
+                            <TriStateCheckbox v-model="filterModel.value" @change="filterCallback()" class="p-column-filter" />
                         </template>
                         <template #body="slotProps">
                             {{ slotProps.data.isConfirmed ? 'Подтверждена' : 'Не подтверждена' }}
                         </template>
-                    </pv-column>
-                    <pv-column column-key="Actions" header="Действия" header-style="width:150px;" header-class="task-actions">
+                    </Column>
+                    <Column column-key="Actions" header="Действия" header-style="width:150px;" header-class="task-actions">
                         <template #body="slotProps">
-                            <pv-button label="Подробно" @click.stop="onShow(slotProps.data)" style="margin:0 5px 5px 0;"></pv-button>
-                            <pv-splitbutton label="Выполнить" icon="pi pi-caret-right" :model="taskScheduleRunOptions" @click.stop="onExecute(slotProps.data, true)"></pv-splitbutton>
+                            <Button label="Подробно" @click.stop="onShow(slotProps.data)" style="margin:0 5px 5px 0;"></Button>
+                            <SplitButton label="Выполнить" icon="pi pi-caret-right" :model="taskScheduleRunOptions" @click.stop="onExecute(slotProps.data, true)" />
                         </template>
-                    </pv-column>
-                </pv-datatable>
-            </pv-tabpanel>
-            <pv-tabpanel :disabled="!taskDescriptionCurrent.data">
+                    </Column>
+                </DataTable>
+            </TabPanel>
+            <TabPanel :disabled="!taskDescriptionCurrent.data">
                 <template slot="header">
                     <span>Подробности задачи</span>
                 </template>
                 <div v-if="taskDescriptionCurrent.data">
                     <div>
                         <h4>Название задачи</h4>
-                        <pv-inputtext type="text" v-model="taskDescriptionCurrent.data.name" style="width:600px;" disabled></pv-inputtext>
+                        <InputText type="text" v-model="taskDescriptionCurrent.data.name" style="width:600px;" disabled />
                     </div>
                     <div>
                         <h4>Описание задачи</h4>
-                        <pv-textarea v-model="taskDescriptionCurrent.data.description" style="width:600px;" :autoResize="true" rows="5" cols="30" disabled></pv-textarea>
+                        <Textarea v-model="taskDescriptionCurrent.data.description" style="width:600px;" :autoResize="true" rows="5" cols="30" disabled />
                     </div>
                     <div>
                         <h4>Состояние (включена или выключена)</h4>
-                        <pv-checkbox :binary="true" v-model="taskDescriptionCurrent.data.isEnabled" :disabled="taskDescriptionCurrent.isSaving || !taskDescriptionCurrent.data.isConfirmed || !taskDescriptionCurrent.data.allowDisabling"></pv-checkbox>
+                        <Checkbox :binary="true" v-model="taskDescriptionCurrent.data.isEnabled" :disabled="taskDescriptionCurrent.isSaving || !taskDescriptionCurrent.data.isConfirmed || !taskDescriptionCurrent.data.allowDisabling" />
                     </div>
                     <div>
                         <h4>Неизменяемые правила запуска (созданные при регистрации задачи):</h4>
-                        <pv-datatable :value="taskDescriptionCurrent.data.scheduleList" :row-class="rowClassSchedule"
+                        <DataTable :value="taskDescriptionCurrent.data.scheduleList" :row-class="rowClassSchedule"
                                        style="width:1000px;">
-                            <pv-column field="type" header="Тип правила" header-style="width:250px;">
+                            <Column field="type" header="Тип правила" header-style="width:250px;">
                                 <template #body="slotProps">
                                     {{ slotProps.data.type == 1 ? "Cron" : "Фиксированные дата и время" }}
                                 </template>
-                            </pv-column>
-                            <pv-column header="Правило">
+                            </Column>
+                            <Column header="Правило">
                                 <template #body="slotProps">
                                     <div class="schedule-designer-cron-readonly" :data-cronvalue="slotProps.data.cron" v-show="slotProps.data.type == 1">
                                         { {{slotProps.data.cron}} }
                                     </div>
                                     <div class="schedule-designer-datetimefixed" v-if="slotProps.data.type == 2">
-                                        <pv-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" />
+                                        <Input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" />
                                     </div>
                                 </template>
-                            </pv-column>
-                        </pv-datatable>
+                            </Column>
+                        </DataTable>
                     </div>
                     <div>
-                        <h4>Изменяемые правила запуска (созданные вручную): / <pv-button icon="pi pi-plus" label="Добавить правило" @click="onNewSchedule" :disabled="!c_allowManualSchedule"></pv-button></h4>
-                        <pv-datatable :value="taskDescriptionCurrent.data.manualScheduleList" :row-class="rowClassSchedule"
+                        <h4>Изменяемые правила запуска (созданные вручную): / <Button icon="pi pi-plus" label="Добавить правило" @click="onNewSchedule" :disabled="!c_allowManualSchedule"></Button></h4>
+                        <DataTable :value="taskDescriptionCurrent.data.manualScheduleList" :row-class="rowClassSchedule"
                                        style="width:1000px;">
-                            <pv-column field="type" header="Тип правила" header-style="width:250px;">
+                            <Column field="type" header="Тип правила" header-style="width:250px;">
                                 <template #body="slotProps">
-                                    <pv-dropdown v-model="slotProps.data.type" :options="scheduleTypeList" option-label="label" option-value="value" :disabled="!c_allowManualSchedule"></pv-dropdown>
+                                    <Dropdown v-model="slotProps.data.type" :options="scheduleTypeList" option-label="label" option-value="value" :disabled="!c_allowManualSchedule"></Dropdown>
                                 </template>
-                            </pv-column>
-                            <pv-column field="isEnabled" header="Состояние" header-style="width:150px;">
+                            </Column>
+                            <Column field="isEnabled" header="Состояние" header-style="width:150px;">
                                 <template #body="slotProps">
-                                    <pv-checkbox v-model="slotProps.data.isEnabled" :binary="true" :disabled="!c_allowManualSchedule"></pv-checkbox>
+                                    <Checkbox v-model="slotProps.data.isEnabled" :binary="true" :disabled="!c_allowManualSchedule"></Checkbox>
                                 </template>
-                            </pv-column>
-                            <pv-column header="Правило">
+                            </Column>
+                            <Column header="Правило">
                                 <template #body="slotProps">
                                     <div class="schedule-designer-cron" :data-cronvalue="slotProps.data.cron" v-show="slotProps.data.type == 1">
                                         { {{slotProps.data.cron}} } <input type="hidden" v-model.lazy="slotProps.data.cron" />
                                     </div>
                                     <div class="schedule-designer-datetimefixed" v-if="slotProps.data.type == 2">
                                         { {{slotProps.data.dateTimeFixed}} }<br />
-                                        <pv-input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" v-if="!c_allowManualSchedule"></pv-input>
-                                        <pv-calendar v-model="slotProps.data.dateTimeFixed" :show-seconds="true" :show-time="true" style="width:100%" v-if="c_allowManualSchedule"></pv-calendar><br />
+                                        <Input :disabled="true" v-model="slotProps.data.dateTimeFixed" style="width:100%" v-if="!c_allowManualSchedule"></Input>
+                                        <Calendar v-model="slotProps.data.dateTimeFixed" :show-seconds="true" :show-time="true" style="width:100%" v-if="c_allowManualSchedule" /><br />
                                     </div>
                                 </template>
-                            </pv-column>
-                            <pv-column column-key="Actions" header="Действия" header-style="width:150px;">
+                            </Column>
+                            <Column column-key="Actions" header="Действия" header-style="width:150px;">
                                 <template #body="slotProps">
-                                    <pv-button icon="pi pi-trash" label="Удалить" @click.stop="onScheduleRemove(slotProps.data)" :disabled="!c_allowManualSchedule"></pv-button>
+                                    <Button icon="pi pi-trash" label="Удалить" @click.stop="onScheduleRemove(slotProps.data)" :disabled="!c_allowManualSchedule"></Button>
                                 </template>
-                            </pv-column>
-                        </pv-datatable>
+                            </Column>
+                        </DataTable>
                     </div>
                     <div>
                         <br />
-                        <pv-button label="Сохранить изменения" :icon="['pi', 'pi-save', {'pi-spin' : taskDescriptionCurrent.isSaving}]" v-if="taskDescriptionCurrent.data.isConfirmed && (taskDescriptionCurrent.data.allowDisabling || taskDescriptionCurrent.data.allowManualSchedule)" @click="onSaveChanges"></pv-button>
-                        <pv-button label="Задача не подтверждена - изменения запрещены" icon="pi pi-times" v-if="!taskDescriptionCurrent.data.isConfirmed" :disabled="true"></pv-button>
-                        <pv-button label="Задача подтверждена, но изменения запрещены в настройках задачи" icon="pi pi-times" v-if="taskDescriptionCurrent.data.isConfirmed && !taskDescriptionCurrent.data.allowDisabling && !taskDescriptionCurrent.data.allowManualSchedule" :disabled="true"></pv-button>
+                        <Button label="Сохранить изменения" :icon="['pi', 'pi-save', {'pi-spin' : taskDescriptionCurrent.isSaving}]" v-if="taskDescriptionCurrent.data.isConfirmed && (taskDescriptionCurrent.data.allowDisabling || taskDescriptionCurrent.data.allowManualSchedule)" @click="onSaveChanges" />
+                        <Button label="Задача не подтверждена - изменения запрещены" icon="pi pi-times" v-if="!taskDescriptionCurrent.data.isConfirmed" :disabled="true" />
+                        <Button label="Задача подтверждена, но изменения запрещены в настройках задачи" icon="pi pi-times" v-if="taskDescriptionCurrent.data.isConfirmed && !taskDescriptionCurrent.data.allowDisabling && !taskDescriptionCurrent.data.allowManualSchedule" :disabled="true" />
                     </div>
                 </div>
-            </pv-tabpanel>
-        </pv-tabview>
+            </TabPanel>
+        </TabView>
     </div>
 </template>
 <script type='text/javascript'>
@@ -145,6 +146,7 @@
     import TabView from 'primevue/tabview';
     import Textarea from 'primevue/textarea';
     import TriStateCheckbox from 'primevue/tristatecheckbox';
+    import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
     class TaskScheduleSave {
         constructor(source) {
@@ -214,20 +216,20 @@
             }
         },
         components: {
-            'pv-button': Button,
-            'pv-calendar': Calendar,
-            'pv-checkbox': Checkbox,
-            'pv-column': Column,
-            'pv-datatable': DataTable,
-            'pv-dropdown': Dropdown,
-            //'pv-input': Input,
-            'pv-inputtext': InputText,
-            'pv-progressspinner': ProgressSpinner,
-            'pv-splitbutton': SplitButton,
-            'pv-tabpanel': TabPanel,
-            'pv-tabview': TabView,
-            'pv-textarea': Textarea,
-            'pv-tristatecheckbox': TriStateCheckbox
+            'Button': Button,
+            'Calendar': Calendar,
+            'Checkbox': Checkbox,
+            'Column': Column,
+            'DataTable': DataTable,
+            'Dropdown': Dropdown,
+            //'Input': Input,
+            'InputText': InputText,
+            'ProgressSpinner': ProgressSpinner,
+            'SplitButton': SplitButton,
+            'TabPanel': TabPanel,
+            'TabView': TabView,
+            'Textarea': Textarea,
+            'TriStateCheckbox': TriStateCheckbox
         },
         data: function () {
             return {
@@ -235,7 +237,11 @@
                     { value: 1, label: 'Cron' },
                     { value: 2, label: 'Фиксированные дата и время' },
                 ],
-                filters: {},
+                filters: {
+                    'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    'isEnabled': { value: null, matchMode: FilterMatchMode.EQUALS },
+                    'isConfirmed': { value: null, matchMode: FilterMatchMode.EQUALS }
+                },
                 taskDescriptionCurrent: {
                     data: null,
                     isSaving: false,

@@ -100,6 +100,10 @@ namespace OnXap.Modules.Customer
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => Convert.ToString(x.IdUser).StartsWith(idUser.ToString()));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.IdUser == idUser);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -124,6 +128,10 @@ namespace OnXap.Modules.Customer
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => ((x.name ?? "") + "." + (x.email ?? "") + "." + (x.phone ?? "")).StartsWith(constraint.Value));
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -139,6 +147,10 @@ namespace OnXap.Modules.Customer
 
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.email.StartsWith(constraint.Value));
+                                                        break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.email == constraint.Value);
                                                         break;
                                                 }
                                             }
@@ -156,6 +168,10 @@ namespace OnXap.Modules.Customer
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.phone.StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.phone == constraint.Value);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -172,6 +188,10 @@ namespace OnXap.Modules.Customer
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.name.StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.name == constraint.Value);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -187,6 +207,10 @@ namespace OnXap.Modules.Customer
 
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.CommentAdmin.StartsWith(constraint.Value));
+                                                        break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.CommentAdmin == constraint.Value);
                                                         break;
                                                 }
                                             }

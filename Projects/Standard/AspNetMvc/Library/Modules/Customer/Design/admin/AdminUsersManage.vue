@@ -1,31 +1,32 @@
 ﻿<template>
     <div style="width:1500px;">
-        <pv-datatable :value="DataList" :paginator="true" :rows="paginatorRows"
-                       :lazy="true" :total-records="DataCountAll" :loading="IsLoading"
-                       @page="OnPage($event)" @sort="OnSort($event)" @filter="OnFilter($event)"
-                       :filters="filters"
-                       sort-field="IdUser" sort-order="1">
-            <pv-column field="IdUser" header="#" sortable="true" resizable="false" header-style="width:100px;" filter-match-mode="contains">
-                <template #filter>
-                    <pv-inputtext type="text" v-model="filters['IdUser']" class="p-column-filter" style="width:70px;" />
+        <DataTable :value="DataList" :paginator="true" :rows="paginatorRows"
+                :lazy="true" :total-records="DataCountAll" :loading="IsLoading"
+                @page="OnPage($event)" @sort="OnSort($event)" 
+                :filters.sync="filters"
+                filterDisplay="row"
+                sort-field="IdUser" sort-order="1">
+            <Column field="IdUser" header="#" sortable="true" resizable="false" header-style="width:100px;">
+                <template #filter="{filterModel,filterCallback}">
+                    <InputText type="text" v-model="filterModel.value" @keyup="filterCallback()" @change="filterCallback()" class="p-column-filter" style="width:70px;" />
                 </template>
-            </pv-column>
-            <pv-column field="Requisites" header="Реквизиты" sortable="true" resizable="true" filter-match-mode="contains" body-style="white-space: pre-wrap;">
-                <template #filter>
-                    <pv-inputtext type="text" v-model="filters['Requisites']" class="p-column-filter" />
+            </Column>
+            <Column field="Requisites" header="Реквизиты" sortable="true" resizable="true" body-style="white-space: pre-wrap;">
+                <template #filter="{filterModel,filterCallback}">
+                    <InputText type="text" v-model="filterModel.value" @keyup="filterCallback()" @change="filterCallback()" class="p-column-filter" />
                 </template>
-            </pv-column>
-            <pv-column field="Superuser" header="Права" sortable="true" resizable="false" header-style="width:130px;" filter-match-mode="contains">
+            </Column>
+            <Column field="Superuser" header="Права" sortable="true" resizable="false" header-style="width:130px;">
                 <template #body="slotProps">
                     {{ slotProps.data.Superuser > 0 ? 'Суперпользователь' : 'Пользователь' }}
                 </template>
-            </pv-column>
-            <pv-column field="State" header="Состояние" sortable="true" resizable="false" header-style="width:250px;" filter-match-mode="contains">
+            </Column>
+            <Column field="State" header="Состояние" sortable="true" resizable="false" header-style="width:250px;">
                 <template #body="slotProps">
                     {{ viewModel.userStateList[slotProps.data.State] }}
                 </template>
-            </pv-column>
-            <pv-column column-key="Actions" header="Действия" resizable="false" header-style="width:300px;">
+            </Column>
+            <Column column-key="Actions" header="Действия" resizable="false" header-style="width:300px;">
                 <template #body="slotProps">
                     <a :href="String(viewModel.Urls.userEditCallback(slotProps.data.IdUser))" target='_blank' class='user_link'>Редактировать</a>
                     <span style="margin: 0 5px 0 5px;"> /</span>
@@ -35,19 +36,20 @@
                     <span v-if="viewModel.isSuperuser" style="margin: 0 5px 0 5px;"> /</span>
                     <a v-if="viewModel.isSuperuser" :href="String(viewModel.Urls.userEnterAsCallback(slotProps.data.IdUser))" class='user_link'>Зайти от имени</a>
                 </template>
-            </pv-column>
-            <pv-column field="CommentAdmin" header="Комментарий" sortable="true" resizable="true" header-style="width:200px;" filter-match-mode="contains">
-                <template #filter>
-                    <pv-inputtext type="text" v-model="filters['CommentAdmin']" class="p-column-filter" />
+            </Column>
+            <Column field="CommentAdmin" header="Комментарий" sortable="true" resizable="true" header-style="width:200px;">
+                <template #filter="{filterModel,filterCallback}">
+                    <InputText type="text" v-model="filterModel.value" @keyup="filterCallback()" @change="filterCallback()" class="p-column-filter" />
                 </template>
-            </pv-column>
-        </pv-datatable>
+            </Column>
+        </DataTable>
     </div>
 </template>
 <script type='text/javascript'>
     import Column from 'primevue/column';
     import DataTable from 'primevue/datatable';
     import InputText from 'primevue/inputtext';
+    import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
     class ViewModelRow {
         IdUser = 0;
@@ -114,13 +116,17 @@
             }
         },
         components: {
-            'pv-column': Column,
-            'pv-datatable': DataTable,
-            'pv-inputtext': InputText
+            'Column': Column,
+            'DataTable': DataTable,
+            'InputText': InputText
         },
         data: function () {
             return {
-                filters: {},
+                filters: {
+                    'IdUser': { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    'Requisites': { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    'CommentAdmin': { value: null, matchMode: FilterMatchMode.CONTAINS }
+                },
                 IsLoading: false,
                 DataCountAll: 0,
                 DataList: null,

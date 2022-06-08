@@ -6,44 +6,45 @@
 </style>
 <template>
     <div>
-        <pv-tabview :activeIndex.sync="journalCurrent.tabActive">
-            <pv-tabpanel header="Список журналов">
-                <pv-datatable :value="dataList" :row-class="rowClass"
-                               sort-field="nameJournal" sort-order="1"
-                               :filters="filters"
-                               style="width:1000px;">
+        <TabView :activeIndex.sync="journalCurrent.tabActive">
+            <TabPanel header="Список журналов">
+                <DataTable :value="dataList" :row-class="rowClass"
+                            sort-field="nameJournal" sort-order="1"
+                            :filters.sync="filters"
+                            filterDisplay="row"
+                            style="width:1000px;">
                     <template #header>
                         <div style='height:20px'>
                             Всего журналов: {{ dataList ? dataList.length : 0 }}
                         </div>
                     </template>
-                    <pv-column field="nameJournal" header="Название журнала" sortable="true" filter-match-mode="contains">
-                        <template #filter>
-                            <pv-inputtext type="text" v-model="filters['nameJournal']" class="p-column-filter"></pv-inputtext>
-                            <pv-button label="Показать события всех журналов" @click.stop="onShow({ idJournal : -1 })"></pv-button>
+                    <Column field="nameJournal" header="Название журнала" sortable="true">
+                        <template #filter="{filterModel,filterCallback}">
+                            <InputText type="text" v-model="filterModel.value" @keyup="filterCallback()" @change="filterCallback()" class="p-column-filter" style="width:200px;" />
+                            <Button label="Показать события всех журналов" @click.stop="onShow({ idJournal : -1 })" style="width:250px;" />
                         </template>
-                    </pv-column>
-                    <pv-column field="eventsCount" header="Количество событий" sortable="true" header-style="width:100px;" filter-match-mode="contains"></pv-column>
-                    <pv-column field="latestEventDate" header="Дата" sortable="true" rezisable="false" header-style="width:150px;">
+                    </Column>
+                    <Column field="eventsCount" header="Количество событий" sortable="true" header-style="width:100px;"></Column>
+                    <Column field="latestEventDate" header="Дата" sortable="true" resizable="false" header-style="width:150px;">
                         <template #body="slotProps">
                             {{ slotProps.data.latestEventDate ? slotProps.data.latestEventDate.format("YYYY-MM-DD HH:mm:ss") : null }}
                         </template>
-                    </pv-column>
-                    <pv-column column-key="Actions" header="Действия" header-style="width:150px;">
+                    </Column>
+                    <Column column-key="Actions" header="Действия" header-style="width:150px;">
                         <template #body="slotProps">
-                            <pv-button label="Подробности" @click.stop="onShow(slotProps.data)"></pv-button>
+                            <Button label="Подробности" @click.stop="onShow(slotProps.data)"></Button>
                         </template>
-                    </pv-column>
-                </pv-datatable>
-            </pv-tabpanel>
-            <pv-tabpanel :disabled="!journalCurrent.data || journalCurrent.loading">
+                    </Column>
+                </DataTable>
+            </TabPanel>
+            <TabPanel :disabled="!journalCurrent.data || journalCurrent.loading">
                 <template slot="header">
                     <span>Подробности журнала</span>
                 </template>
-                <pv-progressspinner v-if="journalCurrent.loading"></pv-progressspinner>
+                <ProgressSpinner v-if="journalCurrent.loading" />
                 <div id="containerForLoading" :class="[{'hidden' : journalCurrent.loading}]"></div>
-            </pv-tabpanel>
-        </pv-tabview>
+            </TabPanel>
+        </TabView>
     </div>
 </template>
 <script type='text/javascript'>
@@ -55,6 +56,7 @@
     import ProgressSpinner from 'primevue/progressspinner';
     import TabPanel from 'primevue/tabpanel';
     import TabView from 'primevue/tabview';
+    import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
     export class ViewModel {
         constructor() {
@@ -81,17 +83,19 @@
             }
         },
         components: {
-            'pv-button': Button,
-            'pv-column': Column,
-            'pv-datatable': DataTable,
-            'pv-inputtext': InputText,
-            'pv-progressspinner': ProgressSpinner,
-            'pv-tabpanel': TabPanel,
-            'pv-tabview': TabView
+            'Button': Button,
+            'Column': Column,
+            'DataTable': DataTable,
+            'InputText': InputText,
+            'ProgressSpinner': ProgressSpinner,
+            'TabPanel': TabPanel,
+            'TabView': TabView
         },
         data: function () {
             return {
-                filters: {},
+                filters: {
+                    'nameJournal': { value: null, matchMode: FilterMatchMode.CONTAINS }
+                },
                 journalCurrent: {
                     data: null,
                     loading: false,

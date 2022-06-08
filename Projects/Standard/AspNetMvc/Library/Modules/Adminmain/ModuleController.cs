@@ -425,6 +425,10 @@ namespace OnXap.Modules.Adminmain
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => Convert.ToString(x.JournalData.IdJournalData).StartsWith(idJournalData.ToString()));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.IdJournalData == idJournalData);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -442,6 +446,10 @@ namespace OnXap.Modules.Adminmain
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => Convert.ToString(x.JournalData.EventCode).StartsWith(eventCode.ToString()));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.EventCode == eventCode);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -454,6 +462,7 @@ namespace OnXap.Modules.Adminmain
                                                 {
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Contains:
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
                                                         query = query.Where(x => x.JournalData.EventType == eventType);
                                                         break;
                                                 }
@@ -472,6 +481,10 @@ namespace OnXap.Modules.Adminmain
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.JournalData.EventInfo.StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.EventInfo == constraint.Value);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -487,6 +500,10 @@ namespace OnXap.Modules.Adminmain
 
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(constraint.Value));
+                                                        break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed == constraint.Value);
                                                         break;
                                                 }
                                             }
@@ -504,6 +521,10 @@ namespace OnXap.Modules.Adminmain
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.JournalData.ExceptionDetailed.StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.ExceptionDetailed == constraint.Value);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -520,6 +541,10 @@ namespace OnXap.Modules.Adminmain
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.JournalData.EventInfoDetailed.StartsWith(constraint.Value) || x.JournalData.ExceptionDetailed.StartsWith(constraint.Value));
                                                         break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalData.EventInfoDetailed == constraint.Value || x.JournalData.ExceptionDetailed == constraint.Value);
+                                                        break;
                                                 }
                                             }
                                             break;
@@ -535,6 +560,10 @@ namespace OnXap.Modules.Adminmain
 
                                                     case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.StartsWith:
                                                         query = query.Where(x => x.JournalName.Name.StartsWith(constraint.Value));
+                                                        break;
+
+                                                    case Universal.Pagination.PrimeUiDataTableFieldFilterMatchMode.Equals:
+                                                        query = query.Where(x => x.JournalName.Name == constraint.Value);
                                                         break;
                                                 }
                                             }

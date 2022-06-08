@@ -4,6 +4,7 @@ module.exports = {
     entry: null,
     output: null,
     mode: 'production',
+    //mode: 'development',
     //watch: true,
     externals: {
         vue: 'Vue'

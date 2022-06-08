@@ -90,6 +90,10 @@ class PrimeVueDataTableFieldFilterConstraint {
                 this.MatchType = 1;
                 break;
 
+            case FilterMatchMode.EQUALS:
+                this.MatchType = 3;
+                break;
+
             default:
                 throw "Данное условие не поддерживается.";
         }

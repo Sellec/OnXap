@@ -7,6 +7,7 @@ namespace OnXap.Modules.Universal.Pagination
         None = 0,
         StartsWith = 1,
         Contains = 2,
+        Equals = 3
     }
 
     public enum PrimeUiDataTableFieldFilterConstraintGroupOperator : int
