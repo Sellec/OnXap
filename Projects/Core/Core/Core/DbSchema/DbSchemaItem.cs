@@ -88,6 +88,9 @@ namespace OnXap.Core.DbSchema
         /// </summary>
         protected void AddColumnIfNotExists<TTable, TProperty>(ISchemaExpressionRoot schema, Expression<Func<TTable, TProperty>> columnAccessor, Action<IAlterTableColumnAsTypeSyntax> columnFluentCallback)
         {
+            var prop = typeof(MigrationBase).GetProperty("Context", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var context = prop.GetValue(this) as FluentMigrator.Infrastructure.IMigrationContext;
+            if (context.QuerySchema.DatabaseType.ToLower() == "sqlite") return;
             if (!Schema.Table<TTable>().Column(columnAccessor).Exists()) columnFluentCallback(Alter.Table<TTable>().AddColumn(columnAccessor));
         }
 

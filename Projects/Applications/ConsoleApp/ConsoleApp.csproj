@@ -50,7 +50,9 @@
     <Compile Include="TestData\Startup.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core\Core.csproj">
@@ -60,10 +62,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient">
-      <Version>1.1.1</Version>
+      <Version>2.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite">
+      <Version>3.1.18</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Console">
       <Version>3.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="OnUtils">
+      <Version>2.1.4</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

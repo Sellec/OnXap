@@ -1,5 +1,6 @@
 ﻿using OnXap;
 using System;
+using System.IO;
 using OnXap.Core.Data;
 using Microsoft.EntityFrameworkCore;
 using FluentMigrator.Runner;
@@ -12,12 +13,14 @@ namespace ConsoleApp
         {
             void IDbConfigurationBuilder.OnConfigureEntityFrameworkCore(DbContextOptionsBuilder optionsBuilder)
             {
-             //   optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=TestWeb;Integrated Security=true;");
+                var path = Path.Combine(Environment.CurrentDirectory, "mydb.db");
+                optionsBuilder.UseSqlite("Data Source=" + path + "");
             }
 
             bool IDbConfigurationBuilder.OnConfigureFluentMigrator(IMigrationRunnerBuilder runnerBuilder)
             {
-                runnerBuilder.AddSqlServer().WithGlobalConnectionString("Data Source=localhost;Initial Catalog=TestWeb;Integrated Security=true;");
+                var path = Path.Combine(Environment.CurrentDirectory, "mydb.db");
+                runnerBuilder.AddSQLite().WithGlobalConnectionString("Data Source=" + path + "");
                 return true;
             }
         }

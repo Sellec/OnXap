@@ -46,7 +46,7 @@ namespace OnXap
                 {
                     if (name.ToLower().Contains("sni.dll")) return false;
                     if (name.ToLower().Contains("e_sqlite3.dll")) return false;
-                    
+
                     return true;
                 };
 

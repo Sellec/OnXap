@@ -12,7 +12,8 @@ namespace OnXap.Users.Db
 
         public override void Up()
         {
-            if (!Schema.Table<UserEntity>().Exists())
+            var isTableExists = Schema.Table<UserEntity>().Exists();
+            if (!isTableExists)
             {
                 Create.Table<UserEntity>().
                     WithColumn((UserEntity x) => x.IdEntity).AsInt32().NotNullable().PrimaryKey().Identity().
@@ -34,10 +35,11 @@ namespace OnXap.Users.Db
                 AddColumnIfNotExists(Schema, (UserEntity x) => x.UniqueKey, x => x.AsString(250).Nullable());
             }
 
-            if (!Schema.Table<UserEntity>().Exists() || !Schema.Table<UserEntity>().Index("UniqueKey").Exists())
-                Create.Index("UniqueKey").OnTable(GetTableName<UserEntity>()).
-                    OnColumn(GetColumnName((UserEntity x) => x.UniqueKey)).Ascending().
-                    WithOptions().UniqueNullsNotDistinct();
+            if (!isTableExists || !Schema.Table<UserEntity>().Index("UserEntity_UniqueKey").Exists())
+                if (!Schema.Table<UserEntity>().Index("UniqueKey").Exists())
+                    Create.Index("UserEntity_UniqueKey").OnTable(GetTableName<UserEntity>()).
+                        OnColumn(GetColumnName((UserEntity x) => x.UniqueKey)).Ascending().
+                        WithOptions().UniqueNullsNotDistinct();
         }
     }
 }

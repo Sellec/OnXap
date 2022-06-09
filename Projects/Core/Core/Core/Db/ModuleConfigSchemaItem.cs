@@ -21,7 +21,7 @@ namespace OnXap.Core.Db
                     WithColumn((ModuleConfig x) => x.DateChange).AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentDateTime).
                     WithColumn((ModuleConfig x) => x.IdUserChange).AsInt32().NotNullable().WithDefaultValue(0);
             }
-            else
+            else 
             {
                 AddColumnIfNotExists(Schema, (ModuleConfig x) => x.IdModule, x => x.AsInt32().NotNullable().PrimaryKey().Identity());
                 AddColumnIfNotExists(Schema, (ModuleConfig x) => x.UniqueKey, x => x.AsString(200).NotNullable().Unique($"t{GetTableName<ModuleConfig>()}_iUniqueKey"));
