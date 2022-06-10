@@ -7,7 +7,7 @@ namespace OnXap.Messaging.Messages
     /// <summary>
     /// Предоставляет информацию о сообщении.
     /// </summary>
-    public class MessageInfo<TMessage> : ItemBase 
+    public class MessageInfo<TMessage> : ItemBase
         where TMessage : MessageBase
     {
         private int _idMessage = 0;
@@ -17,6 +17,28 @@ namespace OnXap.Messaging.Messages
             _idMessage = intermediateMessage.MessageSource.IdQueue;
             Message = intermediateMessage.Message;
             State = intermediateMessage.MessageSource.State;
+            switch(intermediateMessage.MessageSource.StateType)
+            {
+                case DB.MessageStateType.Complete:
+                    StateType = MessageStateType.Completed;
+                    break;
+
+                case DB.MessageStateType.Error:
+                    StateType = MessageStateType.Error;
+                    break;
+
+                case DB.MessageStateType.IntermediateAdded:
+                    StateType = MessageStateType.NotHandled;
+                    break;
+
+                case DB.MessageStateType.NotProcessed:
+                    StateType = intermediateMessage.MessageSource.DateDelayed.HasValue ? MessageStateType.Delayed : MessageStateType.NotHandled;
+                    break;
+
+                case DB.MessageStateType.Repeat:
+                    StateType = MessageStateType.Repeat;
+                    break;
+            }
         }
 
         /// <summary>
@@ -40,6 +62,11 @@ namespace OnXap.Messaging.Messages
         /// Позволяет переносить дополнительную информацию о состоянии сообщения.
         /// </summary>
         public string State { get; }
+
+        /// <summary>
+        /// Тип состояния сообщения.
+        /// </summary>
+        public MessageStateType StateType { get; }
 
         #region ItemBase
         /// <summary>
