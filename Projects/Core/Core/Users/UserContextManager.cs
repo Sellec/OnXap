@@ -316,7 +316,7 @@ namespace OnXap.Users
                 {
                     AppCore.Get<JournalingManager>().RegisterEventForItem(
                         idJournal.Value,
-                        new ItemKey(ItemTypeFactory.GetItemType<CoreDB.User>().IdItemType, idUser, ""),
+                        new ItemKey(ItemTypeFactory.GetItemType<CoreDB.User>().IdItemType, idUser),
                         eventType,
                         eventCode,
                         eventInfo,

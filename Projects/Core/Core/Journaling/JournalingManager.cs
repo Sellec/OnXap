@@ -488,7 +488,7 @@ namespace OnXap.Journaling
                 {
                     var query = from item in db.ItemLink
                                 join journalRow in DatabaseAccessor.CreateQueryJournalData(db) on item.LinkId equals journalRow.JournalData.ItemLinkId.Value
-                                where item.ItemIdType == itemKey.IdType && item.ItemId == itemKey.IdItem && item.ItemKey == itemKey.Key
+                                where item.ItemIdType == itemKey.IdType && item.ItemId == itemKey.IdItem
                                 select journalRow;
 
                     var data = DatabaseAccessor.FetchQueryJournalData(query);

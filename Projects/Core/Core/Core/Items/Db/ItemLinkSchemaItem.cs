@@ -27,7 +27,6 @@
                 Create.Table<ItemLink>().
                     WithColumn((ItemLink x) => x.ItemIdType).AsInt32().NotNullable().PrimaryKey().
                     WithColumn((ItemLink x) => x.ItemId).AsInt32().NotNullable().PrimaryKey().
-                    WithColumn((ItemLink x) => x.ItemKey).AsString(200).NotNullable().PrimaryKey().
                     WithColumn((ItemLink x) => x.LinkId).AsGuid().NotNullable().
                     WithColumn((ItemLink x) => x.DateCreate).AsDateTime().NotNullable();
             }
@@ -35,7 +34,6 @@
             {
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.ItemIdType, x => x.AsInt32().NotNullable().PrimaryKey());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.ItemId, x => x.AsInt32().NotNullable().PrimaryKey());
-                AddColumnIfNotExists(Schema, (ItemLink x) => x.ItemKey, x => x.AsString(200).NotNullable().PrimaryKey());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.LinkId, x => x.AsGuid().NotNullable());
                 AddColumnIfNotExists(Schema, (ItemLink x) => x.DateCreate, x => x.AsDateTime().NotNullable());
             }

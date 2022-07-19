@@ -281,7 +281,7 @@ namespace OnXap.Core.Items
                     {
                         try
                         {
-                            var query = db.ItemLink.Where(x => x.ItemIdType == itemKey.IdType && x.ItemId == itemKey.IdItem && x.ItemKey == itemKey.Key);
+                            var query = db.ItemLink.Where(x => x.ItemIdType == itemKey.IdType && x.ItemId == itemKey.IdItem);
                             var data = query.FirstOrDefault();
                             if (data != null) return data.LinkId;
 
@@ -290,15 +290,13 @@ namespace OnXap.Core.Items
                                 {
                                     ItemIdType = itemKey.IdType,
                                     ItemId = itemKey.IdItem,
-                                    ItemKey = itemKey.Key,
                                     LinkId = guid,
                                     DateCreate = DateTime.Now
                                 }).
                                 On(x => new
                                 {
                                     x.ItemIdType,
-                                    x.ItemId,
-                                    x.ItemKey
+                                    x.ItemId
                                 }).
                                 WhenMatched((xDb, xIns) => new ItemLink()
                                 {

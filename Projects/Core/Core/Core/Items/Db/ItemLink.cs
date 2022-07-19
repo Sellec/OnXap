@@ -28,15 +28,6 @@ namespace OnXap.Core.Items.Db
         public int ItemId { get; set; }
 
         /// <summary>
-        /// Дополнительный текстовый ключ для идентификации объекта.
-        /// </summary>
-        [Key]
-        [Column(Order = 2)]
-        [MaxLength(200)]
-        [Required(AllowEmptyStrings = true)]
-        public string ItemKey { get; set; } = "";
-
-        /// <summary>
         /// Уникальный идентификатор ссылки.
         /// </summary>
         public Guid LinkId { get; set; }

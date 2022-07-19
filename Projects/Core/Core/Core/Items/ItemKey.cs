@@ -9,8 +9,6 @@ namespace OnXap.Core.Items
     /// </summary>
     public class ItemKey
     {
-        private string _key = null;
-
         /// <summary>
         /// Создает новый экземпляр объекта.
         /// </summary>
@@ -22,13 +20,10 @@ namespace OnXap.Core.Items
         /// Создает новый экземпляр объекта.
         /// </summary>
         /// <exception cref="ArgumentNullException">Возникает, если <paramref name="key"/> равен null.</exception>
-        public ItemKey(int idType, int idItem, string key = "")
+        public ItemKey(int idType, int idItem)
         {
-            if (key == null) throw new ArgumentNullException(nameof(key));
-
             IdType = idType;
             IdItem = idItem;
-            Key = key;
         }
 
         /// <summary>
@@ -43,24 +38,10 @@ namespace OnXap.Core.Items
         public int IdItem { get; set; }
 
         /// <summary>
-        /// Дополнительный ключ для идентификации объекта.
-        /// </summary>
-        public string Key
-        {
-            get => _key;
-            set
-            {
-                if (value == null) throw new ArgumentNullException(nameof(Key));
-                if (!string.IsNullOrEmpty(value) && value.Length >= 200) throw new ArgumentOutOfRangeException(nameof(Key), "Длина значения не может быть больше 200 символов.");
-                _key = value;
-            }
-        }
-
-        /// <summary>
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is ItemKey itemKey) return IdType == itemKey.IdType && IdItem == itemKey.IdItem && Key == itemKey.Key;
+            if (obj is ItemKey itemKey) return IdType == itemKey.IdType && IdItem == itemKey.IdItem;
             return base.Equals(obj);
         }
 
@@ -75,7 +56,7 @@ namespace OnXap.Core.Items
         /// </summary>
         public override string ToString()
         {
-            return $"IdType={IdType}, IdItem={IdItem}, Key={Key}";
+            return $"IdType={IdType}, IdItem={IdItem}";
         }
     }
 }
