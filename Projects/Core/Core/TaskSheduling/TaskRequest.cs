@@ -36,7 +36,10 @@ namespace OnXap.TaskSheduling
         /// <summary>
         /// Лямбда-выражение для выполнения задачи.
         /// </summary>
-        public Expression<Action> ExecutionLambda { get; set; }
+        /// <remarks>
+        /// При запуске для выполнения передает в качестве аргумента описание выполняемой задачи.
+        /// </remarks>
+        public Expression<Action<TaskDescription>> ExecutionLambda { get; set; }
 
         /// <summary>
         /// Список правил запуска задачи.

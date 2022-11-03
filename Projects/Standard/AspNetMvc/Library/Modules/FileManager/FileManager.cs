@@ -53,7 +53,7 @@ namespace OnXap.Modules.FileManager
                 IsEnabled = true,
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(GCCollect)}",
-                ExecutionLambda = () => GCCollectStatic(),
+                ExecutionLambda = task => GCCollectStatic(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
             });
 #endif
@@ -65,7 +65,7 @@ namespace OnXap.Modules.FileManager
                 IsEnabled = true,
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(PlaceFileIntoQueue)}",
-                ExecutionLambda = () => PlaceFileIntoQueue(),
+                ExecutionLambda = task => PlaceFileIntoQueue(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
             });
 
@@ -79,7 +79,7 @@ namespace OnXap.Modules.FileManager
                     IsEnabled = true,
                     TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                     UniqueKey = $"{typeof(FileManager).FullName}_{nameof(RemoveMarkedFiles)}",
-                    ExecutionLambda = () => RemoveMarkedFiles(),
+                    ExecutionLambda = task => RemoveMarkedFiles(),
                     Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
                 });
             }
@@ -91,7 +91,7 @@ namespace OnXap.Modules.FileManager
                 IsEnabled = true,
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(CheckRemovedFiles)}",
-                ExecutionLambda = () => CheckRemovedFiles(),
+                ExecutionLambda = task => CheckRemovedFiles(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
             });
 

@@ -56,7 +56,7 @@ namespace OnXap.Journaling
                 {
                     new TaskCronSchedule(Cron.Hourly()) { IsEnabled = true }
                 },
-                ExecutionLambda = () => ClearLastNDays(),
+                ExecutionLambda = task => ClearLastNDays(),
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution
             });
         }

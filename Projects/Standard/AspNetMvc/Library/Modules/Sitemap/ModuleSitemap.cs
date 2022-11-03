@@ -33,7 +33,7 @@ namespace OnXap.Modules.Sitemap
                 IsEnabled = true,
                 TaskOptions = TaskOptions.PreventParallelExecution | TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule,
                 UniqueKey = GetType().FullName + "_Execute",
-                ExecutionLambda = () => Execute(),
+                ExecutionLambda = task => Execute(),
                 Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.Daily(5)) }
             });
         }

@@ -497,7 +497,7 @@ namespace OnXap.TaskSheduling
 
                 var timeStart = DateTime.Now;
 
-                taskDescription.ExecutionLambda.Compile().Invoke();
+                taskDescription.ExecutionLambda.Compile().Invoke(taskDescription);
 
                 if (!(taskDescription.JournalOptions != null && taskDescription.JournalOptions.LimitByLastNDays.HasValue && taskDescription.JournalOptions.LimitByLastNDays <= 0))
                     this.RegisterEventForItem(itemKey, Journaling.EventType.Info, "Завершение", $"Задача '{taskDescription.Name}' (№{taskDescription.Id} / '{taskDescription.UniqueKey}') выполнена за {Math.Round((DateTime.Now - timeStart).TotalSeconds, 3)} сек.");
