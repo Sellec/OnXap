@@ -23,7 +23,7 @@
                     WithColumn((DB.MessageQueue x) => x.State).AsString(200).Nullable().
                     WithColumn((DB.MessageQueue x) => x.IdTypeComponent).AsInt32().Nullable().
                     WithColumn((DB.MessageQueue x) => x.DateChange).AsDateTime().Nullable().
-                    WithColumn((DB.MessageQueue x) => x.DateDelayed).AsDateTime().Nullable().
+                    WithColumn((DB.MessageQueue x) => x.DateDelayed).AsDateTime().
                     WithColumn((DB.MessageQueue x) => x.MessageInfo).AsString(int.MaxValue).Nullable();
             }
             else
@@ -36,9 +36,17 @@
                 AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.State, x => x.AsString(200).Nullable());
                 AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.IdTypeComponent, x => x.AsInt32().Nullable());
                 AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.DateChange, x => x.AsDateTime().Nullable());
-                AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.DateDelayed, x => x.AsDateTime().Nullable());
+                AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.DateDelayed, x => x.AsDateTime());
                 AddColumnIfNotExists(Schema, (DB.MessageQueue x) => x.MessageInfo, x => x.AsString(int.MaxValue).Nullable());
             }
+
+            if (!isTableExists || !Schema.Table<DB.MessageQueue>().Index("IX_MessageQueue_IdQueueOrder").Exists())
+                Create.Index("IX_MessageQueue_IdQueueOrder").OnTable(GetTableName<DB.MessageQueue>()).
+                    OnColumn(GetColumnName((DB.MessageQueue x) => x.IdMessageType)).Ascending().
+                    OnColumn(GetColumnName((DB.MessageQueue x) => x.Direction)).Ascending().
+                    OnColumn(GetColumnName((DB.MessageQueue x) => x.StateType)).Ascending().
+                    OnColumn(GetColumnName((DB.MessageQueue x) => x.DateDelayed)).Ascending();
+
         }
     }
 }

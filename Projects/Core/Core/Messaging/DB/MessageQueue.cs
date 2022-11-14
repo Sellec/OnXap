@@ -30,7 +30,7 @@ namespace OnXap.Messaging.DB
         /// <summary>
         /// ƒата, до которой отложена обработка сообщени€.
         /// </summary>
-        public DateTime? DateDelayed { get; set; }
+        public DateTime DateDelayed { get; set; }
 
         public DateTime? DateChange { get; set; }
 

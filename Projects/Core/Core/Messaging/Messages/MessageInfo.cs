@@ -32,7 +32,7 @@ namespace OnXap.Messaging.Messages
                     break;
 
                 case DB.MessageStateType.NotProcessed:
-                    StateType = intermediateMessage.MessageSource.DateDelayed.HasValue ? MessageStateType.Delayed : MessageStateType.NotHandled;
+                    StateType = intermediateMessage.MessageSource.DateDelayed == MessagingManager.DateDelayedEmpty ? MessageStateType.Delayed : MessageStateType.NotHandled;
                     break;
 
                 case DB.MessageStateType.Repeat:

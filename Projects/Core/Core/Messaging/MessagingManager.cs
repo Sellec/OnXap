@@ -45,6 +45,7 @@ namespace OnXap.Messaging
 
         private static OnXApplication _appCore = null;
 
+        static internal readonly DateTime DateDelayedEmpty = new DateTime(1900, 1, 1, 0, 0, 0);
         private readonly InstanceActivatingHandlerImpl _instanceActivatingHandler = null;
         private List<IMessagingServiceInternal> _services = new List<IMessagingServiceInternal>();
 

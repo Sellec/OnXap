@@ -285,7 +285,7 @@ namespace OnXap.Messaging
                     x.Direction == direction &&
                     x.IdMessageType == IdMessageType &&
                     (x.StateType == DB.MessageStateType.NotProcessed || x.StateType == DB.MessageStateType.Repeat) &&
-                    (!x.DateDelayed.HasValue || x.DateDelayed.Value <= dateTime)
+                    x.DateDelayed <= dateTime
                 ).
                 OrderBy(x => x.IdQueue);
 
@@ -435,28 +435,28 @@ namespace OnXap.Messaging
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
                                                 intermediateMessage.MessageSource.State = null;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                intermediateMessage.MessageSource.DateDelayed = MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Delayed:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed ?? MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Repeat:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed ?? MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Error:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed ?? MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                         }
@@ -553,7 +553,7 @@ namespace OnXap.Messaging
                                             State = message.State,
                                             StateType = stateType,
                                             DateCreate = DateTime.Now,
-                                            DateDelayed = message.DateDelayed,
+                                            DateDelayed = message.DateDelayed ?? MessagingManager.DateDelayedEmpty,
                                             MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
                                         };
 
@@ -599,7 +599,7 @@ namespace OnXap.Messaging
                                             State = message.State,
                                             StateType = DB.MessageStateType.IntermediateAdded,
                                             DateCreate = DateTime.Now,
-                                            DateDelayed = message.DateDelayed,
+                                            DateDelayed = message.DateDelayed ?? MessagingManager.DateDelayedEmpty,
                                             MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message.Message),
                                         };
 
@@ -737,28 +737,28 @@ namespace OnXap.Messaging
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Complete;
                                                 intermediateMessage.MessageSource.State = null;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                intermediateMessage.MessageSource.DateDelayed = MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Delayed:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.NotProcessed;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed ?? MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Repeat:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Repeat;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = componentInfo.IdTypeComponent;
-                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed;
+                                                intermediateMessage.MessageSource.DateDelayed = componentResult.DateDelayed ?? MessagingManager.DateDelayedEmpty;
                                                 break;
 
                                             case MessageStateType.Error:
                                                 intermediateMessage.MessageSource.StateType = DB.MessageStateType.Error;
                                                 intermediateMessage.MessageSource.State = componentResult.State;
                                                 intermediateMessage.MessageSource.IdTypeComponent = null;
-                                                intermediateMessage.MessageSource.DateDelayed = null;
+                                                intermediateMessage.MessageSource.DateDelayed = MessagingManager.DateDelayedEmpty;
                                                 break;
                                         }
                                         messagesHandled++;
