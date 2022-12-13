@@ -34,7 +34,7 @@ namespace OnXap.Modules.DbMaintenance
                 IsEnabled = true,
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(DbMaintenanceModule).FullName}_{nameof(MaintenanceIndexes)}",
-                ExecutionLambda = () => MaintenanceIndexesStatic()
+                ExecutionLambda = t => MaintenanceIndexesStatic()
             });
             if (task.ManualSchedules.Count == 0) taskSchedulingManager.SetTaskManualScheduleList(task, new List<TaskSchedule>() { new TaskCronSchedule(Cron.Daily()) { IsEnabled = true } });
         }

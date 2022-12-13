@@ -25,7 +25,7 @@ namespace OnXap.Modules.Lexicon
                 IsEnabled = true,
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(LexiconManager).FullName}_{nameof(LexiconManager.PrepareNewWords)}",
-                ExecutionLambda = () => LexiconNewWordsStatic()
+                ExecutionLambda = t => LexiconNewWordsStatic()
             });
             if (task.ManualSchedules.Count == 0) taskSchedulingManager.SetTaskManualScheduleList(task, new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(2)) { IsEnabled = true } });
         }

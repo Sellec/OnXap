@@ -180,6 +180,7 @@ namespace OnXap.Messaging
                         StateType = DB.MessageStateType.NotProcessed,
                         Direction = false,
                         DateCreate = DateTime.Now,
+                        DateDelayed = MessagingManager.DateDelayedEmpty,
                         MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }),
                     };
 
@@ -221,6 +222,7 @@ namespace OnXap.Messaging
                         StateType = DB.MessageStateType.NotProcessed,
                         Direction = true,
                         DateCreate = DateTime.Now,
+                        DateDelayed = MessagingManager.DateDelayedEmpty,
                         MessageInfo = Newtonsoft.Json.JsonConvert.SerializeObject(message, new Newtonsoft.Json.JsonSerializerSettings() { ContractResolver = resolver }),
                     };
 
