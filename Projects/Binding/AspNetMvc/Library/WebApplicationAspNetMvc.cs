@@ -18,6 +18,8 @@ namespace OnXap
     /// </summary>
     sealed class OnXApplicationAspNetMvc : OnXApplication
     {
+        private readonly Guid _unique = Guid.NewGuid();
+
         public OnXApplicationAspNetMvc(string physicalApplicationPath, IDbConfigurationBuilder dbConfigurationBuilder) : base(physicalApplicationPath, dbConfigurationBuilder)
         {
         }
@@ -127,6 +129,11 @@ namespace OnXap
         public bool IsServerUrlHasBeenSet { get; private set; } = false;
 
         private Uri _serverUrl = new Uri("http://localhost");
+
+        /// <summary>
+        /// Возвращает уникальный идентификатор приложения.
+        /// </summary>
+        public Guid ApplicationUniqueId => _unique;
         #endregion
     }
 }

@@ -20,12 +20,11 @@ namespace OnXap
     /// </summary>
     public abstract class HttpApplicationBase : HttpApplication
     {
-        private static object SyncRootStart = new object();
+        private static object SyncRootApplication = new object();
         private static volatile int _instancesCount = 0;
         private static OnXApplicationAspNetMvc _applicationCore = null;
         private static bool _applicationCoreStarted = false;
         private static Uri _urlFirst = null;
-        private static Guid _unique = Guid.NewGuid();
         internal static ApplicationRuntimeOptions _runtimeOptions;
 
         [ThreadStatic]
@@ -99,6 +98,22 @@ namespace OnXap
         }
 
         /// <summary>
+        /// Вызывается при запуске экземпляра HttpApplication.
+        /// </summary>
+        protected virtual void OnApplicationInstanceStarted()
+        {
+
+        }
+
+        /// <summary>
+        /// Вызывается при остановке экземпляра HttpApplication.
+        /// </summary>
+        protected virtual void OnApplicationInstanceStopped()
+        {
+
+        }
+
+        /// <summary>
         /// Возвращает настройки подключения к базе.
         /// </summary>
         protected abstract IDbConfigurationBuilder GetDbConfigurationBuilder();
@@ -108,8 +123,6 @@ namespace OnXap
         #region HttpApplication
         internal void Application_Start()
         {
-            Debug.WriteLine($"Application_Start({_unique}, {GetType().AssemblyQualifiedName})");
-
             HtmlHelper.ClientValidationEnabled = true;
 
             GlobalFilters.Filters.Add(new HandleErrorAttribute());
@@ -119,19 +132,11 @@ namespace OnXap
             ModelBinders.Binders.Add(typeof(JsonDictionary), new JsonDictionaryModelBinder());
             ModelBinders.Binders.DefaultBinder = new TraceModelBinder();
 
-            lock (SyncRootStart)
+            lock (SyncRootApplication)
             {
                 if (_applicationCore == null)
                 {
-                    try
-                    {
-                        OnBeforeApplicationStart();
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("OnApplicationStart: {0}", ex.Message);
-                        throw;
-                    }
+                    OnBeforeApplicationStart();
 
                     var physicalApplicationPath = Server.MapPath("~");
 
@@ -149,6 +154,12 @@ namespace OnXap
                     _applicationCoreStarted = false;
                 }
             }
+
+            try
+            {
+                OnApplicationInstanceStarted();
+            }
+            catch { }
         }
 
         /// <summary>
@@ -188,7 +199,7 @@ namespace OnXap
             var isFirstRequest = (bool?)Context.GetType().GetProperty("FirstRequest", BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic)?.GetValue(Context);
             if (isFirstRequest.HasValue && isFirstRequest.Value) _urlFirst = Request.Url;
 
-            lock (SyncRootStart)
+            lock (SyncRootApplication)
             {
                 if (_applicationCore == null)
                 {
@@ -361,24 +372,41 @@ namespace OnXap
 
         internal void Application_Disposed(Object sender, EventArgs e)
         {
+            lock (SyncRootApplication)
+            {
+                if (_applicationCore == null)
+                    return;
+
+                try
+                {
+                    OnApplicationInstanceStopped();
+                }
+                catch { }
+            }
         }
 
         internal void Application_End(Object sender, EventArgs e)
         {
-            try { OnApplicationStopping(); } catch { }
-
-            try
+            lock (SyncRootApplication)
             {
-                var appCore = _applicationCore;
-                _applicationCore = null;
-                if (appCore?.GetState() == CoreComponentState.Started) appCore.Stop();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error stopping application core: {ex.ToString()}");
-            }
+                if (_applicationCore == null)
+                    return;
 
-            try { OnApplicationStopped(); } catch { }
+                try { OnApplicationStopping(); } catch { }
+
+                try
+                {
+                    var appCore = _applicationCore;
+                    _applicationCore = null;
+                    if (appCore?.GetState() == CoreComponentState.Started) appCore.Stop();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error stopping application core: {ex.ToString()}");
+                }
+
+                try { OnApplicationStopped(); } catch { }
+            }
         }
         #endregion
 
