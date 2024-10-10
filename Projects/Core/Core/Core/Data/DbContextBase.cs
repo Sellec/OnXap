@@ -120,7 +120,15 @@ namespace OnXap.Core.Data
                 if (TypeHelper.IsAnonymousType(typeof(TEntity)))
                 {
                     var type = typeof(TEntity);
-                    var properties = type.GetProperties().ToDictionary(x => x, x => type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(y => y.Name.StartsWith("<" + x.Name + ">")).FirstOrDefault());
+                    var properties = type.
+                        GetProperties().
+                        ToDictionary(
+                            x => x, 
+                            x => type.
+                                GetFields(BindingFlags.Instance | BindingFlags.NonPublic).
+                                Where(y => y.Name.StartsWith("<" + x.Name + ">") || y.Name == "$" + x.Name).
+                                FirstOrDefault()
+                        );
 
                     var t = typeof(Dapper.SqlMapper).GetNestedType("DapperRow", BindingFlags.NonPublic);
                     if (t != null)
@@ -137,7 +145,9 @@ namespace OnXap.Core.Data
                             return results.Select(res =>
                             {
                                 var obj = (TEntity)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(TEntity));
-                                properties.Where(x => x.Value != null).ForEach(x => x.Value.SetValue(obj, dapperTypeContainsKey.Invoke(res, new object[] { x.Key.Name }).Equals(true) ? dapperTypeGet.Invoke(res, new object[] { x.Key.Name }) : null));
+                                properties.
+                                    Where(x => x.Value != null).
+                                    ForEach(x => x.Value.SetValue(obj, dapperTypeContainsKey.Invoke(res, new object[] { x.Key.Name }).Equals(true) ? dapperTypeGet.Invoke(res, new object[] { x.Key.Name }) : null));
                                 return obj;
                             }).ToList();
                         }
