@@ -470,11 +470,11 @@ namespace OnXap.TaskSheduling
                     // 
                     return;
                 }
-                if (!schedule.IsEnabled)
-                {
-                    //
-                    return;
-                }
+            }
+            if (!schedule.IsEnabled)
+            {
+                //
+                return;
             }
 
             ExecuteTaskInternal(taskDescription);

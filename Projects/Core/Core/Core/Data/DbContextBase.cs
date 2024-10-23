@@ -520,12 +520,12 @@ namespace OnXap.Core.Data
 
         #region Свойства
         /// <summary>
-        /// Возвращает или задает таймаут выполнения запроса в миллисекундах.
+        /// Возвращает или задает таймаут выполнения запроса.
         /// </summary>
-        public int QueryTimeout
+        public TimeSpan QueryTimeout
         {
-            get => !Database.GetCommandTimeout().HasValue ? 30000 : Database.GetCommandTimeout().Value * 1000;
-            set => Database.SetCommandTimeout(TimeSpan.FromMilliseconds(value));
+            get => TimeSpan.FromSeconds(Database.GetCommandTimeout() ?? 30);
+            set => Database.SetCommandTimeout(value);
         }
         #endregion
 

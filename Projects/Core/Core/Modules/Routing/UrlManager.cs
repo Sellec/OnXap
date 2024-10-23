@@ -189,7 +189,7 @@ namespace OnXap.Modules.Routing
                     using (var db = new DataContext())
                     using (var scope = db.CreateScope())
                     {
-                        db.QueryTimeout = 2 * 60 * 1000;
+                        db.QueryTimeout = TimeSpan.FromMinutes(2);
 
                         sql = db.Routing.
                             UpsertRange(itemsToRegister).
@@ -297,7 +297,7 @@ namespace OnXap.Modules.Routing
 
                 using (var db = new DataContext())
                 {
-                    db.QueryTimeout = 60 * 1000;
+                    db.QueryTimeout = TimeSpan.FromMinutes(1);
 
                     var coll = idItemList.GroupBy(x => x).Select(x => x.Key).ToDictionary(x => x, x => string.Empty);
 
