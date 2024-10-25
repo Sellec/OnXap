@@ -54,7 +54,7 @@ namespace OnXap.Modules.FileManager
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.AllowManualSchedule | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(GCCollect)}",
                 ExecutionLambda = task => GCCollectStatic(),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) { IsEnabled = true } }
             });
 #endif
 
@@ -66,7 +66,7 @@ namespace OnXap.Modules.FileManager
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(PlaceFileIntoQueue)}",
                 ExecutionLambda = task => PlaceFileIntoQueue(),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) { IsEnabled = true } }
             });
 
             // Не запускать не машине разработчика, иначе может быть так, что при подключении базе на удаленном сервере файлы физически останутся, а из базы будут удалены.
@@ -80,7 +80,7 @@ namespace OnXap.Modules.FileManager
                     TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                     UniqueKey = $"{typeof(FileManager).FullName}_{nameof(RemoveMarkedFiles)}",
                     ExecutionLambda = task => RemoveMarkedFiles(),
-                    Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) }
+                    Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(1)) { IsEnabled = true } }
                 });
             }
 
@@ -92,7 +92,7 @@ namespace OnXap.Modules.FileManager
                 TaskOptions = TaskOptions.AllowDisabling | TaskOptions.PreventParallelExecution,
                 UniqueKey = $"{typeof(FileManager).FullName}_{nameof(CheckRemovedFiles)}",
                 ExecutionLambda = task => CheckRemovedFiles(),
-                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) }
+                Schedules = new List<TaskSchedule>() { new TaskCronSchedule(Cron.MinuteInterval(5)) { IsEnabled = true } }
             });
 
             ModelMetadataProviders.Current = new MVC.TraceModelMetadataProviderWithFiles();
